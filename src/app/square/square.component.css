@@ -1,0 +1,17 @@
+button {
+  background-color: transparent;
+  display: block;
+  /* margin: 10px 0; */
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+}
+
+.yellow {
+  background-color: rgb(192, 213, 27);
+}
+
+.white {
+  background-color: rgb(255, 255, 255);
+}

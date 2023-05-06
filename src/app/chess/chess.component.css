@@ -1,0 +1,13 @@
+main {
+  display: grid;
+  grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px;
+  gap: 0px;
+}
+
+app-square {
+  height: 50px;
+}
+
+.route {
+  background-color: green;
+}

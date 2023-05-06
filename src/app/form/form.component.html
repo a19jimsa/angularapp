@@ -1,0 +1,16 @@
+<div class="form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    Value: {{ form.value | json }}
+
+    <hr />
+
+    <input placeholder="FirstName" formControlName="firstName" /><br />
+    <input placeholder="LastName" formControlName="lastName" /><br />
+    <input placeholder="Email" formControlName="email" /><br />
+    <textarea placeholder="Message" formControlName="message"></textarea>
+    <button type="submit" [disabled]="form.invalid">Add User</button>
+    <div *ngIf="email?.invalid && email?.touched">
+      Your email look like crap!
+    </div>
+  </form>
+</div>
