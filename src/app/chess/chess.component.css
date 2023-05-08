@@ -6,8 +6,17 @@ main {
 
 app-square {
   height: 50px;
+  background-color: rgb(242 225 195);
 }
 
-.route {
-  background-color: green;
+app-square:nth-child(1) ~ app-square:nth-child(-2n + 8),
+app-square:nth-child(8) ~ app-square:nth-child(-2n + 15),
+app-square:nth-child(16) ~ app-square:nth-child(-2n + 24),
+app-square:nth-child(24) ~ app-square:nth-child(-2n + 31),
+app-square:nth-child(32) ~ app-square:nth-child(-2n + 40),
+app-square:nth-child(40) ~ app-square:nth-child(-2n + 47),
+app-square:nth-child(48) ~ app-square:nth-child(-2n + 56),
+app-square:nth-child(56) ~ app-square:nth-child(-2n + 63) {
+  background-color: rgb(195 160 130);
+  color: #fff;
 }
