@@ -1,5 +1,5 @@
 button {
-  background-color: transparent;
+  background-color: rgb(28, 146, 77);
   display: flex;
   padding: 0px;
   width: 100%;
@@ -9,19 +9,13 @@ button {
   justify-content: center;
 }
 
-button > div {
-  font-size: 50px;
-}
-
 .black {
   background: black;
   color: white;
+  border-radius: 50%;
 }
 .white {
   background: white;
   color: black;
-}
-
-.green {
-  background-color: rgb(0, 208, 0);
+  border-radius: 50%;
 }

@@ -1,6 +1,8 @@
 <h1>Current Player: {{ player.color }}</h1>
 
-<button (click)="newGame()">Start new Game</button>
+<button mat-raised-button color="primary" (click)="newGame()">
+  Start new Game
+</button>
 
 <h2 *ngIf="winner">Player{{ winner }} won the game!</h2>
 

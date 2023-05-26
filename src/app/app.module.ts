@@ -1,5 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,6 +19,7 @@ import { ChessComponent } from './chess/chess.component';
 import { SquareComponent } from './square/square.component';
 import { OthelloComponent } from './othello/othello.component';
 import { CircleComponent } from './circle/circle.component';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +31,7 @@ import { CircleComponent } from './circle/circle.component';
     SquareComponent,
     OthelloComponent,
     CircleComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -32,6 +39,11 @@ import { CircleComponent } from './circle/circle.component';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatCardModule,
+    MatMenuModule,
+    MatToolbarModule, 
   ],
   providers: [],
   bootstrap: [AppComponent],

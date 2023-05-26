@@ -1,7 +1,10 @@
 main {
   display: grid;
   grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px;
-  gap: 0px;
+  gap: 1px;
+  background-color: rgb(195 160 130);
+  margin-top: 10px;
+  border: 1px solid black;
 }
 
 app-square {

@@ -39,9 +39,11 @@
       required
       #comment="ngModel"
     ></textarea>
-    <div class="alert alert-danger" *ngIf="!comment.valid && comment.touched">
-      <div *ngIf="comment.errors?.['required']">Comment is required!</div>
+    <div mat *ngIf="!comment.valid && comment.touched">
+      <mat-form-field *ngIf="comment.errors?.['required']"
+        >Comment is required!</mat-form-field
+      >
     </div>
-    <button class="btn btn-primary">Submit</button>
+    <button mat-raised-button color="primary">Submit</button>
   </div>
 </form>
