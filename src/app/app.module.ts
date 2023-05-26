@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChessComponent } from './chess/chess.component';
 import { SquareComponent } from './square/square.component';
+import { OthelloComponent } from './othello/othello.component';
+import { CircleComponent } from './circle/circle.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,8 @@ import { SquareComponent } from './square/square.component';
     FormComponent,
     ChessComponent,
     SquareComponent,
+    OthelloComponent,
+    CircleComponent,
   ],
   imports: [
     BrowserModule,

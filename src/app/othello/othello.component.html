@@ -1,0 +1,10 @@
+<h1>Current Player: {{ player.color }}</h1>
+<button (click)="newGame()">Start new Game</button>
+<main>
+  <app-circle
+    *ngFor="let val of markers; let i = index"
+    [value]="val"
+    (click)="makeMove(i)"
+  >
+  </app-circle>
+</main>

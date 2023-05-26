@@ -2,6 +2,9 @@
   <button (click)="changeNav()" class="btn btn-menu">Toggle</button>
 </nav>
 <div *ngIf="!chess" class="container">
+  <div class="chess">
+    <app-othello></app-othello>
+  </div>
   <!-- Buttons that show all, still to do, or done items on click -->
   <div class="btn-wrapper">
     <button
