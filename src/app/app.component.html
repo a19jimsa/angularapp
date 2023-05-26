@@ -1,47 +1,54 @@
-<app-menu></app-menu>
+<nav>
+  <button (click)="changeNav()" class="btn btn-menu">Toggle</button>
+</nav>
+<div *ngIf="!chess" class="container">
+  <!-- Buttons that show all, still to do, or done items on click -->
+  <div class="btn-wrapper">
+    <button
+      class="btn btn-menu"
+      [class.active]="filter == 'all'"
+      (click)="filter = 'all'"
+    >
+      All
+    </button>
 
-<!-- Buttons that show all, still to do, or done items on click -->
-<div class="btn-wrapper">
-  <button
-    class="btn btn-menu"
-    [class.active]="filter == 'all'"
-    (click)="filter = 'all'"
-  >
-    All
-  </button>
+    <button
+      class="btn btn-menu"
+      [class.active]="filter == 'active'"
+      (click)="filter = 'active'"
+    >
+      To Do
+    </button>
 
-  <button
-    class="btn btn-menu"
-    [class.active]="filter == 'active'"
-    (click)="filter = 'active'"
-  >
-    To Do
-  </button>
+    <button
+      class="btn btn-menu"
+      [class.active]="filter == 'done'"
+      (click)="filter = 'done'"
+    >
+      Done
+    </button>
+  </div>
 
-  <button
-    class="btn btn-menu"
-    [class.active]="filter == 'done'"
-    (click)="filter = 'done'"
-  >
-    Done
-  </button>
+  <h2>
+    {{ items.length }}
+    <span *ngIf="items.length === 1; else elseBlock">item</span>
+    <ng-template #elseBlock>items</ng-template>
+  </h2>
+
+  <label for="add-item">Add item</label>
+  <input #newItem id="add-item" placeholder="Add new item" />
+  <button (click)="add(newItem.value)">Add</button>
+
+  <ul>
+    <li *ngFor="let item of items">
+      <app-item (remove)="remove(item)" [item]="item"></app-item>
+    </li>
+  </ul>
 </div>
 
-<h2>
-  {{ items.length }}
-  <span *ngIf="items.length === 1; else elseBlock">item</span>
-  <ng-template #elseBlock>items</ng-template>
-</h2>
-
-<label for="add-item">Add item</label>
-<input #newItem id="add-item" placeholder="Add new item" />
-<button (click)="add(newItem.value)">Add</button>
-
-<ul>
-  <li *ngFor="let item of items">
-    <app-item (remove)="remove(item)" [item]="item"></app-item>
-  </li>
-</ul>
-
-<app-form></app-form>
-<app-chess></app-chess>
+<div *ngIf="chess" class="container">
+  <div class="chess">
+    <app-chess></app-chess>
+  </div>
+  <app-form></app-form>
+</div>

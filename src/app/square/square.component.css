@@ -1,64 +1,18 @@
 button {
   background-color: transparent;
-  display: block;
-  padding: 10px;
+  display: flex;
+  padding: 0px;
   width: 100%;
   height: 100%;
   border: none;
+  align-items: center;
+  justify-content: center;
+}
+
+button > div {
+  font-size: 50px;
 }
 
 .yellow {
-  background: rgb(192, 213, 27);
-}
-
-.black {
-  color: blue;
-}
-
-.whitebonde {
-  background: url("../../assets/images/ChessPiecesArray.png") -306px -65px;
-}
-
-.whitelopare {
-  background: url("../../assets/images/ChessPiecesArray.png") -246px -65px;
-}
-
-.whitehorse {
-  background: url("../../assets/images/ChessPiecesArray.png") -186px -65px;
-}
-
-.whitetower {
-  background: url("../../assets/images/ChessPiecesArray.png") -126px -65px;
-}
-
-.whiteking {
-  background: url("../../assets/images/ChessPiecesArray.png") -66px -65px;
-}
-
-.whitequeen {
-  background: url("../../assets/images/ChessPiecesArray.png") -6px -65px;
-}
-
-.blackbonde {
-  background: url("../../assets/images/ChessPiecesArray.png") -306px -5px;
-}
-
-.blacklopare {
-  background: url("../../assets/images/ChessPiecesArray.png") -246px -5px;
-}
-
-.blackhorse {
-  background: url("../../assets/images/ChessPiecesArray.png") -186px -5px;
-}
-
-.blacktower {
-  background: url("../../assets/images/ChessPiecesArray.png") -126px -5px;
-}
-
-.blackking {
-  background: url("../../assets/images/ChessPiecesArray.png") -66px -5px;
-}
-
-.blackqueen {
-  background: url("../../assets/images/ChessPiecesArray.png") -6px -5px;
+  background: rgb(234, 255, 77);
 }

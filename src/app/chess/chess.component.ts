@@ -23,22 +23,22 @@ export class ChessComponent implements OnInit {
     this.squares = new Array();
     this.tempPlayers = new Array();
     let board = [
-      't',
-      'h',
-      'l',
-      'q',
-      'k',
-      'l',
-      'h',
-      't',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
+      'tb',
+      'hb',
+      'lb',
+      'qb',
+      'kb',
+      'lb',
+      'hb',
+      'tb',
+      'bb',
+      'bb',
+      'bb',
+      'bb',
+      'bb',
+      'bb',
+      'bb',
+      'bb',
       'w',
       'w',
       'w',
@@ -71,22 +71,22 @@ export class ChessComponent implements OnInit {
       'w',
       'w',
       'w',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      'b',
-      't',
-      'h',
-      'l',
-      'q',
-      'k',
-      'l',
-      'h',
-      't',
+      'bw',
+      'bw',
+      'bw',
+      'bw',
+      'bw',
+      'bw',
+      'bw',
+      'bw',
+      'tw',
+      'hw',
+      'lw',
+      'qw',
+      'kw',
+      'lw',
+      'hw',
+      'tw',
     ];
     for (var i = 0; i < 64; i++) {
       let color: string;
@@ -96,60 +96,134 @@ export class ChessComponent implements OnInit {
         color = 'black';
       }
       switch (board[i]) {
-        case 't':
+        case 'tb':
           this.squares.push({
+            hex: '\u{265C}',
             type: 'tower',
             color: color,
             position: i,
             active: false,
+            draw: 0,
           });
           break;
-        case 'l':
+        case 'lb':
           this.squares.push({
+            hex: '\u{265D}',
             type: 'lopare',
             color: color,
             position: i,
             active: false,
+            draw: 0,
           });
           break;
-        case 'h':
+        case 'hb':
           this.squares.push({
+            hex: '\u{265E}',
             type: 'horse',
             color: color,
             position: i,
             active: false,
+            draw: 0,
           });
           break;
-        case 'q':
+        case 'qb':
           this.squares.push({
+            hex: '\u{265B}',
             type: 'queen',
             color: color,
             position: i,
             active: false,
+            draw: 0,
           });
           break;
-        case 'k':
+        case 'kb':
           this.squares.push({
+            hex: '\u{265A}',
             type: 'king',
             color: color,
             position: i,
             active: false,
+            draw: 0,
           });
           break;
-        case 'b':
+        case 'bb':
           this.squares.push({
+            hex: '\u{265F}',
             type: 'bonde',
             color: color,
             position: i,
             active: false,
+            draw: 0,
+          });
+          break;
+        case 'tw':
+          this.squares.push({
+            hex: '\u{2656}',
+            type: 'tower',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
+          });
+          break;
+        case 'lw':
+          this.squares.push({
+            hex: '\u{2657}',
+            type: 'lopare',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
+          });
+          break;
+        case 'hw':
+          this.squares.push({
+            hex: '\u{2658}',
+            type: 'horse',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
+          });
+          break;
+        case 'qw':
+          this.squares.push({
+            hex: '\u{2655}',
+            type: 'queen',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
+          });
+          break;
+        case 'kw':
+          this.squares.push({
+            hex: '\u{2654}',
+            type: 'king',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
+          });
+          break;
+        case 'bw':
+          this.squares.push({
+            hex: '\u{2659}',
+            type: 'bonde',
+            color: color,
+            position: i,
+            active: false,
+            draw: 0,
           });
           break;
         default:
           this.squares.push({
+            hex: '',
             type: '',
             color: '',
             position: i,
             active: false,
+            draw: 0,
           });
       }
     }
@@ -174,15 +248,54 @@ export class ChessComponent implements OnInit {
     const color = this.squares[idx].color;
     const active = this.squares.findIndex((element) => element.active == true);
 
-    if (type === 'bonde' && active == -1) {
+    if (type === 'bonde' && active === -1) {
       this.squares[idx].active = true;
-      let num = 2;
-      let offset = 8;
       let color = this.squares[idx].color;
-      if (color == 'black') {
-        offset = -8;
+      if (color === 'black') {
+        let num = 2;
+        let offset = -8;
+        if (this.squares[idx].draw > 0) {
+          num = 1;
+        } else {
+          num = 2;
+        }
+        if (this.squares[idx - -16].type !== '') {
+          num = 1;
+        } else if (this.squares[idx - -8].type !== '') {
+          num = 0;
+        }
+
+        if (this.squares[idx - -7].type !== '') {
+          this.createPath(1, -7, idx);
+        }
+        if (this.squares[idx - -9].type !== '') {
+          this.createPath(1, -9, idx);
+        }
+        this.createPath(num, offset, idx);
       }
-      this.createPath(num, offset, idx);
+
+      if (color === 'white') {
+        let num = 2;
+        let offset = 8;
+        if (this.squares[idx].draw > 0) {
+          num = 1;
+        } else {
+          num = 2;
+        }
+        if (this.squares[idx - 16].type !== '') {
+          num = 1;
+        } else if (this.squares[idx - 8].type !== '') {
+          num = 0;
+        }
+
+        if (this.squares[idx - 7].type !== '') {
+          this.createPath(1, 7, idx);
+        }
+        if (this.squares[idx - 9].type !== '') {
+          this.createPath(1, 9, idx);
+        }
+        this.createPath(num, offset, idx);
+      }
     } else if (type == 'horse' && active == -1) {
       this.squares[idx].active = true;
       for (var i = 0; i < 8; i++) {
@@ -460,15 +573,18 @@ export class ChessComponent implements OnInit {
       var temp = this.squares[active];
       this.squares[active] = this.squares[idx];
       this.squares[idx] = temp;
+      this.squares[idx].draw++;
       this.clear();
       this.xIsNext = !this.xIsNext;
     }
     if (color == 'yellow' && active > -1 && this.squares[idx].type != '') {
       this.squares.splice(active, 1, {
+        hex: '',
         type: '',
         color: '',
         position: active,
         active: false,
+        draw: 0,
       });
     }
   }
@@ -518,17 +634,19 @@ export class ChessComponent implements OnInit {
     }
     return -1;
   }
-
+  //Create path for unit
   createPath(num: number, value: number, idx: number) {
-    for (let j = 0; j < num; j++) {
-      let offset = value * (j + 1);
+    for (let i = 0; i < num; i++) {
+      let offset = value * (i + 1);
       if (idx - offset > 63 || idx - offset < 0) continue;
-      if (this.squares[idx - offset].type == '') {
+      if (this.squares[idx - offset].type === '') {
         this.squares.splice(idx - offset, 1, {
+          hex: '',
           type: '',
           color: 'yellow',
           position: idx - offset,
           active: false,
+          draw: 0,
         });
       } else if (this.squares[idx - offset].type !== '') {
         if (this.squares[idx - offset].color == this.squares[idx].color) {
