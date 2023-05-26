@@ -36,9 +36,32 @@ export class OthelloComponent implements OnInit {
   makeMove(idx: number) {
     console.log('pressed');
     if (this.markers[idx].color === 'green') {
+      let coord = this.convertToYCoord(idx);
       let offsets = [-1, -7, -8, -9, 9, 8, 7, 1];
+      let right = 8 - coord - 1;
+      let left = coord;
+      let num = 8;
+      console.log(coord);
+      console.log(left);
+      console.log(right);
       for (let i = 0; i < offsets.length; i++) {
-        this.createPath(5, offsets[i], idx);
+        if (i == 0) {
+          console.log('Left' + left);
+          num = left;
+        } else if (i == 1) {
+          num = right;
+        } else if (i == 3) {
+          num = left;
+        } else if (i == 4) {
+          num = right;
+        } else if (i == 6) {
+          num = left;
+        } else if (i == 7) {
+          num = right;
+        } else {
+          num = 8;
+        }
+        this.createPath(num, offsets[i], idx);
       }
     }
     if (this.foundOpposite) {
@@ -78,5 +101,34 @@ export class OthelloComponent implements OnInit {
       this.foundOpposite = true;
     }
     this.tempMarkers = [];
+  }
+  convertToYCoord(idx: number) {
+    let column1 = [0, 1, 2, 3, 4, 5, 6, 7];
+    let column2 = [8, 9, 10, 11, 12, 13, 14, 15];
+    let column3 = [16, 17, 18, 19, 20, 21, 22, 23];
+    let column4 = [24, 25, 26, 27, 28, 29, 30, 31];
+    let column5 = [32, 33, 34, 35, 36, 37, 38, 39];
+    let column6 = [40, 41, 42, 43, 44, 45, 46, 47];
+    let column7 = [48, 49, 50, 51, 52, 53, 54, 55];
+    let column8 = [56, 57, 58, 59, 60, 61, 62, 63];
+
+    if (column1.findIndex((value) => value == idx) != -1) {
+      return column1.findIndex((value) => value == idx);
+    } else if (column2.findIndex((value) => value == idx) != -1) {
+      return column2.findIndex((value) => value == idx);
+    } else if (column3.findIndex((value) => value == idx) != -1) {
+      return column3.findIndex((value) => value == idx);
+    } else if (column4.findIndex((value) => value == idx) != -1) {
+      return column4.findIndex((value) => value == idx);
+    } else if (column5.findIndex((value) => value == idx) != -1) {
+      return column5.findIndex((value) => value == idx);
+    } else if (column6.findIndex((value) => value == idx) != -1) {
+      return column6.findIndex((value) => value == idx);
+    } else if (column7.findIndex((value) => value == idx) != -1) {
+      return column7.findIndex((value) => value == idx);
+    } else if (column8.findIndex((value) => value == idx) != -1) {
+      return column8.findIndex((value) => value == idx);
+    }
+    return -1;
   }
 }

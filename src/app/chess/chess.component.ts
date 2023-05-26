@@ -247,6 +247,7 @@ export class ChessComponent implements OnInit {
     const type = this.squares[idx].type;
     const color = this.squares[idx].color;
     const active = this.squares.findIndex((element) => element.active == true);
+    console.log(this.squares[idx]);
 
     if (type === 'bonde' && active === -1) {
       this.squares[idx].active = true;
@@ -259,19 +260,23 @@ export class ChessComponent implements OnInit {
         } else {
           num = 2;
         }
-        if (this.squares[idx - -16].type !== '') {
-          num = 1;
-        } else if (this.squares[idx - -8].type !== '') {
+        if (idx - -16 < 63) {
+          if (this.squares[idx - -16].type !== '') {
+            num = 1;
+          }
+        }
+
+        if (this.squares[idx - -8].type !== '') {
           num = 0;
         }
 
+        this.createPath(num, offset, idx);
         if (this.squares[idx - -7].type !== '') {
           this.createPath(1, -7, idx);
         }
         if (this.squares[idx - -9].type !== '') {
           this.createPath(1, -9, idx);
         }
-        this.createPath(num, offset, idx);
       }
 
       if (color === 'white') {
@@ -279,22 +284,24 @@ export class ChessComponent implements OnInit {
         let offset = 8;
         if (this.squares[idx].draw > 0) {
           num = 1;
-        } else {
-          num = 2;
-        }
-        if (this.squares[idx - 16].type !== '') {
-          num = 1;
-        } else if (this.squares[idx - 8].type !== '') {
-          num = 0;
         }
 
+        if (idx - 16 > 0) {
+          if (this.squares[idx - 16].type !== '') {
+            num = 1;
+          }
+        }
+
+        if (this.squares[idx - 8].type !== '') {
+          num = 0;
+        }
+        this.createPath(num, offset, idx);
         if (this.squares[idx - 7].type !== '') {
           this.createPath(1, 7, idx);
         }
         if (this.squares[idx - 9].type !== '') {
           this.createPath(1, 9, idx);
         }
-        this.createPath(num, offset, idx);
       }
     } else if (type == 'horse' && active == -1) {
       this.squares[idx].active = true;
@@ -638,7 +645,7 @@ export class ChessComponent implements OnInit {
   createPath(num: number, value: number, idx: number) {
     for (let i = 0; i < num; i++) {
       let offset = value * (i + 1);
-      if (idx - offset > 63 || idx - offset < 0) continue;
+      if (idx - offset > 63 || idx - offset < 0) break;
       if (this.squares[idx - offset].type === '') {
         this.squares.splice(idx - offset, 1, {
           hex: '',
