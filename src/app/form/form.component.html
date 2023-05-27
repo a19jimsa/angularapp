@@ -1,49 +1,22 @@
-<form>
-  <div class="form-group">
+<form [formGroup]="myForm" (ngSubmit)="add()">
+  Value: {{ myForm.value | json }}
+  <mat-form-field>
     <label for="firstName">FirstName</label>
-    <input
-      ngModel
-      name="firstName"
-      id="firstName"
-      #firstName="ngModel"
-      (change)="log(firstName)"
-      type="text"
-      text=""
-      class="formControl"
-      required
-      minlength="3"
-      maxlength="10"
-      pattern="banana"
-    />
-    <div
-      class="alert alert-danger"
-      *ngIf="!firstName.valid && firstName.touched"
-    >
-      <div *ngIf="firstName.errors?.['required']">First name is required!</div>
-      <div *ngIf="firstName.errors?.['minlength']">
-        Minimum 3 charachters douchebag!
-      </div>
-      <div *ngIf="firstName.errors?.['pattern']">Must be pattern banana!</div>
-    </div>
-  </div>
-  <div class="form-group">
+    <input matInput placeholder="Ditt namn" formControlName="name" />
+    <mat-error *ngIf="name?.invalid && name?.touched">
+      Your ass is on fire!
+    </mat-error>
+  </mat-form-field>
+  <mat-form-field>
     <label for="comment">Comment</label>
     <textarea
-      ngModel
-      name="comment"
-      type="text"
-      cols="30"
-      rows="10"
-      id="comment"
-      class="form-control"
-      required
-      #comment="ngModel"
+      matInput
+      placeholder="Skriv en kommentar"
+      formControlName="comment"
     ></textarea>
-    <div mat *ngIf="!comment.valid && comment.touched">
-      <mat-form-field *ngIf="comment.errors?.['required']"
-        >Comment is required!</mat-form-field
-      >
-    </div>
-    <button mat-raised-button color="primary">Submit</button>
-  </div>
+    <mat-error *ngIf="comment?.invalid && comment?.touched">
+      Your ass is on fire!
+    </mat-error>
+  </mat-form-field>
+  <button mat-raised-button color="primary">Submit</button>
 </form>
