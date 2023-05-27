@@ -1,15 +1,17 @@
 <div class="item">
-  <input
-    [id]="item.description"
-    type="checkbox"
-    (change)="item.done = !item.done"
-    [checked]="item.done"
-  />
-  <label [for]="item.description">{{ item.description }}</label>
+  <div class="checkbox-container">
+    <input
+      [id]="item.description"
+      type="checkbox"
+      (change)="item.done = !item.done"
+      [checked]="item.done"
+    />
+    <label [for]="item.description">{{ item.description }} </label>
+  </div>
 
   <div *ngIf="!editable">
-    <button mat-button (click)="editable = !editable">Edit</button>
-    <button mat-button (click)="remove.emit()">Delete</button>
+    <button mat-raised-button (click)="editable = !editable">Edit</button>
+    <button mat-raised-button (click)="remove.emit()">Delete</button>
   </div>
 
   <!-- This section shows only if user clicks Edit button -->

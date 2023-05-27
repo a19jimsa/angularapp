@@ -26,3 +26,14 @@
   justify-items: center;
   width: 50%;
 }
+
+.todo-list {
+  width: 50%;
+  border: 1px solid black;
+  padding: 10px;
+  margin: auto;
+}
+
+ul {
+  list-style-type: none;
+}

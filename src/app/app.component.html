@@ -1,5 +1,33 @@
-<app-navbar> </app-navbar>
+<app-navbar></app-navbar>
 <button mat-button (click)="changeNav()">Chess</button>
+<div class="todo-list">
+  <h2>Att göra lista</h2>
+  <p>Form Status: {{ myForm.status }}</p>
+  <form [formGroup]="myForm" (ngSubmit)="add(myForm.value.todo)">
+    Value: {{ myForm.value | json }}
+    <hr />
+    <mat-form-field>
+      <input matInput placeholder="Lägg till uppgift" formControlName="todo" />
+      <mat-error *ngIf="todo?.invalid && todo?.touched">
+        Your ass is on fire!
+      </mat-error>
+    </mat-form-field>
+    <hr />
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="todo?.invalid"
+    >
+      Lägg till
+    </button>
+  </form>
+  <ul>
+    <li *ngFor="let item of items">
+      <app-item (remove)="remove(item)" [item]="item"></app-item>
+    </li>
+  </ul>
+</div>
 
 <div *ngIf="!chess" class="container">
   <div class="chess">
