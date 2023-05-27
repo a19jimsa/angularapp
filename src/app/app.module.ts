@@ -20,6 +20,7 @@ import { SquareComponent } from './square/square.component';
 import { OthelloComponent } from './othello/othello.component';
 import { CircleComponent } from './circle/circle.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { NavbarComponent } from './navbar/navbar.component';
     OthelloComponent,
     CircleComponent,
     NavbarComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,13 +1,15 @@
-<h1>Current Player: {{ player.color }}</h1>
+<div class="material">
+  <h1>Current Player: {{ player.color }}</h1>
 
-<button mat-raised-button color="primary" (click)="newGame()">
-  Start new Game
-</button>
-<main>
-  <app-circle
-    *ngFor="let val of markers; let i = index"
-    [value]="val"
-    (click)="makeMove(i)"
-  >
-  </app-circle>
-</main>
+  <button mat-raised-button color="primary" (click)="newGame()">
+    Start new Game
+  </button>
+  <main>
+    <app-circle
+      *ngFor="let val of markers; let i = index"
+      [value]="val"
+      (click)="makeMove(i)"
+    >
+    </app-circle>
+  </main>
+</div>
