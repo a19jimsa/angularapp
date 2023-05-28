@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -45,9 +46,14 @@ import { HomeComponent } from './home/home.component';
     MatInputModule,
     MatCardModule,
     MatMenuModule,
-    MatToolbarModule, 
+    MatToolbarModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

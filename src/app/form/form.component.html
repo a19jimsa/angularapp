@@ -1,14 +1,16 @@
 <form [formGroup]="myForm" (ngSubmit)="add()">
   Value: {{ myForm.value | json }}
-  <mat-form-field>
-    <label for="firstName">FirstName</label>
+
+  <mat-form-field style="background-color: white">
+    <mat-label for="firstName">FirstName</mat-label>
     <input matInput placeholder="Ditt namn" formControlName="name" />
     <mat-error *ngIf="name?.invalid && name?.touched">
       Your ass is on fire!
     </mat-error>
   </mat-form-field>
+
   <mat-form-field>
-    <label for="comment">Comment</label>
+    <mat-label for="comment">Comment</mat-label>
     <textarea
       matInput
       placeholder="Skriv en kommentar"

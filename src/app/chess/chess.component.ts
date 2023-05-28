@@ -252,6 +252,7 @@ export class ChessComponent implements OnInit {
     if (type === 'bonde' && active === -1) {
       this.squares[idx].active = true;
       let color = this.squares[idx].color;
+      let coord = this.convertToYCoord(idx);
       if (color === 'black') {
         let num = 2;
         let offset = -8;
@@ -271,11 +272,15 @@ export class ChessComponent implements OnInit {
         }
 
         this.createPath(num, offset, idx);
-        if (this.squares[idx - -7].type !== '') {
-          this.createPath(1, -7, idx);
+        if (coord !== 0) {
+          if (this.squares[idx - -7].type !== '') {
+            this.createPath(1, -7, idx);
+          }
         }
-        if (this.squares[idx - -9].type !== '') {
-          this.createPath(1, -9, idx);
+        if (coord !== 7) {
+          if (this.squares[idx - -9].type !== '') {
+            this.createPath(1, -9, idx);
+          }
         }
       }
 
@@ -296,11 +301,15 @@ export class ChessComponent implements OnInit {
           num = 0;
         }
         this.createPath(num, offset, idx);
-        if (this.squares[idx - 7].type !== '') {
-          this.createPath(1, 7, idx);
+        if (coord !== 7) {
+          if (this.squares[idx - 7].type !== '') {
+            this.createPath(1, 7, idx);
+          }
         }
-        if (this.squares[idx - 9].type !== '') {
-          this.createPath(1, 9, idx);
+        if (coord !== 0) {
+          if (this.squares[idx - 9].type !== '') {
+            this.createPath(1, 9, idx);
+          }
         }
       }
     } else if (type == 'horse' && active == -1) {
