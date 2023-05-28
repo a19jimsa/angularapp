@@ -314,170 +314,55 @@ export class ChessComponent implements OnInit {
       }
     } else if (type == 'horse' && active == -1) {
       this.squares[idx].active = true;
-      for (var i = 0; i < 8; i++) {
-        let offset = 0;
+      let coord = this.convertToYCoord(idx);
+      let offsets = [-17, -15, -10, -6, 6, 10, 15, 17];
+      for (let i = 0; i < offsets.length; i++) {
         if (i == 0) {
-          if (
-            idx == 7 ||
-            idx == 15 ||
-            idx == 23 ||
-            idx == 31 ||
-            idx == 39 ||
-            idx == 47 ||
-            idx == 55 ||
-            idx == 63
-          ) {
+          if (coord === 7) {
             continue;
           }
-          offset = -17;
-        } else if (i == 1) {
-          if (
-            idx == 0 ||
-            idx == 8 ||
-            idx == 16 ||
-            idx == 24 ||
-            idx == 32 ||
-            idx == 40 ||
-            idx == 48
-          ) {
+        } else if (i === 1) {
+          if (coord === 0) {
             continue;
           }
-
-          offset = -15;
-        } else if (i == 2) {
-          if (
-            idx == 7 ||
-            idx == 15 ||
-            idx == 23 ||
-            idx == 31 ||
-            idx == 39 ||
-            idx == 47 ||
-            idx == 55 ||
-            idx == 63
-          ) {
+        } else if (i === 2) {
+          if (coord === 6) {
             continue;
           }
-          if (
-            idx == 6 ||
-            idx == 14 ||
-            idx == 22 ||
-            idx == 30 ||
-            idx == 38 ||
-            idx == 46 ||
-            idx == 54 ||
-            idx == 62
-          ) {
+          if (coord === 7) {
             continue;
           }
-          offset = -10;
-        } else if (i == 3) {
-          if (
-            idx == 0 ||
-            idx == 8 ||
-            idx == 16 ||
-            idx == 24 ||
-            idx == 32 ||
-            idx == 40 ||
-            idx == 48 ||
-            idx == 56
-          ) {
+        } else if (i === 3) {
+          if (coord === 0) {
             continue;
           }
-          if (
-            idx == 1 ||
-            idx == 9 ||
-            idx == 17 ||
-            idx == 25 ||
-            idx == 33 ||
-            idx == 41 ||
-            idx == 49 ||
-            idx == 57
-          ) {
+          if (coord === 1) {
             continue;
           }
-          offset = -6;
         } else if (i == 4) {
-          if (
-            idx == 7 ||
-            idx == 15 ||
-            idx == 23 ||
-            idx == 31 ||
-            idx == 39 ||
-            idx == 47 ||
-            idx == 55 ||
-            idx == 63
-          ) {
+          if (coord === 7) {
             continue;
           }
-          if (
-            idx == 6 ||
-            idx == 14 ||
-            idx == 22 ||
-            idx == 30 ||
-            idx == 38 ||
-            idx == 46 ||
-            idx == 54 ||
-            idx == 62
-          ) {
+          if (coord === 6) {
             continue;
           }
-          offset = 6;
         } else if (i == 5) {
-          if (
-            idx == 0 ||
-            idx == 8 ||
-            idx == 16 ||
-            idx == 24 ||
-            idx == 32 ||
-            idx == 40 ||
-            idx == 48 ||
-            idx == 56
-          ) {
+          if (coord === 0) {
             continue;
           }
-          if (
-            idx == 1 ||
-            idx == 9 ||
-            idx == 17 ||
-            idx == 25 ||
-            idx == 33 ||
-            idx == 41 ||
-            idx == 49 ||
-            idx == 57
-          ) {
+          if (coord === 1) {
             continue;
           }
-
-          offset = 10;
         } else if (i == 6) {
-          if (
-            idx == 7 ||
-            idx == 15 ||
-            idx == 23 ||
-            idx == 31 ||
-            idx == 39 ||
-            idx == 47 ||
-            idx == 55 ||
-            idx == 63
-          ) {
+          if (coord === 7) {
             continue;
           }
-          offset = 15;
         } else if (i == 7) {
-          if (
-            idx == 0 ||
-            idx == 8 ||
-            idx == 16 ||
-            idx == 24 ||
-            idx == 32 ||
-            idx == 40 ||
-            idx == 48
-          ) {
+          if (coord === 0) {
             continue;
           }
-          offset = 17;
         }
-        this.createPath(1, offset, idx);
+        this.createPath(1, offsets[i], idx);
       }
     } else if (type === 'lopare' && active === -1) {
       this.squares[idx].active = true;

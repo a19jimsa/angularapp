@@ -22,6 +22,8 @@ import { OthelloComponent } from './othello/othello.component';
 import { CircleComponent } from './circle/circle.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
+import { MemoryComponent } from './memory/memory.component';
+import { CardComponent } from './card/card.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +37,8 @@ import { HomeComponent } from './home/home.component';
     CircleComponent,
     NavbarComponent,
     HomeComponent,
+    MemoryComponent,
+    CardComponent,
   ],
   imports: [
     BrowserModule,

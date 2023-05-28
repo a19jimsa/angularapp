@@ -1,0 +1,17 @@
+<div class="material">
+  <h1>Memory</h1>
+
+  <button mat-raised-button color="primary" (click)="newGame()">
+    Start new Game
+  </button>
+
+  <main>
+    <app-card
+      *ngFor="let val of cards; let i = index"
+      [value]="val"
+      (click)="makeMove(i)"
+    >
+    </app-card>
+  </main>
+  <app-form></app-form>
+</div>
