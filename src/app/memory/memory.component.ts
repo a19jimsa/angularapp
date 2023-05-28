@@ -18,14 +18,25 @@ export class MemoryComponent {
   }
 
   newGame() {
+    const unicode: string[] = [
+      '\u{2664}',
+      '\u{2661}',
+      '\u{2662}',
+      '\u{2667}',
+      '\u{2660}',
+      '\u{2665}',
+      '\u{2666}',
+      '\u{2663}',
+    ];
     this.pair = false;
     this.cards = new Array();
     this.tempCards = new Array();
     for (let i = 0; i < 64; i++) {
+      let number = Math.floor(Math.random() * (8 - 1) + 1);
       this.cards.push({
         id: i,
         color: 'red',
-        number: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+        hex: unicode[number],
         active: false,
         match: false,
       });
@@ -42,7 +53,7 @@ export class MemoryComponent {
       this.pair = true;
       let id = this.tempCards[0].id;
       let id2 = this.tempCards[1].id;
-      if (this.tempCards[0].number === this.tempCards[1].number) {
+      if (this.tempCards[0].hex === this.tempCards[1].hex) {
         this.cards[id].match = true;
         this.cards[id2].match = true;
         this.tempCards = [];
