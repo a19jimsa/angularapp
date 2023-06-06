@@ -1,0 +1,55 @@
+<div class="container">
+  <h1>Min dagliga kaloriräknare</h1>
+  <form class="card" [formGroup]="myForm" (ngSubmit)="addDish()">
+    Value: {{ myForm.value | json }}
+    <hr />
+    <label for="dish">Maträtt</label>
+    <input name="dish" formControlName="name" required />
+
+    <div formArrayName="ingridients">
+      <button
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="addIngridient()"
+      >
+        Lägg till en annan ingridiens
+      </button>
+      <h2>Ingridienser</h2>
+      <div
+        *ngFor="let ingridient of ingridients.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <label for="name">Namn</label>
+        <input name="name" formControlName="name" />
+        <label for="amount">Antal</label>
+        <input name="amount" type="number" formControlName="amount" />
+        <label for="calories">Kalorier</label>
+        <input name="calories" type="number" formControlName="calories" />
+        <button mat-button (click)="deleteIngridient(i)">Delete</button>
+      </div>
+    </div>
+    <hr />
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="myForm.invalid"
+    >
+      Lägg till maträtt
+    </button>
+  </form>
+</div>
+
+<div class="container">
+  <div *ngFor="let dish of myDishes; let i = index">
+    <h2 class="item1">{{ myDishes[i].name }}</h2>
+    <div class="grid" *ngFor="let ingridient of dish.ingridients">
+      <div>{{ ingridient.name }}</div>
+      <div>{{ ingridient.amount }}g</div>
+      <div>{{ ingridient.calories }}kcal</div>
+    </div>
+    <div>{{ calc(i) }}</div>
+    <button (click)="deleteDish(i)">Delete</button>
+  </div>
+</div>

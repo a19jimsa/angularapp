@@ -10,13 +10,14 @@ export class MemoryComponent {
   cards!: Card[];
   tempCards!: Card[];
   pair!: boolean;
+  clicks!: number;
+
   constructor() {}
 
   //Runs when init game from creating game
   ngOnInit(): void {
     this.newGame();
   }
-
   newGame() {
     const unicode: string[] = [
       '\u{2664}',
@@ -31,6 +32,7 @@ export class MemoryComponent {
     this.pair = false;
     this.cards = new Array();
     this.tempCards = new Array();
+    this.clicks = 0;
     for (let i = 0; i < 64; i++) {
       let number = Math.floor(Math.random() * (8 - 1) + 1);
       this.cards.push({
@@ -72,6 +74,7 @@ export class MemoryComponent {
         this.cards[i].active = false;
       }
     }
+    this.clicks++;
     this.pair = false;
     this.tempCards = [];
   }

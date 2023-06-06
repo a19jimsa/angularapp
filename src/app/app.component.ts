@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   }
 
   add(description: string) {
-    this.allItems.unshift({ description, done: false });
+    //this.allItems.unshift({ description, done: false });
     this.save();
   }
 

@@ -9,7 +9,6 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ItemComponent } from './item/item.component';
 import { MenuComponent } from './menu/menu.component';
 import { FormComponent } from './form/form.component';
 
@@ -24,11 +23,11 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { MemoryComponent } from './memory/memory.component';
 import { CardComponent } from './card/card.component';
+import { CalculatorComponent } from './calculator/calculator.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ItemComponent,
     MenuComponent,
     FormComponent,
     ChessComponent,
@@ -39,6 +38,7 @@ import { CardComponent } from './card/card.component';
     HomeComponent,
     MemoryComponent,
     CardComponent,
+    CalculatorComponent,
   ],
   imports: [
     BrowserModule,

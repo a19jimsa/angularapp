@@ -19,7 +19,7 @@ export class ChessComponent implements OnInit {
     this.newGame();
   }
 
-  newGame() {
+  newGame(): void {
     this.squares = new Array();
     this.tempPlayers = new Array();
     let board = [
@@ -237,7 +237,7 @@ export class ChessComponent implements OnInit {
       : { color: 'white', position: 1 };
   }
 
-  makeMove(idx: number) {
+  makeMove(idx: number): void {
     if (this.squares[idx].color !== this.player.color) {
       if (this.squares[idx].color !== 'yellow') {
         return;
@@ -490,7 +490,7 @@ export class ChessComponent implements OnInit {
     }
   }
 
-  clear() {
+  clear(): void {
     for (var i = 0; i < 64; i++) {
       this.squares[i].active = false;
       if (this.squares[i].color == 'yellow') {
@@ -506,7 +506,7 @@ export class ChessComponent implements OnInit {
     this.tempPlayers = [];
   }
 
-  convertToYCoord(idx: number) {
+  convertToYCoord(idx: number): number {
     let column1 = [0, 1, 2, 3, 4, 5, 6, 7];
     let column2 = [8, 9, 10, 11, 12, 13, 14, 15];
     let column3 = [16, 17, 18, 19, 20, 21, 22, 23];
@@ -536,7 +536,7 @@ export class ChessComponent implements OnInit {
     return -1;
   }
   //Create path for unit
-  createPath(num: number, value: number, idx: number) {
+  createPath(num: number, value: number, idx: number): void {
     for (let i = 0; i < num; i++) {
       let offset = value * (i + 1);
       if (idx - offset > 63 || idx - offset < 0) break;
