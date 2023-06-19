@@ -24,6 +24,8 @@ import { HomeComponent } from './home/home.component';
 import { MemoryComponent } from './memory/memory.component';
 import { CardComponent } from './card/card.component';
 import { CalculatorComponent } from './calculator/calculator.component';
+import { MinesweeperComponent } from './minesweeper/minesweeper.component';
+import { MineComponent } from './mine/mine.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +41,8 @@ import { CalculatorComponent } from './calculator/calculator.component';
     MemoryComponent,
     CardComponent,
     CalculatorComponent,
+    MinesweeperComponent,
+    MineComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,9 @@
+<h2>Player: {{ player.color }}</h2>
+<main>
+  <app-mine
+    *ngFor="let mine of mines; let i = index"
+    [value]="mine"
+    (click)="makeMove(i)"
+  >
+  </app-mine>
+</main>
