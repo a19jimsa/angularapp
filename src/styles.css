@@ -5,6 +5,19 @@
   padding: 0px;
 }
 
+.material {
+  text-align: center;
+  display: flex;
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 0px 5px 8px #bababa;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  flex-direction: column;
+  width: 40%;
+}
+
 input,
 textarea,
 select {

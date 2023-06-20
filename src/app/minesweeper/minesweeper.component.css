@@ -1,12 +1,13 @@
 main {
     display: grid;
-    grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+    grid-template-columns: auto auto auto auto auto auto auto auto auto;
     margin-top: 10px;
     margin: auto;
     justify-content: center;
-    gap: 5px;
   }
   
   app-mine {
-    height: 50px;
+    height: 25px;
+    width: 25px;
+    border: 1px solid #d8d8d8;
   }

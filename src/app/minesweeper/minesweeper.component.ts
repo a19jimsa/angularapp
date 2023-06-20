@@ -10,17 +10,18 @@ import { Mine } from '../mine';
 export class MinesweeperComponent implements OnInit {
   mines!: Mine[];
   xIsNext!: boolean;
+  won!: boolean;
+  lost!: boolean;
   constructor() { }
 
   ngOnInit(): void {
-    this.mines = new Array();
     this.newGame();
-  }
-  get player() {
-    return this.xIsNext ? { color: 'black' } : { color: 'white' };
   }
 
   newGame() {
+    this.won = false;
+    this.lost = false;
+    this.mines = new Array();
     for (let i = 0; i < 81; i++) {
       this.mines.push({id: i, type: "", count: 0, pressed: false, checked: false });
     }
@@ -60,10 +61,21 @@ export class MinesweeperComponent implements OnInit {
   }
 
   makeMove(idx: number): void {
+    if(this.lost){
+      return;
+    }
     let offsets = [-10, -9, -8, -1, 1, 8, 9, 10];
-    let startPosition = idx;
     let tempArray: Mine[] = new Array();
     this.mines[idx].pressed = true;
+    if(this.mines[idx].type === "mine"){
+      for(let i = 0; i < this.mines.length; i++){
+        if(this.mines[i].type === "mine"){
+          this.mines[i].pressed = true;
+        }
+      }
+      this.lost = true;
+      return;
+    }
     if (this.mines[idx].type === "") {
       for (let i = 0; i < offsets.length; i++) {
         let number = this.convertToYCoord(idx);
@@ -81,11 +93,20 @@ export class MinesweeperComponent implements OnInit {
       }
     }
     this.checkRoute(tempArray);
+    this.checkWin();
   }
 
   checkRoute(tempArray: Mine[]): void {
     for(let i = 0; i < tempArray.length; i++){
       this.makeMove(tempArray[i].id);
+    }
+    console.log(tempArray);
+  }
+
+  checkWin(){
+    let win = this.mines.findIndex((e)=>e.pressed === false && e.type==="number");
+    if(win === -1){
+      this.won = true;
     }
   }
 
@@ -100,5 +121,4 @@ export class MinesweeperComponent implements OnInit {
     }
     return -1;
   }
-
 }

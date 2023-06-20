@@ -1,9 +1,18 @@
-<h2>Player: {{ player.color }}</h2>
-<main>
-  <app-mine
-    *ngFor="let mine of mines; let i = index"
-    [value]="mine"
-    (click)="makeMove(i)"
-  >
-  </app-mine>
-</main>
+<div class="material">
+  <h1>Minesweeper</h1>
+  <h2 *ngIf="won">Grattis!!!</h2>
+  <h2 *ngIf="lost">Du förlora!</h2>
+  <button style="font-size: 24px" (click)="newGame()">
+    <div *ngIf="!won && !lost">🙂</div>
+    <div *ngIf="won">😎</div>
+    <div *ngIf="lost && !won">😖</div>
+  </button>
+  <main>
+    <app-mine
+      *ngFor="let mine of mines; let i = index"
+      [value]="mine"
+      (click)="makeMove(i)"
+    >
+    </app-mine>
+  </main>
+</div>

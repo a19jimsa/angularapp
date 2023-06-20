@@ -6,13 +6,14 @@ button {
     height: 100%;
     align-items: center;
     justify-content: center;
-    border-width: 5px;
+    border-width: 4px;
     border-top-color: white;
     border-left-color: white;
     border-right-color: #dedede;
     border-bottom-color: #dedede;
     font-size: 20px;
     font-weight: bold;
+    font-family:'Courier New', Courier, monospace;
   }
 
   .pressed{

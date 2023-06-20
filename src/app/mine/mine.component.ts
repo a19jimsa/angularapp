@@ -6,6 +6,7 @@ import { Mine } from '../mine';
   templateUrl: './mine.component.html',
   styleUrls: ['./mine.component.css']
 })
+
 export class MineComponent {
   @Input() value!: Mine;
 }
