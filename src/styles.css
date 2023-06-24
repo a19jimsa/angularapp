@@ -15,7 +15,7 @@
   align-items: center;
   padding: 10px;
   flex-direction: column;
-  width: 40%;
+  width: 100%;
 }
 
 input,
@@ -36,6 +36,11 @@ select {
   background-color: grey;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

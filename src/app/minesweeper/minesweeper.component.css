@@ -1,13 +1,35 @@
-main {
-    display: grid;
-    grid-template-columns: auto auto auto auto auto auto auto auto auto;
-    margin-top: 10px;
-    margin: auto;
-    justify-content: center;
-  }
-  
-  app-mine {
-    height: 25px;
-    width: 25px;
-    border: 1px solid #d8d8d8;
-  }
+.easy {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  margin-top: 10px;
+  margin: auto;
+  justify-content: center;
+}
+
+.intermediate {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  margin-top: 10px;
+  margin: auto;
+  justify-content: center;
+}
+
+.hard {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  margin-top: 10px;
+  margin: auto;
+  justify-content: center;
+}
+
+.flex {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+}
+
+app-mine {
+  height: 25px;
+  width: 25px;
+  border: 1px solid #d8d8d8;
+}

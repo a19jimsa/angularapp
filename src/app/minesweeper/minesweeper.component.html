@@ -1,13 +1,18 @@
 <div class="material">
   <h1>Minesweeper</h1>
-  <h2 *ngIf="won">Grattis!!!</h2>
-  <h2 *ngIf="lost">Du förlora!</h2>
-  <button style="font-size: 24px" (click)="newGame()">
+  <div>
+    <button (click)="newGame(1)">Easy</button>
+    <button (click)="newGame(2)">Intermediate</button>
+    <button (click)="newGame(3)">Hard</button>
+  </div>
+  <button style="font-size: 24px" (click)="newGame(type)">
     <div *ngIf="!won && !lost">🙂</div>
     <div *ngIf="won">😎</div>
     <div *ngIf="lost && !won">😖</div>
   </button>
-  <main>
+  <main
+    [ngClass]="{ easy: type === 1, intermediate: type === 2, hard: type === 3 }"
+  >
     <app-mine
       *ngFor="let mine of mines; let i = index"
       [value]="mine"
