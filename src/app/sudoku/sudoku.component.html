@@ -1,0 +1,18 @@
+<div class="material">
+  <h1>Sudoku</h1>
+  <h2 *ngIf="won">Grattis du vann!</h2>
+  <app-sudokumenu
+    [ngClass]="{ hidden: !menu }"
+    [sudokuNumbers]="tempValues"
+    (newItemEvent)="printValue($event)"
+  ></app-sudokumenu>
+  <main>
+    <app-sudoku-number
+      *ngFor="let value of values; let i = index"
+      class="sudoku"
+      [value]="value"
+      (click)="makeMove(i)"
+    >
+    </app-sudoku-number>
+  </main>
+</div>

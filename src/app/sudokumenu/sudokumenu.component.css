@@ -1,0 +1,25 @@
+.sudokumenu {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  width: 200px;
+  height: 200px;
+  background-color: green;
+}
+
+.sudokumenu div {
+  aspect-ratio: 1;
+}
+
+button {
+  width: 50px;
+  height: 50px;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none;
+}

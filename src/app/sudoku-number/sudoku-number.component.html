@@ -1,0 +1,3 @@
+<button [ngClass]="{ active: value.active, locked: value.locked }">
+  <div *ngIf="value.value !== '.'">{{ value.value }}</div>
+</button>

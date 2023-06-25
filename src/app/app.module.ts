@@ -26,6 +26,9 @@ import { CardComponent } from './card/card.component';
 import { CalculatorComponent } from './calculator/calculator.component';
 import { MinesweeperComponent } from './minesweeper/minesweeper.component';
 import { MineComponent } from './mine/mine.component';
+import { SudokuComponent } from './sudoku/sudoku.component';
+import { SudokuNumberComponent } from './sudoku-number/sudoku-number.component';
+import { SudokumenuComponent } from './sudokumenu/sudokumenu.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,9 @@ import { MineComponent } from './mine/mine.component';
     CalculatorComponent,
     MinesweeperComponent,
     MineComponent,
+    SudokuComponent,
+    SudokuNumberComponent,
+    SudokumenuComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,9 +1,9 @@
 <div class="material">
   <h1>Minesweeper</h1>
   <div>
-    <button (click)="newGame(1)">Easy</button>
-    <button (click)="newGame(2)">Intermediate</button>
-    <button (click)="newGame(3)">Hard</button>
+    <button mat-button (click)="newGame(1)">Easy</button>
+    <button mat-button (click)="newGame(2)">Intermediate</button>
+    <button mat-button (click)="newGame(3)">Hard</button>
   </div>
   <button style="font-size: 24px" (click)="newGame(type)">
     <div *ngIf="!won && !lost">🙂</div>

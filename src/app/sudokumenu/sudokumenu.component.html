@@ -1,0 +1,10 @@
+<div class="sudokumenu">
+  <div *ngFor="let value of values; let i = index">
+    <button
+      (click)="addNewItem(value.value)"
+      [ngClass]="{ hidden: value.hidden }"
+    >
+      {{ value.value }}
+    </button>
+  </div>
+</div>
