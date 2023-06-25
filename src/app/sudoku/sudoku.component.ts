@@ -41,11 +41,9 @@ export class SudokuComponent implements OnInit {
   }
 
   makeMove(idx: number): void {
+    if (this.values[idx].locked) return;
     this.menu = true;
     this.tempValues = [];
-    console.log(this.values);
-    if (this.values[idx].locked) return;
-
     this.setInactive();
     this.values[idx].active = true;
     this.id = idx;
