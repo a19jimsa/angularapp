@@ -1,6 +1,6 @@
 <button [ngClass]="{ pressed: value.pressed }">
   <div *ngIf="value.pressed">
-    <div *ngIf="value.type === 'mine'">💥</div>
+    <div *ngIf="value.type === 'mine'">💣</div>
     <div *ngIf="value.count !== 0">{{ value.count }}</div>
   </div>
 </button>

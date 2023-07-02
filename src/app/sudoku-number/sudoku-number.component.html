@@ -1,3 +1,12 @@
-<button [ngClass]="{ active: value.active, locked: value.locked }">
+<button
+  [ngClass]="{
+    active: value.active,
+    locked: value.locked,
+  }"
+  [ngStyle]="{ background: value.block !== 'none' ? value.block : 'white' }"
+>
+  <div class="corner" *ngIf="value.block !== 'none'">
+    <span *ngIf="value.blockValue !== 0">{{ value.blockValue }}</span>
+  </div>
   <div *ngIf="value.value !== '.'">{{ value.value }}</div>
 </button>

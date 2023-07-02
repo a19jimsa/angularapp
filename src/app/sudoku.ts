@@ -3,4 +3,6 @@ export interface Sudoku {
   active: boolean;
   locked: boolean;
   hidden: boolean;
+  block: string;
+  blockValue: number;
 }

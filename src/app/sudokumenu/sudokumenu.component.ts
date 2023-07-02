@@ -29,6 +29,8 @@ export class SudokumenuComponent implements OnInit {
         active: false,
         hidden: false,
         locked: false,
+        block: 'none',
+        blockValue: 0,
       });
     }
   }

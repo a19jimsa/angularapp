@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Sudoku } from '../sudoku';
 
 @Component({
-  selector: 'app-sudoku',
-  templateUrl: './sudoku.component.html',
-  styleUrls: ['./sudoku.component.css'],
+  selector: 'app-killersudoku',
+  templateUrl: './killersudoku.component.html',
+  styleUrls: ['./killersudoku.component.css'],
 })
-export class SudokuComponent implements OnInit {
+export class KillersudokuComponent {
   values!: Sudoku[];
   tempValues!: Sudoku[];
   id!: number;
@@ -27,9 +27,11 @@ export class SudokuComponent implements OnInit {
     this.tempValues = new Array();
     let sudokuStr =
       '...2.........6.4...1..4.7....81..5.735...6.1....47..86.2....1...81....6267.......';
+    const finishedStr =
+      '745281639839567421216349758468123597357896214192475386924658173581734962673912845';
     for (let i = 0; i < 81; i++) {
       this.values.push({
-        value: sudokuStr[i],
+        value: finishedStr[i],
         active: false,
         locked: false,
         hidden: false,
@@ -39,6 +41,9 @@ export class SudokuComponent implements OnInit {
       if (this.values[i].value !== '.') {
         this.values[i].locked = true;
       }
+    }
+    while (this.values.find((x) => x.block === 'none') !== undefined) {
+      this.createShape();
     }
   }
 
@@ -113,6 +118,41 @@ export class SudokuComponent implements OnInit {
   setInactive() {
     for (let i = 0; i < this.values.length; i++) {
       this.values[i].active = false;
+    }
+  }
+
+  createShape() {
+    const finishedStr =
+      '745281639839567421216349758468123597357896214192475386924658173581734962673912845';
+    let shapes = [
+      [0, 9, 18],
+      [0, 9],
+      [0, 7, 8, 9],
+      [0, 9, 18, 27],
+      [0, -1],
+      [0, 1],
+      [0, 1, 2],
+      [0, 1, 2, 3],
+      [0, -1, -2, -3],
+      [0, 1, 9, 10],
+      [0, 8, 9, 10],
+      [0, 9, 8, 17],
+    ];
+    let corners = [
+      0, 9, 18, 27, 36, 45, 54, 63, 72, 8, 17, 26, 35, 44, 53, 62, 71, 80,
+    ];
+    for (let j = 0; j < 81; j++) {
+      //if (corners.includes(j)) continue;
+      if (this.values[j].block !== 'none') continue;
+      const rand = Math.floor(Math.random() * shapes.length);
+      let color = '#' + ((Math.random() * 0xffffff) << 0).toString(16);
+      for (let i = 0; i < shapes[rand].length; i++) {
+        if (j + shapes[rand][i] < 0 || j + shapes[rand][i] > 80) break;
+        if (this.values[j + shapes[rand][i]].block !== 'none') break;
+        this.values[j + shapes[rand][i]].block = color;
+        this.values[j].blockValue += Number(finishedStr[j + shapes[rand][i]]);
+        if (corners.includes(j + shapes[rand][i])) break;
+      }
     }
   }
 }

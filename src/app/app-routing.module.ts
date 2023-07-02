@@ -7,6 +7,7 @@ import { MemoryComponent } from './memory/memory.component';
 import { CalculatorComponent } from './calculator/calculator.component';
 import { MinesweeperComponent } from './minesweeper/minesweeper.component';
 import { SudokuComponent } from './sudoku/sudoku.component';
+import { KillersudokuComponent } from './killersudoku/killersudoku.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'calculator', component: CalculatorComponent },
   { path: 'mine', component: MinesweeperComponent },
   { path: 'sudoku', component: SudokuComponent },
+  { path: 'killersudoku', component: KillersudokuComponent },
 ];
 
 @NgModule({

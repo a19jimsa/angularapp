@@ -29,6 +29,7 @@ import { MineComponent } from './mine/mine.component';
 import { SudokuComponent } from './sudoku/sudoku.component';
 import { SudokuNumberComponent } from './sudoku-number/sudoku-number.component';
 import { SudokumenuComponent } from './sudokumenu/sudokumenu.component';
+import { KillersudokuComponent } from './killersudoku/killersudoku.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { SudokumenuComponent } from './sudokumenu/sudokumenu.component';
     SudokuComponent,
     SudokuNumberComponent,
     SudokumenuComponent,
+    KillersudokuComponent,
   ],
   imports: [
     BrowserModule,
