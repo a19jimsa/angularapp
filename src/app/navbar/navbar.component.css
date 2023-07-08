@@ -4,4 +4,5 @@ a {
 
 mat-toolbar {
   box-shadow: 0 2px 5px #0000004d;
+  margin-bottom: 20px;
 }

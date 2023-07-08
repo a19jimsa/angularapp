@@ -1,0 +1,14 @@
+<main>
+  <h2>Sliding Puzzle</h2>
+  <div class="material">
+    <div *ngIf="won">Grattis!!!</div>
+    <div class="grid">
+      <app-puzzlepiece
+        *ngFor="let piece of pieces; let i = index"
+        [value]="piece"
+        (click)="makeMove(i)"
+      >
+      </app-puzzlepiece>
+    </div>
+  </div>
+</main>

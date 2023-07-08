@@ -138,10 +138,16 @@ export class KillersudokuComponent {
     let corners = [
       0, 9, 18, 27, 36, 45, 54, 63, 72, 8, 17, 26, 35, 44, 53, 62, 71, 80,
     ];
+    let colors = ['red', 'blue', 'green'];
+    let number = 0;
     for (let j = 0; j < 81; j++) {
       if (this.values[j].block !== 'none') continue;
       const rand = Math.floor(Math.random() * shapes.length);
-      const color = '#' + ((Math.random() * 0xffffff) << 0).toString(16);
+      const color = colors[number];
+      number++;
+      if (number === 3) {
+        number = 0;
+      }
       for (let i = 0; i < shapes[rand].length; i++) {
         if (j + shapes[rand][i] < 0 || j + shapes[rand][i] > 80) break;
         if (this.values[j + shapes[rand][i]].block !== 'none') break;

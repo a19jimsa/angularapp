@@ -30,6 +30,8 @@ import { SudokuComponent } from './sudoku/sudoku.component';
 import { SudokuNumberComponent } from './sudoku-number/sudoku-number.component';
 import { SudokumenuComponent } from './sudokumenu/sudokumenu.component';
 import { KillersudokuComponent } from './killersudoku/killersudoku.component';
+import { SlidingpuzzleComponent } from './slidingpuzzle/slidingpuzzle.component';
+import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,8 @@ import { KillersudokuComponent } from './killersudoku/killersudoku.component';
     SudokuNumberComponent,
     SudokumenuComponent,
     KillersudokuComponent,
+    SlidingpuzzleComponent,
+    PuzzlepieceComponent,
   ],
   imports: [
     BrowserModule,
