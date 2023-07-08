@@ -1,9 +1,16 @@
 .grid {
   display: grid;
-  grid-template-columns: 3rem 3rem 3rem;
+  grid-template-columns: 100px 100px 100px;
+  border: 1px solid black;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 100px 100px 100px 100px;
   border: 1px solid black;
 }
 
 app-puzzlepiece {
-  height: 3rem;
+  height: 100px;
+  background: transparent;
 }

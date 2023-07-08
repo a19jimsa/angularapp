@@ -1,8 +1,118 @@
 button {
   width: 100%;
   height: 100%;
+  display: flex;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  font-size: 25px;
+  color: red;
+  border: none;
 }
 
 .hidden {
   background-color: black;
+  color: black;
+}
+
+.child1 {
+  background-image: url("/assets/megaman.png");
+  background-position: 300px 300px;
+}
+.child2 {
+  background-image: url("/assets/megaman.png");
+  background-position: 200px 300px;
+}
+.child3 {
+  background-image: url("/assets/megaman.png");
+  background-position: 100px 300px;
+}
+.child4 {
+  background-image: url("/assets/megaman.png");
+  background-position: 300px 200px;
+}
+.child5 {
+  background-image: url("/assets/megaman.png");
+  background-position: 200px 200px;
+}
+.child6 {
+  background-image: url("/assets/megaman.png");
+  background-position: 100px 200px;
+}
+.child7 {
+  background-image: url("/assets/megaman.png");
+  background-position: 300px 100px;
+}
+.child8 {
+  background-image: url("/assets/megaman.png");
+  background-position: 200px 100px;
+}
+.child9 {
+  background-image: url("/assets/megaman.png");
+  background-position: 100px 100px;
+}
+
+.child11 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 400px 400px;
+}
+.child12 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 300px 400px;
+}
+.child13 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 200px 400px;
+}
+.child14 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 100px 400px;
+}
+.child15 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 400px 300px;
+}
+.child16 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 300px 300px;
+}
+.child17 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 200px 300px;
+}
+.child18 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 100px 300px;
+}
+.child19 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 400px 200px;
+}
+.child20 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 300px 200px;
+}
+.child21 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 200px 200px;
+}
+.child22 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 100px 200px;
+}
+.child23 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 400px 100px;
+}
+.child24 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 300px 100px;
+}
+.child25 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 200px 100px;
+}
+.child26 {
+  background-image: url("/assets/megaman2.png");
+  background-position: 100px 100px;
 }

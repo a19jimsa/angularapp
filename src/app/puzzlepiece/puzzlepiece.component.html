@@ -1,1 +1,32 @@
-<button [ngClass]="{ hidden: value.blank }">{{ value.number }}</button>
+<button
+  [ngClass]="{
+    hidden: value.blank,
+    child1: value.number === 1,
+    child2: value.number === 2,
+    child3: value.number === 3,
+    child4: value.number === 4,
+    child5: value.number === 5,
+    child6: value.number === 6,
+    child7: value.number === 7,
+    child8: value.number === 8,
+    child9: value.number === 9 && !value.blank,
+    child11: value.number === 1 && value.amount === 16,
+    child12: value.number === 2 && value.amount === 16,
+    child13: value.number === 3 && value.amount === 16,
+    child14: value.number === 4 && value.amount === 16,
+    child15: value.number === 5 && value.amount === 16,
+    child16: value.number === 6 && value.amount === 16,
+    child17: value.number === 7 && value.amount === 16,
+    child18: value.number === 8 && value.amount === 16,
+    child19: value.number === 9 && value.amount === 16,
+    child20: value.number === 10 && value.amount === 16,
+    child21: value.number === 11 && value.amount === 16,
+    child22: value.number === 12 && value.amount === 16,
+    child23: value.number === 13 && value.amount === 16,
+    child24: value.number === 14 && value.amount === 16,
+    child25: value.number === 15 && value.amount === 16,
+    child26: value.number === 16 && value.amount === 16 && !value.blank,
+  }"
+>
+  {{ value.number }}
+</button>

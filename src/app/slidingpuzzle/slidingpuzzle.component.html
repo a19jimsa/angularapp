@@ -2,9 +2,10 @@
   <h2>Sliding Puzzle</h2>
   <div class="material">
     <div *ngIf="won">Grattis!!!</div>
-    <div class="grid">
+    <div [ngClass]="{ grid: amount === 9, grid2: amount === 16 }">
       <app-puzzlepiece
         *ngFor="let piece of pieces; let i = index"
+        [ngClass]="{ child1: piece.number === 1 }"
         [value]="piece"
         (click)="makeMove(i)"
       >
