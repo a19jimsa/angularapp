@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -7,11 +8,14 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
   styleUrls: ['./form.component.css'],
 })
 export class FormComponent implements OnInit {
+  @Input() value = '';
+  posts!: any[];
   myForm!: FormGroup;
-  //Dependency inject
-  constructor(private fb: FormBuilder) {}
+  //Dependency injection
+  constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loadPosts();
     this.myForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(10)]],
       comment: ['', [Validators.required, Validators.minLength(10)]],
@@ -25,5 +29,23 @@ export class FormComponent implements OnInit {
     return this.myForm.get('comment');
   }
 
-  add() {}
+  add() {
+    this.http
+      .post<any>(this.value, {
+        id: 1,
+        name: this.name?.value,
+        message: this.comment?.value,
+      })
+      .subscribe((response) => {
+        console.log('Inlägg skapat: ', response);
+      });
+    this.loadPosts();
+  }
+
+  loadPosts() {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    this.http.get(this.value, { headers }).subscribe((response: any) => {
+      this.posts = response;
+    });
+  }
 }

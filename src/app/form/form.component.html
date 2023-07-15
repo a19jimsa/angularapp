@@ -1,6 +1,4 @@
 <form [formGroup]="myForm" (ngSubmit)="add()">
-  Value: {{ myForm.value | json }}
-
   <mat-form-field style="background-color: white">
     <mat-label for="firstName">FirstName</mat-label>
     <input matInput placeholder="Ditt namn" formControlName="name" />
@@ -20,5 +18,21 @@
       Your ass is on fire!
     </mat-error>
   </mat-form-field>
-  <button mat-raised-button color="primary">Submit</button>
+  <button mat-raised-button color="primary" [disabled]="!myForm.valid">
+    Submit
+  </button>
 </form>
+<table class="comments">
+  <thead>
+    <tr>
+      <th>Namn</th>
+      <th>Kommentar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let post of posts">
+      <td>{{ post.name }}</td>
+      <td>{{ post.message }}</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MineComponent } from '../mine/mine.component';
 import { Mine } from '../mine';
-import { zip } from 'rxjs';
 
 @Component({
   selector: 'app-minesweeper',
@@ -146,7 +144,6 @@ export class MinesweeperComponent implements OnInit {
     for (let i = 0; i < tempArray.length; i++) {
       this.makeMove(tempArray[i].id);
     }
-    console.log(tempArray);
   }
 
   checkWin() {

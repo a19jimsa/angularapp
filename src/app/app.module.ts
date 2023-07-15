@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -67,6 +68,7 @@ import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
     MatCardModule,
     MatMenuModule,
     MatToolbarModule,
+    HttpClientModule,
   ],
   providers: [
     {

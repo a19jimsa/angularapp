@@ -9,14 +9,16 @@ import { Piece } from '../piece';
 export class SlidingpuzzleComponent implements OnInit {
   pieces!: Piece[];
   won!: boolean;
-  amount = 0;
+  amount: number = 0;
+
   ngOnInit(): void {
-    this.newGame();
+    this.newGame(9);
   }
 
-  newGame() {
-    this.pieces = new Array();
-    this.amount = 16;
+  newGame(amount: number): void {
+    this.won = false;
+    this.pieces = [];
+    this.amount = amount;
     for (let i = 0; i < this.amount - 1; i++) {
       this.pieces.push({
         id: Math.floor(Math.random() * 100),
@@ -46,14 +48,13 @@ export class SlidingpuzzleComponent implements OnInit {
           continue;
         if (this.pieces[i].number > this.pieces[j].number) {
           countPolarity++;
-          console.log(this.pieces[i].number + '>' + this.pieces[j].number);
         }
       }
     }
     if (countPolarity % 2 === 0) {
       console.log('Solveable');
     } else {
-      this.newGame();
+      this.newGame(this.amount);
     }
   }
 

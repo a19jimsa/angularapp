@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Player } from '../player';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-chess',
@@ -12,7 +13,7 @@ export class ChessComponent implements OnInit {
   winner!: string;
   tempPlayers!: any[];
 
-  constructor() {}
+  constructor(private apiService: ApiService) {}
 
   //Runs when init game from creating game
   ngOnInit(): void {
