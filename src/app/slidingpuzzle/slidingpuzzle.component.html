@@ -1,7 +1,7 @@
-<main>
-  <h2>Sliding Puzzle</h2>
-  <div class="material">
-    <div *ngIf="won">Grattis!!!</div>
+<div class="material">
+  <h1>Sliding Puzzle</h1>
+  <div *ngIf="won">Grattis!!!</div>
+  <main>
     <div class="flex">
       <button mat-button (click)="newGame(9)">3x3</button>
       <button mat-button (click)="newGame(16)">4x4</button>
@@ -15,5 +15,5 @@
       >
       </app-puzzlepiece>
     </div>
-  </div>
-</main>
+  </main>
+</div>
