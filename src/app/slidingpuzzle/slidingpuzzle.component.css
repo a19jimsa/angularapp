@@ -10,6 +10,12 @@
   border: 1px solid black;
 }
 
+.grid3 {
+  display: grid;
+  grid-template-columns: 100px 100px 100px 100px 100px;
+  border: 1px solid black;
+}
+
 app-puzzlepiece {
   height: 100px;
   background: transparent;

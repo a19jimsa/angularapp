@@ -1,12 +1,19 @@
 <div class="material">
   <h1>Sliding Puzzle</h1>
   <div *ngIf="won">Grattis!!!</div>
+  <div class="flex">
+    <button mat-button (click)="newGame(9)">3x3</button>
+    <button mat-button (click)="newGame(16)">4x4</button>
+    <button mat-button (click)="newGame(25)">5x5</button>
+  </div>
   <main>
-    <div class="flex">
-      <button mat-button (click)="newGame(9)">3x3</button>
-      <button mat-button (click)="newGame(16)">4x4</button>
-    </div>
-    <div [ngClass]="{ grid: amount === 9, grid2: amount === 16 }">
+    <div
+      [ngClass]="{
+        grid: amount === 9,
+        grid2: amount === 16,
+        grid3: amount === 25
+      }"
+    >
       <app-puzzlepiece
         *ngFor="let piece of pieces; let i = index"
         [ngClass]="{ child1: piece.number === 1 }"
