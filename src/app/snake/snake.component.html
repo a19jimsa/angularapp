@@ -1,0 +1,14 @@
+<div class="material">
+  <div class="flex">
+    <button (click)="offset = 10">10</button>
+    <button (click)="offset = 1">1</button>
+    <button (click)="offset = -1">-1</button>
+    <button (click)="offset = -10">-10</button>
+  </div>
+  <main class="grid">
+    <app-snake-tile
+      *ngFor="let tile of tiles; let i = index"
+      [value]="tile"
+    ></app-snake-tile>
+  </main>
+</div>

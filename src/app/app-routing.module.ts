@@ -9,6 +9,7 @@ import { MinesweeperComponent } from './minesweeper/minesweeper.component';
 import { SudokuComponent } from './sudoku/sudoku.component';
 import { KillersudokuComponent } from './killersudoku/killersudoku.component';
 import { SlidingpuzzleComponent } from './slidingpuzzle/slidingpuzzle.component';
+import { SnakeComponent } from './snake/snake.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'sudoku', component: SudokuComponent },
   { path: 'killersudoku', component: KillersudokuComponent },
   { path: 'slidingpuzzle', component: SlidingpuzzleComponent },
+  { path: 'snake', component: SnakeComponent },
 ];
 
 @NgModule({

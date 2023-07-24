@@ -33,6 +33,8 @@ import { SudokumenuComponent } from './sudokumenu/sudokumenu.component';
 import { KillersudokuComponent } from './killersudoku/killersudoku.component';
 import { SlidingpuzzleComponent } from './slidingpuzzle/slidingpuzzle.component';
 import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
+import { SnakeComponent } from './snake/snake.component';
+import { SnakeTileComponent } from './snake-tile/snake-tile.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +58,8 @@ import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
     KillersudokuComponent,
     SlidingpuzzleComponent,
     PuzzlepieceComponent,
+    SnakeComponent,
+    SnakeTileComponent,
   ],
   imports: [
     BrowserModule,
