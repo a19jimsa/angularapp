@@ -11,6 +11,7 @@ export class SnakeComponent implements OnInit {
   snakeList!: number[];
   apple!: number;
   offset!: number;
+  score!: number;
 
   constructor() {}
 
@@ -28,44 +29,70 @@ export class SnakeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.tiles = new Array();
-    this.snakeList = new Array();
-    this.offset = 1;
-    this.apple = this.createApple();
     this.newGame();
     setInterval(() => this.makeMove(), 100);
   }
 
   newGame() {
-    for (let i = 0; i < 100; i++) {
+    this.tiles = new Array();
+    this.snakeList = new Array();
+    this.offset = 1;
+    this.score = 0;
+    for (let i = 1; i < 101; i++) {
       this.tiles.push({ id: i, color: 'white' });
     }
-    this.snakeList = [16];
+    this.snakeList = [32];
+    this.apple = this.createApple();
   }
 
   makeMove(): void {
-    this.snakeList.unshift(this.snakeList[0] + this.offset);
+    if ((this.snakeList[0] + this.offset) % 10 === 0 && this.offset === 1) {
+      this.snakeList.unshift(this.snakeList[0] - 9);
+    } else if (
+      (this.snakeList[0] - this.offset) % 10 === 1 &&
+      this.offset === -1
+    ) {
+      this.snakeList.unshift(this.snakeList[0] + 9);
+    } else {
+      this.snakeList.unshift(this.snakeList[0] + this.offset);
+    }
+
     this.snakeList.pop();
+
+    if (this.snakeList[0] === this.apple) {
+      this.score += 10;
+      this.snakeList.push(this.apple);
+      this.apple = this.createApple();
+    }
 
     for (let i = 0; i < this.tiles.length; i++) {
       this.tiles[i].color = 'white';
       if (i === this.apple) {
         this.tiles[i].color = 'apple';
       }
-      if (this.snakeList.includes(this.tiles[i].id)) {
-        this.tiles[i].color = 'tail';
+      if (i === this.snakeList[0]) {
+        this.tiles[i].color = 'head';
+        continue;
       }
-      if (this.snakeList[0] === this.apple) {
-        console.log('added');
-        this.snakeList.push(i);
-        this.apple = this.createApple();
-        break;
+      if (this.snakeList.includes(i)) {
+        this.tiles[i].color = 'tail';
       }
     }
   }
 
   createApple() {
     let randomId = Math.floor(Math.random() * 100);
+    console.log(randomId);
+    let i = 0;
+    while (this.tiles[randomId].color !== 'white') {
+      randomId = Math.floor(Math.random() * 100);
+      i++;
+      if (i > 1000) {
+        randomId = -1;
+        break;
+      }
+    }
+
     return randomId;
   }
 }

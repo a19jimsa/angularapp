@@ -12,6 +12,11 @@ button {
 .tail,
 .last {
   background-color: rgb(0, 255, 0);
+  border-radius: 10px;
+}
+
+.last {
+  background-color: red;
 }
 
 .head {
