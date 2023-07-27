@@ -46,6 +46,11 @@ export class SnakeComponent implements OnInit {
   }
 
   makeMove(): void {
+    for (let i = 1; i < this.snakeList.length; i++) {
+      if (this.snakeList[0] + this.offset === this.snakeList[i]) {
+        this.newGame();
+      }
+    }
     if ((this.snakeList[0] + this.offset) % 10 === 0 && this.offset === 1) {
       this.snakeList.unshift(this.snakeList[0] - 9);
     } else if (
