@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <div class="col-xl-6 mb-3 mb-sm-0">
+    <div class="col-sm-6 mb-3 mb-sm-0">
       <div class="card text-bg-dark mb-3">
         <div class="card-header">Chess</div>
         <div class="card-body text-center">
@@ -9,7 +9,7 @@
           <button mat-raised-button color="primary" (click)="newGame()">
             Start new Game
           </button>
-          <div class="othello">
+          <div class="othello mt-2">
             <app-circle
               *ngFor="let val of markers; let i = index"
               [value]="val"

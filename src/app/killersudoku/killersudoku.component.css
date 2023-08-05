@@ -1,9 +1,9 @@
 .killersudoku {
   display: grid;
-  display: grid;
-  grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
+  grid-template-columns: auto auto auto auto auto auto auto auto auto;
   border: 1px solid black;
-  width: 450px;
+  gap: 1px;
+  width: auto;
   margin: auto;
   background-color: black;
   border-top: 2px solid black;
@@ -12,8 +12,6 @@
 }
 
 app-sudoku-number {
-  width: 50px;
-  height: 50px;
   border: 1px solid black;
 }
 

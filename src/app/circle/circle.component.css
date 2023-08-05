@@ -1,9 +1,10 @@
-button {
+.circle {
   background-color: rgb(28, 146, 77);
   display: flex;
   padding: 0px;
   width: 100%;
   height: 100%;
+  aspect-ratio: 1;
   border: none;
   align-items: center;
   justify-content: center;

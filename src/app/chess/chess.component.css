@@ -1,13 +1,13 @@
 .chess {
   display: grid;
-  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+  grid-template-columns: auto auto auto auto auto auto auto auto;
   border: 1px solid black;
-  width: 400px;
+  gap: 1px;
+  width: auto;
   margin: auto;
 }
 
 app-square {
-  height: 50px;
   background-color: rgb(242 225 195);
 }
 

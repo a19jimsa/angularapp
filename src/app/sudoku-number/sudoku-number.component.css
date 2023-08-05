@@ -10,6 +10,7 @@
   border: none;
   position: relative;
   z-index: 0;
+  aspect-ratio: 1;
 }
 
 .active {
