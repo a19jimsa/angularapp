@@ -11,22 +11,20 @@
             <button class="btn btn-secondary" (click)="newGame(16)">4x4</button>
             <button class="btn btn-secondary" (click)="newGame(25)">5x5</button>
           </div>
-          <div>
-            <div
-              [ngClass]="{
-                grid: amount === 9,
-                grid2: amount === 16,
-                grid3: amount === 25
-              }"
+          <div
+            [ngClass]="{
+              grid: amount === 9,
+              grid2: amount === 16,
+              grid3: amount === 25
+            }"
+          >
+            <app-puzzlepiece
+              *ngFor="let piece of pieces; let i = index"
+              [ngClass]="{ child1: piece.number === 1 }"
+              [value]="piece"
+              (click)="makeMove(i)"
             >
-              <app-puzzlepiece
-                *ngFor="let piece of pieces; let i = index"
-                [ngClass]="{ child1: piece.number === 1 }"
-                [value]="piece"
-                (click)="makeMove(i)"
-              >
-              </app-puzzlepiece>
-            </div>
+            </app-puzzlepiece>
           </div>
         </div>
       </div>

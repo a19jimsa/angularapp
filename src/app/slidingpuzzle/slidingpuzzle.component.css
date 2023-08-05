@@ -1,29 +1,28 @@
 .grid {
   display: grid;
-  grid-template-columns: 100px 100px 100px;
+  grid-template-columns: auto auto auto;
   border: 1px solid black;
-  width: 300px;
+  width: auto;
   margin: auto;
 }
 
 .grid2 {
   display: grid;
-  grid-template-columns: 100px 100px 100px 100px;
+  grid-template-columns: auto auto auto auto;
   border: 1px solid black;
-  width: 400px;
+  width: auto;
   margin: auto;
 }
 
 .grid3 {
   display: grid;
-  grid-template-columns: 100px 100px 100px 100px 100px;
+  grid-template-columns: auto auto auto auto auto;
   border: 1px solid black;
-  width: 500px;
+  width: auto;
   margin: auto;
 }
 
 app-puzzlepiece {
-  height: 100px;
   background: transparent;
 }
 
