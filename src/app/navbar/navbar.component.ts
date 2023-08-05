@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MatButton } from '@angular/material/button';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -9,5 +10,11 @@ import { MatButton } from '@angular/material/button';
 export class NavbarComponent {
   isCollapse = true;
 
-  constructor() {}
+  constructor(private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.isCollapse = true;
+      }
+    });
+  }
 }
