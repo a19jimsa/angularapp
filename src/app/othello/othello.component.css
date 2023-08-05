@@ -4,6 +4,8 @@ main {
   gap: 1px;
   border: 1px solid black;
   background-color: black;
+  width: 400px;
+  margin: auto;
 }
 
 app-circle {

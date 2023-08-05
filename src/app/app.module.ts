@@ -35,6 +35,7 @@ import { SlidingpuzzleComponent } from './slidingpuzzle/slidingpuzzle.component'
 import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
 import { SnakeComponent } from './snake/snake.component';
 import { SnakeTileComponent } from './snake-tile/snake-tile.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { SnakeTileComponent } from './snake-tile/snake-tile.component';
     MatMenuModule,
     MatToolbarModule,
     HttpClientModule,
+    NgbModule,
   ],
   providers: [
     {

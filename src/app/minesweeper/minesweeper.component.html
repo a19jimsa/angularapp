@@ -1,23 +1,40 @@
-<div class="material">
-  <h1>Minesweeper</h1>
-  <div>
-    <button mat-button (click)="newGame(1)">Easy</button>
-    <button mat-button (click)="newGame(2)">Intermediate</button>
-    <button mat-button (click)="newGame(3)">Hard</button>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 mb-3 mb-sm-0">
+      <div class="card text-bg-dark mb-3" style="width: 100%">
+        <div class="card-header">Chess</div>
+        <div class="card-body text-center">
+          <h1>Minesweeper</h1>
+          <div>
+            <button class="btn btn-primary" (click)="newGame(1)">Easy</button>
+            <button class="btn btn-primary" (click)="newGame(2)">
+              Intermediate
+            </button>
+            <button class="btn btn-primary" (click)="newGame(3)">Hard</button>
+          </div>
+          <div>
+            <button style="font-size: 24px" (click)="newGame(type)">
+              <div *ngIf="!won && !lost">🙂</div>
+              <div *ngIf="won">😎</div>
+              <div *ngIf="lost && !won">😖</div>
+            </button>
+          </div>
+          <div
+            [ngClass]="{
+              easy: type === 1,
+              intermediate: type === 2,
+              hard: type === 3
+            }"
+          >
+            <app-mine
+              *ngFor="let mine of mines; let i = index"
+              [value]="mine"
+              (click)="makeMove(i)"
+            >
+            </app-mine>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <button style="font-size: 24px" (click)="newGame(type)">
-    <div *ngIf="!won && !lost">🙂</div>
-    <div *ngIf="won">😎</div>
-    <div *ngIf="lost && !won">😖</div>
-  </button>
-  <main
-    [ngClass]="{ easy: type === 1, intermediate: type === 2, hard: type === 3 }"
-  >
-    <app-mine
-      *ngFor="let mine of mines; let i = index"
-      [value]="mine"
-      (click)="makeMove(i)"
-    >
-    </app-mine>
-  </main>
 </div>

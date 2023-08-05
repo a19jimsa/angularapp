@@ -1,4 +1,4 @@
-<button [ngClass]="{ pressed: value.pressed }">
+<button class="mines" [ngClass]="{ pressed: value.pressed }">
   <div *ngIf="value.pressed">
     <div *ngIf="value.type === 'mine'">💣</div>
     <div *ngIf="value.count !== 0">{{ value.count }}</div>

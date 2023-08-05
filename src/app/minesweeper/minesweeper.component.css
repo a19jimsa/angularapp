@@ -1,31 +1,29 @@
 .easy {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  margin-top: 10px;
+  border: 1px solid white;
   margin: auto;
-  justify-content: center;
+  width: 225px;
 }
 
 .intermediate {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
-  margin-top: 10px;
   margin: auto;
-  justify-content: center;
+  width: 400px;
 }
 
 .hard {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
-  margin-top: 10px;
   margin: auto;
-  justify-content: center;
+  width: 750px;
 }
 
 .flex {
   display: flex;
   width: 100%;
-  justify-content: space-evenly;
+  justify-content: space-around;
 }
 
 app-mine {

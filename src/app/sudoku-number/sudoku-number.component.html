@@ -3,6 +3,7 @@
     active: value.active,
     locked: value.locked,
   }"
+  class="sudoku-button"
   [ngStyle]="{ background: value.block !== 'none' ? value.block : 'white' }"
 >
   <div class="corner" *ngIf="value.block !== 'none'">

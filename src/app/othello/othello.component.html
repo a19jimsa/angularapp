@@ -1,16 +1,25 @@
-<div class="material">
-  <h1>Current Player: {{ player.color }}</h1>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 mb-3 mb-sm-0">
+      <div class="card text-bg-dark mb-3">
+        <div class="card-header">Chess</div>
+        <div class="card-body text-center">
+          <h1>Current Player: {{ player.color }}</h1>
 
-  <button mat-raised-button color="primary" (click)="newGame()">
-    Start new Game
-  </button>
-  <main>
-    <app-circle
-      *ngFor="let val of markers; let i = index"
-      [value]="val"
-      (click)="makeMove(i)"
-    >
-    </app-circle>
-  </main>
-  <!-- <app-form value="http://localhost:3000/api/othello"></app-form> -->
+          <button mat-raised-button color="primary" (click)="newGame()">
+            Start new Game
+          </button>
+          <main>
+            <app-circle
+              *ngFor="let val of markers; let i = index"
+              [value]="val"
+              (click)="makeMove(i)"
+            >
+            </app-circle>
+          </main>
+          <!-- <app-form value="http://localhost:3000/api/othello"></app-form> -->
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

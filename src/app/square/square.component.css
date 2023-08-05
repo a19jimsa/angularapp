@@ -9,10 +9,6 @@ button {
   justify-content: center;
 }
 
-button > div {
-  font-size: 50px;
-}
-
 .yellow {
   background: rgb(234, 255, 77);
 }

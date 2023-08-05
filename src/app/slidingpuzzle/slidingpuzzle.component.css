@@ -2,18 +2,24 @@
   display: grid;
   grid-template-columns: 100px 100px 100px;
   border: 1px solid black;
+  width: 300px;
+  margin: auto;
 }
 
 .grid2 {
   display: grid;
   grid-template-columns: 100px 100px 100px 100px;
   border: 1px solid black;
+  width: 400px;
+  margin: auto;
 }
 
 .grid3 {
   display: grid;
   grid-template-columns: 100px 100px 100px 100px 100px;
   border: 1px solid black;
+  width: 500px;
+  margin: auto;
 }
 
 app-puzzlepiece {

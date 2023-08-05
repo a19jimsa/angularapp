@@ -1,14 +1,48 @@
-<mat-toolbar color="primary">
-  <span>Jimmys Angular-app</span>
-  <span class="spacer"></span>
-  <a mat-button routerLink="/">Hem</a>
-  <a mat-button routerLink="/chess">Chess</a>
-  <a mat-button routerLink="/othello">Othello</a>
-  <a mat-button routerLink="/memory">Memory</a>
-  <a mat-button routerLink="/calculator">Calculator</a>
-  <a mat-button routerLink="/mine">Minesweeper</a>
-  <a mat-button routerLink="/sudoku">Sudoku</a>
-  <a mat-button routerLink="/killersudoku">Killer Sudoku</a>
-  <a mat-button routerLink="/slidingpuzzle">Sliding puzzle</a>
-  <a mat-button routerLink="/snake">Snake</a>
-</mat-toolbar>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand">Jimmys Angular App</a>
+  <button
+    class="navbar-toggler"
+    type="button"
+    (click)="isCollapse = !isCollapse"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div
+    class="collapse navbar-collapse"
+    id="navbarNavDropdown"
+    [ngbCollapse]="isCollapse"
+  >
+    <ul class="navbar-nav">
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/">Home</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/chess">Chess</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/othello">Othello</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/memory">Memory</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/calculator">Calculator</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/mine">Minesweeper</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/sudoku">Sudoku</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/killersudoku">Killer Sudoku</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/slidingpuzzle">Sliding Puzzle</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/snake">Snake</a>
+      </li>
+    </ul>
+  </div>
+</nav>

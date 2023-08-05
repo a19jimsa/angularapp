@@ -1,6 +1,6 @@
 main {
   display: grid;
-  grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px;
+  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
   border: 1px solid black;
 }
 

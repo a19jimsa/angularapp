@@ -1,26 +1,35 @@
-<div class="material">
-  <h1>Sliding Puzzle</h1>
-  <div *ngIf="won">Grattis!!!</div>
-  <div class="flex">
-    <button mat-button (click)="newGame(9)">3x3</button>
-    <button mat-button (click)="newGame(16)">4x4</button>
-    <button mat-button (click)="newGame(25)">5x5</button>
-  </div>
-  <main>
-    <div
-      [ngClass]="{
-        grid: amount === 9,
-        grid2: amount === 16,
-        grid3: amount === 25
-      }"
-    >
-      <app-puzzlepiece
-        *ngFor="let piece of pieces; let i = index"
-        [ngClass]="{ child1: piece.number === 1 }"
-        [value]="piece"
-        (click)="makeMove(i)"
-      >
-      </app-puzzlepiece>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 mb-3 mb-sm-0">
+      <div class="card text-bg-dark mb-3">
+        <div class="card-header">Chess</div>
+        <div class="card-body text-center">
+          <h1>Sliding Puzzle</h1>
+          <div *ngIf="won">Grattis!!!</div>
+          <div class="flex">
+            <button class="btn btn-secondary" (click)="newGame(9)">3x3</button>
+            <button class="btn btn-secondary" (click)="newGame(16)">4x4</button>
+            <button class="btn btn-secondary" (click)="newGame(25)">5x5</button>
+          </div>
+          <div>
+            <div
+              [ngClass]="{
+                grid: amount === 9,
+                grid2: amount === 16,
+                grid3: amount === 25
+              }"
+            >
+              <app-puzzlepiece
+                *ngFor="let piece of pieces; let i = index"
+                [ngClass]="{ child1: piece.number === 1 }"
+                [value]="piece"
+                (click)="makeMove(i)"
+              >
+              </app-puzzlepiece>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </main>
+  </div>
 </div>

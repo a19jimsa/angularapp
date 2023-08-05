@@ -7,5 +7,7 @@ import { MatButton } from '@angular/material/button';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
-  @Input() value!: MatButton;
+  isCollapse = true;
+
+  constructor() {}
 }
