@@ -1,10 +1,10 @@
-main {
+.memory {
   display: grid;
-  grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px;
-  margin-top: 10px;
+  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+  border: 1px solid black;
   gap: 1px;
-  margin: auto;
   width: 400px;
+  margin: auto;
 }
 
 app-card {

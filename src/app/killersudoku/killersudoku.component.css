@@ -1,6 +1,10 @@
-main {
+.killersudoku {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  display: grid;
+  grid-template-columns: 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1% 11.1%;
+  border: 1px solid black;
+  width: 450px;
+  margin: auto;
   background-color: black;
   border-top: 2px solid black;
   border-left: 2px solid black;

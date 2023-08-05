@@ -1,7 +1,9 @@
-main {
+.chess {
   display: grid;
   grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
   border: 1px solid black;
+  width: 400px;
+  margin: auto;
 }
 
 app-square {

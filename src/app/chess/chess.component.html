@@ -12,7 +12,7 @@
 
           <h2 *ngIf="winner">Player{{ winner }} won the game!</h2>
 
-          <main class="mt-2">
+          <div class="chess mt-2">
             <app-square
               *ngFor="let val of squares; let i = index"
               [value]="val"
@@ -20,7 +20,7 @@
               class="display-5"
             >
             </app-square>
-          </main>
+          </div>
           <!-- <app-form value="http://localhost:3000/api/chess"></app-form> -->
         </div>
       </div>

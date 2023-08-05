@@ -1,9 +1,8 @@
-main {
+.othello {
   display: grid;
-  grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px;
-  gap: 1px;
+  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
   border: 1px solid black;
-  background-color: black;
+  gap: 1px;
   width: 400px;
   margin: auto;
 }

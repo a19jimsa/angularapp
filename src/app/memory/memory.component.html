@@ -11,14 +11,14 @@
             Start new Game
           </button>
 
-          <main class="mt-3">
+          <div class="memory mt-3">
             <app-card
               *ngFor="let val of cards; let i = index"
               [value]="val"
               (click)="makeMove(i)"
             >
             </app-card>
-          </main>
+          </div>
           <!-- <app-form></app-form> -->
         </div>
       </div>
