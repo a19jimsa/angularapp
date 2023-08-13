@@ -1,6 +1,9 @@
 .grid {
   display: grid;
   grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+  gap: 0px;
   width: auto;
+  height: auto;
   margin: auto;
+  aspect-ratio: 1;
 }

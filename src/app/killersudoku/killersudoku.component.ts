@@ -7,8 +7,8 @@ import { Sudoku } from '../sudoku';
   styleUrls: ['./killersudoku.component.css'],
 })
 export class KillersudokuComponent {
-  values!: Sudoku[];
-  tempValues!: Sudoku[];
+  values: Sudoku[] = new Array();
+  tempValues: Sudoku[] = new Array();
   id!: number;
   won!: boolean;
   menu!: boolean;
@@ -143,7 +143,9 @@ export class KillersudokuComponent {
     for (let j = 0; j < 81; j++) {
       if (this.values[j].block !== 'none') continue;
       const rand = Math.floor(Math.random() * shapes.length);
-      const color = colors[number];
+      const color =
+        '#' +
+        (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6);
       number++;
       if (number === 3) {
         number = 0;

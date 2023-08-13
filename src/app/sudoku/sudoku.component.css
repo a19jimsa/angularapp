@@ -1,14 +1,19 @@
 main {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  grid-auto-rows: 50px;
   gap: 2px;
   margin: auto;
-  width: 450px;
+  background-color: black;
+  border-top: 3px solid black;
+  border-left: 3px solid black;
+  border-bottom: 3px solid black;
+  aspect-ratio: 1;
 }
 
 app-sudoku-number {
-  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  aspect-ratio: 1;
 }
 
 app-sudoku-number:nth-child(19),
@@ -20,6 +25,7 @@ app-sudoku-number:nth-child(24),
 app-sudoku-number:nth-child(25),
 app-sudoku-number:nth-child(26),
 app-sudoku-number:nth-child(27) {
+  border-bottom: 3px solid black;
 }
 
 app-sudoku-number:nth-child(46),
@@ -31,9 +37,11 @@ app-sudoku-number:nth-child(51),
 app-sudoku-number:nth-child(52),
 app-sudoku-number:nth-child(53),
 app-sudoku-number:nth-child(54) {
+  border-bottom: 3px solid black;
 }
 
 app-sudoku-number:nth-child(3n) {
+  border-right: 3px solid black;
 }
 
 .hidden {

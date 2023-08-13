@@ -58,7 +58,7 @@ export class SnakeComponent implements OnInit {
       this.offset === -1
     ) {
       this.snakeList.unshift(this.snakeList[0] + 9);
-    } else if (this.snakeList[0] + this.offset < 1 && this.offset === -10) {
+    } else if (this.snakeList[0] + this.offset < 0 && this.offset === -10) {
       this.snakeList.unshift(this.snakeList[0] + 90);
     } else if (this.snakeList[0] + this.offset > 100 && this.offset === 10) {
       this.snakeList.unshift(this.snakeList[0] - 90);

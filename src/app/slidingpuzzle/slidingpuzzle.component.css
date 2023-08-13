@@ -4,6 +4,7 @@
   border: 1px solid black;
   width: auto;
   margin: auto;
+  aspect-ratio: 1;
 }
 
 .grid2 {
@@ -12,6 +13,7 @@
   border: 1px solid black;
   width: auto;
   margin: auto;
+  aspect-ratio: 1;
 }
 
 .grid3 {
@@ -20,10 +22,14 @@
   border: 1px solid black;
   width: auto;
   margin: auto;
+  aspect-ratio: 1;
 }
 
 app-puzzlepiece {
   background: transparent;
+  min-width: 100%;
+  min-height: 100%;
+  aspect-ratio: 1;
 }
 
 .flex {

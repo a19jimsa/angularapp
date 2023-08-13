@@ -5,8 +5,12 @@
   gap: 1px;
   width: auto;
   margin: auto;
+  aspect-ratio: 1;
 }
 
 app-circle {
   background-color: rgb(28, 146, 77);
+  min-width: 100%;
+  min-height: 100%;
+  aspect-ratio: 1;
 }
