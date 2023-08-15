@@ -19,22 +19,13 @@ export class MemoryComponent {
     this.newGame();
   }
   newGame() {
-    const unicode: string[] = [
-      '\u{2664}',
-      '\u{2661}',
-      '\u{2662}',
-      '\u{2667}',
-      '\u{2660}',
-      '\u{2665}',
-      '\u{2666}',
-      '\u{2663}',
-    ];
+    const unicode: string[] = ['\u{2660}', '\u{2665}', '\u{2666}', '\u{2663}'];
     this.pair = false;
     this.cards = new Array();
     this.tempCards = new Array();
     this.clicks = 0;
     for (let i = 0; i < 64; i++) {
-      let number = Math.floor(Math.random() * (8 - 1) + 1);
+      let number = Math.floor(Math.random() * (unicode.length - 1) + 1);
       this.cards.push({
         id: i,
         color: 'red',

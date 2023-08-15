@@ -1,12 +1,11 @@
 button {
   background-color: transparent;
   display: flex;
-  padding: 0px;
-  width: 100%;
-  height: 100%;
-  border: none;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  min-width: 100%;
+  min-height: 100%;
 }
 
 .yellow {

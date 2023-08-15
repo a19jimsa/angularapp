@@ -9,6 +9,7 @@ import { Marker } from '../marker';
 export class OthelloComponent implements OnInit {
   markers!: Marker[];
   xIsNext!: boolean;
+  undoArray: Marker[] = new Array();
   tempMarkers!: Marker[];
   foundOpposite!: boolean;
   constructor() {}
@@ -23,6 +24,7 @@ export class OthelloComponent implements OnInit {
   newGame() {
     this.tempMarkers = new Array();
     this.markers = new Array();
+    this.undoArray = new Array();
     for (let i = 0; i < 64; i++) {
       this.markers.push({ id: i, color: 'green' });
     }
@@ -31,22 +33,21 @@ export class OthelloComponent implements OnInit {
     this.markers.splice(35, 1, { id: 35, color: 'black' });
     this.markers.splice(36, 1, { id: 36, color: 'white' });
     this.xIsNext = false;
+    let clonedArray = JSON.parse(JSON.stringify(this.markers));
+    this.undoArray = clonedArray;
   }
 
   makeMove(idx: number) {
-    console.log('pressed');
+    let clonedArray = JSON.parse(JSON.stringify(this.markers));
+    this.undoArray = clonedArray;
     if (this.markers[idx].color === 'green') {
       let coord = this.convertToYCoord(idx);
       let offsets = [-1, -7, -8, -9, 9, 8, 7, 1];
       let right = 8 - coord - 1;
       let left = coord;
       let num = 8;
-      console.log(coord);
-      console.log(left);
-      console.log(right);
       for (let i = 0; i < offsets.length; i++) {
         if (i == 0) {
-          console.log('Left' + left);
           num = left;
         } else if (i == 1) {
           num = right;
@@ -93,7 +94,6 @@ export class OthelloComponent implements OnInit {
     number = this.tempMarkers.findIndex((e) => e.color === this.player.color);
     number2 = this.tempMarkers.findIndex((e) => e.color !== this.player.color);
     if (number != -1 && number2 != -1) {
-      console.log(this.tempMarkers);
       for (let i = 0; i < this.tempMarkers.length; i++) {
         let id = this.tempMarkers[i].id;
         this.markers[id].color = this.player.color;
@@ -130,5 +130,13 @@ export class OthelloComponent implements OnInit {
       return column8.findIndex((value) => value == idx);
     }
     return -1;
+  }
+
+  undo() {
+    if (this.undoArray.length > 0) {
+      let clonedArray = JSON.parse(JSON.stringify(this.undoArray));
+      this.markers = clonedArray;
+      this.xIsNext = !this.xIsNext;
+    }
   }
 }

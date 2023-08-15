@@ -5,6 +5,9 @@
         <div class="card-header">Othello</div>
         <div class="card-body text-center">
           <h5>Current Player: {{ player.color }}</h5>
+          <button mat-raised-button color="primary" (click)="undo()">
+            Undo
+          </button>
 
           <button mat-raised-button color="primary" (click)="newGame()">
             Start new Game
