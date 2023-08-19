@@ -1,0 +1,12 @@
+.flex {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+video {
+  max-width: 640px;
+  min-height: 480px;
+  width: 100%;
+  height: auto;
+}
