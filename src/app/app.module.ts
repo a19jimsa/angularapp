@@ -36,6 +36,7 @@ import { PuzzlepieceComponent } from './puzzlepiece/puzzlepiece.component';
 import { SnakeComponent } from './snake/snake.component';
 import { SnakeTileComponent } from './snake-tile/snake-tile.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { WebglParticlesComponent } from './webgl-particles/webgl-particles.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     PuzzlepieceComponent,
     SnakeComponent,
     SnakeTileComponent,
+    WebglParticlesComponent,
   ],
   imports: [
     BrowserModule,
