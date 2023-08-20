@@ -160,8 +160,8 @@ export class WebglParticlesComponent implements AfterViewInit, OnDestroy {
       dist = Math.sqrt(dx * dx + dy * dy);
       this.particleVelocity[i] += dx / dist; // Gravitational force
       this.particleVelocity[i + 1] += dy / dist;
-      this.particlePositions[i] += this.particleVelocity[i] * 0.000001; // Euler integration
-      this.particlePositions[i + 1] += this.particleVelocity[i + 1] * 0.00001;
+      this.particlePositions[i] += this.particleVelocity[i] * 0.00001; // Euler integration
+      this.particlePositions[i + 1] += this.particleVelocity[i + 1] * 0.0001;
     }
   }
 

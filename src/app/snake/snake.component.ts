@@ -12,6 +12,7 @@ export class SnakeComponent implements OnInit {
   apple!: number;
   offset!: number;
   score!: number;
+  highScore: number = 0;
 
   constructor() {}
 
@@ -60,6 +61,9 @@ export class SnakeComponent implements OnInit {
   makeMove(): void {
     for (let i = 1; i < this.snakeList.length - 1; i++) {
       if (this.snakeList[0] + this.offset === this.snakeList[i]) {
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+        }
         this.newGame();
       }
     }

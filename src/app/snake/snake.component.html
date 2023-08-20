@@ -1,14 +1,15 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <div class="col-sm-5">
+    <div class="col-xl-6">
       <div class="card text-bg-dark mb-3">
         <div class="card-header">Snake</div>
         <div class="card-body text-center">
           <h2>Score: {{ score }}</h2>
-          <button (click)="move(-10)">Up</button>
-          <button (click)="move(10)">Down</button>
-          <button (click)="move(-1)">Left</button>
-          <button (click)="move(1)">Right</button>
+          <h3>High Score: {{ highScore }}</h3>
+          <button (click)="move(-10)" class="p-2">Up</button>
+          <button (click)="move(10)" class="p-2">Down</button>
+          <button (click)="move(-1)" class="p-2">Left</button>
+          <button (click)="move(1)" class="p-2">Right</button>
           <main class="grid">
             <app-snake-tile
               *ngFor="let tile of tiles; let i = index"
