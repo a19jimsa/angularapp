@@ -5,6 +5,10 @@
         <div class="card-header">Snake</div>
         <div class="card-body text-center">
           <h2>Score: {{ score }}</h2>
+          <button (click)="move(-10)">Up</button>
+          <button (click)="move(10)">Down</button>
+          <button (click)="move(-1)">Left</button>
+          <button (click)="move(1)">Right</button>
           <main class="grid">
             <app-snake-tile
               *ngFor="let tile of tiles; let i = index"

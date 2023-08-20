@@ -17,13 +17,13 @@ export class SnakeComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key == 'ArrowDown') {
+    if (event.key == 'ArrowDown' && this.offset !== -10) {
       this.offset = 10;
-    } else if (event.key === 'ArrowUp') {
+    } else if (event.key === 'ArrowUp' && this.offset !== 10) {
       this.offset = -10;
-    } else if (event.key === 'ArrowRight') {
+    } else if (event.key === 'ArrowRight' && this.offset !== -1) {
       this.offset = 1;
-    } else if (event.key === 'ArrowLeft') {
+    } else if (event.key === 'ArrowLeft' && this.offset !== 1) {
       this.offset = -1;
     }
   }
@@ -31,6 +31,18 @@ export class SnakeComponent implements OnInit {
   ngOnInit(): void {
     this.newGame();
     setInterval(() => this.makeMove(), 100);
+  }
+
+  move(dir: number): void {
+    if (dir === 10 && this.offset !== -10) {
+      this.offset = dir;
+    } else if (dir === -10 && this.offset !== 10) {
+      this.offset = dir;
+    } else if (dir === 1 && this.offset !== -1) {
+      this.offset = dir;
+    } else if (dir === -1 && this.offset !== 1) {
+      this.offset = dir;
+    }
   }
 
   newGame() {
@@ -46,7 +58,7 @@ export class SnakeComponent implements OnInit {
   }
 
   makeMove(): void {
-    for (let i = 1; i < this.snakeList.length; i++) {
+    for (let i = 1; i < this.snakeList.length - 1; i++) {
       if (this.snakeList[0] + this.offset === this.snakeList[i]) {
         this.newGame();
       }
@@ -60,7 +72,7 @@ export class SnakeComponent implements OnInit {
       this.snakeList.unshift(this.snakeList[0] + 9);
     } else if (this.snakeList[0] + this.offset < 0 && this.offset === -10) {
       this.snakeList.unshift(this.snakeList[0] + 90);
-    } else if (this.snakeList[0] + this.offset > 100 && this.offset === 10) {
+    } else if (this.snakeList[0] + this.offset > 99 && this.offset === 10) {
       this.snakeList.unshift(this.snakeList[0] - 90);
     } else {
       this.snakeList.unshift(this.snakeList[0] + this.offset);
