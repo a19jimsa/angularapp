@@ -2,11 +2,10 @@
   <div class="row justify-content-center">
     <div class="col-sm-5 mb-3 mb-sm-0">
       <div class="card text-bg-dark mb-3">
-        <div class="card-header">Chess</div>
+        <div class="card-header">Calculator</div>
         <div class="card-body text-center">
           <h1>Min dagliga kaloriräknare</h1>
           <form [formGroup]="myForm" (ngSubmit)="addDish()">
-            Value: {{ myForm.value | json }}
             <hr />
             <label for="dish">Maträtt</label>
             <input name="dish" formControlName="name" required />
@@ -18,9 +17,9 @@
                 color="primary"
                 (click)="addIngridient()"
               >
-                Lägg till en annan ingridiens
+                Lägg till en annan ingrediens
               </button>
-              <h2>Ingridienser</h2>
+              <h2>Ingredienser</h2>
               <div
                 *ngFor="let ingridient of ingridients.controls; let i = index"
                 [formGroupName]="i"

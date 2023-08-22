@@ -3,7 +3,7 @@
     <mat-label for="firstName">FirstName</mat-label>
     <input matInput placeholder="Ditt namn" formControlName="name" />
     <mat-error *ngIf="name?.invalid && name?.touched">
-      Your ass is on fire!
+      Måste vara valid!
     </mat-error>
   </mat-form-field>
 
@@ -15,7 +15,7 @@
       formControlName="comment"
     ></textarea>
     <mat-error *ngIf="comment?.invalid && comment?.touched">
-      Your ass is on fire!
+      Måste vara valid!
     </mat-error>
   </mat-form-field>
   <button mat-raised-button color="primary" [disabled]="!myForm.valid">
