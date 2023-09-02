@@ -78,7 +78,7 @@ export class WebglParticlesComponent implements AfterViewInit, OnDestroy {
     );
     this.program = this.createProgram(vertexShader, fragmentShader);
 
-    const numParticles = 100000;
+    const numParticles = 1000000;
     for (var i = 0; i < numParticles; i += 2) {
       this.particlePositions[i] = this.getRandomFloat(-1, 1);
       this.particlePositions[i + 1] = this.getRandomFloat(-1, 1);
