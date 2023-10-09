@@ -6,6 +6,7 @@ button {
   aspect-ratio: 1;
   min-width: 100%;
   min-height: 100%;
+  border: none;
 }
 
 .yellow {
