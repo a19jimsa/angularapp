@@ -37,6 +37,9 @@ import { SnakeComponent } from './snake/snake.component';
 import { SnakeTileComponent } from './snake-tile/snake-tile.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { WebglParticlesComponent } from './webgl-particles/webgl-particles.component';
+import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game.component';
+import { FallingSandComponent } from './falling-sand/falling-sand.component';
+import { SandTileComponent } from './sand-tile/sand-tile.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +66,9 @@ import { WebglParticlesComponent } from './webgl-particles/webgl-particles.compo
     SnakeComponent,
     SnakeTileComponent,
     WebglParticlesComponent,
+    SidescrollerGameComponent,
+    FallingSandComponent,
+    SandTileComponent,
   ],
   imports: [
     BrowserModule,

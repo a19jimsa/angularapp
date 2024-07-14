@@ -11,6 +11,8 @@ import { KillersudokuComponent } from './killersudoku/killersudoku.component';
 import { SlidingpuzzleComponent } from './slidingpuzzle/slidingpuzzle.component';
 import { SnakeComponent } from './snake/snake.component';
 import { WebglParticlesComponent } from './webgl-particles/webgl-particles.component';
+import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game.component';
+import { FallingSandComponent } from './falling-sand/falling-sand.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,6 +26,8 @@ const routes: Routes = [
   { path: 'slidingpuzzle', component: SlidingpuzzleComponent },
   { path: 'snake', component: SnakeComponent },
   { path: 'particles', component: WebglParticlesComponent },
+  { path: 'sidescroller', component: SidescrollerGameComponent },
+  { path: 'sand', component: FallingSandComponent },
 ];
 
 @NgModule({

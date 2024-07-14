@@ -1,0 +1,15 @@
+div {
+  min-height: 100%;
+  border: none;
+  aspect-ratio: 1;
+  background-color: black;
+}
+
+.active-class {
+  background-color: white;
+}
+
+.inactive-class {
+  background-color: black;
+}
+    
