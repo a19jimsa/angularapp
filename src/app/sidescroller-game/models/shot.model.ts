@@ -55,7 +55,7 @@ export class Shot implements GameObject {
     return new Shot(pos, new Vec(xSpeed, ySpeed), isDead);
   }
 
-  collide(state: State) {
+  collide(state: State): State {
     let filtered = state.actors.filter((a): a is Shot => a.isDead);
     return new State(state.level, filtered, 'playing');
   }
