@@ -1,11 +1,12 @@
 import { Boss } from './boss.model';
+import { GameObject } from './gameobject.model';
 import { Player } from './player.model';
 import { Shot } from './shot.model';
 import { Vec } from './vec.model';
 
 export class State {
   level: any;
-  actors: any;
+  actors: GameObject[];
   status: any;
   constructor(level: { startActors: any }, actors: any, status: string) {
     this.level = level;
@@ -19,16 +20,16 @@ export class State {
     return new State(level, level.startActors, 'playing');
   }
 
-  get actor() {
-    return this.actors.find((a: { type: string }) => a.type === 'shot');
+  get shot(): Shot | undefined {
+    return this.actors.find((a): a is Shot => !!a);
   }
 
-  get player(): Player {
-    return this.actors.find((a: { type: string }) => a.type === 'player');
+  get player(): Player | undefined {
+    return this.actors.find((a): a is Player => !!a);
   }
 
-  get boss(): Boss {
-    return this.actors.find((a: { type: string }) => a.type === 'boss');
+  get boss(): Boss | undefined {
+    return this.actors.find((a): a is Boss => !!a);
   }
 
   scale = 20;
@@ -36,8 +37,13 @@ export class State {
 
   update(time: number, keys: any): State {
     var shotSpeed = 10;
+    if (this.player == undefined) {
+      console.log('Failed to find player!');
+      return this;
+    }
     if (keys.Enter && !this.isReleased) {
       console.log('pressed');
+
       if (this.player.dir) {
         this.actors.push(
           new Shot(
@@ -59,14 +65,20 @@ export class State {
       this.isReleased = false;
     }
 
-    let actors = this.actors.map((actor: any) =>
+    let actors = this.actors.map((actor: GameObject) =>
       actor.update(time, this, keys)
     );
+
     let newState = new State(this.level, actors, this.status);
     if (newState.status !== 'playing') return newState;
 
     let player = newState.player;
     let boss = newState.boss;
+
+    if (player == undefined) {
+      console.log('nO player exist!!! ');
+      return this;
+    }
 
     if (this.level.touches(player.pos, player.size, 'lava')) {
       return new State(this.level, actors, 'lost');
@@ -82,14 +94,14 @@ export class State {
         actor !== player &&
         actor !== boss &&
         actor.type !== 'shot' &&
-        this.overlap(actor, player)
+        this.overlap(player, actor)
       ) {
         newState = actor.collide(newState);
       } else if (
         actor !== player &&
         actor.type !== 'enemy' &&
         boss != null &&
-        this.overlap(actor, actor)
+        this.overlap(player, actor)
       ) {
         newState = actor.collide(newState);
       }
@@ -102,7 +114,8 @@ export class State {
     }
     return newState;
   }
-  overlap(actor1: Player, actor2: Player): boolean {
+  overlap(actor1: Player, actor2: GameObject): boolean {
+    console.log(actor1, actor2);
     return (
       actor1.pos.X + actor1.size.X > actor2.pos.X &&
       actor1.pos.X < actor2.pos.X + actor2.size.X &&

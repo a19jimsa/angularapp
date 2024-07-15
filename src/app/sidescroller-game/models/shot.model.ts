@@ -3,15 +3,21 @@ import { Player } from './player.model';
 import { State } from './state.model';
 import { Vec } from './vec.model';
 
-export class Shot {
+export class Shot implements GameObject {
   isDead = false;
   size = new Vec(1, 1);
   pos: Vec;
   speed: Vec;
+  flipPlayer: boolean;
+  gravity: number;
+  dir: boolean;
   constructor(pos: Vec, speed: Vec, isDead: boolean) {
     this.pos = pos;
     this.speed = speed;
     this.isDead = isDead;
+    this.flipPlayer = true;
+    this.gravity = 10;
+    this.dir = true;
   }
 
   get type() {
@@ -50,9 +56,7 @@ export class Shot {
   }
 
   collide(state: State) {
-    let filtered = state.actors.filter(
-      (a: { isDead: boolean }) => a.isDead !== true
-    );
+    let filtered = state.actors.filter((a): a is Shot => a.isDead);
     return new State(state.level, filtered, 'playing');
   }
 

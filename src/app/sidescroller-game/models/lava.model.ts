@@ -2,15 +2,23 @@ import { GameObject } from './gameobject.model';
 import { State } from './state.model';
 import { Vec } from './vec.model';
 
-export class Lava {
+export class Lava implements GameObject {
   size = new Vec(1, 1);
   pos: Vec;
   speed: Vec;
   reset: Vec | undefined;
+  gravity: number;
+  flipPlayer: boolean;
+  dir: boolean;
+  isDead: boolean;
   constructor(pos: Vec, speed: Vec, reset?: Vec) {
     this.pos = pos;
     this.speed = speed;
     this.reset = reset;
+    this.dir = true;
+    this.flipPlayer = true;
+    this.gravity = 10;
+    this.isDead = false;
   }
 
   get type() {

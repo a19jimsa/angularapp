@@ -1,24 +1,34 @@
+import { GameObject } from './gameobject.model';
 import { State } from './state.model';
 import { Vec } from './vec.model';
 
-export class Block {
+export class Block implements GameObject {
   pos: Vec;
   speed: Vec;
   reset: Vec | undefined;
+  flipPlayer: boolean;
+  dir: boolean;
+  gravity: number;
+  size: Vec;
+  isDead: boolean;
   constructor(pos: Vec, speed: Vec, reset?: Vec) {
     this.pos = pos;
     this.speed = speed;
     this.reset = reset;
+    this.dir = true;
+    this.flipPlayer = true;
+    this.gravity = 10;
+    this.size = new Vec(1, 1);
+    this.isDead = false;
   }
 
   get type() {
-    return 'block';
+    return 'wall';
   }
 
-  static create(pos: Vec) {
-    return new Block(pos, new Vec(3, 0));
+  static create(pos: Vec): GameObject {
+    return new Block(pos, new Vec(3, 0), new Vec(1, 1));
   }
-  size = new Vec(1, 1);
   collide(state: State): State {
     return new State(state.level, state.actors, state.status);
   }

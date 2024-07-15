@@ -8,35 +8,7 @@ import { Boss } from './boss.model';
 import { Enemy } from './enemy.model';
 import { Block } from './block.model';
 import { GameObject } from './gameobject.model';
-type LevelCharValue =
-  | 'empty'
-  | 'wall'
-  | 'lava'
-  | typeof Player
-  | typeof Coin
-  | typeof Block
-  | typeof Lava
-  | typeof Shot
-  | typeof Enemy
-  | typeof Explosion
-  | typeof Boss;
 export class Level {
-  levelChars: Record<string, LevelCharValue> = {
-    '.': 'empty',
-    '#': 'wall',
-    '+': Lava,
-    p: Player,
-    o: Coin,
-    b: Block,
-    '=': Lava,
-    '|': Lava,
-    v: Lava,
-    M: Shot,
-    E: Enemy,
-    X: Explosion,
-    B: Boss,
-    S: Boss,
-  };
   height: number;
   width: number;
   startActors: GameObject[] = [];
@@ -52,11 +24,31 @@ export class Level {
 
     this.rows = rows.map((row, y) => {
       return row.map((ch, x) => {
-        let type: any = this.levelChars[ch];
-        if (typeof type == 'string') return type;
-        console.log(typeof type);
-
-        this.startActors.push(type.create(new Vec(x, y)));
+        console.log(ch);
+        switch (ch) {
+          case '.':
+            return 'empty';
+          case '#':
+            return 'wall';
+          case 'p':
+            this.startActors.push(Player.create(new Vec(x, y)));
+            return 'empty';
+          case 'o':
+            this.startActors.push(Coin.create(new Vec(x, y)));
+            return 'empty';
+          case '+':
+            this.startActors.push(Lava.create(new Vec(x, y)));
+            return 'empty';
+          case 'E':
+            this.startActors.push(Enemy.create(new Vec(x, y)));
+            return 'empty';
+          case '|':
+            this.startActors.push(Lava.create(new Vec(x, y)));
+            return 'empty';
+          case 'b':
+            this.startActors.push(Boss.create(new Vec(x, y)));
+            return 'empty';
+        }
         return 'empty';
       });
     });

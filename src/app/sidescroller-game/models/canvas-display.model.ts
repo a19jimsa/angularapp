@@ -2,6 +2,13 @@ import { ElementRef } from '@angular/core';
 import { Level } from './level.model';
 import { Player } from './player.model';
 import { State } from './state.model';
+import { Enemy } from './enemy.model';
+import { Shot } from './shot.model';
+import { GameObject } from './gameobject.model';
+import { Boss } from './boss.model';
+import { Block } from './block.model';
+import { Coin } from './coin.model';
+import { Explosion } from './explosion.model';
 
 export class CanvasDisplay {
   canvas: HTMLCanvasElement;
@@ -13,7 +20,7 @@ export class CanvasDisplay {
   otherSprites = new Image();
   bossSprite = new Image();
   playerSprites = new Image();
-  playerXOverlap = 4;
+  playerXOverlap = 2;
 
   constructor(canvas: ElementRef<HTMLCanvasElement>, level: Level) {
     this.canvas = canvas.nativeElement;
@@ -36,17 +43,17 @@ export class CanvasDisplay {
     };
   }
 
-  drawActors(actors: Player[]): void {
+  drawActors(actors: GameObject[]): void {
     for (let actor of actors) {
       let width = actor.size.X * this.scale;
       let height = actor.size.Y * this.scale;
       let x = (actor.pos.X - this.viewport.left) * this.scale;
       let y = (actor.pos.Y - this.viewport.top) * this.scale;
-      if (actor.type === 'player') {
+      if (actor instanceof Player) {
         this.drawPlayer(actor, x, y, width, height);
-      } else if (actor.type === 'enemy') {
+      } else if (actor instanceof Enemy) {
         this.drawPlayer(actor, x, y, width, height);
-      } else if (actor.type === 'shot') {
+      } else if (actor instanceof Shot) {
         let tile = 0;
         tile = Math.floor(Date.now() / 80) % 6;
         let tileX = tile * width;
@@ -66,7 +73,7 @@ export class CanvasDisplay {
           height
         );
         this.cx?.restore();
-      } else if (actor.type === 'explosion') {
+      } else if (actor instanceof Explosion) {
         let tile = 0;
         tile = Math.floor(actor.delay);
         let tileX = tile * width;
@@ -83,9 +90,9 @@ export class CanvasDisplay {
           height
         );
         this.cx?.restore();
-      } else if (actor.type === 'boss') {
+      } else if (actor instanceof Boss) {
         this.drawBoss(actor, x, y, width, height);
-      } else if (actor.type === 'block') {
+      } else if (actor instanceof Block) {
         let tileX = 0 * this.scale;
         this.cx?.drawImage(
           this.otherSprites,
@@ -99,7 +106,7 @@ export class CanvasDisplay {
           height
         );
       } else {
-        let tileX = (actor.type === 'coin' ? 2 : 1) * this.scale;
+        let tileX = (actor instanceof Coin ? 2 : 1) * this.scale;
         this.cx?.drawImage(
           this.otherSprites,
           tileX,
@@ -119,6 +126,7 @@ export class CanvasDisplay {
     let view = this.viewport,
       margin = view.width / 3;
     let player = state.player;
+    if (player == undefined) return;
     let center = player.pos.plus(player.size.times(0.5));
 
     if (center.X < view.left + margin) {
@@ -159,7 +167,7 @@ export class CanvasDisplay {
   }
 
   drawBoss(
-    player: Player,
+    boss: Boss,
     x: number,
     y: number,
     width: number,
@@ -167,19 +175,19 @@ export class CanvasDisplay {
   ): void {
     let sprite = this.bossSprite;
     let tile = 2;
-    if (player.speed.Y !== 0) {
+    if (boss.speed.Y !== 0) {
       tile = 2;
-    } else if (player.speed.X !== 0) {
+    } else if (boss.speed.X !== 0) {
       tile = Math.floor(Date.now() / 120) % 8;
       //tile = 1;
     }
 
     this.cx?.save();
-    if (player.flipPlayer) {
-      player.dir = false;
+    if (boss.flipPlayer) {
+      boss.dir = false;
       this.flipHorizontally(this.cx, x + width / 2);
     } else {
-      player.dir = true;
+      boss.dir = true;
     }
 
     // var tiles = [100, 100, 100, 100, 100, 100, 100, 100];
@@ -187,8 +195,8 @@ export class CanvasDisplay {
     var tileX = 0;
     tileX = tile * 100;
 
-    if (player.life <= 0) {
-      player.bossColor += 0.05;
+    if (boss.life <= 0) {
+      boss.bossColor += 0.05;
       var tempCanvas = document.createElement('canvas');
       tempCanvas.width = width;
       tempCanvas.height = height;
@@ -210,9 +218,9 @@ export class CanvasDisplay {
       for (var i = 0; i < data.length; i += 4) {
         //Check alpha value
         if (data[i + 3] !== 0) {
-          data[i] = data[i] / player.bossColor; // red
-          data[i + 1] = data[i + 1] / player.bossColor; // green
-          data[i + 2] = data[i + 2] / player.bossColor; // blue
+          data[i] = data[i] / boss.bossColor; // red
+          data[i + 1] = data[i + 1] / boss.bossColor; // green
+          data[i + 2] = data[i + 2] / boss.bossColor; // blue
         }
       }
       if (imageData == null) return;
@@ -235,7 +243,7 @@ export class CanvasDisplay {
   }
 
   drawPlayer(
-    player: Player,
+    player: GameObject,
     x: number,
     y: number,
     width: number,
@@ -251,9 +259,6 @@ export class CanvasDisplay {
       tile = Math.floor(Date.now() / 60) % 8;
     }
 
-    if (player.slide) {
-      tile = 10;
-    }
     this.cx?.save();
     if (player.flipPlayer) {
       player.dir = false;
@@ -275,6 +280,7 @@ export class CanvasDisplay {
     );
     this.cx?.restore();
   }
+
   drawBackground(level: Level): void {
     let { left, top, width, height } = this.viewport;
     let xStart = Math.floor(left);

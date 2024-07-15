@@ -1,10 +1,11 @@
 import { Explosion } from './explosion.model';
+import { GameObject } from './gameobject.model';
 import { Player } from './player.model';
 import { Shot } from './shot.model';
 import { State } from './state.model';
 import { Vec } from './vec.model';
 
-export class Boss {
+export class Boss implements GameObject {
   pos: Vec;
   size: Vec;
   speed: any;
@@ -18,6 +19,7 @@ export class Boss {
   static dir: any;
   enemySpeed = 5;
   gravity: number = 10;
+  isDead: boolean;
   constructor(
     pos: Vec,
     size: Vec,
@@ -38,6 +40,7 @@ export class Boss {
     this.explosion = explosion;
     this.bossColor = bossColor;
     this.name = name;
+    this.isDead = false;
   }
 
   get type() {
@@ -132,7 +135,7 @@ export class Boss {
       ySpeed = 0;
     }
 
-    let shots = state.actors.filter((a: { type: string }) => a.type === 'shot');
+    let shots = state.actors.filter((a): a is Shot => a.type === 'shot');
     for (let shot of shots) {
       if (this.overlap(shot, this)) {
         life--;

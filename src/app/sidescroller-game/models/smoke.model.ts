@@ -6,16 +6,30 @@ export class Smoke implements GameObject {
   pos: Vec;
   delay: number;
   isDead: boolean;
+  flipPlayer: boolean;
+  dir: boolean;
+  speed: Vec;
+  gravity: number;
+  size: Vec;
   constructor(pos: Vec, delay: number, isDead: boolean) {
     this.pos = pos;
     this.delay = delay;
     this.isDead = isDead;
+    this.flipPlayer = true;
+    this.dir = true;
+    this.speed = new Vec(0, 0);
+    this.gravity = 10;
+    this.size = new Vec(1, 1);
   }
-  create(pos: Vec): GameObject {
-    return new Smoke(pos, this.delay, this.isDead);
+  static create(pos: Vec) {
+    return new Smoke(pos, 10, false);
   }
 
-  update(state: State, time: number, keys: any) {
+  get type(): string {
+    return 'smoke';
+  }
+
+  update(time: number, state: State, keys: any): GameObject {
     let pos = this.pos;
     let delay = this.delay;
     let isDead = this.isDead;

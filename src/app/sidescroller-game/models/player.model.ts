@@ -2,38 +2,39 @@ import { GameObject } from './gameobject.model';
 import { State } from './state.model';
 import { Vec } from './vec.model';
 
-export class Player {
-  public pos: Vec;
-  public slide: boolean;
-  public gravity: number = 30;
-  public dir: boolean;
-  public flipPlayer: boolean;
-  public speed: Vec;
-  enemySpeed = 5;
-  life: number = 5;
-  bossColor: number = 10;
-  delay: number = 10;
-  size = new Vec(0.5, 5);
+export class Player implements GameObject {
+  pos: Vec;
+  gravity: number = 30;
+  dir: boolean;
+  flipPlayer: boolean;
+  speed: Vec;
+  size: Vec;
+  isDead: boolean;
   constructor(
     pos: Vec,
+    size: Vec,
     speed: Vec,
     flipPlayer: boolean,
-    slide: boolean,
     gravity: number
   ) {
     this.pos = pos;
     this.speed = speed;
     this.dir = false;
-    this.slide = slide;
     this.gravity = gravity;
     this.flipPlayer = flipPlayer;
+    this.isDead = false;
+    this.size = size;
   }
-  get type() {
+  get type(): string {
     return 'player';
   }
 
   static create(pos: Vec): Player {
-    return new Player(pos, new Vec(0, 0), true, false, 30);
+    return new Player(pos, new Vec(0.5, 1.5), new Vec(0, 0), true, 30);
+  }
+
+  collide(state: State): State {
+    return new State(state.level, state.actors, 'lost');
   }
 
   update(time: number, state: State, keys: any): Player {
@@ -54,7 +55,6 @@ export class Player {
     }
     if (keys.ArrowDown) {
       xSpeed += playerXSpeed;
-      this.slide = true;
       delay = 0.5;
     }
 
@@ -95,43 +95,43 @@ export class Player {
     let newPos = pos.plus(new Vec(xSpeed * time, 0));
     let tempPlayer = new Player(
       newPos,
+      this.size,
       new Vec(xSpeed, ySpeed),
       this.flipPlayer,
-      this.slide,
       this.gravity
     );
 
-    for (let block of blocks) {
-      if (!this.overlap(block, tempPlayer)) {
-      } else {
-        pos = pos.plus(new Vec(block.speed.x * time - xSpeed * time, 0));
-        console.log('x');
-      }
-      let movedBlockY = pos.plus(new Vec(0, ySpeed * time));
+    // for (let block of blocks) {
+    //   if (!this.overlap(block, tempPlayer)) {
+    //   } else {
+    //     pos = pos.plus(new Vec(block.speed.x * time - xSpeed * time, 0));
+    //     console.log('x');
+    //   }
+    //   let movedBlockY = pos.plus(new Vec(0, ySpeed * time));
 
-      let tempPlayery = new Player(
-        movedBlockY,
-        new Vec(xSpeed, ySpeed),
-        this.flipPlayer,
-        this.slide,
-        this.gravity
-      );
+    //   let tempPlayery = new Player(
+    //     movedBlockY,
+    //     new Vec(xSpeed, ySpeed),
+    //     this.flipPlayer,
+    //     this.slide,
+    //     this.gravity
+    //   );
 
-      if (!this.overlap(block, tempPlayery)) {
-      } else if (keys.ArrowUp && ySpeed > 0) {
-        ySpeed = -jumpSpeed;
-      } else {
-        console.log('y');
-        pos = pos.plus(new Vec(block.speed.x * time, -ySpeed * time));
-        ySpeed = 0;
-      }
-    }
+    //   if (!this.overlap(block, tempPlayery)) {
+    //   } else if (keys.ArrowUp && ySpeed > 0) {
+    //     ySpeed = -jumpSpeed;
+    //   } else {
+    //     console.log('y');
+    //     pos = pos.plus(new Vec(block.speed.x * time, -ySpeed * time));
+    //     ySpeed = 0;
+    //   }
+    // }
 
     return new Player(
       pos,
+      this.size,
       new Vec(xSpeed, ySpeed),
       this.flipPlayer,
-      this.slide,
       this.gravity
     );
   }

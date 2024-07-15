@@ -10,7 +10,6 @@ export class FallingSandComponent {
   ngOnInit() {
     this.tiles = new Array(900);
     this.tiles.fill(0);
-    console.log(this.tiles);
     setInterval(() => this.makeMove(), 10);
   }
 
@@ -38,16 +37,20 @@ export class FallingSandComponent {
 
   putSand(position: number) {
     this.tiles[position] = 1;
-    console.log(position);
-    if (this.tiles[position + 30] === 0) {
-      //this.swap(i, i + 30);
-      console.log('hit');
-    }
   }
 
   swap(i: number, j: number) {
     let temp = this.tiles[i];
     this.tiles[i] = this.tiles[j];
     this.tiles[j] = temp;
+  }
+
+  getRandomColor() {
+    // Generera slumpmässiga värden för r, g och b (0-255)
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    // Skapa en CSS-sträng för färgen
+    return `rgb(${r},${g},${b})`;
   }
 }

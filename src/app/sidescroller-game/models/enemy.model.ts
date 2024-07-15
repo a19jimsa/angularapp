@@ -3,39 +3,44 @@ import { State } from './state.model';
 import { Vec } from './vec.model';
 
 export class Enemy implements GameObject {
-  size = new Vec(0.8, 1.5);
-  dir = true;
-  life = 5;
-  public pos: Vec;
-  public speed: Vec;
+  pos: Vec;
+  gravity: number = 10;
+  dir: boolean;
   flipPlayer: boolean;
-  delay: number = 10;
-
-  constructor(pos: Vec, speed: Vec, flipPlayer: boolean, dir: boolean) {
+  speed: Vec;
+  size: Vec;
+  isDead: boolean;
+  constructor(
+    pos: Vec,
+    size: Vec,
+    speed: Vec,
+    flipPlayer: boolean,
+    dir: boolean
+  ) {
     this.pos = pos;
     this.speed = speed;
     this.flipPlayer = flipPlayer;
     this.dir = dir;
+    this.size = size;
+    this.isDead = false;
   }
 
   get type() {
     return 'enemy';
   }
 
-  create(pos: Vec) {
-    return new Enemy(
-      pos.plus(new Vec(0, -0.5)),
-      new Vec(0, 0),
-      this.flipPlayer,
-      this.dir
-    );
+  static create(pos: Vec) {
+    return new Enemy(pos, new Vec(0.5, 1.5), new Vec(0, 0), false, true);
   }
 
   collide(state: State) {
-    let jumpSpeed = 5;
     let player = state.player;
+    if (player == undefined) {
+      return new State(state.level, state.actors, 'lost');
+    }
+
     if (player.pos.Y + player.size.Y < this.pos.Y + 0.5) {
-      let filtered = state.actors.filter((a: this) => a !== this);
+      let filtered = state.actors.filter((a) => a.type === 'enemy');
       return new State(state.level, filtered, state.status);
     } else {
       return new State(state.level, state.actors, 'lost');
@@ -84,6 +89,12 @@ export class Enemy implements GameObject {
       ySpeed = 0;
     }
 
-    return new Enemy(pos, new Vec(xSpeed, ySpeed), this.flipPlayer, dir);
+    return new Enemy(
+      pos,
+      this.size,
+      new Vec(xSpeed, ySpeed),
+      this.flipPlayer,
+      dir
+    );
   }
 }
