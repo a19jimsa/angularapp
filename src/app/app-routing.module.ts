@@ -13,6 +13,7 @@ import { SnakeComponent } from './snake/snake.component';
 import { WebglParticlesComponent } from './webgl-particles/webgl-particles.component';
 import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game.component';
 import { FallingSandComponent } from './falling-sand/falling-sand.component';
+import { CollisionComponent } from './collision/collision.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,6 +29,7 @@ const routes: Routes = [
   { path: 'particles', component: WebglParticlesComponent },
   { path: 'sidescroller', component: SidescrollerGameComponent },
   { path: 'sand', component: FallingSandComponent },
+  { path: 'collision', component: CollisionComponent },
 ];
 
 @NgModule({

@@ -40,6 +40,7 @@ import { WebglParticlesComponent } from './webgl-particles/webgl-particles.compo
 import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game.component';
 import { FallingSandComponent } from './falling-sand/falling-sand.component';
 import { SandTileComponent } from './sand-tile/sand-tile.component';
+import { CollisionComponent } from './collision/collision.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { SandTileComponent } from './sand-tile/sand-tile.component';
     SidescrollerGameComponent,
     FallingSandComponent,
     SandTileComponent,
+    CollisionComponent,
   ],
   imports: [
     BrowserModule,
