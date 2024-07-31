@@ -35,6 +35,7 @@ export class Vec {
   }
 
   public dotProduct(a: Vec): number {
+    //Scalar
     return this.x * a.X + this.y * a.Y;
   }
 
@@ -46,5 +47,10 @@ export class Vec {
 
   public mag() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  public normalize(): Vec {
+    const magnitude = this.mag();
+    return new Vec(this.x / magnitude, this.y / magnitude);
   }
 }

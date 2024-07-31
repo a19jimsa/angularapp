@@ -212,6 +212,7 @@ export class SidescrollerGameComponent implements AfterContentInit {
 
   private CanvasDisplay!: CanvasDisplay;
   private level!: Level;
+  private loopId = 0;
 
   ngAfterContentInit(): void {
     this.level = new Level(this.GAME_LEVELS[0]);
@@ -242,15 +243,15 @@ export class SidescrollerGameComponent implements AfterContentInit {
 
   runAnimation(frameFunc: any) {
     let lastTime: any = null;
-    function frame(time: number) {
+    const frame = (time: number) => {
       if (lastTime != null) {
         let timeStep = Math.min(time - lastTime, 100) / 1000;
         if (frameFunc(timeStep) === false) return;
       }
       lastTime = time;
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+      this.loopId = requestAnimationFrame(frame);
+    };
+    this.loopId = requestAnimationFrame(frame);
   }
 
   runLevel(level: Level, Display: CanvasDisplay) {

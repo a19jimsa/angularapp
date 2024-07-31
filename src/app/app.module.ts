@@ -41,6 +41,7 @@ import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game
 import { FallingSandComponent } from './falling-sand/falling-sand.component';
 import { SandTileComponent } from './sand-tile/sand-tile.component';
 import { CollisionComponent } from './collision/collision.component';
+import { CurlingComponent } from './curling/curling.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { CollisionComponent } from './collision/collision.component';
     FallingSandComponent,
     SandTileComponent,
     CollisionComponent,
+    CurlingComponent,
   ],
   imports: [
     BrowserModule,

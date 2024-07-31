@@ -14,6 +14,7 @@ import { WebglParticlesComponent } from './webgl-particles/webgl-particles.compo
 import { SidescrollerGameComponent } from './sidescroller-game/sidescroller-game.component';
 import { FallingSandComponent } from './falling-sand/falling-sand.component';
 import { CollisionComponent } from './collision/collision.component';
+import { CurlingComponent } from './curling/curling.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'sidescroller', component: SidescrollerGameComponent },
   { path: 'sand', component: FallingSandComponent },
   { path: 'collision', component: CollisionComponent },
+  { path: 'curling', component: CurlingComponent },
 ];
 
 @NgModule({

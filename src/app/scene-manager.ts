@@ -1,0 +1,8 @@
+export class SceneManager {
+    
+    constructor(){
+
+    }
+
+
+}

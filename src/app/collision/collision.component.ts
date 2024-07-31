@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { Particle } from '../particle';
 
 @Component({
@@ -6,10 +12,11 @@ import { Particle } from '../particle';
   templateUrl: './collision.component.html',
   styleUrls: ['./collision.component.css'],
 })
-export class CollisionComponent implements AfterViewInit {
+export class CollisionComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D | null | undefined;
   private particles: Particle[];
+  private gameLoopId: number = 0;
 
   constructor() {
     this.particles = new Array(300);
@@ -18,6 +25,11 @@ export class CollisionComponent implements AfterViewInit {
         Math.random() * (200 + 100) + 100,
         Math.random() * (200 + 100) + 100
       );
+    }
+  }
+  ngOnDestroy(): void {
+    if (this.gameLoopId !== 0) {
+      window.cancelAnimationFrame(this.gameLoopId);
     }
   }
   ngAfterViewInit(): void {
@@ -48,6 +60,6 @@ export class CollisionComponent implements AfterViewInit {
       particle.update();
       particle.show(this.ctx);
     }
-    window.requestAnimationFrame(() => this.draw());
+    this.gameLoopId = window.requestAnimationFrame(() => this.draw());
   }
 }

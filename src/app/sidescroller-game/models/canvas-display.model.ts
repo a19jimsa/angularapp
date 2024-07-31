@@ -128,6 +128,7 @@ export class CanvasDisplay {
     let player = state.player;
     if (player == undefined) return;
     let center = player.pos.plus(player.size.times(0.5));
+    console.log(center);
 
     if (center.X < view.left + margin) {
       view.left = Math.max(center.X - margin, 0);

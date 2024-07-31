@@ -13,6 +13,10 @@ export class Particle {
     this.mass = 1;
   }
 
+  get Position(): Vec {
+    return this.position;
+  }
+
   collide(other: Particle): void {
     //Get distance of two particles
     let d = this.position.dist(other.position);
