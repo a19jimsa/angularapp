@@ -7,6 +7,7 @@ export class MouseHandler {
   isMouseDown: boolean = false;
   isDownPosition: Vec = new Vec(0, 0);
   isUpPosition: Vec = new Vec(0, 0);
+  scrollValue: number = 0;
   rect: DOMRect;
   constructor(canvas: ElementRef<HTMLCanvasElement>) {
     this.canvas = canvas;
@@ -19,7 +20,16 @@ export class MouseHandler {
       'mouseup',
       this.handleMouseUp.bind(this)
     );
+    this.canvas.nativeElement.addEventListener(
+      'wheel',
+      this.handleScrollMovement.bind(this)
+    );
     console.log('Created mousehandler');
+  }
+
+  handleScrollMovement(event: WheelEvent) {
+    this.scrollValue += event.deltaY / 100;
+    console.log(this.scrollValue);
   }
 
   handleMouseUp(event: MouseEvent) {

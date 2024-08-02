@@ -60,7 +60,7 @@ export class Scene {
     //Add player components
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(20, 20), new Vec(0, 0), 20)
+      new Transform(new Vec(this.canvasWidth / 2, 30), new Vec(0, 0), 20)
     );
     this.ecs.addComponent<Render>(player, new Render('yellow'));
     this.ecs.addComponent<Camera>(
@@ -111,7 +111,7 @@ export class Scene {
     this.movementSystem.update(this.ecs);
     this.cameraSystem.update(this.ecs, this);
     this.rotationSystem.update(this.ecs);
-    this.renderSystem.update(this.ecs, this.renderer);
+    this.renderSystem.update(this.ecs, this.renderer, this.mouseHandler);
     window.requestAnimationFrame(() => this.start());
   }
 }

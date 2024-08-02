@@ -8,8 +8,9 @@ export class RotationSystem {
       const rotation = ecs.getComponent<Rotation>(entity, 'Rotation');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (rotation !== undefined && transform !== undefined) {
-        transform.velocity.X -= -rotation.rotation * 0.05;
+        transform.velocity.X -= rotation.rotation * 0.01 * transform.velocity.Y;
         rotation.angle += rotation.rotation;
+        rotation.rotation *= 0.99;
       }
     }
   }

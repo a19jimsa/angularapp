@@ -3,10 +3,11 @@ import { Render } from '../components/render';
 import { Rotation } from '../components/rotation';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
+import { MouseHandler } from '../mouse-handler';
 import { Renderer } from '../renderer';
 
 export class RenderSystem {
-  update(ecs: Ecs, renderer: Renderer) {
+  update(ecs: Ecs, renderer: Renderer, mousehandler: MouseHandler) {
     for (let entity of ecs.getEntities()) {
       const render = ecs.getComponent<Render>(entity, 'Render');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
@@ -23,9 +24,6 @@ export class RenderSystem {
           transform.radius,
           angle
         );
-      }
-      if (control !== undefined) {
-        renderer.drawSpeedControl(transform.position, control.velocity);
       }
     }
   }

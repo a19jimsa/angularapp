@@ -176,6 +176,7 @@ export class Renderer {
   }
 
   public drawSpeedControl(position: Vec, drawTo: Vec) {
+    this.ctx.strokeStyle = 'green';
     this.ctx.beginPath();
     this.ctx.moveTo(
       position.X - this.camera.position.X,
