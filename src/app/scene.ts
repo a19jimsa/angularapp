@@ -19,7 +19,6 @@ export class Scene {
   ecs: Ecs;
   canvas: ElementRef<HTMLCanvasElement>;
   renderer!: Renderer;
-  camera!: Camera;
   canvasWidth: number;
   canvasHeight: number;
   width: number;
@@ -89,7 +88,7 @@ export class Scene {
       )
     );
     this.ecs.addComponent<Render>(enemy, new Render('blue'));
-    this.camera = this.ecs.getComponent<Camera>(player, 'Camera');
+    //this.camera = this.ecs.getComponent<Camera>(player, 'Camera');
     for (let i = 0; i < 10; i++) {
       var entity = this.ecs.createEntity();
       this.ecs.addComponent<Transform>(
@@ -100,18 +99,19 @@ export class Scene {
     }
 
     this.ecs.addComponent<Rotation>(player, new Rotation());
-    this.renderer = new Renderer(this.canvas, this.camera);
+    this.renderer = new Renderer(this.canvas);
+    this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
   }
 
   start() {
     this.renderer.clearScreen();
     this.renderer.drawBackground();
     this.controlSystem.update(this.ecs, this.mouseHandler);
-    this.collisionSystem.update(this.ecs, this, 0.8);
+    this.collisionSystem.update(this.ecs, this);
     this.movementSystem.update(this.ecs);
     this.cameraSystem.update(this.ecs, this);
     this.rotationSystem.update(this.ecs);
-    this.renderSystem.update(this.ecs, this.renderer, this.mouseHandler);
+    this.renderSystem.update(this.ecs, this.renderer);
     window.requestAnimationFrame(() => this.start());
   }
 }

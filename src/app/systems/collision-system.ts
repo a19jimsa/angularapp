@@ -3,16 +3,11 @@ import { Ecs } from '../ecs';
 import { Scene } from '../scene';
 
 export class CollisionSystem {
-  update(ecs: Ecs, scene: Scene, friction: number): void {
+  update(ecs: Ecs, scene: Scene): void {
     for (let i = 0; i < ecs.getEntities().length; i++) {
       let entity = ecs.getEntities()[i];
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (transform !== undefined) {
-        transform.velocity.times(0.995);
-        if (transform.velocity.mag() < 2) {
-          transform.velocity.times(0.95);
-        }
-
         if (transform.position.X > scene.width - transform.radius) {
           transform.position.X = scene.width - transform.radius;
           transform.velocity.X *= -1;
@@ -41,9 +36,6 @@ export class CollisionSystem {
         const overlap = transform.radius + otherTransform.radius - d;
         //If they overlap
         if (d < transform.radius + otherTransform.radius) {
-          //Remove speed on hit
-          transform.velocity.times(friction);
-          otherTransform.velocity.times(friction);
           if (overlap > 0) {
             const dx = (transform.position.X - otherTransform.position.X) / d;
             const dy = (transform.position.Y - otherTransform.position.Y) / d;

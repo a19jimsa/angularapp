@@ -1,3 +1,5 @@
+import { Ecs } from '../ecs';
+import { Scene } from '../scene';
 import { Vec } from '../vec';
 import { Component } from './component';
 
@@ -8,6 +10,7 @@ export class Camera extends Component {
   maxWidth: number;
   maxHeight: number;
   position: Vec;
+
   constructor(
     width: number,
     height: number,

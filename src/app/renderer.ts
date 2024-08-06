@@ -9,7 +9,7 @@ export class Renderer {
   private height: number;
   private camera: Camera;
 
-  constructor(canvas: ElementRef<HTMLCanvasElement>, camera: Camera) {
+  constructor(canvas: ElementRef<HTMLCanvasElement>) {
     this.canvas = canvas;
     const context = this.canvas.nativeElement.getContext('2d');
 
@@ -22,6 +22,16 @@ export class Renderer {
     }
     this.width = canvas.nativeElement.width;
     this.height = canvas.nativeElement.height;
+    this.camera = new Camera(
+      this.width,
+      this.height,
+      this.width,
+      this.height,
+      new Vec(0, 0)
+    );
+  }
+
+  setCamera(camera: Camera) {
     this.camera = camera;
   }
 
