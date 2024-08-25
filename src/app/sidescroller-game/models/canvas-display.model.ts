@@ -124,7 +124,7 @@ export class CanvasDisplay {
 
   updateViewport(state: State): void {
     let view = this.viewport,
-      margin = view.width / 3;
+      margin = view.width / 2;
     let player = state.player;
     if (player == undefined) return;
     let center = player.pos.plus(player.size.times(0.5));

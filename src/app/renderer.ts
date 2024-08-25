@@ -8,6 +8,7 @@ export class Renderer {
   private width: number;
   private height: number;
   private camera: Camera;
+  private image = new Image();
 
   constructor(canvas: ElementRef<HTMLCanvasElement>) {
     this.canvas = canvas;
@@ -29,6 +30,7 @@ export class Renderer {
       this.height,
       new Vec(0, 0)
     );
+    this.image.src = 'assets/sprites/sbackground.png';
   }
 
   setCamera(camera: Camera) {
@@ -106,6 +108,16 @@ export class Renderer {
     height: number
   ) {
     this.ctx.drawImage(src, x, y, width, height);
+  }
+
+  public drawForeground() {
+    this.ctx.drawImage(this.image, 0, 0, 1024, 450, 0, 0, 1024, 450);
+    this.ctx.drawImage(this.image, 1024, 0, 1024, 450, 0, 0, 1024, 450);
+    this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
+  }
+
+  public drawBackgroundGame() {
+    //this.ctx.drawImage(this.image, 0, 0, 1024,450, );
   }
 
   public drawBackground() {
@@ -204,5 +216,55 @@ export class Renderer {
       color,
       angle
     );
+  }
+
+  public renderBone(
+    position: Vec,
+    length: number,
+    angle: number,
+    color: string
+  ) {
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 10;
+    this.ctx.beginPath();
+    this.ctx.moveTo(position.X, position.Y);
+    this.ctx.arc(position.X, position.Y, 2, 0, Math.PI * 2);
+    const endX = position.X + length * Math.cos(angle);
+    const endY = position.Y + length * Math.sin(angle);
+    this.ctx.lineTo(endX, endY);
+    this.ctx.stroke();
+  }
+
+  public renderFont(text: string) {
+    this.ctx.font = '50px Arial';
+    this.ctx.strokeText(text, 0, 100);
+  }
+
+  public renderSheet(
+    image: CanvasImageSource,
+    position: Vec,
+    angle: number,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
+  ) {
+    this.ctx.save(); // Spara nuvarande kontext
+    this.ctx.translate(position.X, position.Y);
+    this.ctx.rotate(angle - Math.PI / 2); // Rotera canvas
+    this.ctx.translate(-position.X, -position.Y);
+    // Rita bilden
+    this.ctx.drawImage(
+      image,
+      startX,
+      startY,
+      endX,
+      endY,
+      position.X - endX / 2,
+      position.Y,
+      endX,
+      endY
+    );
+    this.ctx.restore(); // Återställ kontext till sitt ursprungliga tillstånd
   }
 }

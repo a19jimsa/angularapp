@@ -76,10 +76,10 @@ export class CollisionSystem {
           otherTransform.velocity.Y =
             otherTransform.velocity.Y - scalar2 * position2.Y;
 
-          let speedA = transform.velocity.mag();
-          let speedB = otherTransform.velocity.mag();
-          let kinA = 0.5 * transform.mass * speedA * speedA;
-          let kinB = 0.5 * otherTransform.mass * speedB * speedB;
+          // let speedA = transform.velocity.mag();
+          // let speedB = otherTransform.velocity.mag();
+          // let kinA = 0.5 * transform.mass * speedA * speedA;
+          // let kinB = 0.5 * otherTransform.mass * speedB * speedB;
           //console.log(kinA + kinB);
           // transform.velocity.times(1 - kinA);
           // otherTransform.velocity.times(1 - kinB);

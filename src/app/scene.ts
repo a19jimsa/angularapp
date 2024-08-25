@@ -88,7 +88,6 @@ export class Scene {
       )
     );
     this.ecs.addComponent<Render>(enemy, new Render('blue'));
-    //this.camera = this.ecs.getComponent<Camera>(player, 'Camera');
     for (let i = 0; i < 10; i++) {
       var entity = this.ecs.createEntity();
       this.ecs.addComponent<Transform>(

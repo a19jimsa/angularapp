@@ -1,4 +1,3 @@
-import { Controlable } from '../components/controlable';
 import { Render } from '../components/render';
 import { Rotation } from '../components/rotation';
 import { Transform } from '../components/transform';

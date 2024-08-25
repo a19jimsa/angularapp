@@ -1,5 +1,3 @@
-import { Ecs } from '../ecs';
-import { Scene } from '../scene';
 import { Vec } from '../vec';
 import { Component } from './component';
 
