@@ -48,12 +48,36 @@ export class AnimationScene {
   init() {
     this.renderer = new Renderer(this.canvas);
     const player = this.ecs.createEntity();
+    const enemy = this.ecs.createEntity();
+    const arden = this.ecs.createEntity();
+    const astram = this.ecs.createEntity();
+    const darros = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       player,
       new Transform(new Vec(200, 300), new Vec(10, 0), 0)
     );
+    this.ecs.addComponent<Transform>(
+      enemy,
+      new Transform(new Vec(300, 300), new Vec(10, 0), 0)
+    );
+    this.ecs.addComponent<Transform>(
+      arden,
+      new Transform(new Vec(400, 300), new Vec(10, 0), 0)
+    );
+    this.ecs.addComponent<Transform>(
+      astram,
+      new Transform(new Vec(500, 300), new Vec(10, 0), 0)
+    );
+    this.ecs.addComponent<Transform>(
+      darros,
+      new Transform(new Vec(600, 300), new Vec(10, 0), 0)
+    );
 
     const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
+    const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
+    const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
+    const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
+    const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
 
     const rightLeg = new Bone(
       'rightLeg',
@@ -201,10 +225,25 @@ export class AnimationScene {
     playerSkeleton.joints.push(pelvis);
     //playerSkeleton.joints.push(headJoint);
 
+    enemySkeleton.joints.push(joint);
+    enemySkeleton.joints.push(pelvis);
+
+    ardenSkeleton.joints.push(joint);
+    ardenSkeleton.joints.push(pelvis);
+
+    astramSkeleton.joints.push(joint);
+    astramSkeleton.joints.push(pelvis);
+
+    darrosSkeleton.joints.push(joint);
+    darrosSkeleton.joints.push(pelvis);
+
     //playerSkeleton.joints.push(head);
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-
+    this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
+    this.ecs.addComponent<Skeleton>(arden, ardenSkeleton);
+    this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
+    this.ecs.addComponent<Skeleton>(darros, darrosSkeleton);
     // const enemy = this.ecs.createEntity();
     // this.ecs.addComponent<Transform>(
     //   enemy,
