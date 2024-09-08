@@ -1,16 +1,16 @@
 import { StateMachine } from '../state-machine';
 import { Bone } from './bone';
 import { Component } from './component';
+import { Joint } from './joint';
 
 export class Skeleton extends Component {
   override type = 'Skeleton';
   image = new Image();
-  bones: Bone[];
+  joints: Joint[] = [];
+  bones: Bone[] = [];
   stateMachine: StateMachine = new StateMachine();
-
-  constructor(bones: Bone[] = [], imageSrc: string) {
+  constructor(imageSrc: string) {
     super();
-    this.bones = bones;
     this.image.src = imageSrc;
   }
 }

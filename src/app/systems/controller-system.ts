@@ -51,13 +51,11 @@ export class ControllerSystem {
       if (controlable !== undefined && skeleton !== undefined) {
         if (this.keysPressed.right) {
           skeleton.stateMachine.changeState('running');
-          transform.velocity.X = 5;
-        } else if (this.keysPressed.left) {
+          transform.position.X += transform.velocity.X;
+        }
+        if (this.keysPressed.left) {
           skeleton.stateMachine.changeState('running');
-          transform.velocity.X = -5;
-        } else {
-          skeleton.stateMachine.changeState('idle');
-          transform.velocity.X = 0;
+          transform.position.X += -transform.velocity.X;
         }
       }
     }

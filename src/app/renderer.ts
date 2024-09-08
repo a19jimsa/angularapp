@@ -1,6 +1,9 @@
 import { ElementRef, ViewChild } from '@angular/core';
 import { Vec } from './vec';
 import { Camera } from './components/camera';
+import { Bone } from './components/bone';
+import { Ecs } from './ecs';
+import { Joint } from './components/joint';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -218,21 +221,93 @@ export class Renderer {
     );
   }
 
-  public renderBone(
-    position: Vec,
-    length: number,
-    angle: number,
-    color: string
-  ) {
-    this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = 10;
+  public renderJoint(joint: Joint, parent: Joint) {
+    const radians = (parent.rotation * Math.PI) / 180;
+    const endX = parent.position.X + parent.lengths[4] * Math.cos(radians);
+    const endY = parent.position.Y + parent.lengths[4] * Math.sin(radians);
+    this.ctx.save();
+    this.ctx.translate(parent.position.X, parent.position.Y);
+    this.ctx.rotate(radians);
     this.ctx.beginPath();
-    this.ctx.moveTo(position.X, position.Y);
-    this.ctx.arc(position.X, position.Y, 2, 0, Math.PI * 2);
-    const endX = position.X + length * Math.cos(angle);
-    const endY = position.Y + length * Math.sin(angle);
-    this.ctx.lineTo(endX, endY);
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(parent.lengths[4], 0);
+    this.ctx.strokeStyle = parent.color;
     this.ctx.stroke();
+    this.ctx.restore();
+
+    this.ctx.save();
+    this.ctx.translate(endX, endY);
+    this.ctx.rotate(radians);
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(joint.lengths[4], 0);
+    this.ctx.strokeStyle = joint.color;
+    this.ctx.stroke();
+    this.ctx.restore();
+    let i = 0;
+    parent.angles.forEach((angle) => {
+      this.ctx.save();
+      this.ctx.translate(parent.position.X, parent.position.Y);
+      this.ctx.rotate((angle * Math.PI) / 180 + radians);
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, 0);
+      this.ctx.lineTo(parent.lengths[i], 0);
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeStyle = parent.color;
+      this.ctx.stroke();
+      this.ctx.restore();
+      i++;
+    });
+    i = 0;
+    joint.angles.forEach((angle) => {
+      this.ctx.save();
+      this.ctx.translate(endX, endY);
+      this.ctx.rotate((angle * Math.PI) / 180 + radians);
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, 0);
+      this.ctx.lineTo(joint.lengths[i], 0);
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeStyle = joint.color;
+      this.ctx.stroke();
+      this.ctx.restore();
+      i++;
+    });
+  }
+
+  public renderBone(image: CanvasImageSource, bone: Bone) {
+    const radians = (bone.rotation * Math.PI) / 180;
+
+    const endX = bone.position.X + bone.length * Math.cos(radians);
+    const endY = bone.position.Y + bone.length * Math.sin(radians);
+
+    this.ctx.strokeStyle = bone.color;
+    this.ctx.lineWidth = 2;
+    this.ctx.save();
+    this.ctx.translate(bone.position.X, bone.position.Y);
+    this.ctx.rotate(radians - Math.PI / 2);
+    if (bone.flip) {
+      this.ctx.scale(1, -1);
+      this.ctx.scale(-1, 1);
+    }
+    //this.ctx.scale(-1, 1);
+    this.ctx.translate(-bone.position.X, -bone.position.Y);
+    this.ctx.drawImage(
+      image,
+      bone.startX,
+      bone.startY,
+      bone.endX,
+      bone.endY,
+      bone.position.X - bone.endX / 2,
+      bone.position.Y,
+      bone.endX,
+      bone.endY
+    );
+    this.ctx.restore();
+
+    // this.ctx.beginPath();
+    // this.ctx.arc(bone.position.X, bone.position.Y, 2, 0, Math.PI * 2);
+    // this.ctx.lineTo(endX, endY);
+    // this.ctx.stroke();
   }
 
   public renderFont(text: string) {
@@ -240,31 +315,9 @@ export class Renderer {
     this.ctx.strokeText(text, 0, 100);
   }
 
-  public renderSheet(
-    image: CanvasImageSource,
-    position: Vec,
-    angle: number,
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number
-  ) {
-    this.ctx.save(); // Spara nuvarande kontext
-    this.ctx.translate(position.X, position.Y);
-    this.ctx.rotate(angle - Math.PI / 2); // Rotera canvas
-    this.ctx.translate(-position.X, -position.Y);
-    // Rita bilden
-    this.ctx.drawImage(
-      image,
-      startX,
-      startY,
-      endX,
-      endY,
-      position.X - endX / 2,
-      position.Y,
-      endX,
-      endY
-    );
-    this.ctx.restore(); // Återställ kontext till sitt ursprungliga tillstånd
+  drawDebug(characterPosition: Vec) {
+    this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
   }
+
+  draw(ecs: Ecs) {}
 }

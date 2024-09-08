@@ -5,8 +5,6 @@ export class Bone extends Component {
   override type: string = 'Bone';
   id: string;
   parentId: string | null;
-  offsetX: number;
-  offsetY: number;
   position: Vec;
   length: number;
   rotation: number;
@@ -14,30 +12,33 @@ export class Bone extends Component {
   startY: number;
   endX: number;
   endY: number;
+  flip: boolean;
+  color: string;
+  offset: Vec;
 
   constructor(
     id: string,
     parentId: string | null,
-    position: Vec,
-    offsetX: number,
-    offsetY: number,
+    offset: Vec,
     length: number,
     startX: number,
     startY: number,
     endX: number,
-    endY: number
+    endY: number,
+    rotation: number
   ) {
     super();
     this.id = id;
+    this.offset = offset;
+    this.position = new Vec(0, 0);
     this.parentId = parentId;
-    this.position = position;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
     this.length = length;
-    this.rotation = 0;
+    this.rotation = rotation;
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
+    this.flip = false;
+    this.color = 'blue';
   }
 }
