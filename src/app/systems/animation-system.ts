@@ -111,20 +111,29 @@ export class AnimationSystem {
               joint.parentId
             ) as Joint;
 
-            const radians = (jointParent.rotation * Math.PI) / 180;
+            const radians =
+              ((jointParent.angles[jointParent.lengths.length - 1] +
+                jointParent.rotation) *
+                Math.PI) /
+              180;
 
-            const endX =
+            const newX =
               jointParent.position.X +
-              jointParent.lengths[4] * Math.cos(radians);
-
-            const endY =
+              jointParent.lengths[jointParent.lengths.length - 1] *
+                Math.cos(radians);
+            const newY =
               jointParent.position.Y +
-              jointParent.lengths[4] * Math.sin(radians);
+              jointParent.lengths[jointParent.lengths.length - 1] *
+                Math.sin(radians);
 
-            joint.position = new Vec(endX, endY);
+            joint.position = new Vec(newX, newY);
             joint.rotation = jointParent.rotation;
-            //renderer.renderJoint(joint, jointParent);
+
+            //renderer.renderJoint(joint);
+
             //jointParent.rotation++;
+          } else {
+            //renderer.renderJoint(joint);
           }
 
           // Loop all children of joint update their position and draw them
@@ -140,7 +149,7 @@ export class AnimationSystem {
               bone.position = this.calculateParentPosition(
                 parentBone.position,
                 parentBone.length,
-                parentBone.rotation
+                parentBone.rotation + parentBone.jointRotation
               );
             } else {
               const xEnd =
@@ -157,12 +166,14 @@ export class AnimationSystem {
                   );
               bone.position = new Vec(xEnd, yEnd);
             }
-
-            bone.rotation = joint.rotation + joint.angles[j];
+            //bone.rotation = joint.rotation + joint.angles[j];
+            bone.rotation = 90;
             this.runAnimation(bone);
-            renderer.renderBone(skeleton.image, bone);
+            //renderer.renderBone(skeleton.image, bone);
+            //renderer.renderJoints(bone);
           }
         }
+        renderer.renderCharacter(skeleton, transform);
       }
     }
   }

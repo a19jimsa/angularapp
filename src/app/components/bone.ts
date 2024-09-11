@@ -14,31 +14,33 @@ export class Bone extends Component {
   endY: number;
   flip: boolean;
   color: string;
-  offset: Vec;
+  pivot: Vec;
+  jointRotation: number;
 
   constructor(
     id: string,
     parentId: string | null,
-    offset: Vec,
+    pivot: Vec,
     length: number,
     startX: number,
     startY: number,
     endX: number,
     endY: number,
-    rotation: number
+    jointRotation: number
   ) {
     super();
     this.id = id;
-    this.offset = offset;
+    this.pivot = pivot;
     this.position = new Vec(0, 0);
     this.parentId = parentId;
     this.length = length;
-    this.rotation = rotation;
+    this.rotation = 0;
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
     this.flip = false;
     this.color = 'blue';
+    this.jointRotation = jointRotation;
   }
 }

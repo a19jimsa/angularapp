@@ -4,6 +4,8 @@ import { Camera } from './components/camera';
 import { Bone } from './components/bone';
 import { Ecs } from './ecs';
 import { Joint } from './components/joint';
+import { Skeleton } from './components/skeleton';
+import { Transform } from './components/transform';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -221,48 +223,12 @@ export class Renderer {
     );
   }
 
-  public renderJoint(joint: Joint, parent: Joint) {
-    const radians = (parent.rotation * Math.PI) / 180;
-    const endX = parent.position.X + parent.lengths[4] * Math.cos(radians);
-    const endY = parent.position.Y + parent.lengths[4] * Math.sin(radians);
-    this.ctx.save();
-    this.ctx.translate(parent.position.X, parent.position.Y);
-    this.ctx.rotate(radians);
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(parent.lengths[4], 0);
-    this.ctx.strokeStyle = parent.color;
-    this.ctx.stroke();
-    this.ctx.restore();
-
-    this.ctx.save();
-    this.ctx.translate(endX, endY);
-    this.ctx.rotate(radians);
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(joint.lengths[4], 0);
-    this.ctx.strokeStyle = joint.color;
-    this.ctx.stroke();
-    this.ctx.restore();
-    let i = 0;
-    parent.angles.forEach((angle) => {
+  public renderJoint(joint: Joint) {
+    const radians = (joint.rotation * Math.PI) / 180;
+    for (let i = 0; i < joint.angles.length; i++) {
       this.ctx.save();
-      this.ctx.translate(parent.position.X, parent.position.Y);
-      this.ctx.rotate((angle * Math.PI) / 180 + radians);
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, 0);
-      this.ctx.lineTo(parent.lengths[i], 0);
-      this.ctx.lineWidth = 5;
-      this.ctx.strokeStyle = parent.color;
-      this.ctx.stroke();
-      this.ctx.restore();
-      i++;
-    });
-    i = 0;
-    joint.angles.forEach((angle) => {
-      this.ctx.save();
-      this.ctx.translate(endX, endY);
-      this.ctx.rotate((angle * Math.PI) / 180 + radians);
+      this.ctx.translate(joint.position.X, joint.position.Y);
+      this.ctx.rotate((joint.angles[i] * Math.PI) / 180 + radians);
       this.ctx.beginPath();
       this.ctx.moveTo(0, 0);
       this.ctx.lineTo(joint.lengths[i], 0);
@@ -270,26 +236,22 @@ export class Renderer {
       this.ctx.strokeStyle = joint.color;
       this.ctx.stroke();
       this.ctx.restore();
-      i++;
-    });
+    }
   }
 
   public renderBone(image: CanvasImageSource, bone: Bone) {
     const radians = (bone.rotation * Math.PI) / 180;
-
-    const endX = bone.position.X + bone.length * Math.cos(radians);
-    const endY = bone.position.Y + bone.length * Math.sin(radians);
-
     this.ctx.strokeStyle = bone.color;
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 10;
     this.ctx.save();
     this.ctx.translate(bone.position.X, bone.position.Y);
+    this.ctx.translate(bone.pivot.X, bone.pivot.Y);
     this.ctx.rotate(radians - Math.PI / 2);
-    if (bone.flip) {
-      this.ctx.scale(1, -1);
-      this.ctx.scale(-1, 1);
-    }
-    //this.ctx.scale(-1, 1);
+    this.ctx.translate(-bone.pivot.X, -bone.pivot.Y);
+    // if (bone.flip) {
+    //   this.ctx.scale(1, -1);
+    //   this.ctx.scale(-1, 1);
+    // }
     this.ctx.translate(-bone.position.X, -bone.position.Y);
     this.ctx.drawImage(
       image,
@@ -303,11 +265,38 @@ export class Renderer {
       bone.endY
     );
     this.ctx.restore();
+  }
 
-    // this.ctx.beginPath();
-    // this.ctx.arc(bone.position.X, bone.position.Y, 2, 0, Math.PI * 2);
-    // this.ctx.lineTo(endX, endY);
-    // this.ctx.stroke();
+  public renderJoints(bone: Bone) {
+    const radians = (bone.rotation * Math.PI) / 180;
+    const jointRotationRadians = (bone.jointRotation * Math.PI) / 180;
+    const endX =
+      bone.position.X + bone.length * Math.cos(radians + jointRotationRadians);
+    const endY =
+      bone.position.Y + bone.length * Math.sin(radians + jointRotationRadians);
+    this.ctx.beginPath();
+    this.ctx.arc(
+      bone.position.X + bone.pivot.X,
+      bone.position.Y + bone.pivot.Y,
+      2,
+      0,
+      Math.PI * 2
+    );
+    this.ctx.lineTo(endX + bone.pivot.X, endY + bone.pivot.Y);
+    this.ctx.stroke();
+  }
+
+  public renderCharacter(skeleton: Skeleton, transform: Transform) {
+    for (let i = 0; i < skeleton.joints.length; i++) {
+      for (let j = 0; j < skeleton.joints[i].bones.length; j++) {
+        this.ctx.save();
+        this.ctx.translate(transform.position.X, transform.position.Y);
+        //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
+        this.ctx.translate(-transform.position.X, -transform.position.Y);
+        this.renderBone(skeleton.image, skeleton.joints[i].bones[j]);
+        this.ctx.restore();
+      }
+    }
   }
 
   public renderFont(text: string) {
@@ -318,6 +307,4 @@ export class Renderer {
   drawDebug(characterPosition: Vec) {
     this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
   }
-
-  draw(ecs: Ecs) {}
 }
