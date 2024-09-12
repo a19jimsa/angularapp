@@ -294,6 +294,7 @@ export class Renderer {
         //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
         this.ctx.translate(-transform.position.X, -transform.position.Y);
         this.renderBone(skeleton.image, skeleton.joints[i].bones[j]);
+
         this.ctx.restore();
       }
     }

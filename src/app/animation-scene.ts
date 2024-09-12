@@ -51,6 +51,7 @@ export class AnimationScene {
     const arden = this.ecs.createEntity();
     const astram = this.ecs.createEntity();
     const darros = this.ecs.createEntity();
+    const keiran = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       player,
       new Transform(new Vec(200, 300), new Vec(10, 0), 0)
@@ -72,11 +73,17 @@ export class AnimationScene {
       new Transform(new Vec(600, 300), new Vec(10, 0), 0)
     );
 
+    this.ecs.addComponent<Transform>(
+      keiran,
+      new Transform(new Vec(700, 300), new Vec(0, 0), 0)
+    );
+
     const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
     const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
     const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
     const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
     const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
+    const keiranSkeleton = new Skeleton('assets/sprites/keiran.png');
 
     const rightLeg = new Bone(
       'rightLeg',
@@ -117,8 +124,8 @@ export class AnimationScene {
     const rightArm = new Bone(
       'rightArm',
       null,
-      new Vec(0, 0),
-      25,
+      new Vec(0, 10),
+      30,
       145,
       158,
       28,
@@ -129,8 +136,8 @@ export class AnimationScene {
     const leftArm = new Bone(
       'leftArm',
       null,
-      new Vec(0, 0),
-      30,
+      new Vec(0, 10),
+      35,
       23,
       150,
       22,
@@ -184,15 +191,53 @@ export class AnimationScene {
       0
     );
 
-    const head = new Bone(
-      'head',
+    const head = new Bone('head', null, new Vec(0, 37.5), 0, 25, 20, 75, 75, 0);
+
+    const rightMantle = new Bone(
+      'rightMantle',
       null,
-      new Vec(0, 75 / 2),
+      new Vec(0, 20),
+      50,
+      5,
+      293,
+      41 - 5,
+      359 - 293,
+      10
+    );
+
+    const rightMantleLower = new Bone(
+      'rightMantleLower',
+      'rightMantle',
+      new Vec(0, 0),
+      100,
+      5,
+      377,
+      41 - 5,
+      427 - 377,
+      0
+    );
+
+    const leftMantle = new Bone(
+      'leftMantle',
+      null,
+      new Vec(0, 0),
+      50,
+      61,
+      303,
+      80 - 61,
+      355 - 303,
+      345
+    );
+
+    const leftMantleLower = new Bone(
+      'leftMantleLower',
+      'leftMantle',
+      new Vec(0, 0),
       0,
-      25,
-      20,
-      75,
-      75,
+      59,
+      384,
+      80 - 59,
+      426 - 384,
       0
     );
 
@@ -200,8 +245,8 @@ export class AnimationScene {
       'root',
       null,
       270,
-      [15, 0, 50, 40],
-      [90, 90, 0, 0],
+      [10, 0, 40, 40],
+      [90, 270, 0, 0],
       'blue'
     );
 
@@ -209,38 +254,37 @@ export class AnimationScene {
       'spine',
       'root',
       0,
-      [20, 20, 70],
-      [270, 80, 0],
+      [20, 20, 60, 20, 70, 10, 10, 20],
+      [270, 90, 0, 80, 0, 270, 80, 90],
       'red'
     );
     const headJoint = new Joint(
       'head',
       'spine',
-      50,
-      [120, 115, 40, 0],
-      [20, 15, 50, 0],
+      0,
+      [20, 0, 40, 0],
+      [270, 90, 50, 0],
       'green'
     );
-
-    body.flip = true;
-    head.flip = true;
 
     //Draw root bones
     joint.bones.push(leftLeg);
     joint.bones.push(rightLeg);
     joint.bones.push(body);
-
     joint.bones.push(leftFoot);
     joint.bones.push(rightFoot);
 
     // // // Draw pelvis children
+    // pelvis.bones.push(rightMantle);
+    // pelvis.bones.push(leftMantle);
     pelvis.bones.push(rightArm);
     pelvis.bones.push(leftArm);
-
     pelvis.bones.push(head);
-
     pelvis.bones.push(leftLowerArm);
     pelvis.bones.push(rightLowerArm);
+
+    // pelvis.bones.push(rightMantleLower);
+    // pelvis.bones.push(leftMantleLower);
 
     playerSkeleton.joints.push(joint);
     playerSkeleton.joints.push(pelvis);
@@ -260,17 +304,21 @@ export class AnimationScene {
 
     //playerSkeleton.joints.push(head);
 
+    keiranSkeleton.joints.push(joint);
+    keiranSkeleton.joints.push(pelvis);
+
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
     this.ecs.addComponent<Skeleton>(arden, ardenSkeleton);
     this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
     this.ecs.addComponent<Skeleton>(darros, darrosSkeleton);
+    //this.ecs.addComponent<Skeleton>(keiran, keiranSkeleton);
 
     const dragon = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(250, 50), new Vec(0, 0), 100)
+      new Transform(new Vec(250, 100), new Vec(0, 0), 100)
     );
 
     const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
@@ -288,7 +336,7 @@ export class AnimationScene {
       'pelvis',
       'root',
       0,
-      [0, 75, 200],
+      [0, 75, 220],
       [0, 180, 170],
       'red'
     );
@@ -423,6 +471,96 @@ export class AnimationScene {
       0
     );
 
+    const firstTail = new Bone(
+      'firstTail',
+      null,
+      new Vec(0, 0),
+      250,
+      1033,
+      514,
+      1165 - 1033,
+      826 - 514,
+      0
+    );
+
+    const secondTail = new Bone(
+      'secondTail',
+      'firstTail',
+      new Vec(0, 0),
+      120,
+      1170,
+      510,
+      1265 - 1170,
+      668 - 510,
+      0
+    );
+    const thirdTail = new Bone(
+      'thirdTail',
+      'secondTail',
+      new Vec(0, 0),
+      100,
+      1171,
+      680,
+      1247 - 1171,
+      821 - 680,
+      0
+    );
+
+    const fourthTail = new Bone(
+      'fourthTail',
+      'thirdTail',
+      new Vec(0, 0),
+      70,
+      1025,
+      836,
+      1092 - 1025,
+      934 - 836,
+      0
+    );
+    const fifthTail = new Bone(
+      'fifthTail',
+      'fourthTail',
+      new Vec(0, 0),
+      60,
+      1096,
+      835,
+      1145 - 1096,
+      919 - 835,
+      0
+    );
+    const sixthTail = new Bone(
+      'sixthTail',
+      'fifthTail',
+      new Vec(0, 0),
+      60,
+      1152,
+      836,
+      1188 - 1152,
+      920 - 836,
+      0
+    );
+
+    const lastTail = new Bone(
+      'lastTail',
+      'sixthTail',
+      new Vec(0, 0),
+      60,
+      1253,
+      677,
+      1274 - 1253,
+      755 - 677,
+      0
+    );
+
+    const dragonBackJoint = new Joint(
+      'back',
+      'pelvis',
+      0,
+      [100, 100, 0, 0, 0, 100, 120],
+      [270, 0, 0, 0, 0, 270, 240],
+      'white'
+    );
+
     dragonJoint.bones.push(dragonLeftArm);
     dragonJoint.bones.push(dragonChest);
     dragonJoint.bones.push(dragonRightArm);
@@ -439,6 +577,15 @@ export class AnimationScene {
     dragonPelvis.bones.push(dragonBack);
     dragonPelvis.bones.push(dragonbody);
 
+    dragonBackJoint.bones.push(lastTail);
+    dragonBackJoint.bones.push(sixthTail);
+    dragonBackJoint.bones.push(fifthTail);
+    dragonBackJoint.bones.push(fourthTail);
+    dragonBackJoint.bones.push(thirdTail);
+    dragonBackJoint.bones.push(secondTail);
+    dragonBackJoint.bones.push(firstTail);
+
+    dragonSkeleton.joints.push(dragonBackJoint);
     dragonSkeleton.joints.push(dragonPelvis);
     dragonSkeleton.joints.push(dragonJoint);
 
@@ -473,90 +620,6 @@ export class AnimationScene {
     //         618 - 514
     //       ),
 
-    //       new Bone(
-    //         'lastTail',
-    //         'fifthTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         130,
-    //         1253,
-    //         677,
-    //         1274 - 1253,
-    //         755 - 677
-    //       ),
-    //       new Bone(
-    //         'sixtTail',
-    //         'fifthTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         120,
-    //         1151,
-    //         837,
-    //         1191 - 1151,
-    //         919 - 837
-    //       ),
-    //       new Bone(
-    //         'fifthTail',
-    //         'fourthTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         100,
-    //         1093,
-    //         833,
-    //         1145 - 1093,
-    //         920 - 833
-    //       ),
-    //       new Bone(
-    //         'fourthTail',
-    //         'thirdTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         100,
-    //         1025,
-    //         836,
-    //         1092 - 1025,
-    //         934 - 836
-    //       ),
-    //       new Bone(
-    //         'thirdTail',
-    //         'secondTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         100,
-    //         1171,
-    //         680,
-    //         1247 - 1171,
-    //         821 - 680
-    //       ),
-    //       new Bone(
-    //         'secondTail',
-    //         'firstTail',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         110,
-    //         1171,
-    //         515,
-    //         1266 - 1171,
-    //         677 - 515
-    //       ),
-    //       new Bone(
-    //         'firstTail',
-    //         'chest',
-    //         new Vec(0, 0),
-    //         0,
-    //         0,
-    //         200,
-    //         1033,
-    //         514,
-    //         1165 - 1033,
-    //         826 - 514
-    //       ),
     //     ],
 
     //     'assets/sprites/Dragon.png'

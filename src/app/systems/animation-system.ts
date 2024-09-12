@@ -130,10 +130,6 @@ export class AnimationSystem {
             joint.rotation = jointParent.rotation;
 
             //renderer.renderJoint(joint);
-
-            //jointParent.rotation++;
-          } else {
-            //renderer.renderJoint(joint);
           }
 
           // Loop all children of joint update their position and draw them

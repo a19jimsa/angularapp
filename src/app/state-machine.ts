@@ -4,27 +4,9 @@ export class StateMachine {
   //Use for now hardcoded keyframes in here.
 
   runningFrames = [
-    { time: 0, name: 'dragonRightArm', angle: 80 },
-    { time: 1, name: 'dragonRightArm', angle: 120 },
-    { time: 2, name: 'dragonRightArm', angle: 80 },
-    { time: 0, name: 'dragonRightLowerArm', angle: 80 },
-    { time: 1, name: 'dragonRightLowerArm', angle: 60 },
-    { time: 2, name: 'dragonRightLowerArm', angle: 80 },
-    { time: 0, name: 'dragonLeftArm', angle: 80 },
-    { time: 1, name: 'dragonLeftArm', angle: 120 },
-    { time: 2, name: 'dragonLeftArm', angle: 80 },
-    { time: 0, name: 'dragonLeftLowerArm', angle: 80 },
-    { time: 1, name: 'dragonLeftLowerArm', angle: 60 },
-    { time: 2, name: 'dragonLeftLowerArm', angle: 80 },
-    { time: 0, name: 'dragonBody', angle: 90 },
-    { time: 1, name: 'dragonBody', angle: 100 },
-    { time: 2, name: 'dragonBody', angle: 90 },
-    { time: 0, name: 'dragonJaw', angle: 90 },
-    { time: 1, name: 'dragonJaw', angle: 120 },
-    { time: 2, name: 'dragonJaw', angle: 90 },
-    { time: 0, name: 'dragonHead', angle: 90 },
-    { time: 1, name: 'dragonHead', angle: 120 },
-    { time: 2, name: 'dragonHead', angle: 90 },
+    { time: 0, name: 'head', angle: 90 },
+    { time: 1, name: 'head', angle: 80 },
+    { time: 2, name: 'head', angle: 90 },
     { time: 0, name: 'leftArm', angle: 45 },
     { time: 1, name: 'leftArm', angle: 90 },
     { time: 2, name: 'leftArm', angle: 45 },
@@ -54,35 +36,51 @@ export class StateMachine {
     { time: 1, name: 'rightFoot', angle: 260 },
     { time: 1.6, name: 'rightFoot', angle: 180 },
     { time: 2, name: 'rightFoot', angle: 45 },
-  ];
-
-  idleFrames = [
-    { time: 0, name: 'dragonRightArm', angle: 130 },
-    { time: 1, name: 'dragonRightArm', angle: 140 },
-    { time: 2, name: 'dragonRightArm', angle: 130 },
-    { time: 0, name: 'dragonRightLowerArm', angle: 80 },
-    { time: 1, name: 'dragonRightLowerArm', angle: 60 },
-    { time: 2, name: 'dragonRightLowerArm', angle: 80 },
-    { time: 0, name: 'dragonBody', angle: 80 },
-    { time: 1, name: 'dragonBody', angle: 90 },
-    { time: 2, name: 'dragonBody', angle: 80 },
     { time: 0, name: 'dragonHead', angle: 90 },
     { time: 1, name: 'dragonHead', angle: 100 },
     { time: 2, name: 'dragonHead', angle: 90 },
-    { time: 0, name: 'dragonJaw', angle: 90 },
-    { time: 1, name: 'dragonJaw', angle: 100 },
-    { time: 2, name: 'dragonJaw', angle: 90 },
-    { time: 0, name: 'dragonChest', angle: 90 },
-    { time: 1, name: 'dragonChest', angle: 100 },
-    { time: 2, name: 'dragonChest', angle: 90 },
+    { time: 0, name: 'dragonBody', angle: 85 },
+    { time: 1, name: 'dragonBody', angle: 80 },
+    { time: 2, name: 'dragonBody', angle: 85 },
+    { time: 0, name: 'dragonLeftArm', angle: 60 },
+    { time: 1, name: 'dragonLeftArm', angle: 60 },
+    { time: 2, name: 'dragonLeftArm', angle: 60 },
+    { time: 0, name: 'dragonRightArm', angle: 140 },
+    { time: 1, name: 'dragonRightArm', angle: 140 },
+    { time: 2, name: 'dragonRightArm', angle: 140 },
+    { time: 0, name: 'dragonRightLowerArm', angle: 60 },
+    { time: 1, name: 'dragonRightLowerArm', angle: 60 },
+    { time: 2, name: 'dragonRightLowerArm', angle: 60 },
+    { time: 0, name: 'firstTail', angle: 10 },
+    { time: 1, name: 'firstTail', angle: 20 },
+    { time: 2, name: 'firstTail', angle: 10 },
+    { time: 0, name: 'secondTail', angle: 60 },
+    { time: 1, name: 'secondTail', angle: 50 },
+    { time: 2, name: 'secondTail', angle: 60 },
+    { time: 0, name: 'thirdTail', angle: 50 },
+    { time: 1, name: 'thirdTail', angle: 40 },
+    { time: 2, name: 'thirdTail', angle: 50 },
+    { time: 0, name: 'fourthTail', angle: 40 },
+    { time: 1, name: 'fourthTail', angle: 30 },
+    { time: 2, name: 'fourthTail', angle: 40 },
+    { time: 0, name: 'fifthTail', angle: 30 },
+    { time: 1, name: 'fifthTail', angle: 20 },
+    { time: 2, name: 'fifthTail', angle: 30 },
+    { time: 0, name: 'sixthTail', angle: 20 },
+    { time: 1, name: 'sixthTail', angle: 10 },
+    { time: 2, name: 'sixthTail', angle: 20 },
+    { time: 0, name: 'lastTail', angle: 0 },
+    { time: 2, name: 'lastTail', angle: 0 },
   ];
 
-  currentState: string = 'idle';
+  idleFrames = [];
+
+  currentState: string = 'running';
   animations: any[];
 
   constructor() {
     this.currentState = 'idle';
-    this.animations = this.idleFrames;
+    this.animations = this.runningFrames;
   }
 
   changeState(animationName: string) {
