@@ -13,14 +13,13 @@ export class Camera extends Component {
     width: number,
     height: number,
     maxWidth: number,
-    maxHeight: number,
-    position: Vec
+    maxHeight: number
   ) {
     super();
     this.width = width;
     this.height = height;
     this.maxWidth = maxWidth;
     this.maxHeight = maxHeight;
-    this.position = position;
+    this.position = new Vec(0, 0);
   }
 }

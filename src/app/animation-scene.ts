@@ -10,6 +10,8 @@ import { MovementSystem } from './systems/movement-system';
 import { ControllerSystem } from './systems/controller-system';
 import { Controlable } from './components/controlable';
 import { Joint } from './components/joint';
+import { Camera } from './components/camera';
+import { CameraSystem } from './systems/camera-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -22,6 +24,7 @@ export class AnimationScene {
   animationSystem: AnimationSystem;
   movementSystem: MovementSystem;
   controllerSystem: ControllerSystem;
+  cameraSystem: CameraSystem;
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     canvasWidth: number,
@@ -42,6 +45,7 @@ export class AnimationScene {
     this.animationSystem = new AnimationSystem();
     this.movementSystem = new MovementSystem();
     this.controllerSystem = new ControllerSystem();
+    this.cameraSystem = new CameraSystem();
   }
 
   init() {
@@ -54,23 +58,23 @@ export class AnimationScene {
     const keiran = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(200, 300), new Vec(10, 0), 0)
+      new Transform(new Vec(200, 300), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
       enemy,
-      new Transform(new Vec(300, 300), new Vec(10, 0), 0)
+      new Transform(new Vec(300, 300), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
       arden,
-      new Transform(new Vec(400, 300), new Vec(10, 0), 0)
+      new Transform(new Vec(400, 300), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
       astram,
-      new Transform(new Vec(500, 300), new Vec(10, 0), 0)
+      new Transform(new Vec(500, 300), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
       darros,
-      new Transform(new Vec(600, 300), new Vec(10, 0), 0)
+      new Transform(new Vec(600, 300), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
@@ -88,7 +92,7 @@ export class AnimationScene {
     const rightLeg = new Bone(
       'rightLeg',
       null,
-      new Vec(0, 0),
+      new Vec(0, 10),
       40,
       400,
       145,
@@ -100,7 +104,7 @@ export class AnimationScene {
     const leftLeg = new Bone(
       'leftLeg',
       null,
-      new Vec(0, 0),
+      new Vec(0, 10),
       40,
       400,
       145,
@@ -172,7 +176,7 @@ export class AnimationScene {
       'rightLowerArm',
       'rightArm',
       new Vec(0, 0),
-      40,
+      15,
       210,
       155,
       30,
@@ -241,12 +245,24 @@ export class AnimationScene {
       0
     );
 
+    const weapon = new Bone(
+      'weapon',
+      'rightLowerArm',
+      new Vec(0, 10),
+      0,
+      416,
+      202,
+      502 - 416,
+      358 - 202,
+      0
+    );
+
     const joint = new Joint(
       'root',
       null,
       270,
-      [10, 0, 40, 40],
-      [90, 270, 0, 0],
+      [15, 5, 50],
+      [90, 270, 0],
       'blue'
     );
 
@@ -282,6 +298,7 @@ export class AnimationScene {
     pelvis.bones.push(head);
     pelvis.bones.push(leftLowerArm);
     pelvis.bones.push(rightLowerArm);
+    pelvis.bones.push(weapon);
 
     // pelvis.bones.push(rightMantleLower);
     // pelvis.bones.push(leftMantleLower);
@@ -318,7 +335,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(250, 100), new Vec(0, 0), 100)
+      new Transform(new Vec(250, 101), new Vec(0, 0), 100)
     );
 
     const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
@@ -635,6 +652,9 @@ export class AnimationScene {
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
+
+    this.ecs.addComponent<Camera>(player, new Camera(1024, 420, 4096, 420));
+    this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
     // this.ecs.addComponent<Controlable>(
     //   arden,
     //   new Controlable(new Vec(0, 0), 0, false)
@@ -652,9 +672,16 @@ export class AnimationScene {
 
   start() {
     this.renderer.clearScreen();
-    this.animationSystem.update(this.ecs, this.renderer);
-    //this.movementSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
+    this.animationSystem.update(this.ecs, this.renderer);
+    this.movementSystem.update(this.ecs);
+    this.cameraSystem.update(
+      this.ecs,
+      this.canvasWidth,
+      this.canvasHeight,
+      this.width,
+      this.height
+    );
     console.log(Math.floor(performance.now() / 1000));
     window.requestAnimationFrame(() => this.start());
   }

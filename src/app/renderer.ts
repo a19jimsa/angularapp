@@ -2,7 +2,6 @@ import { ElementRef, ViewChild } from '@angular/core';
 import { Vec } from './vec';
 import { Camera } from './components/camera';
 import { Bone } from './components/bone';
-import { Ecs } from './ecs';
 import { Joint } from './components/joint';
 import { Skeleton } from './components/skeleton';
 import { Transform } from './components/transform';
@@ -10,14 +9,17 @@ import { Transform } from './components/transform';
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
   private ctx: CanvasRenderingContext2D;
+  private image = new Image();
   private width: number;
   private height: number;
-  private camera: Camera;
-  private image = new Image();
+  private camera!: Camera;
 
   constructor(canvas: ElementRef<HTMLCanvasElement>) {
     this.canvas = canvas;
     const context = this.canvas.nativeElement.getContext('2d');
+    this.width = canvas.nativeElement.width;
+    this.height = canvas.nativeElement.height;
+    this.camera = new Camera(this.width, this.height, this.width, this.height);
 
     if (context) {
       this.ctx = context;
@@ -26,16 +28,7 @@ export class Renderer {
         'Failed to get 2d content, come up with a solution dumbass ://'
       );
     }
-    this.width = canvas.nativeElement.width;
-    this.height = canvas.nativeElement.height;
-    this.camera = new Camera(
-      this.width,
-      this.height,
-      this.width,
-      this.height,
-      new Vec(0, 0)
-    );
-    this.image.src = 'assets/sprites/sbackground.png';
+    this.image.src = 'assets/sprites/sbackground4.png';
   }
 
   setCamera(camera: Camera) {
@@ -118,11 +111,45 @@ export class Renderer {
   public drawForeground() {
     this.ctx.drawImage(this.image, 0, 0, 1024, 450, 0, 0, 1024, 450);
     this.ctx.drawImage(this.image, 1024, 0, 1024, 450, 0, 0, 1024, 450);
+    this.ctx.drawImage(
+      this.image,
+      0,
+      450,
+      1024,
+      450,
+      0 - this.camera.position.X,
+      0,
+      1024,
+      450
+    );
+
+    this.ctx.save();
+    this.ctx.translate(1024 - this.camera.position.X + 1024, 0);
+    this.ctx.scale(-1, 1);
     this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
+    this.ctx.restore();
+    this.ctx.save();
+    this.ctx.drawImage(
+      this.image,
+      0,
+      450,
+      1024,
+      450,
+      2048 - this.camera.position.X,
+      0,
+      1024,
+      450
+    );
+    this.ctx.restore();
+    this.ctx.save();
+    this.ctx.translate(3072 - this.camera.position.X + 1024, 0);
+    this.ctx.scale(-1, 1);
+    this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
+    this.ctx.restore();
   }
 
   public drawBackgroundGame() {
-    //this.ctx.drawImage(this.image, 0, 0, 1024,450, );
+    //this.ctx.drawImage(this.image, 0, 0, 1024, 450);
   }
 
   public drawBackground() {
@@ -290,11 +317,16 @@ export class Renderer {
     for (let i = 0; i < skeleton.joints.length; i++) {
       for (let j = 0; j < skeleton.joints[i].bones.length; j++) {
         this.ctx.save();
-        this.ctx.translate(transform.position.X, transform.position.Y);
+        this.ctx.translate(
+          transform.position.X - this.camera.position.X,
+          transform.position.Y
+        );
         //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
+        if (skeleton.flip) {
+          this.ctx.scale(-1, 1);
+        }
         this.ctx.translate(-transform.position.X, -transform.position.Y);
         this.renderBone(skeleton.image, skeleton.joints[i].bones[j]);
-
         this.ctx.restore();
       }
     }

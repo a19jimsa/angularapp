@@ -64,13 +64,7 @@ export class Scene {
     this.ecs.addComponent<Render>(player, new Render('yellow'));
     this.ecs.addComponent<Camera>(
       player,
-      new Camera(
-        this.canvasWidth,
-        this.canvasHeight,
-        this.width,
-        this.height,
-        new Vec(0, 0)
-      )
+      new Camera(this.canvasWidth, this.canvasHeight, this.width, this.height)
     );
 
     this.ecs.addComponent<Controlable>(
@@ -105,10 +99,16 @@ export class Scene {
   start() {
     this.renderer.clearScreen();
     this.renderer.drawBackground();
+    this.cameraSystem.update(
+      this.ecs,
+      this.canvasWidth,
+      this.canvasHeight,
+      this.width,
+      this.height
+    );
     this.controlSystem.update(this.ecs, this.mouseHandler);
     this.collisionSystem.update(this.ecs, this);
     this.movementSystem.update(this.ecs);
-    this.cameraSystem.update(this.ecs, this);
     this.rotationSystem.update(this.ecs);
     this.renderSystem.update(this.ecs, this.renderer);
     window.requestAnimationFrame(() => this.start());

@@ -4,10 +4,10 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Renderer } from '../renderer';
-import { StateMachine } from '../state-machine';
 import { Vec } from '../vec';
 
 export class AnimationSystem {
+  startTime: number = performance.now();
   // update(ecs: Ecs, renderer: Renderer) {
   //   renderer.drawForeground();
   //   for (let entity of ecs.getEntities()) {
@@ -97,6 +97,7 @@ export class AnimationSystem {
 
   update(ecs: Ecs, renderer: Renderer) {
     renderer.drawForeground();
+
     for (let entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
@@ -164,7 +165,9 @@ export class AnimationSystem {
             }
             //bone.rotation = joint.rotation + joint.angles[j];
             bone.rotation = 90;
-            this.runAnimation(bone);
+
+            this.runAnimation(bone, skeleton);
+
             //renderer.renderBone(skeleton.image, bone);
             //renderer.renderJoints(bone);
           }
@@ -174,13 +177,16 @@ export class AnimationSystem {
     }
   }
 
-  runAnimation(bone: Bone) {
-    const stateMachine = new StateMachine();
+  resetAnimation() {
+    this.startTime = performance.now();
+  }
 
-    const keyframes = stateMachine.animations;
+  runAnimation(bone: Bone, skeleton: Skeleton) {
+    const keyframes = skeleton.stateMachine.animations;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 500; // ms
-    const loopedTime = (performance.now() / speed) % totalDuration;
+    const speed = 250; // ms
+    const elapsedTime = performance.now() - this.startTime;
+    const loopedTime = (skeleton.frames / speed) % totalDuration;
     for (let i = 0; i < keyframes.length - 1; i++) {
       const keyFrame = keyframes[i];
       if (loopedTime >= keyFrame.time && loopedTime < keyframes[i + 1].time) {
@@ -188,17 +194,16 @@ export class AnimationSystem {
           (loopedTime - keyFrame.time) /
           (keyframes[i + 1].time - keyFrame.time);
 
-        let angle = 0;
         if (bone.id === keyFrame.name) {
-          angle = this.interpolateKeyframe(
+          bone.rotation = this.interpolateKeyframe(
             keyFrame.angle,
             keyframes[i + 1].angle,
             progress
           );
-          bone.rotation = angle;
         }
       }
     }
+    skeleton.frames++;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {

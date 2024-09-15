@@ -1,10 +1,19 @@
+import { Attack } from '../components/attack';
 import { Controlable } from '../components/controlable';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
+import { Vec } from '../vec';
 
 export class ControllerSystem {
-  keysPressed = { left: false, right: false, up: false, down: false };
+  keysPressed = {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    jump: false,
+    attack: false,
+  };
 
   constructor() {
     console.log('Skapade controller');
@@ -21,6 +30,12 @@ export class ControllerSystem {
           break;
         case 'KeyS':
           this.keysPressed.down = true;
+          break;
+        case 'Space':
+          this.keysPressed.jump = true;
+          break;
+        case 'Enter':
+          this.keysPressed.attack = true;
           break;
       }
     });
@@ -39,6 +54,9 @@ export class ControllerSystem {
         case 'KeyS':
           this.keysPressed.down = false;
           break;
+        case 'Enter':
+          this.keysPressed.attack = false;
+          break;
       }
     });
   }
@@ -48,15 +66,29 @@ export class ControllerSystem {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (controlable !== undefined && skeleton !== undefined) {
-        if (this.keysPressed.right) {
-          skeleton.stateMachine.changeState('running');
-          transform.position.X += transform.velocity.X;
-        }
+      const attackCommand = ecs.getComponent<Attack>(entity, 'Attack');
+      if (controlable !== undefined) {
+        let speedX = 0;
+        let speedY = 0;
         if (this.keysPressed.left) {
           skeleton.stateMachine.changeState('running');
-          transform.position.X += -transform.velocity.X;
+          skeleton.flip = true;
+          speedX += -10;
         }
+        if (this.keysPressed.right) {
+          skeleton.stateMachine.changeState('running');
+          skeleton.flip = false;
+          speedX += 10;
+        }
+        if (this.keysPressed.jump) {
+          //speedY -= 10;
+        }
+        if (this.keysPressed.attack) {
+          speedX = 0;
+          skeleton.frames = 0;
+          skeleton.stateMachine.changeState('attack');
+        }
+        transform.velocity = new Vec(speedX, speedY);
       }
     }
   }

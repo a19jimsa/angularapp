@@ -4,20 +4,20 @@ export class StateMachine {
   //Use for now hardcoded keyframes in here.
 
   runningFrames = [
-    { time: 0, name: 'head', angle: 90 },
-    { time: 1, name: 'head', angle: 80 },
-    { time: 2, name: 'head', angle: 90 },
+    { time: 0, name: 'head', angle: 80 },
+    { time: 1, name: 'head', angle: 90 },
+    { time: 2, name: 'head', angle: 80 },
     { time: 0, name: 'leftArm', angle: 45 },
     { time: 1, name: 'leftArm', angle: 90 },
     { time: 2, name: 'leftArm', angle: 45 },
     { time: 0, name: 'leftLowerArm', angle: -70 },
     { time: 1, name: 'leftLowerArm', angle: 90 },
     { time: 2, name: 'leftLowerArm', angle: -70 },
-    { time: 0, name: 'weapon', angle: 0 },
-    { time: 1, name: 'weapon', angle: -45 },
-    { time: 2, name: 'weapon', angle: 0 },
+    { time: 0, name: 'weapon', angle: 350 },
+    { time: 1, name: 'weapon', angle: 250 },
+    { time: 2, name: 'weapon', angle: 350 },
     { time: 0, name: 'leftLeg', angle: 160 },
-    { time: 1, name: 'leftLeg', angle: 45 },
+    { time: 1, name: 'leftLeg', angle: 60 },
     { time: 2, name: 'leftLeg', angle: 160 },
     { time: 0, name: 'leftFoot', angle: 260 },
     { time: 0.6, name: 'leftFoot', angle: 180 },
@@ -29,9 +29,9 @@ export class StateMachine {
     { time: 0, name: 'rightLowerArm', angle: 90 },
     { time: 1, name: 'rightLowerArm', angle: -70 },
     { time: 2, name: 'rightLowerArm', angle: 90 },
-    { time: 0, name: 'rightLeg', angle: 45 },
+    { time: 0, name: 'rightLeg', angle: 60 },
     { time: 1, name: 'rightLeg', angle: 160 },
-    { time: 2, name: 'rightLeg', angle: 45 },
+    { time: 2, name: 'rightLeg', angle: 60 },
     { time: 0, name: 'rightFoot', angle: 45 },
     { time: 1, name: 'rightFoot', angle: 260 },
     { time: 1.6, name: 'rightFoot', angle: 180 },
@@ -61,33 +61,59 @@ export class StateMachine {
     { time: 1, name: 'thirdTail', angle: 40 },
     { time: 2, name: 'thirdTail', angle: 50 },
     { time: 0, name: 'fourthTail', angle: 40 },
-    { time: 1, name: 'fourthTail', angle: 30 },
+    { time: 1, name: 'fourthTail', angle: 20 },
     { time: 2, name: 'fourthTail', angle: 40 },
     { time: 0, name: 'fifthTail', angle: 30 },
-    { time: 1, name: 'fifthTail', angle: 20 },
+    { time: 1, name: 'fifthTail', angle: 0 },
     { time: 2, name: 'fifthTail', angle: 30 },
     { time: 0, name: 'sixthTail', angle: 20 },
-    { time: 1, name: 'sixthTail', angle: 10 },
+    { time: 1, name: 'sixthTail', angle: 0 },
     { time: 2, name: 'sixthTail', angle: 20 },
-    { time: 0, name: 'lastTail', angle: 0 },
-    { time: 2, name: 'lastTail', angle: 0 },
+    { time: 0, name: 'lastTail', angle: -20 },
+    { time: 1, name: 'lastTail', angle: 0 },
+    { time: 2, name: 'lastTail', angle: -20 },
   ];
 
-  idleFrames = [];
+  attackFrames = [
+    { time: 0, name: 'weapon', angle: 0 },
+    { time: 0.5, name: 'weapon', angle: -90 },
+    { time: 1.5, name: 'weapon', angle: 60 },
+    { time: 5, name: 'weapon', angle: 60 },
+    { time: 0, name: 'rightArm', angle: 0 },
+    { time: 0.5, name: 'rightArm', angle: -90 },
+    { time: 1.5, name: 'rightArm', angle: 60 },
+    { time: 5, name: 'rightArm', angle: 60 },
+    { time: 0, name: 'leftArm', angle: 0 },
+    { time: 0.5, name: 'leftArm', angle: -90 },
+    { time: 1.5, name: 'leftArm', angle: 60 },
+    { time: 5, name: 'leftArm', angle: 60 },
+    { time: 0, name: 'rightLowerArm', angle: 0 },
+    { time: 0.5, name: 'rightLowerArm', angle: -90 },
+    { time: 1.5, name: 'rightLowerArm', angle: 60 },
+    { time: 5, name: 'rightLowerArm', angle: 60 },
+    { time: 0, name: 'leftLowerArm', angle: 0 },
+    { time: 0.5, name: 'leftLowerArm', angle: -90 },
+    { time: 1.5, name: 'leftLowerArm', angle: 60 },
+    { time: 5, name: 'leftLowerArm', angle: 60 },
+  ];
 
   currentState: string = 'running';
   animations: any[];
 
   constructor() {
-    this.currentState = 'idle';
+    this.currentState = 'running';
     this.animations = this.runningFrames;
   }
 
   changeState(animationName: string) {
-    if (animationName === 'idle') {
-      this.animations = this.idleFrames;
+    if (animationName === 'attack') {
+      this.currentState === 'attack';
+      this.animations = this.attackFrames;
     } else if (animationName === 'running') {
+      this.currentState === 'running';
       this.animations = this.runningFrames;
+    } else {
+      this.currentState === 'idle';
     }
   }
 }

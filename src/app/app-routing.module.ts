@@ -16,6 +16,7 @@ import { FallingSandComponent } from './falling-sand/falling-sand.component';
 import { CollisionComponent } from './collision/collision.component';
 import { CurlingComponent } from './curling/curling.component';
 import { BoneAnimationComponent } from './bone-animation/bone-animation.component';
+import { ThreeFormComponent } from './three-form/three-form.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -34,6 +35,7 @@ const routes: Routes = [
   { path: 'collision', component: CollisionComponent },
   { path: 'curling', component: CurlingComponent },
   { path: 'animation', component: BoneAnimationComponent },
+  { path: 'threeForm', component: ThreeFormComponent },
 ];
 
 @NgModule({
