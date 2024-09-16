@@ -43,7 +43,6 @@ import { SandTileComponent } from './sand-tile/sand-tile.component';
 import { CollisionComponent } from './collision/collision.component';
 import { CurlingComponent } from './curling/curling.component';
 import { BoneAnimationComponent } from './bone-animation/bone-animation.component';
-import { ThreeFormComponent } from './three-form/three-form.component';
 
 @NgModule({
   declarations: [
@@ -76,7 +75,6 @@ import { ThreeFormComponent } from './three-form/three-form.component';
     CollisionComponent,
     CurlingComponent,
     BoneAnimationComponent,
-    ThreeFormComponent,
   ],
   imports: [
     BrowserModule,

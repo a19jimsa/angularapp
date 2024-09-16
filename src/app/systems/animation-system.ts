@@ -184,7 +184,7 @@ export class AnimationSystem {
   runAnimation(bone: Bone, skeleton: Skeleton) {
     const keyframes = skeleton.stateMachine.animations;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 250; // ms
+    const speed = 300; // ms
     const elapsedTime = performance.now() - this.startTime;
     const loopedTime = (skeleton.frames / speed) % totalDuration;
     for (let i = 0; i < keyframes.length - 1; i++) {
