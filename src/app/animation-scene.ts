@@ -12,6 +12,7 @@ import { Controlable } from './components/controlable';
 import { Joint } from './components/joint';
 import { Camera } from './components/camera';
 import { CameraSystem } from './systems/camera-system';
+import { Life } from './components/life';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -607,6 +608,7 @@ export class AnimationScene {
     dragonSkeleton.joints.push(dragonJoint);
 
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
+    this.ecs.addComponent<Life>(player, new Life(100));
 
     // this.ecs.addComponent<Skeleton>(
     //   dragon,

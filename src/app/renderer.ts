@@ -321,6 +321,10 @@ export class Renderer {
           transform.position.X - this.camera.position.X,
           transform.position.Y
         );
+        // this.ctx.beginPath();
+        // this.ctx.fillRect(-50, -150, 100, 20);
+        // this.ctx.fillStyle = 'blue';
+        // this.ctx.fill();
         //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
         if (skeleton.flip) {
           this.ctx.scale(-1, 1);
