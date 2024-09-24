@@ -10,6 +10,23 @@ export class Ecs {
     return Array.from(this.components.keys());
   }
 
+  getPool<T extends Component[]>(...types: string[]): Array<T> {
+    const pooledComponents: Array<T> = [];
+
+    this.components.forEach((components) => {
+      const foundComponents = types.map((type) =>
+        components.find((comp) => comp.type === type)
+      ) as T;
+
+      // Kontrollera att alla komponenter finns
+      if (foundComponents.every((comp) => comp !== undefined)) {
+        pooledComponents.push(foundComponents);
+      }
+    });
+
+    return pooledComponents;
+  }
+
   createEntity(): Entity {
     const entity = Entity.createEntity();
     this.entities.add(entity);
@@ -22,12 +39,39 @@ export class Ecs {
       this.components.set(entity, []);
     }
     this.components.get(entity)?.push(component);
-    console.log(`Added component to entity ${entity}`);
-    console.log(entity);
+  }
+
+  removeComponent<T extends Component>(entity: Entity, componentType: string) {
+    // Hämta komponentlistan för entiteten
+    const components = this.components.get(entity);
+
+    if (!components) return; // Om det inte finns några komponenter, gör ingenting
+
+    // Filtrera bort den komponent du vill ta bort (baserat på typen)
+    const updatedComponents = components.filter(
+      (comp) => !(comp.type == componentType)
+    );
+
+    // Uppdatera komponentlistan i mappen
+    if (updatedComponents.length > 0) {
+      this.components.set(entity, updatedComponents); // Spara de uppdaterade komponenterna
+    } else {
+      this.components.delete(entity); // Om inga komponenter finns kvar, ta bort entiteten från mappen
+    }
   }
 
   getComponent<T extends Component>(entity: Entity, name: string): T {
-    const components = this.components.get(entity) || [];
-    return components.find((e) => e.type == name) as T;
+    const components = this.components.get(entity);
+    const component = components?.find((e) => e.type === name) as T;
+    return component;
+  }
+
+  removeEntity(entity: Entity) {
+    // Ta bort entiteten och dess komponenter från komponentkartan
+    if (this.components.has(entity)) {
+      this.components.delete(entity);
+    }
+    // Om du har andra strukturer där entiteten hanteras, kan du behöva ta bort den därifrån också
+    this.entities.delete(entity);
   }
 }

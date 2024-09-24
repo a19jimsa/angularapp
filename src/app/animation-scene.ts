@@ -13,6 +13,12 @@ import { Joint } from './components/joint';
 import { Camera } from './components/camera';
 import { CameraSystem } from './systems/camera-system';
 import { Life } from './components/life';
+import { AttackSystem } from './systems/attack-system';
+import { Enemy } from './components/enemy';
+import { Weapon } from './components/weapon';
+import { Health } from './components/health';
+import { DeadSystem } from './systems/dead-system';
+import { HitBox } from './components/hit-box';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -26,6 +32,8 @@ export class AnimationScene {
   movementSystem: MovementSystem;
   controllerSystem: ControllerSystem;
   cameraSystem: CameraSystem;
+  attackSystem: AttackSystem;
+  deadSystem: DeadSystem;
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     canvasWidth: number,
@@ -47,48 +55,53 @@ export class AnimationScene {
     this.movementSystem = new MovementSystem();
     this.controllerSystem = new ControllerSystem();
     this.cameraSystem = new CameraSystem();
+    this.attackSystem = new AttackSystem();
+    this.deadSystem = new DeadSystem();
   }
 
   init() {
     this.renderer = new Renderer(this.canvas);
     const player = this.ecs.createEntity();
-    const enemy = this.ecs.createEntity();
-    const arden = this.ecs.createEntity();
-    const astram = this.ecs.createEntity();
-    const darros = this.ecs.createEntity();
-    const keiran = this.ecs.createEntity();
+    // const enemy = this.ecs.createEntity();
+    // const arden = this.ecs.createEntity();
+    // const astram = this.ecs.createEntity();
+    // const darros = this.ecs.createEntity();
+    // const keiran = this.ecs.createEntity();
+
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(200, 300), new Vec(0, 0), 0)
+      new Transform(new Vec(200, 300), new Vec(0, 0), 10)
     );
-    this.ecs.addComponent<Transform>(
-      enemy,
-      new Transform(new Vec(300, 300), new Vec(0, 0), 0)
-    );
-    this.ecs.addComponent<Transform>(
-      arden,
-      new Transform(new Vec(400, 300), new Vec(0, 0), 0)
-    );
-    this.ecs.addComponent<Transform>(
-      astram,
-      new Transform(new Vec(500, 300), new Vec(0, 0), 0)
-    );
-    this.ecs.addComponent<Transform>(
-      darros,
-      new Transform(new Vec(600, 300), new Vec(0, 0), 0)
-    );
+    // this.ecs.addComponent<Transform>(
+    //   enemy,
+    //   new Transform(new Vec(300, 300), new Vec(0, 0), 100)
+    // );
+    // this.ecs.addComponent<Transform>(
+    //   arden,
+    //   new Transform(new Vec(400, 300), new Vec(0, 0), 100)
+    // );
+    // this.ecs.addComponent<Transform>(
+    //   astram,
+    //   new Transform(new Vec(500, 300), new Vec(0, 0), 100)
+    // );
+    // this.ecs.addComponent<Transform>(
+    //   darros,
+    //   new Transform(new Vec(600, 300), new Vec(0, 0), 100)
+    // );
 
-    this.ecs.addComponent<Transform>(
-      keiran,
-      new Transform(new Vec(700, 300), new Vec(0, 0), 0)
-    );
+    // this.ecs.addComponent<Transform>(
+    //   keiran,
+    //   new Transform(new Vec(700, 300), new Vec(0, 0), 100)
+    // );
+
+    // this.ecs.addComponent<Health>(keiran, new Health(50));
 
     const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
-    const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
-    const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
-    const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
-    const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
-    const keiranSkeleton = new Skeleton('assets/sprites/keiran.png');
+    // const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
+    // const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
+    // const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
+    // const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
+    // const keiranSkeleton = new Skeleton('assets/sprites/keiran.png');
 
     const rightLeg = new Bone(
       'rightLeg',
@@ -174,8 +187,8 @@ export class AnimationScene {
     );
 
     const leftLowerArm = new Bone(
-      'rightLowerArm',
-      'rightArm',
+      'leftLowerArm',
+      'leftArm',
       new Vec(0, 0),
       15,
       210,
@@ -185,10 +198,10 @@ export class AnimationScene {
       0
     );
     const rightLowerArm = new Bone(
-      'leftLowerArm',
-      'leftArm',
+      'rightLowerArm',
+      'rightArm',
       new Vec(0, 0),
-      0,
+      25,
       210,
       155,
       30,
@@ -246,24 +259,39 @@ export class AnimationScene {
       0
     );
 
-    const weapon = new Bone(
+    const weapon = new Weapon(
       'weapon',
       'rightLowerArm',
       new Vec(0, 10),
-      0,
+      90,
       416,
       202,
       502 - 416,
       358 - 202,
-      0
+      0,
+      50,
+      50
+    );
+    const weapon2 = new Weapon(
+      'weapon2',
+      'leftLowerArm',
+      new Vec(0, 10),
+      90,
+      416,
+      202,
+      502 - 416,
+      358 - 202,
+      0,
+      50,
+      50
     );
 
     const joint = new Joint(
       'root',
       null,
       270,
-      [15, 5, 50],
-      [90, 270, 0],
+      [10, 5, 50, 50, 50, 110],
+      [90, 270, 25, 0, 340, 360],
       'blue'
     );
 
@@ -271,10 +299,11 @@ export class AnimationScene {
       'spine',
       'root',
       0,
-      [20, 20, 60, 20, 70, 10, 10, 20],
-      [270, 90, 0, 80, 0, 270, 80, 90],
+      [20, 20, 10],
+      [270, 90, 10],
       'red'
     );
+
     const headJoint = new Joint(
       'head',
       'spine',
@@ -284,71 +313,69 @@ export class AnimationScene {
       'green'
     );
 
-    //Draw root bones
-    joint.bones.push(leftLeg);
-    joint.bones.push(rightLeg);
-    joint.bones.push(body);
-    joint.bones.push(leftFoot);
-    joint.bones.push(rightFoot);
-
-    // // // Draw pelvis children
-    // pelvis.bones.push(rightMantle);
-    // pelvis.bones.push(leftMantle);
-    pelvis.bones.push(rightArm);
-    pelvis.bones.push(leftArm);
-    pelvis.bones.push(head);
-    pelvis.bones.push(leftLowerArm);
-    pelvis.bones.push(rightLowerArm);
-    pelvis.bones.push(weapon);
-
     // pelvis.bones.push(rightMantleLower);
     // pelvis.bones.push(leftMantleLower);
 
     playerSkeleton.joints.push(joint);
-    playerSkeleton.joints.push(pelvis);
-    //playerSkeleton.joints.push(headJoint);
 
-    enemySkeleton.joints.push(joint);
-    enemySkeleton.joints.push(pelvis);
+    //Draw root bones
+    playerSkeleton.bones.push(leftLeg);
+    playerSkeleton.bones.push(rightLeg);
+    playerSkeleton.bones.push(leftArm);
+    playerSkeleton.bones.push(leftLowerArm);
+    playerSkeleton.bones.push(rightLowerArm);
+    playerSkeleton.bones.push(body);
+    playerSkeleton.bones.push(rightArm);
+    playerSkeleton.bones.push(head);
 
-    ardenSkeleton.joints.push(joint);
-    ardenSkeleton.joints.push(pelvis);
+    //Draw child bones
+    playerSkeleton.bones.push(leftFoot);
+    playerSkeleton.bones.push(rightFoot);
 
-    astramSkeleton.joints.push(joint);
-    astramSkeleton.joints.push(pelvis);
+    playerSkeleton.bones.push(weapon);
+    playerSkeleton.bones.push(weapon2);
 
-    darrosSkeleton.joints.push(joint);
-    darrosSkeleton.joints.push(pelvis);
+    // astramSkeleton.joints.push(joint);
 
-    //playerSkeleton.joints.push(head);
+    // //Draw root bones
+    // astramSkeleton.bones.push(leftLeg);
+    // astramSkeleton.bones.push(rightLeg);
+    // astramSkeleton.bones.push(leftArm);
+    // astramSkeleton.bones.push(leftLowerArm);
+    // astramSkeleton.bones.push(body);
+    // astramSkeleton.bones.push(rightArm);
+    // astramSkeleton.bones.push(head);
 
-    keiranSkeleton.joints.push(joint);
-    keiranSkeleton.joints.push(pelvis);
+    // //Draw child bones
+    // astramSkeleton.bones.push(leftFoot);
+    // astramSkeleton.bones.push(rightFoot);
+
+    // astramSkeleton.bones.push(rightLowerArm);
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-    this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
-    this.ecs.addComponent<Skeleton>(arden, ardenSkeleton);
-    this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
-    this.ecs.addComponent<Skeleton>(darros, darrosSkeleton);
-    //this.ecs.addComponent<Skeleton>(keiran, keiranSkeleton);
+    //this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
 
-    const dragon = this.ecs.createEntity();
+    //this.ecs.addComponent<Health>(astram, new Health(100));
 
-    this.ecs.addComponent<Transform>(
-      dragon,
-      new Transform(new Vec(250, 101), new Vec(0, 0), 100)
-    );
+    // const dragon = this.ecs.createEntity();
 
-    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
+    // this.ecs.addComponent<Transform>(
+    //   dragon,
+    //   new Transform(new Vec(250, 101), new Vec(0, 0), 100)
+    // );
 
-    const dragonJoint = new Joint(
-      'root',
-      null,
-      0,
-      [100, 20, 60, 80, 90, 90, 70, 40],
-      [20, 90, 180, 55, 330, 90, 340, 90],
-      'blue'
-    );
+    // this.ecs.addComponent<HitBox>(
+    //   astram,
+    //   new HitBox(
+    //     this.ecs.getComponent<Transform>(astram, 'Transform').position,
+    //     100,
+    //     100
+    //   )
+    // );
+
+    //const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
+
+    const dragonJoint = new Joint('root', null, 0, [100], [20], 'blue');
 
     const dragonPelvis = new Joint(
       'pelvis',
@@ -579,35 +606,35 @@ export class AnimationScene {
       'white'
     );
 
-    dragonJoint.bones.push(dragonLeftArm);
-    dragonJoint.bones.push(dragonChest);
-    dragonJoint.bones.push(dragonRightArm);
+    // dragonSkeleton.bones.push(dragonLeftArm);
+    // dragonSkeleton.bones.push(dragonChest);
+    // dragonSkeleton.bones.push(dragonRightArm);
 
-    dragonJoint.bones.push(jaw);
-    dragonJoint.bones.push(dragonHead);
+    // dragonSkeleton.bones.push(jaw);
+    // dragonSkeleton.bones.push(dragonHead);
 
-    dragonJoint.bones.push(leftDragonLowerArm);
-    dragonJoint.bones.push(rightDragonLowerArm);
+    // dragonSkeleton.bones.push(leftDragonLowerArm);
+    // dragonSkeleton.bones.push(rightDragonLowerArm);
 
-    dragonJoint.bones.push(dragonLeftFist);
-    dragonJoint.bones.push(dragonRightFist);
+    // dragonSkeleton.bones.push(dragonLeftFist);
+    // dragonSkeleton.bones.push(dragonRightFist);
 
-    dragonPelvis.bones.push(dragonBack);
-    dragonPelvis.bones.push(dragonbody);
+    // dragonSkeleton.bones.push(dragonBack);
+    // dragonSkeleton.bones.push(dragonbody);
 
-    dragonBackJoint.bones.push(lastTail);
-    dragonBackJoint.bones.push(sixthTail);
-    dragonBackJoint.bones.push(fifthTail);
-    dragonBackJoint.bones.push(fourthTail);
-    dragonBackJoint.bones.push(thirdTail);
-    dragonBackJoint.bones.push(secondTail);
-    dragonBackJoint.bones.push(firstTail);
+    // dragonSkeleton.bones.push(lastTail);
+    // dragonSkeleton.bones.push(sixthTail);
+    // dragonSkeleton.bones.push(fifthTail);
+    // dragonSkeleton.bones.push(fourthTail);
+    // dragonSkeleton.bones.push(thirdTail);
+    // dragonSkeleton.bones.push(secondTail);
+    // dragonSkeleton.bones.push(firstTail);
 
-    dragonSkeleton.joints.push(dragonBackJoint);
-    dragonSkeleton.joints.push(dragonPelvis);
-    dragonSkeleton.joints.push(dragonJoint);
+    // dragonSkeleton.joints.push(dragonBackJoint);
+    // dragonSkeleton.joints.push(dragonPelvis);
+    // dragonSkeleton.joints.push(dragonJoint);
 
-    this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
+    // this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Life>(player, new Life(100));
 
     // this.ecs.addComponent<Skeleton>(
@@ -656,6 +683,7 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Camera>(player, new Camera(1024, 420, 4096, 420));
+
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
     // this.ecs.addComponent<Controlable>(
     //   arden,
@@ -674,9 +702,6 @@ export class AnimationScene {
 
   start() {
     this.renderer.clearScreen();
-    this.controllerSystem.update(this.ecs);
-    this.animationSystem.update(this.ecs, this.renderer);
-    this.movementSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -684,7 +709,13 @@ export class AnimationScene {
       this.width,
       this.height
     );
-    console.log(Math.floor(performance.now() / 1000));
+    this.controllerSystem.update(this.ecs);
+    this.animationSystem.update(this.ecs, this.renderer);
+    this.movementSystem.update(this.ecs);
+    this.attackSystem.update(this.ecs, this.renderer);
+    this.deadSystem.update(this.ecs);
+
+    //console.log(Math.floor(performance.now() / 1000));
     window.requestAnimationFrame(() => this.start());
   }
 }

@@ -2,6 +2,7 @@ import { Attack } from '../components/attack';
 import { Controlable } from '../components/controlable';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
 import { Vec } from '../vec';
 
@@ -66,17 +67,18 @@ export class ControllerSystem {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      const attackCommand = ecs.getComponent<Attack>(entity, 'Attack');
       if (controlable !== undefined) {
         let speedX = 0;
         let speedY = 0;
         if (this.keysPressed.left) {
-          skeleton.stateMachine.changeState('running');
+          skeleton.stateMachine.currentState = 'running';
+          skeleton.stateMachine.changeState();
           skeleton.flip = true;
           speedX += -10;
         }
         if (this.keysPressed.right) {
-          skeleton.stateMachine.changeState('running');
+          skeleton.stateMachine.currentState = 'running';
+          skeleton.stateMachine.changeState();
           skeleton.flip = false;
           speedX += 10;
         }
@@ -86,9 +88,13 @@ export class ControllerSystem {
         if (this.keysPressed.attack) {
           speedX = 0;
           skeleton.frames = 0;
-          skeleton.stateMachine.changeState('attack');
+          skeleton.stateMachine.currentState = 'attack';
+          skeleton.stateMachine.changeState();
         }
-        transform.velocity = new Vec(speedX, speedY);
+
+        console.log(skeleton.stateMachine.currentState);
+        transform.velocity.X = speedX;
+        transform.velocity.Y = speedY;
       }
     }
   }

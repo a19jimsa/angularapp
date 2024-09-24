@@ -4,6 +4,9 @@ export class StateMachine {
   //Use for now hardcoded keyframes in here.
 
   runningFrames = [
+    { time: 0, name: 'root', angle: 90 },
+    { time: 1, name: 'root', angle: 120 },
+    { time: 2, name: 'root', angle: 90 },
     { time: 0, name: 'head', angle: 80 },
     { time: 1, name: 'head', angle: 90 },
     { time: 2, name: 'head', angle: 80 },
@@ -16,9 +19,9 @@ export class StateMachine {
     { time: 0, name: 'weapon', angle: 350 },
     { time: 1, name: 'weapon', angle: 250 },
     { time: 2, name: 'weapon', angle: 350 },
-    { time: 0, name: 'leftLeg', angle: 160 },
-    { time: 1, name: 'leftLeg', angle: 60 },
-    { time: 2, name: 'leftLeg', angle: 160 },
+    { time: 0, name: 'weapon2', angle: 250 },
+    { time: 1, name: 'weapon2', angle: 350 },
+    { time: 2, name: 'weapon2', angle: 250 },
     { time: 0, name: 'leftFoot', angle: 260 },
     { time: 0.6, name: 'leftFoot', angle: 180 },
     { time: 1, name: 'leftFoot', angle: 45 },
@@ -30,8 +33,11 @@ export class StateMachine {
     { time: 1, name: 'rightLowerArm', angle: -70 },
     { time: 2, name: 'rightLowerArm', angle: 90 },
     { time: 0, name: 'rightLeg', angle: 60 },
-    { time: 1, name: 'rightLeg', angle: 160 },
+    { time: 1, name: 'rightLeg', angle: 120 },
     { time: 2, name: 'rightLeg', angle: 60 },
+    { time: 0, name: 'leftLeg', angle: 120 },
+    { time: 1, name: 'leftLeg', angle: 50 },
+    { time: 2, name: 'leftLeg', angle: 120 },
     { time: 0, name: 'rightFoot', angle: 45 },
     { time: 1, name: 'rightFoot', angle: 260 },
     { time: 1.6, name: 'rightFoot', angle: 180 },
@@ -78,7 +84,11 @@ export class StateMachine {
     { time: 0, name: 'weapon', angle: -90 },
     { time: 0.3, name: 'weapon', angle: 0 },
     { time: 1.5, name: 'weapon', angle: 0 },
-    { time: 5, name: 'weapon', angle: 0 },
+    { time: 5, name: 'weapon2', angle: 0 },
+    { time: 0, name: 'weapon2', angle: -90 },
+    { time: 0.3, name: 'weapon2', angle: 90 },
+    { time: 1.5, name: 'weapon2', angle: 90 },
+    { time: 5, name: 'weapon2', angle: 90 },
     { time: 0, name: 'rightArm', angle: 0 },
     { time: 0.3, name: 'rightArm', angle: 90 },
     { time: 1.5, name: 'rightArm', angle: 90 },
@@ -97,23 +107,20 @@ export class StateMachine {
     { time: 5, name: 'leftLowerArm', angle: 90 },
   ];
 
-  currentState: string = 'running';
+  currentState: string = 'bajs';
   animations: any[];
 
   constructor() {
-    this.currentState = 'running';
-    this.animations = this.runningFrames;
+    this.currentState = 'attack';
+    this.animations = this.attackFrames;
   }
 
-  changeState(animationName: string) {
-    if (animationName === 'attack') {
-      this.currentState === 'attack';
+  changeState() {
+    if (this.currentState === 'attack') {
       this.animations = this.attackFrames;
-    } else if (animationName === 'running') {
-      this.currentState === 'running';
+    }
+    if (this.currentState === 'running') {
       this.animations = this.runningFrames;
-    } else {
-      this.currentState === 'idle';
     }
   }
 }

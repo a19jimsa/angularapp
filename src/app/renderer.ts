@@ -1,10 +1,12 @@
-import { ElementRef, ViewChild } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { Vec } from './vec';
 import { Camera } from './components/camera';
 import { Bone } from './components/bone';
 import { Joint } from './components/joint';
 import { Skeleton } from './components/skeleton';
 import { Transform } from './components/transform';
+import { HitBox } from './components/hit-box';
+import { Attack } from './components/attack';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -37,6 +39,19 @@ export class Renderer {
 
   clearScreen(): void {
     this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+
+  public drawHitBox(bone: Bone) {
+    this.ctx.save();
+    this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(
+      bone.position.X - this.camera.position.X,
+      bone.position.Y - this.camera.position.Y,
+      bone.endX,
+      bone.endY
+    );
+    this.ctx.fill();
+    this.ctx.restore();
   }
 
   private drawCircle(
@@ -295,6 +310,9 @@ export class Renderer {
   }
 
   public renderJoints(bone: Bone) {
+    this.ctx.save();
+    this.ctx.strokeStyle = 'red';
+    this.ctx.lineWidth = 5;
     const radians = (bone.rotation * Math.PI) / 180;
     const jointRotationRadians = (bone.jointRotation * Math.PI) / 180;
     const endX =
@@ -311,28 +329,27 @@ export class Renderer {
     );
     this.ctx.lineTo(endX + bone.pivot.X, endY + bone.pivot.Y);
     this.ctx.stroke();
+    this.ctx.restore();
   }
 
   public renderCharacter(skeleton: Skeleton, transform: Transform) {
-    for (let i = 0; i < skeleton.joints.length; i++) {
-      for (let j = 0; j < skeleton.joints[i].bones.length; j++) {
-        this.ctx.save();
-        this.ctx.translate(
-          transform.position.X - this.camera.position.X,
-          transform.position.Y
-        );
-        // this.ctx.beginPath();
-        // this.ctx.fillRect(-50, -150, 100, 20);
-        // this.ctx.fillStyle = 'blue';
-        // this.ctx.fill();
-        //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
-        if (skeleton.flip) {
-          this.ctx.scale(-1, 1);
-        }
-        this.ctx.translate(-transform.position.X, -transform.position.Y);
-        this.renderBone(skeleton.image, skeleton.joints[i].bones[j]);
-        this.ctx.restore();
+    for (let i = 0; i < skeleton.bones.length; i++) {
+      this.ctx.save();
+      this.ctx.translate(
+        transform.position.X - this.camera.position.X,
+        transform.position.Y
+      );
+      // this.ctx.beginPath();
+      // this.ctx.fillRect(-50, -150, 100, 20);
+      // this.ctx.fillStyle = 'blue';
+      // this.ctx.fill();
+      //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
+      if (skeleton.flip) {
+        this.ctx.scale(-1, 1);
       }
+      this.ctx.translate(-transform.position.X, -transform.position.Y);
+      this.renderBone(skeleton.image, skeleton.bones[i]);
+      this.ctx.restore();
     }
   }
 

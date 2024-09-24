@@ -1,5 +1,4 @@
 import { Vec } from '../vec';
-import { Bone } from './bone';
 import { Component } from './component';
 
 export class Joint extends Component {
@@ -10,7 +9,6 @@ export class Joint extends Component {
   rotation: number;
   angles: number[] = [];
   lengths: number[] = [];
-  bones: Bone[] = [];
   color: string;
   constructor(
     id: string,
