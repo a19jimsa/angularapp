@@ -41,14 +41,14 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  public drawHitBox(bone: Bone) {
+  public drawHitBox(bone: Attack) {
     this.ctx.save();
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(
       bone.position.X - this.camera.position.X,
       bone.position.Y - this.camera.position.Y,
-      bone.endX,
-      bone.endY
+      bone.width,
+      bone.height
     );
     this.ctx.fill();
     this.ctx.restore();

@@ -29,7 +29,7 @@ export class AttackSystem {
 
   // Kontrollera om två hitboxar kolliderar (rektangel-baserad kollision)
   isColliding(attack: Attack, bone: Bone, renderer: Renderer): boolean {
-    renderer.drawHitBox(bone);
+    renderer.drawHitBox(attack);
     return (
       attack.position.X < bone.position.X + bone.endX &&
       attack.position.X + attack.width > bone.position.X &&

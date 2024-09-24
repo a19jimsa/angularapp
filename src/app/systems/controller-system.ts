@@ -91,8 +91,6 @@ export class ControllerSystem {
           skeleton.stateMachine.currentState = 'attack';
           skeleton.stateMachine.changeState();
         }
-
-        console.log(skeleton.stateMachine.currentState);
         transform.velocity.X = speedX;
         transform.velocity.Y = speedY;
       }

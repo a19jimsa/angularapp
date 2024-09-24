@@ -93,7 +93,7 @@ export class AnimationSystem {
           }
           //bone.rotation = joint.rotation + joint.angles[j];
           bone.rotation = 90;
-
+          this.runAnimation(bone, skeleton);
           //renderer.renderJoints(bone);
           if (bone instanceof Weapon) {
             if (skeleton.stateMachine.currentState === 'attack') {
@@ -102,16 +102,26 @@ export class AnimationSystem {
                 (bone) => bone instanceof Weapon
               );
               if (weapon === undefined) continue;
-              if (Math.floor(skeleton.animationLength) === 2) {
+              if (skeleton.animationLength < 3) {
                 ecs.addComponent<Attack>(
                   entity,
-                  new Attack(100, 100, 100, 50, 50, weapon.position)
+                  new Attack(
+                    100,
+                    100,
+                    100,
+                    50,
+                    50,
+                    this.calculateParentPosition(
+                      bone.position,
+                      bone.length,
+                      bone.rotation
+                    )
+                  )
                 );
                 console.log('Created Attack woosh!');
               }
             }
           }
-          this.runAnimation(bone, skeleton);
         }
       }
       renderer.renderCharacter(skeleton, transform);

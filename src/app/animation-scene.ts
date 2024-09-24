@@ -64,7 +64,7 @@ export class AnimationScene {
     const player = this.ecs.createEntity();
     // const enemy = this.ecs.createEntity();
     // const arden = this.ecs.createEntity();
-    // const astram = this.ecs.createEntity();
+    const astram = this.ecs.createEntity();
     // const darros = this.ecs.createEntity();
     // const keiran = this.ecs.createEntity();
 
@@ -80,10 +80,10 @@ export class AnimationScene {
     //   arden,
     //   new Transform(new Vec(400, 300), new Vec(0, 0), 100)
     // );
-    // this.ecs.addComponent<Transform>(
-    //   astram,
-    //   new Transform(new Vec(500, 300), new Vec(0, 0), 100)
-    // );
+    this.ecs.addComponent<Transform>(
+      astram,
+      new Transform(new Vec(500, 300), new Vec(0, 0), 100)
+    );
     // this.ecs.addComponent<Transform>(
     //   darros,
     //   new Transform(new Vec(600, 300), new Vec(0, 0), 100)
@@ -99,7 +99,7 @@ export class AnimationScene {
     const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
     // const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
     // const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
-    // const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
+    const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
     // const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
     // const keiranSkeleton = new Skeleton('assets/sprites/keiran.png');
 
@@ -335,25 +335,25 @@ export class AnimationScene {
     playerSkeleton.bones.push(weapon);
     playerSkeleton.bones.push(weapon2);
 
-    // astramSkeleton.joints.push(joint);
+    astramSkeleton.joints.push(joint);
 
-    // //Draw root bones
-    // astramSkeleton.bones.push(leftLeg);
-    // astramSkeleton.bones.push(rightLeg);
-    // astramSkeleton.bones.push(leftArm);
-    // astramSkeleton.bones.push(leftLowerArm);
-    // astramSkeleton.bones.push(body);
-    // astramSkeleton.bones.push(rightArm);
-    // astramSkeleton.bones.push(head);
+    //Draw root bones
+    astramSkeleton.bones.push(leftLeg);
+    astramSkeleton.bones.push(rightLeg);
+    astramSkeleton.bones.push(leftArm);
+    astramSkeleton.bones.push(leftLowerArm);
+    astramSkeleton.bones.push(body);
+    astramSkeleton.bones.push(rightArm);
+    astramSkeleton.bones.push(head);
 
-    // //Draw child bones
-    // astramSkeleton.bones.push(leftFoot);
-    // astramSkeleton.bones.push(rightFoot);
+    //Draw child bones
+    astramSkeleton.bones.push(leftFoot);
+    astramSkeleton.bones.push(rightFoot);
 
-    // astramSkeleton.bones.push(rightLowerArm);
+    astramSkeleton.bones.push(rightLowerArm);
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-    //this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
+    this.ecs.addComponent<Skeleton>(astram, astramSkeleton);
 
     //this.ecs.addComponent<Health>(astram, new Health(100));
 
