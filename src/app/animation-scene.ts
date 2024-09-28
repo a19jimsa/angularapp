@@ -715,7 +715,7 @@ export class AnimationScene {
     this.attackSystem.update(this.ecs, this.renderer);
     this.deadSystem.update(this.ecs);
 
-    //console.log(Math.floor(performance.now() / 1000));
+    console.log(Math.floor(performance.now() / 1000));
     window.requestAnimationFrame(() => this.start());
   }
 }

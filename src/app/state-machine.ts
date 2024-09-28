@@ -107,12 +107,12 @@ export class StateMachine {
     { time: 5, name: 'leftLowerArm', angle: 90 },
   ];
 
-  currentState: string = 'bajs';
+  currentState: string = 'running';
   animations: any[];
 
   constructor() {
-    this.currentState = 'attack';
-    this.animations = this.attackFrames;
+    this.currentState = 'running';
+    this.animations = this.runningFrames;
   }
 
   changeState() {

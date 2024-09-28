@@ -10,13 +10,8 @@ import { Renderer } from '../renderer';
 import { Vec } from '../vec';
 
 export class AnimationSystem {
-  startTime: number = performance.now();
-
   update(ecs: Ecs, renderer: Renderer) {
     renderer.drawForeground();
-    const startTime = performance.now();
-    const entTime = performance.now() - startTime;
-    console.log(entTime);
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
@@ -96,30 +91,27 @@ export class AnimationSystem {
           this.runAnimation(bone, skeleton);
           //renderer.renderJoints(bone);
           if (bone instanceof Weapon) {
-            if (skeleton.stateMachine.currentState === 'attack') {
-              console.log(skeleton.stateMachine.currentState);
-              const weapon = skeleton.bones.find(
-                (bone) => bone instanceof Weapon
-              );
-              if (weapon === undefined) continue;
-              if (skeleton.animationLength < 3) {
-                ecs.addComponent<Attack>(
-                  entity,
-                  new Attack(
-                    100,
-                    100,
-                    100,
-                    50,
-                    50,
-                    this.calculateParentPosition(
-                      bone.position,
-                      bone.length,
-                      bone.rotation
-                    )
+            if (
+              skeleton.stateMachine.currentState === 'attack' &&
+              skeleton.animationLength >= 0.5 &&
+              skeleton.animationLength <= 1.3
+            ) {
+              ecs.addComponent<Attack>(
+                entity,
+                new Attack(
+                  100,
+                  100,
+                  100,
+                  100,
+                  50,
+                  new Vec(
+                    transform.position.X + bone.length / 2,
+                    transform.position.Y + bone.length
                   )
-                );
-                console.log('Created Attack woosh!');
-              }
+                )
+              );
+            } else {
+              ecs.removeComponent(entity, 'Attack');
             }
           }
         }
@@ -127,17 +119,12 @@ export class AnimationSystem {
       renderer.renderCharacter(skeleton, transform);
     }
   }
-
-  resetAnimation() {
-    this.startTime = performance.now();
-  }
-
   runAnimation(bone: Bone, skeleton: Skeleton) {
     const keyframes = skeleton.stateMachine.animations;
     const totalDuration = keyframes[keyframes.length - 1].time;
-
-    const speed = 1000; // ms
-    const loopedTime = (skeleton.frames / speed) % totalDuration;
+    const speed = 2000; // ms
+    const currentTime = performance.now();
+    const loopedTime = (currentTime / speed) % totalDuration;
     skeleton.animationLength = loopedTime;
     for (let i = 0; i < keyframes.length - 1; i++) {
       const keyFrame = keyframes[i];
@@ -155,7 +142,6 @@ export class AnimationSystem {
         }
       }
     }
-    skeleton.frames++;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {

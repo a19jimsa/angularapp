@@ -3,6 +3,7 @@ import { Attack } from '../components/attack';
 import { Ecs } from '../ecs';
 import { Renderer } from '../renderer';
 import { Bone } from '../components/bone';
+import { Transform } from '../components/transform';
 
 export class AttackSystem {
   update(ecs: Ecs, renderer: Renderer): void {
@@ -19,10 +20,6 @@ export class AttackSystem {
             break;
           }
         }
-      }
-      attack.length--;
-      if (attack.length <= 0) {
-        ecs.removeComponent(entity, 'Attack');
       }
     }
   }
