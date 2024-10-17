@@ -1,4 +1,5 @@
 import { Attack } from '../components/attack';
+import { AttackDuration } from '../components/attack-duration';
 import { Controlable } from '../components/controlable';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
@@ -87,9 +88,9 @@ export class ControllerSystem {
         }
         if (this.keysPressed.attack) {
           speedX = 0;
-          skeleton.frames = 0;
           skeleton.stateMachine.currentState = 'attack';
           skeleton.stateMachine.changeState();
+          skeleton.active = true;
         }
         transform.velocity.X = speedX;
         transform.velocity.Y = speedY;

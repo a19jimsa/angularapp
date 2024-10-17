@@ -9,7 +9,8 @@ export class Attack extends Component {
   width: number;
   height: number;
   position: Vec;
-  active: boolean = false;
+  active: boolean = true;
+  keyFrame: number;
 
   constructor(
     damage: number,
@@ -26,5 +27,6 @@ export class Attack extends Component {
     this.height = height;
     this.width = width;
     this.position = position;
+    this.keyFrame = 0;
   }
 }

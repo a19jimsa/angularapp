@@ -1,23 +1,38 @@
-import { Skeleton } from '../components/skeleton';
 import { Attack } from '../components/attack';
 import { Ecs } from '../ecs';
 import { Renderer } from '../renderer';
 import { Bone } from '../components/bone';
-import { Transform } from '../components/transform';
+import { Weapon } from '../components/weapon';
+import { Skeleton } from '../components/skeleton';
 
 export class AttackSystem {
   update(ecs: Ecs, renderer: Renderer): void {
-    for (const entity of ecs.getEntities()) {
-      const attack = ecs.getComponent<Attack>(entity, 'Attack');
-      if (attack === undefined) continue;
-      for (const skeletonEntity of ecs.getEntities()) {
-        const skeleton = ecs.getComponent<Skeleton>(skeletonEntity, 'Skeleton');
-        if (skeleton === undefined) continue;
-        if (entity === skeletonEntity) continue;
+    const pool = ecs.getPool<[Attack, Weapon, Skeleton]>(
+      'Attack',
+      'Weapon',
+      'Skeleton'
+    );
+    const skeletonPool = ecs.getPool<[Skeleton]>('Skeleton');
+    for (const [attack, weapon, skeleton] of pool) {
+      const weaponX =
+        weapon.position.X +
+        weapon.length * Math.cos((weapon.rotation * Math.PI) / 180);
+      const weaponY =
+        weapon.position.Y +
+        weapon.length * Math.sin((weapon.rotation * Math.PI) / 180);
+      attack.position.X = weaponX;
+      attack.position.Y = weaponY;
+      if (skeleton.flip) {
+        attack.position.X =
+          skeleton.position.X + (skeleton.position.X - weaponX);
+        attack.position.X -= attack.width;
+      }
+      //renderer.drawAttackBox(attack);
+      for (const [skeleton] of skeletonPool) {
         for (const bone of skeleton.bones) {
-          if (this.isColliding(attack, bone, renderer)) {
-            console.log('Hitted' + bone.id);
-            break;
+          if (this.isColliding(attack, bone)) {
+            console.log('Hitted ' + bone.id);
+            return;
           }
         }
       }
@@ -25,12 +40,11 @@ export class AttackSystem {
   }
 
   // Kontrollera om två hitboxar kolliderar (rektangel-baserad kollision)
-  isColliding(attack: Attack, bone: Bone, renderer: Renderer): boolean {
-    renderer.drawHitBox(attack);
+  isColliding(attack: Attack, bone: Bone): boolean {
     return (
-      attack.position.X < bone.position.X + bone.endX &&
+      attack.position.X < bone.position.X - (bone.endX - bone.pivot.X) / 2 &&
       attack.position.X + attack.width > bone.position.X &&
-      attack.position.Y < bone.position.Y + bone.endY &&
+      attack.position.Y < bone.position.Y - (bone.endY - bone.pivot.Y) / 2 &&
       attack.position.Y + attack.height > bone.position.Y
     );
   }

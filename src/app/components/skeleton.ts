@@ -2,6 +2,7 @@ import { Bone } from './bone';
 import { StateMachine } from '../state-machine';
 import { Component } from './component';
 import { Joint } from './joint';
+import { Vec } from '../vec';
 
 export class Skeleton extends Component {
   override type = 'Skeleton';
@@ -9,13 +10,13 @@ export class Skeleton extends Component {
   joints: Joint[] = [];
   bones: Bone[] = [];
   flip: boolean = false;
-  animationLength: number;
   stateMachine: StateMachine = new StateMachine();
-  frames: number;
+  position: Vec;
+  active: boolean;
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
-    this.frames = 0;
-    this.animationLength = 0;
+    this.position = new Vec(0,0);
+    this.active = false;
   }
 }
