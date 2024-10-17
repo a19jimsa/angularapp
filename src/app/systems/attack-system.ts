@@ -27,7 +27,8 @@ export class AttackSystem {
           skeleton.position.X + (skeleton.position.X - weaponX);
         attack.position.X -= attack.width;
       }
-      //renderer.drawAttackBox(attack);
+      renderer.drawAttackBox(attack);
+      console.log(attack);
       for (const [skeleton] of skeletonPool) {
         for (const bone of skeleton.bones) {
           if (this.isColliding(attack, bone)) {

@@ -94,14 +94,17 @@ export class AnimationSystem {
           bone.rotation = 90;
           this.runAnimation(bone, skeleton);
           //renderer.renderJoints(bone);
-          
         }
       }
 
-      if(skeleton.active && skeleton.stateMachine.currentState == "attack"){
-        ecs.addComponent<Attack>(entity, new Attack(100,100,100,50,50,new Vec(0,0)));
+      if (skeleton.active && skeleton.stateMachine.currentState == 'attack') {
+        ecs.addComponent<Attack>(
+          entity,
+          new Attack(100, 100, 100, 50, 50, new Vec(0, 0))
+        );
         ecs.addComponent<AttackDuration>(entity, new AttackDuration(45));
         skeleton.active = false;
+        console.log('created attack');
       }
       renderer.renderCharacter(skeleton, transform);
     }
@@ -119,7 +122,7 @@ export class AnimationSystem {
         const progress =
           (loopedTime - keyFrame.time) /
           (keyframes[i + 1].time - keyFrame.time);
-        
+
         if (bone.id === keyFrame.name) {
           bone.rotation = this.interpolateKeyframe(
             keyFrame.angle,

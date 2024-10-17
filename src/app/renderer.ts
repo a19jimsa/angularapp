@@ -41,14 +41,14 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  public drawHitBox(bone: Attack) {
+  public drawHitBox(attack: Attack) {
     this.ctx.save();
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(
-      bone.position.X - this.camera.position.X,
-      bone.position.Y - this.camera.position.Y,
-      bone.width,
-      bone.height
+      attack.position.X - this.camera.position.X,
+      attack.position.Y - this.camera.position.Y,
+      attack.width,
+      attack.height
     );
     this.ctx.fill();
     this.ctx.restore();
@@ -360,5 +360,18 @@ export class Renderer {
 
   drawDebug(characterPosition: Vec) {
     this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
+  }
+
+  drawAttackBox(attack: Attack) {
+    this.ctx.save();
+    this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(
+      attack.position.X,
+      attack.position.Y,
+      attack.width,
+      attack.height
+    );
+    this.ctx.fill();
+    this.ctx.restore();
   }
 }

@@ -19,6 +19,8 @@ import { Weapon } from './components/weapon';
 import { Health } from './components/health';
 import { DeadSystem } from './systems/dead-system';
 import { HitBox } from './components/hit-box';
+import { AttackDuration } from './components/attack-duration';
+import { AttackDurationSystem } from './systems/attack-duration-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -34,6 +36,7 @@ export class AnimationScene {
   cameraSystem: CameraSystem;
   attackSystem: AttackSystem;
   deadSystem: DeadSystem;
+  attackDurationSystem: AttackDurationSystem;
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     canvasWidth: number,
@@ -57,6 +60,7 @@ export class AnimationScene {
     this.cameraSystem = new CameraSystem();
     this.attackSystem = new AttackSystem();
     this.deadSystem = new DeadSystem();
+    this.attackDurationSystem = new AttackDurationSystem();
   }
 
   init() {
@@ -636,6 +640,7 @@ export class AnimationScene {
 
     // this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Life>(player, new Life(100));
+    this.ecs.addComponent<Weapon>(player, weapon);
 
     // this.ecs.addComponent<Skeleton>(
     //   dragon,
@@ -713,6 +718,7 @@ export class AnimationScene {
     this.animationSystem.update(this.ecs, this.renderer);
     this.movementSystem.update(this.ecs);
     this.attackSystem.update(this.ecs, this.renderer);
+    this.attackDurationSystem.update(this.ecs);
     this.deadSystem.update(this.ecs);
 
     console.log(Math.floor(performance.now() / 1000));
