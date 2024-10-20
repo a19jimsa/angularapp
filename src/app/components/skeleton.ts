@@ -13,10 +13,11 @@ export class Skeleton extends Component {
   stateMachine: StateMachine = new StateMachine();
   position: Vec;
   active: boolean;
+  startTime: number = performance.now();
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
-    this.position = new Vec(0,0);
+    this.position = new Vec(0, 0);
     this.active = false;
   }
 }

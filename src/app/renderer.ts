@@ -333,7 +333,10 @@ export class Renderer {
   }
 
   public renderCharacter(skeleton: Skeleton, transform: Transform) {
-    for (let i = 0; i < skeleton.bones.length; i++) {
+    const sortedSkeletonBones = skeleton.bones.sort(
+      (a, b) => a.order - b.order
+    );
+    for (let i = 0; i < sortedSkeletonBones.length; i++) {
       this.ctx.save();
       this.ctx.translate(
         transform.position.X - this.camera.position.X,
@@ -366,7 +369,7 @@ export class Renderer {
     this.ctx.save();
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(
-      attack.position.X,
+      attack.position.X - this.camera.position.X,
       attack.position.Y,
       attack.width,
       attack.height

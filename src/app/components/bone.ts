@@ -12,10 +12,11 @@ export class Bone extends Component {
   startY: number;
   endX: number;
   endY: number;
-  flip: boolean;
   color: string;
   pivot: Vec;
   jointRotation: number;
+  offset?: Vec;
+  order: number;
 
   constructor(
     id: string,
@@ -26,7 +27,9 @@ export class Bone extends Component {
     startY: number,
     endX: number,
     endY: number,
-    jointRotation: number
+    jointRotation: number,
+    order: number,
+    offset?: Vec
   ) {
     super();
     this.id = id;
@@ -39,8 +42,9 @@ export class Bone extends Component {
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
-    this.flip = false;
     this.color = 'blue';
     this.jointRotation = jointRotation;
+    this.order = order;
+    this.offset = offset;
   }
 }

@@ -14,8 +14,6 @@ export class Joint extends Component {
     id: string,
     parentId: string | null,
     rotation: number,
-    lengths: number[],
-    angles: number[],
     color: string
   ) {
     super();
@@ -24,7 +22,5 @@ export class Joint extends Component {
     this.position = new Vec(0, 0);
     this.rotation = rotation;
     this.color = color;
-    this.lengths = lengths;
-    this.angles = angles;
   }
 }

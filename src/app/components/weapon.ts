@@ -17,7 +17,9 @@ export class Weapon extends Bone {
     endY: number,
     jointRotation: number,
     width: number,
-    height: number
+    height: number,
+    order: number,
+    offset?: Vec
   ) {
     super(
       id,
@@ -28,7 +30,9 @@ export class Weapon extends Bone {
       startY,
       endX,
       endY,
-      jointRotation
+      jointRotation,
+      order,
+      offset
     );
     this.width = width;
     this.height = height;

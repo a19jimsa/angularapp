@@ -1,13 +1,8 @@
-import { Attack } from '../components/attack';
-import { AttackDuration } from '../components/attack-duration';
 import { Bone } from '../components/bone';
-import { Component } from '../components/component';
 import { Joint } from '../components/joint';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
-import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
-import { Entity } from '../entity';
 import { Renderer } from '../renderer';
 import { Vec } from '../vec';
 
@@ -60,7 +55,7 @@ export class AnimationSystem {
           //renderer.renderJoint(joint);
         }
 
-        // Loop all children of joint update their position and draw them
+        // Loop all children of joint update their position
         for (let j = 0; j < skeleton.bones.length; j++) {
           const bone = skeleton.bones[j];
           if (bone.parentId !== null) {
@@ -76,35 +71,17 @@ export class AnimationSystem {
               parentBone.rotation + parentBone.jointRotation
             );
           } else {
-            const xEnd =
-              joint.position.X +
-              joint.lengths[j] *
-                Math.cos(
-                  this.degreesToRadians(joint.rotation + joint.angles[j])
-                );
-            const yEnd =
-              joint.position.Y +
-              joint.lengths[j] *
-                Math.sin(
-                  this.degreesToRadians(joint.rotation + joint.angles[j])
-                );
-            bone.position = new Vec(xEnd, yEnd);
+            if (bone.offset !== undefined) {
+              const xEnd = joint.position.X + bone.offset.X;
+              const yEnd = joint.position.Y + bone.offset.Y;
+              bone.position = new Vec(xEnd, yEnd);
+            }
           }
           //bone.rotation = joint.rotation + joint.angles[j];
           bone.rotation = 90;
           this.runAnimation(bone, skeleton);
           //renderer.renderJoints(bone);
         }
-      }
-
-      if (skeleton.active && skeleton.stateMachine.currentState == 'attack') {
-        ecs.addComponent<Attack>(
-          entity,
-          new Attack(100, 100, 100, 50, 50, new Vec(0, 0))
-        );
-        ecs.addComponent<AttackDuration>(entity, new AttackDuration(45));
-        skeleton.active = false;
-        console.log('created attack');
       }
       renderer.renderCharacter(skeleton, transform);
     }
@@ -114,8 +91,9 @@ export class AnimationSystem {
     const keyframes = skeleton.stateMachine.animations;
     const totalDuration = keyframes[keyframes.length - 1].time;
     const speed = 1000; // ms
-    const currentTime = performance.now();
-    const loopedTime = (currentTime / speed) % totalDuration;
+    // Använd startTime för att räkna ut hur långt in i animationen vi är
+    const elapsedTime = (performance.now() - skeleton.startTime) / speed;
+    const loopedTime = elapsedTime % totalDuration;
     for (let i = 0; i < keyframes.length - 1; i++) {
       const keyFrame = keyframes[i];
       if (loopedTime >= keyFrame.time && loopedTime < keyframes[i + 1].time) {

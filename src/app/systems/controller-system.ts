@@ -5,6 +5,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { Vec } from '../vec';
 
 export class ControllerSystem {
@@ -16,6 +17,7 @@ export class ControllerSystem {
     jump: false,
     attack: false,
   };
+  active = false;
 
   constructor() {
     console.log('Skapade controller');
@@ -46,18 +48,23 @@ export class ControllerSystem {
       switch (event.code) {
         case 'KeyA':
           this.keysPressed.left = false;
+          this.active = false;
           break;
         case 'KeyD':
           this.keysPressed.right = false;
+          this.active = false;
           break;
         case 'KeyW':
           this.keysPressed.up = false;
+          this.active = false;
           break;
         case 'KeyS':
           this.keysPressed.down = false;
+          this.active = false;
           break;
         case 'Enter':
           this.keysPressed.attack = false;
+          this.active = false;
           break;
       }
     });
@@ -75,26 +82,35 @@ export class ControllerSystem {
           skeleton.stateMachine.currentState = 'running';
           skeleton.stateMachine.changeState();
           skeleton.flip = true;
-          speedX += -10;
+          speedX += -5;
         }
         if (this.keysPressed.right) {
           skeleton.stateMachine.currentState = 'running';
           skeleton.stateMachine.changeState();
           skeleton.flip = false;
-          speedX += 10;
+          speedX += 5;
         }
         if (this.keysPressed.jump) {
           //speedY -= 10;
         }
-        if (this.keysPressed.attack) {
-          speedX = 0;
+        if (this.keysPressed.attack && !this.active) {
           skeleton.stateMachine.currentState = 'attack';
           skeleton.stateMachine.changeState();
-          skeleton.active = true;
+          this.createAttack(ecs, entity);
+          this.active = true;
+          skeleton.startTime = performance.now();
         }
         transform.velocity.X = speedX;
         transform.velocity.Y = speedY;
       }
     }
+  }
+
+  createAttack(ecs: Ecs, entity: Entity) {
+    ecs.addComponent<Attack>(
+      entity,
+      new Attack(100, 100, 100, 50, 50, new Vec(0, 0))
+    );
+    ecs.addComponent<AttackDuration>(entity, new AttackDuration(45));
   }
 }
