@@ -213,7 +213,7 @@ export class AnimationScene {
       30,
       35,
       0,
-      -1
+      -2
     );
 
     const rightLowerArm = new Bone(
@@ -240,7 +240,7 @@ export class AnimationScene {
       75,
       0,
       0,
-      new Vec(0, -50)
+      new Vec(0, -60)
     );
 
     const rightMantle = new Bone(
@@ -311,14 +311,29 @@ export class AnimationScene {
     );
 
     const weapon2 = new Weapon(
+      'weapon',
+      'rightLowerArm',
+      new Vec(0, 10),
+      90,
+      349,
+      200,
+      399 - 349,
+      360 - 200,
+      0,
+      50,
+      50,
+      1
+    );
+
+    const weapon3 = new Weapon(
       'weapon2',
       'leftLowerArm',
       new Vec(0, 10),
       90,
-      416,
-      202,
-      502 - 416,
-      358 - 202,
+      304,
+      200,
+      344 - 304,
+      350 - 200,
       0,
       50,
       50,
@@ -344,8 +359,8 @@ export class AnimationScene {
     playerSkeleton.bones.push(rightFoot);
     playerSkeleton.bones.push(leftLowerArm);
     playerSkeleton.bones.push(rightLowerArm);
-    playerSkeleton.bones.push(weapon);
-    //playerSkeleton.bones.push(weapon2);
+    playerSkeleton.bones.push(weapon2);
+    playerSkeleton.bones.push(weapon3);
 
     playerSkeleton.joints.push(joint);
 
@@ -634,7 +649,7 @@ export class AnimationScene {
     dragonSkeleton.joints.push(dragonJoint);
 
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
-    this.ecs.addComponent<Weapon>(player, weapon);
+    this.ecs.addComponent<Weapon>(player, weapon2);
 
     // this.ecs.addComponent<Skeleton>(
     //   dragon,

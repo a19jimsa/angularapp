@@ -30,7 +30,6 @@ export class AttackSystem {
       }
       renderer.drawAttackBox(attack);
       for (const [skeleton] of skeletonPool) {
-        console.log(skeleton);
         for (const bone of skeleton.bones) {
           if (this.isColliding(attack, bone)) {
             console.log('Hitted ' + bone.id);
