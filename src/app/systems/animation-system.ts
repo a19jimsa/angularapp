@@ -13,8 +13,11 @@ export class AnimationSystem {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
+
       if (skeleton === undefined || transform === undefined) continue;
+
       skeleton.position = transform.position;
+
       skeleton.bones.sort((a, b) => {
         if (a.parentId === null && b.parentId !== null) {
           return -1; // Placera ben utan parent före ben med parent
@@ -24,6 +27,7 @@ export class AnimationSystem {
           return 0; // Om båda antingen har eller saknar parent, lämna dem i samma ordning
         }
       });
+
       for (let i = 0; i < skeleton.joints.length; i++) {
         const joint = skeleton.joints[i];
         joint.position = transform.position;

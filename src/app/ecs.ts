@@ -73,5 +73,6 @@ export class Ecs {
     }
     // Om du har andra strukturer där entiteten hanteras, kan du behöva ta bort den därifrån också
     this.entities.delete(entity);
+    console.log('Removed enity: ' + entity);
   }
 }

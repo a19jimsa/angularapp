@@ -3,12 +3,12 @@ import { Bone } from './bone';
 
 export class Weapon extends Bone {
   override type = 'Weapon';
-  width: number;
   height: number;
+  width: number;
 
   constructor(
     id: string,
-    parentId: string,
+    parentId: string | null,
     pivot: Vec,
     length: number,
     startX: number,

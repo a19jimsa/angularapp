@@ -7,6 +7,8 @@ import { Skeleton } from './components/skeleton';
 import { Transform } from './components/transform';
 import { HitBox } from './components/hit-box';
 import { Attack } from './components/attack';
+import { Sprite } from './components/sprite';
+import { Weapon } from './components/weapon';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -41,16 +43,16 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  public drawHitBox(attack: Attack) {
+  public drawHitBox(hitBox: HitBox) {
     this.ctx.save();
-    this.ctx.fillStyle = 'red';
+    this.ctx.fillStyle = 'green';
     this.ctx.fillRect(
-      attack.position.X - this.camera.position.X,
-      attack.position.Y - this.camera.position.Y,
-      attack.width,
-      attack.height
+      hitBox.position.X - this.camera.position.X,
+      hitBox.position.Y,
+      hitBox.height,
+      hitBox.width
     );
-    this.ctx.fill();
+
     this.ctx.restore();
   }
 
@@ -365,7 +367,7 @@ export class Renderer {
     this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
   }
 
-  drawAttackBox(attack: Attack) {
+  drawAttackBox(attack: HitBox) {
     this.ctx.save();
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(

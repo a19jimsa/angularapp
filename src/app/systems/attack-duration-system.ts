@@ -1,22 +1,26 @@
 import { Attack } from '../components/attack';
 import { AttackDuration } from '../components/attack-duration';
+import { Projectile } from '../components/projectile';
 import { Ecs } from '../ecs';
 
 export class AttackDurationSystem {
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
-      const attack = ecs.getComponent<Attack>(entity, 'Attack');
       const attackDuration = ecs.getComponent<AttackDuration>(
         entity,
         'AttackDuration'
       );
-      if (attack && attackDuration) {
+      const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
+      if (attackDuration && !projectile) {
         attackDuration.duration -= 0.16;
         if (attackDuration.duration <= 0) {
           ecs.removeComponent<Attack>(entity, 'Attack');
           ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
-          console.log('Tog bort attack');
+          console.log('Tog bort attackkomponenter');
         }
+      }
+      if (projectile) {
+        attackDuration.duration -= 0.16;
       }
     }
   }

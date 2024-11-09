@@ -9,13 +9,14 @@ import { AnimationScene } from '../animation-scene';
 export class BoneAnimationComponent {
   @ViewChild('canvas', { static: true })
   canvas!: ElementRef<HTMLCanvasElement>;
-  private gameLoopId = 0;
   private scene!: AnimationScene;
 
   constructor() {}
+
   //Cancel animation thread.
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.gameLoopId);
+    cancelAnimationFrame(this.scene.loopId);
+    console.log('Destroyed game engine with loopID' + this.scene.loopId);
   }
 
   ngAfterViewInit(): void {

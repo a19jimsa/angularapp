@@ -3,30 +3,8 @@ import { Component } from './component';
 
 export class Attack extends Component {
   override type = 'Attack';
-  damage: number;
-  speed: number;
-  length: number;
-  width: number;
-  height: number;
-  position: Vec;
-  active: boolean = true;
-  keyFrame: number;
 
-  constructor(
-    damage: number,
-    speed: number,
-    length: number,
-    width: number,
-    height: number,
-    position: Vec
-  ) {
+  constructor() {
     super();
-    this.damage = damage;
-    this.speed = speed;
-    this.length = length;
-    this.height = height;
-    this.width = width;
-    this.position = position;
-    this.keyFrame = 0;
   }
 }

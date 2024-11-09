@@ -12,20 +12,21 @@ import { Controlable } from './components/controlable';
 import { Joint } from './components/joint';
 import { Camera } from './components/camera';
 import { CameraSystem } from './systems/camera-system';
-import { Life } from './components/life';
 import { AttackSystem } from './systems/attack-system';
-import { Enemy } from './components/enemy';
 import { Weapon } from './components/weapon';
-import { Health } from './components/health';
 import { DeadSystem } from './systems/dead-system';
-import { HitBox } from './components/hit-box';
-import { AttackDuration } from './components/attack-duration';
 import { AttackDurationSystem } from './systems/attack-duration-system';
+import { AiSystem } from './systems/ai-system';
+import { Entity } from './entity';
+import { Ai } from './components/ai';
+import { HitBoxSystem } from './systems/hit-box-system';
+import { ProjectileSystem } from './systems/projectile-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
   renderer!: Renderer;
   ecs: Ecs;
+  player: Entity | null = null;
   canvasWidth: number;
   canvasHeight: number;
   width: number;
@@ -37,6 +38,12 @@ export class AnimationScene {
   attackSystem: AttackSystem;
   deadSystem: DeadSystem;
   attackDurationSystem: AttackDurationSystem;
+  aiSystem: AiSystem;
+  hitBoxSystem: HitBoxSystem;
+  projectileSystem: ProjectileSystem;
+
+  loopId = 0;
+
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     canvasWidth: number,
@@ -61,6 +68,9 @@ export class AnimationScene {
     this.attackSystem = new AttackSystem();
     this.deadSystem = new DeadSystem();
     this.attackDurationSystem = new AttackDurationSystem();
+    this.aiSystem = new AiSystem();
+    this.hitBoxSystem = new HitBoxSystem();
+    this.projectileSystem = new ProjectileSystem();
   }
 
   init() {
@@ -418,14 +428,14 @@ export class AnimationScene {
       'dragonLeftArm',
       null,
       new Vec(0, 50),
-      100,
+      95,
       644,
       627,
       734 - 644,
       791 - 627,
       0,
       -3,
-      new Vec(110, 0)
+      new Vec(110, 20)
     );
     const dragonRightArm = new Bone(
       'dragonRightArm',
@@ -441,7 +451,7 @@ export class AnimationScene {
       new Vec(-50, 0)
     );
 
-    const dragonHead = new Bone(
+    const dragonHead = new Weapon(
       'dragonHead',
       null,
       new Vec(0, 70),
@@ -452,6 +462,8 @@ export class AnimationScene {
       140,
       12,
       50,
+      10,
+      10,
       new Vec(65, -50)
     );
 
@@ -471,8 +483,8 @@ export class AnimationScene {
     const leftDragonLowerArm = new Bone(
       'dragonLeftLowerArm',
       'dragonLeftArm',
-      new Vec(0, 50),
-      120,
+      new Vec(0, 0),
+      130,
       639,
       794,
       749 - 639,
@@ -484,8 +496,8 @@ export class AnimationScene {
     const rightDragonLowerArm = new Bone(
       'dragonRightLowerArm',
       'dragonRightArm',
-      new Vec(0, 50),
-      220,
+      new Vec(0, 0),
+      200,
       518,
       705,
       638 - 518,
@@ -543,7 +555,7 @@ export class AnimationScene {
       826 - 514,
       0,
       -14,
-      new Vec(-300, -100)
+      new Vec(-300, -50)
     );
 
     const secondTail = new Bone(
@@ -621,6 +633,33 @@ export class AnimationScene {
       -20
     );
 
+    const leftWing = new Bone(
+      'leftWing',
+      null,
+      new Vec(0, 0),
+      100,
+      918,
+      666,
+      1017 - 918,
+      841 - 666,
+      0,
+      -10,
+      new Vec(100, -100)
+    );
+    const rightWing = new Bone(
+      'rightWing',
+      null,
+      new Vec(0, 0),
+      100,
+      641,
+      514,
+      936 - 641,
+      618 - 514,
+      0,
+      2,
+      new Vec(-150, 0)
+    );
+
     const dragonJoint = new Joint('root', null, 0, 'blue');
 
     dragonSkeleton.bones.push(dragonbody);
@@ -630,6 +669,8 @@ export class AnimationScene {
     dragonSkeleton.bones.push(firstTail);
     dragonSkeleton.bones.push(dragonHead);
     dragonSkeleton.bones.push(jaw);
+    dragonSkeleton.bones.push(rightWing);
+    dragonSkeleton.bones.push(leftWing);
 
     //Add child bones
     dragonSkeleton.bones.push(lastTail);
@@ -650,46 +691,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Weapon>(player, weapon2);
-
-    // this.ecs.addComponent<Skeleton>(
-    //   dragon,
-    //   new Skeleton(
-    //     [
-    //       new Bone(
-    //         'leftWing',
-    //         'leftArm',
-    //         new Vec(0, 0),
-    //         0,
-    //         -300,
-    //         0,
-    //         918,
-    //         666,
-    //         1017 - 918,
-    //         841 - 666
-    //       ),
-    //       new Bone(
-    //         'rightWing',
-    //         'back',
-    //         new Vec(0, 0),
-    //         -120,
-    //         -50,
-    //         0,
-    //         641,
-    //         514,
-    //         936 - 641,
-    //         618 - 514
-    //       ),
-
-    //     ],
-
-    //     'assets/sprites/Dragon.png'
-    //   )
-    // );
-
-    // this.ecs.addComponent<Controlable>(
-    //   astram,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
+    this.ecs.addComponent<Weapon>(dragon, dragonHead);
 
     this.ecs.addComponent<Controlable>(
       player,
@@ -697,22 +699,9 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Camera>(player, new Camera(1024, 420, 4096, 420));
-
-    this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
-
-    // this.ecs.addComponent<Controlable>(
-    //   arden,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
-    // this.ecs.addComponent<Controlable>(
-    //   draug,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
-    // this.ecs.addComponent<Controlable>(
-    //   dragon,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
-    // this.ecs.addComponent<Render>(dragon, new Render('blue'));
+    //this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
+    this.player = player;
+    this.ecs.addComponent<Ai>(dragon, new Ai('idle', null, 500, 500));
   }
 
   start() {
@@ -725,13 +714,15 @@ export class AnimationScene {
       this.height
     );
     this.controllerSystem.update(this.ecs);
+    this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs, this.renderer);
     this.movementSystem.update(this.ecs);
     this.attackSystem.update(this.ecs, this.renderer);
     this.attackDurationSystem.update(this.ecs);
     this.deadSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs, this.renderer);
+    this.projectileSystem.update(this.ecs);
 
-    console.log(Math.floor(performance.now() / 1000));
-    window.requestAnimationFrame(() => this.start());
+    this.loopId = window.requestAnimationFrame(() => this.start());
   }
 }

@@ -3,10 +3,8 @@ import { AttackDuration } from '../components/attack-duration';
 import { Controlable } from '../components/controlable';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
-import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { Vec } from '../vec';
 
 export class ControllerSystem {
   keysPressed = {
@@ -84,15 +82,18 @@ export class ControllerSystem {
           skeleton.flip = true;
           speedX += -5;
         }
+
         if (this.keysPressed.right) {
           skeleton.stateMachine.currentState = 'running';
           skeleton.stateMachine.changeState();
           skeleton.flip = false;
           speedX += 5;
         }
+
         if (this.keysPressed.jump) {
           //speedY -= 10;
         }
+
         if (this.keysPressed.attack && !this.active) {
           skeleton.stateMachine.currentState = 'attack';
           skeleton.stateMachine.changeState();
@@ -107,10 +108,8 @@ export class ControllerSystem {
   }
 
   createAttack(ecs: Ecs, entity: Entity) {
-    ecs.addComponent<Attack>(
-      entity,
-      new Attack(100, 100, 100, 50, 50, new Vec(0, 0))
-    );
-    ecs.addComponent<AttackDuration>(entity, new AttackDuration(45));
+    console.log('Skapade attack');
+    ecs.addComponent<Attack>(entity, new Attack());
+    ecs.addComponent<AttackDuration>(entity, new AttackDuration(10));
   }
 }
