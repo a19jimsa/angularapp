@@ -1,28 +1,25 @@
+import { Skeleton } from '../components/skeleton';
 import { Ai } from '../components/ai';
-import { Attack } from '../components/attack';
-import { AttackDuration } from '../components/attack-duration';
-import { Damage } from '../components/damage';
-import { Enemy } from '../components/enemy';
-import { HitBox } from '../components/hit-box';
-import { Player } from '../components/player';
-import { Projectile } from '../components/projectile';
 import { Transform } from '../components/transform';
-import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
+import { Projectile } from '../components/projectile';
+import { AttackDuration } from '../components/attack-duration';
 import { Vec } from '../vec';
+import { Sprite } from '../components/sprite';
+import { Rotation } from '../components/rotation';
+import { HitBox } from '../components/hit-box';
 
 export class AiSystem {
   update(ecs: Ecs, playerEntity: Entity) {
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const ai = ecs.getComponent<Ai>(entity, 'Ai');
-      const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
       const playerTransform = ecs.getComponent<Transform>(
         playerEntity,
         'Transform'
       );
-      if (transform && ai && weapon) {
+      if (transform && ai) {
         const distToPlayer = transform.position.dist(playerTransform.position);
         switch (ai.state) {
           case 'idle':
@@ -42,29 +39,35 @@ export class AiSystem {
             }
             ai.cooldown -= 0.16;
             if (ai.cooldown > 0) break;
-            const enemyProjectile = ecs.createEntity();
-            ecs.addComponent<Transform>(
-              enemyProjectile,
-              new Transform(weapon.position, new Vec(10, 0), 10)
-            );
-            ecs.addComponent<HitBox>(
-              enemyProjectile,
-              new HitBox(weapon.position, 50, 50)
-            );
-            ecs.addComponent<Attack>(enemyProjectile, new Attack());
-            ecs.addComponent<Damage>(enemyProjectile, new Damage(100));
-            ecs.addComponent<AttackDuration>(
-              enemyProjectile,
-              new AttackDuration(10)
-            );
-            ecs.addComponent<Projectile>(enemyProjectile, new Projectile());
-            ecs.addComponent<Enemy>(enemyProjectile, new Enemy());
-            ai.cooldown = 10;
+            this.createAttack(ecs, entity);
+            ai.cooldown = 5;
             break;
           case 'patrol':
             break;
         }
       }
     }
+  }
+
+  createAttack(ecs: Ecs, aiEntity: Entity) {
+    const aiSkeleton = ecs.getComponent<Skeleton>(aiEntity, 'Skeleton');
+    if (!aiSkeleton) return;
+    const aiBone = aiSkeleton.bones.find((e) => e.id === 'dragonJaw');
+    if (!aiBone) return;
+    const attack = ecs.createEntity();
+    ecs.addComponent<Transform>(
+      attack,
+      new Transform(aiBone.position, new Vec(10, 0), 10)
+    );
+    ecs.addComponent<Projectile>(attack, new Projectile());
+
+    ecs.addComponent<AttackDuration>(attack, new AttackDuration(100));
+    const sprite = new Sprite('assets/sprites/wep_ax039.png');
+    ecs.addComponent<Sprite>(attack, sprite);
+    ecs.addComponent<Rotation>(attack, new Rotation());
+    ecs.addComponent<HitBox>(
+      attack,
+      new HitBox(aiBone.position, sprite.image.width, sprite.image.height)
+    );
   }
 }

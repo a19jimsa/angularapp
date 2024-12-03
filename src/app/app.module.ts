@@ -43,6 +43,9 @@ import { SandTileComponent } from './sand-tile/sand-tile.component';
 import { CollisionComponent } from './collision/collision.component';
 import { CurlingComponent } from './curling/curling.component';
 import { BoneAnimationComponent } from './bone-animation/bone-animation.component';
+import { AnimationCreatorComponent } from './animation-creator/animation-creator.component';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -75,6 +78,7 @@ import { BoneAnimationComponent } from './bone-animation/bone-animation.componen
     CollisionComponent,
     CurlingComponent,
     BoneAnimationComponent,
+    AnimationCreatorComponent,
   ],
   imports: [
     BrowserModule,
@@ -87,7 +91,9 @@ import { BoneAnimationComponent } from './bone-animation/bone-animation.componen
     MatCardModule,
     MatMenuModule,
     MatToolbarModule,
+    MatSliderModule,
     HttpClientModule,
+    MatIconModule,
     NgbModule,
   ],
   providers: [

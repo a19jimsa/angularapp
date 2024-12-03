@@ -1,0 +1,57 @@
+<div class="container border">
+  <div class="row d-flex justify-content-around">
+    <div class="col-8 border">
+      <canvas #canvas></canvas>
+    </div>
+    <div class="col-4 border">
+      <h1 class="text-center">Bones</h1>
+      <div *ngFor="let bone of bones; let index = index">
+        {{ bone | json }}
+        <button mat-flat-button color="primary" (click)="activateBone(bone)">
+          Activate
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 p-2">
+      <button mat-raised-button color="primary" (click)="addBone()">
+        Add bone
+      </button>
+      <button mat-raised-button color="accent" (click)="togglePlay()">
+        Play
+      </button>
+      <button mat-raised-button color="warn">Warn</button>
+      <mat-slider [step]="10" [max]="360">
+        <input
+          matSliderThumb
+          [(ngModel)]="lengthSliderValue"
+          (change)="updateLength()"
+          #slider
+        />
+      </mat-slider>
+      <mat-slider [step]="1" [max]="360">
+        <input
+          matSliderThumb
+          [(ngModel)]="rotationSliderValue"
+          (change)="updateRotation()"
+          #slider
+        />
+      </mat-slider>
+      <mat-slider [step]="1" [max]="canvasWidth">
+        <input matSliderThumb [(ngModel)]="keyframeSliderValue" #slider />
+      </mat-slider>
+      <mat-form-field>
+        <mat-label>Id</mat-label>
+        <input matInput type="text" [(ngModel)]="boneId" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>ParentId</mat-label>
+        <input matInput type="text" [(ngModel)]="parentId" />
+      </mat-form-field>
+      <p>LengthVärde: {{ lengthSliderValue }}</p>
+      <p>RotationVärde: {{ rotationSliderValue }}</p>
+      <p>Keyframe: {{ keyframeSliderValue }}</p>
+    </div>
+  </div>
+</div>

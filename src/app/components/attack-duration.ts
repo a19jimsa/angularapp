@@ -1,10 +1,10 @@
-import { Component } from "./component";
+import { Component } from './component';
 
-export class AttackDuration extends Component{
-    override type: string = "AttackDuration";
-    duration: number;
-    constructor(duration: number){
-        super();
-        this.duration = duration;
-    }
+export class AttackDuration extends Component {
+  override type: string = 'AttackDuration';
+  cooldown: number;
+  constructor(cooldown: number) {
+    super();
+    this.cooldown = cooldown;
+  }
 }

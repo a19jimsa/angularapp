@@ -9,15 +9,11 @@ import { Vec } from '../vec';
 export class AnimationSystem {
   startTime = performance.now();
   update(ecs: Ecs, renderer: Renderer) {
-    renderer.drawForeground();
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-
       if (skeleton === undefined || transform === undefined) continue;
-
       skeleton.position = transform.position;
-
       skeleton.bones.sort((a, b) => {
         if (a.parentId === null && b.parentId !== null) {
           return -1; // Placera ben utan parent före ben med parent
@@ -94,7 +90,7 @@ export class AnimationSystem {
   runAnimation(bone: Bone, skeleton: Skeleton) {
     const keyframes = skeleton.stateMachine.animations;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 1000; // ms
+    const speed = 2000; // ms
     // Använd startTime för att räkna ut hur långt in i animationen vi är
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;

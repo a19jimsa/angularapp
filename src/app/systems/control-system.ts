@@ -10,7 +10,7 @@ export class ControlSystem {
       const rotation = ecs.getComponent<Rotation>(entity, 'Rotation');
       if (mouseHandler.isMouseDown) {
         if (rotation !== undefined) {
-          rotation.rotation += mouseHandler.scrollValue / 1000;
+          rotation.angle += mouseHandler.scrollValue / 1000;
         }
       } else if (mouseHandler.isMouseUp) {
         console.log(mouseHandler.isUpPosition);

@@ -13,7 +13,7 @@ export class CameraSystem {
     for (let entity of ecs.getEntities()) {
       const camera = ecs.getComponent<Camera>(entity, 'Camera');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      if (camera !== undefined && transform !== undefined) {
+      if (camera && transform) {
         if (transform.position.X > canvasWidth / 2) {
           camera.position.X = transform.position.X - canvasWidth / 2;
         }

@@ -64,6 +64,10 @@ export class ControllerSystem {
           this.keysPressed.attack = false;
           this.active = false;
           break;
+        case 'Space':
+          this.keysPressed.jump = false;
+          this.active = false;
+          break;
       }
     });
   }
@@ -73,9 +77,16 @@ export class ControllerSystem {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (controlable !== undefined) {
+      if (controlable && transform && skeleton) {
         let speedX = 0;
         let speedY = 0;
+
+        if (transform.velocity.X == 0 && !skeleton.activeAnimation) {
+          skeleton.stateMachine.currentState = 'idle';
+          skeleton.stateMachine.changeState();
+          skeleton.startTime = performance.now();
+        }
+
         if (this.keysPressed.left) {
           skeleton.stateMachine.currentState = 'running';
           skeleton.stateMachine.changeState();
@@ -90,17 +101,15 @@ export class ControllerSystem {
           speedX += 5;
         }
 
-        if (this.keysPressed.jump) {
-          //speedY -= 10;
-        }
-
-        if (this.keysPressed.attack && !this.active) {
+        if (this.keysPressed.attack) {
           skeleton.stateMachine.currentState = 'attack';
           skeleton.stateMachine.changeState();
-          this.createAttack(ecs, entity);
-          this.active = true;
           skeleton.startTime = performance.now();
+          skeleton.activeAnimation = true;
+          speedX = 0;
+          speedY = 0;
         }
+
         transform.velocity.X = speedX;
         transform.velocity.Y = speedY;
       }

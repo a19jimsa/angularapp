@@ -1,40 +1,12 @@
 import { Vec } from '../vec';
-import { Bone } from './bone';
+import { Component } from './component';
 
-export class Weapon extends Bone {
+export class Weapon extends Component {
   override type = 'Weapon';
-  height: number;
-  width: number;
+  position: Vec;
 
-  constructor(
-    id: string,
-    parentId: string | null,
-    pivot: Vec,
-    length: number,
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number,
-    jointRotation: number,
-    width: number,
-    height: number,
-    order: number,
-    offset?: Vec
-  ) {
-    super(
-      id,
-      parentId,
-      pivot,
-      length,
-      startX,
-      startY,
-      endX,
-      endY,
-      jointRotation,
-      order,
-      offset
-    );
-    this.width = width;
-    this.height = height;
+  constructor() {
+    super();
+    this.position = new Vec(0, 0);
   }
 }

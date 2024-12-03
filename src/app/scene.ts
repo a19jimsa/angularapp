@@ -62,10 +62,7 @@ export class Scene {
       new Transform(new Vec(this.canvasWidth / 2, 30), new Vec(0, 0), 20)
     );
     this.ecs.addComponent<Render>(player, new Render('yellow'));
-    this.ecs.addComponent<Camera>(
-      player,
-      new Camera(this.canvasWidth, this.canvasHeight, this.width, this.height)
-    );
+    this.ecs.addComponent<Camera>(player, new Camera());
 
     this.ecs.addComponent<Controlable>(
       player,

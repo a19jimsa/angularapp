@@ -12,15 +12,15 @@ export class AttackDurationSystem {
       );
       const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
       if (attackDuration && !projectile) {
-        attackDuration.duration -= 0.16;
-        if (attackDuration.duration <= 0) {
+        attackDuration.cooldown -= 0.16;
+        if (attackDuration.cooldown <= 0) {
           ecs.removeComponent<Attack>(entity, 'Attack');
           ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
           console.log('Tog bort attackkomponenter');
         }
       }
       if (projectile) {
-        attackDuration.duration -= 0.16;
+        attackDuration.cooldown -= 0.16;
       }
     }
   }

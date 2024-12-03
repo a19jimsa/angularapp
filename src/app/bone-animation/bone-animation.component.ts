@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AnimationScene } from '../animation-scene';
+import { Vec } from '../vec';
 
 @Component({
   selector: 'app-bone-animation',
@@ -20,7 +21,7 @@ export class BoneAnimationComponent {
   }
 
   ngAfterViewInit(): void {
-    this.scene = new AnimationScene(this.canvas, 1024, 450, 4096, 1800);
+    this.scene = new AnimationScene(this.canvas, 1024, 420, 4096, 420);
     this.scene.init();
     this.scene.start();
   }

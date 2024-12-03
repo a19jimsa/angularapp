@@ -1,9 +1,26 @@
+type Keyframe = {
+  time: number; // Tidpunkten för keyframen
+  name: string; // Namn på benet eller objektet som påverkas
+  angle: number; // Rotationsvinkel i grader eller motsvarande enhet
+};
+
 export class StateMachine {
-  //Load from JSON keyframes
+  //Load from JSON keyfram
+  //Waiting for animationCreator to be complete!"!:"
 
   //Use for now hardcoded keyframes in here.
+  idleFrames: Keyframe[] = [
+    { time: 0, name: 'rightArm', angle: 90 },
+    { time: 2, name: 'rightArm', angle: 90 },
+    { time: 0, name: 'leftArm', angle: 90 },
+    { time: 2, name: 'leftArm', angle: 90 },
+    { time: 0, name: 'rightLowerArm', angle: 90 },
+    { time: 2, name: 'rightLowerArm', angle: 90 },
+    { time: 0, name: 'leftLowerArm', angle: 90 },
+    { time: 2, name: 'leftLowerArm', angle: 90 },
+  ];
 
-  runningFrames = [
+  runningFrames: Keyframe[] = [
     { time: 0, name: 'root', angle: 90 },
     { time: 1, name: 'root', angle: 120 },
     { time: 2, name: 'root', angle: 90 },
@@ -16,12 +33,6 @@ export class StateMachine {
     { time: 0, name: 'leftLowerArm', angle: -70 },
     { time: 1, name: 'leftLowerArm', angle: 90 },
     { time: 2, name: 'leftLowerArm', angle: -70 },
-    { time: 0, name: 'weapon', angle: 350 },
-    { time: 1, name: 'weapon', angle: 250 },
-    { time: 2, name: 'weapon', angle: 350 },
-    { time: 0, name: 'weapon2', angle: 250 },
-    { time: 1, name: 'weapon2', angle: 350 },
-    { time: 2, name: 'weapon2', angle: 250 },
     { time: 0, name: 'leftFoot', angle: 260 },
     { time: 0.6, name: 'leftFoot', angle: 180 },
     { time: 1, name: 'leftFoot', angle: 45 },
@@ -45,6 +56,9 @@ export class StateMachine {
     { time: 0, name: 'dragonHead', angle: 90 },
     { time: 1, name: 'dragonHead', angle: 100 },
     { time: 2, name: 'dragonHead', angle: 90 },
+    { time: 0, name: 'dragonJaw', angle: 90 },
+    { time: 1, name: 'dragonJaw', angle: 100 },
+    { time: 2, name: 'dragonJaw', angle: 90 },
     { time: 0, name: 'dragonBody', angle: 85 },
     { time: 1, name: 'dragonBody', angle: 80 },
     { time: 2, name: 'dragonBody', angle: 85 },
@@ -80,29 +94,23 @@ export class StateMachine {
     { time: 2, name: 'lastTail', angle: -20 },
   ];
 
-  attackFrames = [
-    { time: 0, name: 'weapon', angle: -90 },
-    { time: 0.2, name: 'weapon', angle: 0 },
-    { time: 1, name: 'weapon', angle: 0 },
-    { time: 0, name: 'weapon2', angle: -90 },
-    { time: 0.2, name: 'weapon2', angle: 90 },
-    { time: 1, name: 'weapon2', angle: 90 },
-    { time: 0, name: 'rightArm', angle: 45 },
-    { time: 0.2, name: 'rightArm', angle: 80 },
-    { time: 1, name: 'rightArm', angle: 80 },
+  attackFrames: Keyframe[] = [
+    { time: 0, name: 'rightArm', angle: 90 },
+    { time: 0.5, name: 'rightArm', angle: -90 },
+    { time: 0.7, name: 'rightArm', angle: -90 },
+    { time: 1, name: 'rightArm', angle: 90 },
     { time: 0, name: 'leftArm', angle: -90 },
-    { time: 0.2, name: 'leftArm', angle: 90 },
     { time: 1, name: 'leftArm', angle: 90 },
-    { time: 0, name: 'rightLowerArm', angle: -90 },
-    { time: 0.2, name: 'rightLowerArm', angle: 80 },
-    { time: 1, name: 'rightLowerArm', angle: 80 },
+    { time: 0, name: 'rightLowerArm', angle: 90 },
+    { time: 0.5, name: 'rightLowerArm', angle: -90 },
+    { time: 0.7, name: 'rightLowerArm', angle: -90 },
+    { time: 1, name: 'rightLowerArm', angle: 90 },
     { time: 0, name: 'leftLowerArm', angle: -90 },
-    { time: 0.2, name: 'leftLowerArm', angle: 90 },
     { time: 1, name: 'leftLowerArm', angle: 90 },
   ];
 
-  currentState: string = 'running';
-  animations: any[];
+  currentState: string = 'idle';
+  animations: Keyframe[];
 
   constructor() {
     this.currentState = 'running';
@@ -112,9 +120,10 @@ export class StateMachine {
   changeState() {
     if (this.currentState === 'attack') {
       this.animations = this.attackFrames;
-    }
-    if (this.currentState === 'running') {
+    } else if (this.currentState === 'running') {
       this.animations = this.runningFrames;
+    } else if (this.currentState === 'idle') {
+      this.animations = this.idleFrames;
     }
   }
 }

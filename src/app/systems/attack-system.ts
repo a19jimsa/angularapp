@@ -14,35 +14,35 @@ export class AttackSystem {
       'Attack',
       'Skeleton'
     );
-    for (const [weapon, attack, skeleton] of pool) {
-      const weaponX =
-        weapon.position.X +
-        weapon.length * Math.cos((weapon.rotation * Math.PI) / 180);
-      const weaponY =
-        weapon.position.Y +
-        weapon.length * Math.sin((weapon.rotation * Math.PI) / 180);
-      const hitBox = new HitBox(
-        new Vec(weaponX, weaponY),
-        weapon.width,
-        weapon.height
-      );
-      if (skeleton.flip) {
-        weapon.position.X =
-          skeleton.position.X + (skeleton.position.X - weaponX);
-        weapon.position.X -= weapon.width;
-        hitBox.position.X = weapon.position.X;
-      }
+    // for (const [weapon, attack, skeleton] of pool) {
+    //   const weaponX =
+    //     weapon.position.X +
+    //     weapon.length * Math.cos((weapon.rotation * Math.PI) / 180);
+    //   const weaponY =
+    //     weapon.position.Y +
+    //     weapon.length * Math.sin((weapon.rotation * Math.PI) / 180);
+    //   const hitBox = new HitBox(
+    //     new Vec(weaponX, weaponY),
+    //     weapon.width,
+    //     weapon.height
+    //   );
+    //   if (skeleton.flip) {
+    //     weapon.position.X =
+    //       skeleton.position.X + (skeleton.position.X - weaponX);
+    //     weapon.position.X -= weapon.width;
+    //     hitBox.position.X = weapon.position.X;
+    //   }
 
-      renderer.drawAttackBox(hitBox);
-      for (const [weapon, attack, skeleton] of pool) {
-        for (const bone of skeleton.bones) {
-          if (this.isColliding(hitBox, bone)) {
-            console.log('Hitted ' + bone.id);
-            return;
-          }
-        }
-      }
-    }
+    //   renderer.drawAttackBox(hitBox);
+    //   for (const [weapon, attack, skeleton] of pool) {
+    //     for (const bone of skeleton.bones) {
+    //       if (this.isColliding(hitBox, bone)) {
+    //         console.log('Hitted ' + bone.id);
+    //         return;
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   // Kontrollera om två hitboxar kolliderar (rektangel-baserad kollision)

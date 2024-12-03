@@ -12,12 +12,12 @@ export class Skeleton extends Component {
   flip: boolean = false;
   stateMachine: StateMachine = new StateMachine();
   position: Vec;
-  active: boolean;
+  activeAnimation: boolean;
   startTime: number = performance.now();
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
     this.position = new Vec(0, 0);
-    this.active = false;
+    this.activeAnimation = false;
   }
 }

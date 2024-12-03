@@ -13,7 +13,6 @@ import { Joint } from './components/joint';
 import { Camera } from './components/camera';
 import { CameraSystem } from './systems/camera-system';
 import { AttackSystem } from './systems/attack-system';
-import { Weapon } from './components/weapon';
 import { DeadSystem } from './systems/dead-system';
 import { AttackDurationSystem } from './systems/attack-duration-system';
 import { AiSystem } from './systems/ai-system';
@@ -21,6 +20,12 @@ import { Entity } from './entity';
 import { Ai } from './components/ai';
 import { HitBoxSystem } from './systems/hit-box-system';
 import { ProjectileSystem } from './systems/projectile-system';
+import { Sprite } from './components/sprite';
+import { ParentBone } from './components/parent-bone';
+import { WeaponSystem } from './systems/weapon-system';
+import { Rotation } from './components/rotation';
+import { Damage } from './components/damage';
+import { Element } from './components/element';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -41,7 +46,7 @@ export class AnimationScene {
   aiSystem: AiSystem;
   hitBoxSystem: HitBoxSystem;
   projectileSystem: ProjectileSystem;
-
+  weaponSystem: WeaponSystem;
   loopId = 0;
 
   constructor(
@@ -61,6 +66,9 @@ export class AnimationScene {
 
     this.canvas.nativeElement.width = canvasWidth;
     this.canvas.nativeElement.height = canvasheight;
+
+    this.canvas.nativeElement.width = canvasWidth;
+    this.canvas.nativeElement.height = canvasheight;
     this.animationSystem = new AnimationSystem();
     this.movementSystem = new MovementSystem();
     this.controllerSystem = new ControllerSystem();
@@ -71,52 +79,20 @@ export class AnimationScene {
     this.aiSystem = new AiSystem();
     this.hitBoxSystem = new HitBoxSystem();
     this.projectileSystem = new ProjectileSystem();
+    this.weaponSystem = new WeaponSystem();
   }
 
   init() {
     this.renderer = new Renderer(this.canvas);
     const player = this.ecs.createEntity();
-    // const enemy = this.ecs.createEntity();
-    // const arden = this.ecs.createEntity();
-    const astram = this.ecs.createEntity();
-    // const darros = this.ecs.createEntity();
-    // const keiran = this.ecs.createEntity();
     const dragon = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(200, 300), new Vec(0, 0), 10)
+      new Transform(new Vec(0, this.canvasHeight / 2), new Vec(0, 0), 10)
     );
-    // this.ecs.addComponent<Transform>(
-    //   enemy,
-    //   new Transform(new Vec(300, 300), new Vec(0, 0), 100)
-    // );
-    // this.ecs.addComponent<Transform>(
-    //   arden,
-    //   new Transform(new Vec(400, 300), new Vec(0, 0), 100)
-    // );
-    // this.ecs.addComponent<Transform>(
-    //   astram,
-    //   new Transform(new Vec(500, 300), new Vec(0, 0), 100)
-    // );
-    // this.ecs.addComponent<Transform>(
-    //   darros,
-    //   new Transform(new Vec(600, 300), new Vec(0, 0), 100)
-    // );
-
-    // this.ecs.addComponent<Transform>(
-    //   keiran,
-    //   new Transform(new Vec(700, 300), new Vec(0, 0), 100)
-    // );
-
-    // this.ecs.addComponent<Health>(keiran, new Health(50));
 
     const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
-    // const enemySkeleton = new Skeleton('assets/sprites/Draug.png');
-    // const ardenSkeleton = new Skeleton('assets/sprites/Arden.png');
-    // const astramSkeleton = new Skeleton('assets/sprites/Astram.png');
-    // const darrosSkeleton = new Skeleton('assets/sprites/Darros.png');
-    // const keiranSkeleton = new Skeleton('assets/sprites/keiran.png');
 
     const rightLeg = new Bone(
       'rightLeg',
@@ -164,7 +140,7 @@ export class AnimationScene {
       'rightArm',
       null,
       new Vec(0, 10),
-      30,
+      25,
       145,
       158,
       28,
@@ -178,14 +154,14 @@ export class AnimationScene {
       'leftArm',
       null,
       new Vec(0, 10),
-      35,
+      30,
       23,
       150,
       22,
       45,
       0,
       -20,
-      new Vec(15, 10)
+      new Vec(20, 10)
     );
 
     const leftFoot = new Bone(
@@ -216,7 +192,7 @@ export class AnimationScene {
     const leftLowerArm = new Bone(
       'leftLowerArm',
       'leftArm',
-      new Vec(0, 0),
+      new Vec(0, 5),
       15,
       210,
       155,
@@ -229,14 +205,14 @@ export class AnimationScene {
     const rightLowerArm = new Bone(
       'rightLowerArm',
       'rightArm',
-      new Vec(0, 0),
+      new Vec(0, 5),
       15,
       210,
       155,
       30,
       35,
       0,
-      2
+      20
     );
 
     const head = new Bone(
@@ -305,55 +281,7 @@ export class AnimationScene {
       0
     );
 
-    const weapon = new Weapon(
-      'weapon',
-      'rightLowerArm',
-      new Vec(0, 10),
-      90,
-      416,
-      202,
-      502 - 416,
-      358 - 202,
-      0,
-      50,
-      50,
-      2
-    );
-
-    const weapon2 = new Weapon(
-      'weapon',
-      'rightLowerArm',
-      new Vec(0, 10),
-      90,
-      349,
-      200,
-      399 - 349,
-      360 - 200,
-      0,
-      50,
-      50,
-      1
-    );
-
-    const weapon3 = new Weapon(
-      'weapon2',
-      'leftLowerArm',
-      new Vec(0, 10),
-      90,
-      304,
-      200,
-      344 - 304,
-      350 - 200,
-      0,
-      50,
-      50,
-      -2
-    );
-
     const joint = new Joint('root', null, 270, 'blue');
-
-    // pelvis.bones.push(rightMantleLower);
-    // pelvis.bones.push(leftMantleLower);
 
     //Draw root bones
     playerSkeleton.bones.push(body);
@@ -369,25 +297,10 @@ export class AnimationScene {
     playerSkeleton.bones.push(rightFoot);
     playerSkeleton.bones.push(leftLowerArm);
     playerSkeleton.bones.push(rightLowerArm);
-    playerSkeleton.bones.push(weapon2);
-    playerSkeleton.bones.push(weapon3);
 
     playerSkeleton.joints.push(joint);
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-
-    //this.ecs.addComponent<Health>(astram, new Health(100));
-
-    // const dragon = this.ecs.createEntity();
-
-    // this.ecs.addComponent<HitBox>(
-    //   astram,
-    //   new HitBox(
-    //     this.ecs.getComponent<Transform>(astram, 'Transform').position,
-    //     100,
-    //     100
-    //   )
-    // );
 
     this.ecs.addComponent<Transform>(
       dragon,
@@ -451,7 +364,7 @@ export class AnimationScene {
       new Vec(-50, 0)
     );
 
-    const dragonHead = new Weapon(
+    const dragonHead = new Bone(
       'dragonHead',
       null,
       new Vec(0, 70),
@@ -462,8 +375,6 @@ export class AnimationScene {
       140,
       12,
       50,
-      10,
-      10,
       new Vec(65, -50)
     );
 
@@ -646,6 +557,7 @@ export class AnimationScene {
       -10,
       new Vec(100, -100)
     );
+
     const rightWing = new Bone(
       'rightWing',
       null,
@@ -690,22 +602,54 @@ export class AnimationScene {
     dragonSkeleton.joints.push(dragonJoint);
 
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
-    this.ecs.addComponent<Weapon>(player, weapon2);
-    this.ecs.addComponent<Weapon>(dragon, dragonHead);
 
     this.ecs.addComponent<Controlable>(
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
 
-    this.ecs.addComponent<Camera>(player, new Camera(1024, 420, 4096, 420));
-    //this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
+    this.ecs.addComponent<Camera>(player, new Camera());
+    this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
     this.player = player;
+
     this.ecs.addComponent<Ai>(dragon, new Ai('idle', null, 500, 500));
+
+    //Create weapon
+    const weaponEntity1 = this.ecs.createEntity();
+    this.ecs.addComponent(
+      weaponEntity1,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
+    );
+
+    this.ecs.addComponent(
+      weaponEntity1,
+      new Sprite('assets/sprites/wep_ax043.png')
+    );
+
+    this.ecs.addComponent(weaponEntity1, new ParentBone('leftLowerArm'));
+    this.ecs.addComponent(weaponEntity1, new Rotation());
+    //Create weapon
+    const weaponEntity = this.ecs.createEntity();
+    this.ecs.addComponent(
+      weaponEntity,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
+    );
+
+    this.ecs.addComponent(
+      weaponEntity,
+      new Sprite('assets/sprites/wep_ax066.png')
+    );
+
+    this.ecs.addComponent(weaponEntity, new ParentBone('rightLowerArm'));
+    this.ecs.addComponent(weaponEntity, new Rotation());
+    this.ecs.addComponent(weaponEntity1, new Damage(100));
+    this.ecs.addComponent(weaponEntity1, new Element('fire'));
   }
 
   start() {
     this.renderer.clearScreen();
+    this.renderer.drawForeground();
+    this.controllerSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -713,15 +657,17 @@ export class AnimationScene {
       this.width,
       this.height
     );
-    this.controllerSystem.update(this.ecs);
+
     this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs, this.renderer);
     this.movementSystem.update(this.ecs);
+    this.weaponSystem.update(this.ecs, this.renderer);
+
     this.attackSystem.update(this.ecs, this.renderer);
     this.attackDurationSystem.update(this.ecs);
     this.deadSystem.update(this.ecs);
     this.hitBoxSystem.update(this.ecs, this.renderer);
-    this.projectileSystem.update(this.ecs);
+    this.projectileSystem.update(this.ecs, this.renderer);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }

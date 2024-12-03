@@ -9,6 +9,7 @@ import { HitBox } from './components/hit-box';
 import { Attack } from './components/attack';
 import { Sprite } from './components/sprite';
 import { Weapon } from './components/weapon';
+import { Rotation } from './components/rotation';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -23,7 +24,7 @@ export class Renderer {
     const context = this.canvas.nativeElement.getContext('2d');
     this.width = canvas.nativeElement.width;
     this.height = canvas.nativeElement.height;
-    this.camera = new Camera(this.width, this.height, this.width, this.height);
+    this.camera = new Camera();
 
     if (context) {
       this.ctx = context;
@@ -43,9 +44,13 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  public drawHitBox(hitBox: HitBox) {
+  public drawHitBox(hitBox: HitBox, rotation: Rotation) {
+    const radians = ((rotation.angle - 90) * Math.PI) / 180;
     this.ctx.save();
     this.ctx.fillStyle = 'green';
+    this.ctx.translate(hitBox.position.X, hitBox.position.Y);
+    this.ctx.rotate(radians);
+    this.ctx.translate(-hitBox.position.X, -hitBox.position.Y);
     this.ctx.fillRect(
       hitBox.position.X - this.camera.position.X,
       hitBox.position.Y,
@@ -163,10 +168,6 @@ export class Renderer {
     this.ctx.scale(-1, 1);
     this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
     this.ctx.restore();
-  }
-
-  public drawBackgroundGame() {
-    //this.ctx.drawImage(this.image, 0, 0, 1024, 450);
   }
 
   public drawBackground() {
@@ -292,10 +293,6 @@ export class Renderer {
     this.ctx.translate(bone.pivot.X, bone.pivot.Y);
     this.ctx.rotate(radians - Math.PI / 2);
     this.ctx.translate(-bone.pivot.X, -bone.pivot.Y);
-    // if (bone.flip) {
-    //   this.ctx.scale(1, -1);
-    //   this.ctx.scale(-1, 1);
-    // }
     this.ctx.translate(-bone.position.X, -bone.position.Y);
     this.ctx.drawImage(
       image,
@@ -342,7 +339,7 @@ export class Renderer {
       this.ctx.save();
       this.ctx.translate(
         transform.position.X - this.camera.position.X,
-        transform.position.Y
+        transform.position.Y - this.camera.position.Y
       );
       // this.ctx.beginPath();
       // this.ctx.fillRect(-50, -150, 100, 20);
@@ -352,15 +349,21 @@ export class Renderer {
       if (skeleton.flip) {
         this.ctx.scale(-1, 1);
       }
+      this.ctx.fillStyle = 'blue';
+      this.ctx.font = '50px Arial';
+      this.ctx.fillText('' + this.camera.position.Y, 0, 0);
+      this.ctx.fill();
       this.ctx.translate(-transform.position.X, -transform.position.Y);
       this.renderBone(skeleton.image, skeleton.bones[i]);
+
       this.ctx.restore();
     }
   }
 
   public renderFont(text: string) {
+    this.ctx.fillStyle = 'blue';
     this.ctx.font = '50px Arial';
-    this.ctx.strokeText(text, 0, 100);
+    this.ctx.fillText(text, 500, 500);
   }
 
   drawDebug(characterPosition: Vec) {
@@ -372,11 +375,34 @@ export class Renderer {
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(
       attack.position.X - this.camera.position.X,
-      attack.position.Y,
+      attack.position.Y - this.camera.position.Y,
       attack.width,
       attack.height
     );
     this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  drawWeapon(sprite: Sprite, transform: Transform, angle: number) {
+    const radians = (angle * Math.PI) / 180;
+    this.ctx.save();
+    this.ctx.translate(
+      transform.position.X - this.camera.position.X,
+      transform.position.Y - this.camera.position.Y
+    );
+    if (sprite.flip) {
+      this.ctx.scale(-1, 1);
+    }
+    this.ctx.rotate(radians);
+    this.ctx.translate(-transform.position.X, -transform.position.Y);
+
+    this.drawImage(
+      sprite.image,
+      transform.position.X - 20,
+      transform.position.Y - sprite.image.height + 20,
+      sprite.image.width,
+      sprite.image.height
+    );
     this.ctx.restore();
   }
 }
