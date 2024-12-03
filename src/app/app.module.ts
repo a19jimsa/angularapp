@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -47,61 +47,55 @@ import { AnimationCreatorComponent } from './animation-creator/animation-creator
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    MenuComponent,
-    FormComponent,
-    ChessComponent,
-    SquareComponent,
-    OthelloComponent,
-    CircleComponent,
-    NavbarComponent,
-    HomeComponent,
-    MemoryComponent,
-    CardComponent,
-    CalculatorComponent,
-    MinesweeperComponent,
-    MineComponent,
-    SudokuComponent,
-    SudokuNumberComponent,
-    SudokumenuComponent,
-    KillersudokuComponent,
-    SlidingpuzzleComponent,
-    PuzzlepieceComponent,
-    SnakeComponent,
-    SnakeTileComponent,
-    WebglParticlesComponent,
-    SidescrollerGameComponent,
-    FallingSandComponent,
-    SandTileComponent,
-    CollisionComponent,
-    CurlingComponent,
-    BoneAnimationComponent,
-    AnimationCreatorComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    MatButtonModule,
-    MatInputModule,
-    MatCardModule,
-    MatMenuModule,
-    MatToolbarModule,
-    MatSliderModule,
-    HttpClientModule,
-    MatIconModule,
-    NgbModule,
-  ],
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-  ],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [
+        AppComponent,
+        MenuComponent,
+        FormComponent,
+        ChessComponent,
+        SquareComponent,
+        OthelloComponent,
+        CircleComponent,
+        NavbarComponent,
+        HomeComponent,
+        MemoryComponent,
+        CardComponent,
+        CalculatorComponent,
+        MinesweeperComponent,
+        MineComponent,
+        SudokuComponent,
+        SudokuNumberComponent,
+        SudokumenuComponent,
+        KillersudokuComponent,
+        SlidingpuzzleComponent,
+        PuzzlepieceComponent,
+        SnakeComponent,
+        SnakeTileComponent,
+        WebglParticlesComponent,
+        SidescrollerGameComponent,
+        FallingSandComponent,
+        SandTileComponent,
+        CollisionComponent,
+        CurlingComponent,
+        BoneAnimationComponent,
+        AnimationCreatorComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        MatButtonModule,
+        MatInputModule,
+        MatCardModule,
+        MatMenuModule,
+        MatToolbarModule,
+        MatSliderModule,
+        MatIconModule,
+        NgbModule], providers: [
+        {
+            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+            useValue: { appearance: 'outline' },
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}
