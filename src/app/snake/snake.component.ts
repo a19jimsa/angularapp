@@ -2,9 +2,10 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { SnakeTile } from '../snake-tile';
 
 @Component({
-  selector: 'app-snake',
-  templateUrl: './snake.component.html',
-  styleUrls: ['./snake.component.css'],
+    selector: 'app-snake',
+    templateUrl: './snake.component.html',
+    styleUrls: ['./snake.component.css'],
+    standalone: false
 })
 export class SnakeComponent implements OnInit {
   tiles!: SnakeTile[];

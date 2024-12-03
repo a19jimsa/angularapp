@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Mine } from '../mine';
 
 @Component({
-  selector: 'app-minesweeper',
-  templateUrl: './minesweeper.component.html',
-  styleUrls: ['./minesweeper.component.css'],
+    selector: 'app-minesweeper',
+    templateUrl: './minesweeper.component.html',
+    styleUrls: ['./minesweeper.component.css'],
+    standalone: false
 })
 export class MinesweeperComponent implements OnInit {
   mines!: Mine[];

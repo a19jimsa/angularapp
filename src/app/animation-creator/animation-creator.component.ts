@@ -10,9 +10,10 @@ import { Bone } from '../components/bone';
 import { Vec } from '../vec';
 
 @Component({
-  selector: 'app-animation-creator',
-  templateUrl: './animation-creator.component.html',
-  styleUrls: ['./animation-creator.component.css'],
+    selector: 'app-animation-creator',
+    templateUrl: './animation-creator.component.html',
+    styleUrls: ['./animation-creator.component.css'],
+    standalone: false
 })
 export class AnimationCreatorComponent
   implements OnInit, OnDestroy, AfterViewInit

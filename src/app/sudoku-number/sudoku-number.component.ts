@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { Sudoku } from '../sudoku';
 
 @Component({
-  selector: 'app-sudoku-number',
-  templateUrl: './sudoku-number.component.html',
-  styleUrls: ['./sudoku-number.component.css'],
+    selector: 'app-sudoku-number',
+    templateUrl: './sudoku-number.component.html',
+    styleUrls: ['./sudoku-number.component.css'],
+    standalone: false
 })
 export class SudokuNumberComponent {
   //My dumb component

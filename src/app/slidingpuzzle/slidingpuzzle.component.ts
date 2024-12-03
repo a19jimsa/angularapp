@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Piece } from '../piece';
 
 @Component({
-  selector: 'app-slidingpuzzle',
-  templateUrl: './slidingpuzzle.component.html',
-  styleUrls: ['./slidingpuzzle.component.css'],
+    selector: 'app-slidingpuzzle',
+    templateUrl: './slidingpuzzle.component.html',
+    styleUrls: ['./slidingpuzzle.component.css'],
+    standalone: false
 })
 export class SlidingpuzzleComponent implements OnInit {
   pieces!: Piece[];

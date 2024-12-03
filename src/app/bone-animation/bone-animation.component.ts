@@ -3,9 +3,10 @@ import { AnimationScene } from '../animation-scene';
 import { Vec } from '../vec';
 
 @Component({
-  selector: 'app-bone-animation',
-  templateUrl: './bone-animation.component.html',
-  styleUrls: ['./bone-animation.component.css'],
+    selector: 'app-bone-animation',
+    templateUrl: './bone-animation.component.html',
+    styleUrls: ['./bone-animation.component.css'],
+    standalone: false
 })
 export class BoneAnimationComponent {
   @ViewChild('canvas', { static: true })

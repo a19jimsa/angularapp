@@ -9,9 +9,10 @@ import { Level } from './models/level.model';
 import { State } from './models/state.model';
 
 @Component({
-  selector: 'app-sidescroller-game',
-  templateUrl: './sidescroller-game.component.html',
-  styleUrls: ['./sidescroller-game.component.css'],
+    selector: 'app-sidescroller-game',
+    templateUrl: './sidescroller-game.component.html',
+    styleUrls: ['./sidescroller-game.component.css'],
+    standalone: false
 })
 export class SidescrollerGameComponent implements AfterContentInit {
   private GAME_LEVELS = [

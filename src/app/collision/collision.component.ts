@@ -8,9 +8,10 @@ import {
 import { Particle } from '../particle';
 
 @Component({
-  selector: 'app-collision',
-  templateUrl: './collision.component.html',
-  styleUrls: ['./collision.component.css'],
+    selector: 'app-collision',
+    templateUrl: './collision.component.html',
+    styleUrls: ['./collision.component.css'],
+    standalone: false
 })
 export class CollisionComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;

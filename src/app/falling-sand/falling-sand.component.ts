@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-falling-sand',
-  templateUrl: './falling-sand.component.html',
-  styleUrls: ['./falling-sand.component.css'],
+    selector: 'app-falling-sand',
+    templateUrl: './falling-sand.component.html',
+    styleUrls: ['./falling-sand.component.css'],
+    standalone: false
 })
 export class FallingSandComponent {
   tiles!: number[];

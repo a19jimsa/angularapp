@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Marker } from '../marker';
 
 @Component({
-  selector: 'app-othello',
-  templateUrl: './othello.component.html',
-  styleUrls: ['./othello.component.css'],
+    selector: 'app-othello',
+    templateUrl: './othello.component.html',
+    styleUrls: ['./othello.component.css'],
+    standalone: false
 })
 export class OthelloComponent implements OnInit {
   markers!: Marker[];

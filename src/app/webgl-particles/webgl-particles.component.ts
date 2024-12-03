@@ -7,9 +7,10 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-webgl-particles',
-  templateUrl: './webgl-particles.component.html',
-  styleUrls: ['./webgl-particles.component.css'],
+    selector: 'app-webgl-particles',
+    templateUrl: './webgl-particles.component.html',
+    styleUrls: ['./webgl-particles.component.css'],
+    standalone: false
 })
 export class WebglParticlesComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;

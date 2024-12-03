@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Sudoku } from '../sudoku';
 
 @Component({
-  selector: 'app-killersudoku',
-  templateUrl: './killersudoku.component.html',
-  styleUrls: ['./killersudoku.component.css'],
+    selector: 'app-killersudoku',
+    templateUrl: './killersudoku.component.html',
+    styleUrls: ['./killersudoku.component.css'],
+    standalone: false
 })
 export class KillersudokuComponent {
   values: Sudoku[] = new Array();

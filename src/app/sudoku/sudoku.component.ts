@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Sudoku } from '../sudoku';
 
 @Component({
-  selector: 'app-sudoku',
-  templateUrl: './sudoku.component.html',
-  styleUrls: ['./sudoku.component.css'],
+    selector: 'app-sudoku',
+    templateUrl: './sudoku.component.html',
+    styleUrls: ['./sudoku.component.css'],
+    standalone: false
 })
 export class SudokuComponent implements OnInit {
   values!: Sudoku[];

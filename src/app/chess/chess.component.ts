@@ -3,9 +3,10 @@ import { Player } from '../player';
 import { ApiService } from '../api.service';
 
 @Component({
-  selector: 'app-chess',
-  templateUrl: './chess.component.html',
-  styleUrls: ['./chess.component.css'],
+    selector: 'app-chess',
+    templateUrl: './chess.component.html',
+    styleUrls: ['./chess.component.css'],
+    standalone: false
 })
 export class ChessComponent implements OnInit {
   squares!: Player[];

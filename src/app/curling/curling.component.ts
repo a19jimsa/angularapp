@@ -8,9 +8,10 @@ import {
 import { Scene } from '../scene';
 
 @Component({
-  selector: 'app-curling',
-  templateUrl: './curling.component.html',
-  styleUrls: ['./curling.component.css'],
+    selector: 'app-curling',
+    templateUrl: './curling.component.html',
+    styleUrls: ['./curling.component.css'],
+    standalone: false
 })
 export class CurlingComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true })

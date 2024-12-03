@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Card } from '../card';
 
 @Component({
-  selector: 'app-memory',
-  templateUrl: './memory.component.html',
-  styleUrls: ['./memory.component.css'],
+    selector: 'app-memory',
+    templateUrl: './memory.component.html',
+    styleUrls: ['./memory.component.css'],
+    standalone: false
 })
 export class MemoryComponent {
   cards!: Card[];
