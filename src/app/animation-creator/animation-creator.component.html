@@ -1,57 +1,122 @@
-<div class="container border">
-  <div class="row d-flex justify-content-around">
-    <div class="col-8 border">
-      <canvas #canvas></canvas>
+<div class="container-fluid mt-2">
+  <div class="row">
+    <div class="col-3">
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Keyframes</mat-card-title>
+            <button mat-button (click)="importKeyframes()">
+              Import keyframes
+            </button>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          @for (keyframe of keyframes; track $index) {
+          <div
+            class="d-flex justify-content-between flex-row align-items-center"
+          >
+            <div>
+              {{ keyframe | json }}
+            </div>
+            <button mat-button (click)="removeKeyframe($index)">Remove</button>
+          </div>
+
+          }
+        </mat-card-content>
+      </mat-card>
     </div>
-    <div class="col-4 border">
-      <h1 class="text-center">Bones</h1>
-      <div *ngFor="let bone of bones; let index = index">
-        {{ bone | json }}
-        <button mat-flat-button color="primary" (click)="activateBone(bone)">
-          Activate
-        </button>
-      </div>
+    <div class="col-6 h-100">
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Canvas</mat-card-title>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row">
+            <div class="col-12 d-flex justify-content-center">
+              <canvas #canvas class="border"></canvas>
+            </div>
+          </div>
+          <div class="row">
+            <div
+              class="col-12 d-flex justify-content-around align-items-center"
+            >
+              <mat-slider [step]="1" [max]="canvasWidth">
+                <input
+                  matSliderThumb
+                  [(ngModel)]="keyframeSliderValue"
+                  #slider
+                />
+              </mat-slider>
+              <button mat-flat-button (click)="togglePlay()">Play</button>
+              <div>Keyframe: {{ keyframeSliderValue }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-3">
+      <!-- Cards with media area -->
+      <mat-card appearance="outlined" class="h-100">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Bones</mat-card-title>
+            <mat-card-subtitle>Small</mat-card-subtitle>
+            <button mat-button (click)="importBones()">Import bones</button>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          @for (bone of bones; track $index) {
+          <div>
+            {{ bone | json }}
+            <div>
+              <button
+                mat-flat-button
+                color="primary"
+                (click)="activateBone(bone)"
+              >
+                Activate
+              </button>
+            </div>
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
   <div class="row">
-    <div class="col-12 p-2">
-      <button mat-raised-button color="primary" (click)="addBone()">
-        Add bone
-      </button>
-      <button mat-raised-button color="accent" (click)="togglePlay()">
-        Play
-      </button>
-      <button mat-raised-button color="warn">Warn</button>
-      <mat-slider [step]="10" [max]="360">
-        <input
-          matSliderThumb
-          [(ngModel)]="lengthSliderValue"
-          (change)="updateLength()"
-          #slider
-        />
-      </mat-slider>
-      <mat-slider [step]="1" [max]="360">
-        <input
-          matSliderThumb
-          [(ngModel)]="rotationSliderValue"
-          (change)="updateRotation()"
-          #slider
-        />
-      </mat-slider>
-      <mat-slider [step]="1" [max]="canvasWidth">
-        <input matSliderThumb [(ngModel)]="keyframeSliderValue" #slider />
-      </mat-slider>
-      <mat-form-field>
-        <mat-label>Id</mat-label>
-        <input matInput type="text" [(ngModel)]="boneId" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>ParentId</mat-label>
-        <input matInput type="text" [(ngModel)]="parentId" />
-      </mat-form-field>
-      <p>LengthVärde: {{ lengthSliderValue }}</p>
-      <p>RotationVärde: {{ rotationSliderValue }}</p>
-      <p>Keyframe: {{ keyframeSliderValue }}</p>
+    <div class="col-12">
+      <mat-card appearance="outlined">
+        <!-- <mat-card-header>
+          <mat-card-title>Instrument board</mat-card-title>
+          <mat-card-subtitle>Bones</mat-card-subtitle>
+        </mat-card-header> -->
+        <mat-card-actions class="justify-content-around">
+          <button mat-raised-button (click)="addKeyframe()">
+            Add keyframe
+          </button>
+          <mat-slider [step]="10" [max]="360">
+            <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
+          </mat-slider>
+          <mat-slider [step]="1" [max]="360">
+            <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
+          </mat-slider>
+
+          <mat-form-field>
+            <mat-label>Id</mat-label>
+            <input matInput type="text" [(ngModel)]="boneId" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>ParentId</mat-label>
+            <input matInput type="text" [(ngModel)]="parentId" />
+          </mat-form-field>
+          <button mat-raised-button (click)="addBone()">Add bone</button>
+          <p>LengthVärde: {{ lengthSliderValue }}</p>
+          <p>RotationVärde: {{ rotationSliderValue }}</p>
+        </mat-card-actions>
+      </mat-card>
     </div>
   </div>
 </div>

@@ -1,59 +1,74 @@
-<div class="container text-light">
-  <div class="row">
-    <div class="col-md-8 flex">
-      <video
-        [muted]="true"
-        [autoplay]="true"
-        [loop]="true"
-        onloadedmetadata="this.muted = true"
+<div class="container-md">
+  <div class="row mt-3">
+    <div class="col-md-12">
+      <mat-card>
+        <mat-card-content>
+          <div class="row">
+            <div class="col-md-8">
+              <video
+                [muted]="true"
+                [autoplay]="true"
+                [loop]="true"
+                onloadedmetadata="this.muted = true"
+              >
+                <source src="assets/angularchallenge.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class="col-md-4">
+              Detta är ett projekt gjort på några dagar för att skapa ett
+              backend och frontend. Backend med C# och .NET. Frontend med
+              Angular. Här används JSON Web Token (JWT) för att sköta och kolla
+              inloggning är korrekt mot backend. Det används ingen databas utan
+              allt är serverless så inget sparas permanent när backend är igång.
+              Det körs endast lokalt. Bootstrap används för responstivitet och
+              skapa en snygg och enhetlig design. Uppgiften gick ut på att skapa
+              en sida för att skapa böcker. Där man kan skapa, redigera och ta
+              bort böcker. Sen även ha en sida med sina favoritcitat.
+              <a
+                href="https://github.com/a19jimsa/angular-challange"
+                target="_blank"
+                >https://github.com/a19jimsa/angular-challange</a
+              >
+            </div>
+          </div>
+        </mat-card-content></mat-card
       >
-        <source src="assets/angularchallenge.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
+      <div class="row mt-2">
+        <div class="col-12">
+          <mat-card>
+            <mat-card-content>
+              <div class="row">
+                <div class="col-md-4">
+                  Detta är ett projekt med React. För backend används Node.js
+                  med Express och MongoDB som databas.
+                </div>
 
-    <div class="col-md-4 flex">
-      <p>
-        Detta är ett projekt gjort på några dagar för att skapa ett backend och
-        frontend. Backend med C# och .NET. Frontend med Angular. Här används
-        JSON Web Token (JWT) för att sköta och kolla inloggning är korrekt mot
-        backend. Det används ingen databas utan allt är serverless så inget
-        sparas permanent när backend är igång. Det körs endast lokalt. Bootstrap
-        används för responstivitet och skapa en snygg och enhetlig design.
-        Uppgiften gick ut på att skapa en sida för att skapa böcker. Där man kan
-        skapa, redigera och ta bort böcker. Sen även ha en sida med sina
-        favoritcitat.
-        <a href="https://github.com/a19jimsa/angular-challange" target="_blank"
-          >https://github.com/a19jimsa/angular-challange</a
-        >
-      </p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 flex">
-      Detta är ett projekt med React. För backend används Node.js med Express
-      och MongoDB som databas.
-    </div>
-
-    <div class="col-md-8 flex">
-      <video
-        [muted]="true"
-        [autoplay]="true"
-        [loop]="true"
-        onloadedmetadata="this.muted = true"
-      >
-        <source src="assets/react-app-2.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 flex">
-      <p>
-        <a href="https://github.com/hoshi89/Forgotten"
-          >Mitt första spelprojekt 2013 i C++</a
-        >
-      </p>
+                <div class="col-md-8">
+                  <video
+                    [muted]="true"
+                    [autoplay]="true"
+                    [loop]="true"
+                    onloadedmetadata="this.muted = true"
+                  >
+                    <source src="assets/react-app-2.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 flex">
+          <p>
+            <a href="https://github.com/hoshi89/Forgotten"
+              >Mitt första spelprojekt 2013 i C++</a
+            >
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

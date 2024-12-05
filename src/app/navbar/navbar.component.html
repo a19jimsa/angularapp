@@ -1,165 +1,37 @@
-<nav class="navbar sticky-top navbar-expand-xl navbar-dark bg-dark">
-  <a class="navbar-brand">Jimmydev.se</a>
-  <button
-    class="navbar-toggler"
-    type="button"
-    (click)="isCollapse = !isCollapse"
-  >
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div
-    class="collapse navbar-collapse"
-    id="navbarNavDropdown"
-    [ngbCollapse]="isCollapse"
-  >
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/" role="button">Home</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/chess"
-          >Chess</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/othello"
-          >Othello</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/memory"
-          >Memory</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/calculator"
-          >Calculator</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/mine"
-          >Minesweeper</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/sudoku"
-          >Sudoku</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/killersudoku"
-          >Killer Sudoku</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/slidingpuzzle"
-          >Sliding Puzzle</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/snake"
-          >Snake</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/particles"
-          >Particle System</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/sidescroller"
-          >Sidescroller</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/sand"
-          >Falling Sand</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/collision"
-          >Collision Detection</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/curling"
-          >Curling</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/animation"
-          >Game Engine</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          role="button"
-          routerLinkActive="active"
-          routerLink="/creator"
-          >Animation Creator</a
-        >
-      </li>
-    </ul>
-  </div>
+<nav>
+  <mat-toolbar color="primary">
+    <div>
+      <a mat-button routerLink="/">Jimmydev.se</a>
+      <a mat-button routerLink="/othello">Othello</a>
+      <a mat-button routerLink="/memory">Memory</a>
+      <a mat-button routerLink="/calculator">Calculator</a>
+      <a mat-button routerLink="/mine">Minesweeper</a>
+      <a mat-button routerLink="/sudoku">Sudoku</a>
+      <a mat-button routerLink="/killersudoku">Killer Sudoku</a>
+      <a mat-button routerLink="/slidingpuzzle">Sliding puzzle</a>
+      <a mat-button routerLink="/snake">Snake</a>
+      <a mat-button routerLink="/particles">Particles</a>
+      <a mat-button routerLink="/sidescroller">Sidescroller</a>
+      <a mat-button routerLink="/collision">Collision detection</a>
+      <a mat-button routerLink="/curling">Curling</a>
+      <a mat-button routerLink="/animation">Game Engine</a>
+      <a mat-button routerLink="/creator">Animation Creator</a>
+    </div>
+    <div>
+      <button
+        mat-icon-button
+        class="example-icon favorite-icon"
+        aria-label="Example icon-button with heart icon"
+      >
+        <mat-icon>favorite</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        class="example-icon"
+        aria-label="Example icon-button with share icon"
+      >
+        <mat-icon>share</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
 </nav>
