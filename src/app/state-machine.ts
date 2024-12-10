@@ -115,6 +115,7 @@ export class StateMachine {
   constructor() {
     this.currentState = 'running';
     this.animations = this.runningFrames;
+    console.log(JSON.stringify(this.runningFrames));
   }
 
   changeState() {

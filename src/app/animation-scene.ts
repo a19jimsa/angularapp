@@ -92,7 +92,9 @@ export class AnimationScene {
       new Transform(new Vec(0, this.canvasHeight / 2), new Vec(0, 0), 10)
     );
 
-    const playerSkeleton = new Skeleton('assets/sprites/Barst.png');
+    const playerSkeleton = new Skeleton('assets/sprites/Arden.png');
+
+    //Create character bones from JSON file
 
     const rightLeg = new Bone(
       'rightLeg',
@@ -174,7 +176,8 @@ export class AnimationScene {
       40,
       40,
       0,
-      -2
+      -2,
+      new Vec(0, 0)
     );
     const rightFoot = new Bone(
       'rightFoot',
@@ -186,7 +189,8 @@ export class AnimationScene {
       40,
       40,
       0,
-      -2
+      -2,
+      new Vec(0, 0)
     );
 
     const leftLowerArm = new Bone(
@@ -199,7 +203,8 @@ export class AnimationScene {
       30,
       35,
       0,
-      -2
+      -2,
+      new Vec(0, 0)
     );
 
     const rightLowerArm = new Bone(
@@ -212,7 +217,8 @@ export class AnimationScene {
       30,
       35,
       0,
-      20
+      20,
+      new Vec(0, 0)
     );
 
     const head = new Bone(
@@ -239,7 +245,8 @@ export class AnimationScene {
       41 - 5,
       359 - 293,
       10,
-      0
+      0,
+      new Vec(0, 0)
     );
 
     const rightMantleLower = new Bone(
@@ -252,7 +259,8 @@ export class AnimationScene {
       41 - 5,
       427 - 377,
       0,
-      0
+      0,
+      new Vec(0, 0)
     );
 
     const leftMantle = new Bone(
@@ -265,7 +273,8 @@ export class AnimationScene {
       80 - 61,
       355 - 303,
       345,
-      0
+      0,
+      new Vec(0, 0)
     );
 
     const leftMantleLower = new Bone(
@@ -278,9 +287,10 @@ export class AnimationScene {
       80 - 59,
       426 - 384,
       0,
-      0
+      0,
+      new Vec(0, 0)
     );
-
+    
     const joint = new Joint('root', null, 270, 'blue');
 
     //Draw root bones
@@ -297,6 +307,8 @@ export class AnimationScene {
     playerSkeleton.bones.push(rightFoot);
     playerSkeleton.bones.push(leftLowerArm);
     playerSkeleton.bones.push(rightLowerArm);
+
+    console.log(JSON.stringify(playerSkeleton.bones));
 
     playerSkeleton.joints.push(joint);
 
@@ -388,7 +400,8 @@ export class AnimationScene {
       288 - 230,
       756 - 661,
       0,
-      8
+      8,
+      new Vec(0, 0)
     );
 
     const leftDragonLowerArm = new Bone(
@@ -401,7 +414,8 @@ export class AnimationScene {
       749 - 639,
       939 - 794,
       0,
-      -2
+      -2,
+      new Vec(0, 0)
     );
 
     const rightDragonLowerArm = new Bone(
@@ -414,7 +428,8 @@ export class AnimationScene {
       638 - 518,
       950 - 705,
       0,
-      10
+      10,
+      new Vec(0, 0)
     );
 
     const dragonBack = new Bone(
@@ -427,7 +442,8 @@ export class AnimationScene {
       512 - 334,
       1020 - 827,
       0,
-      -1
+      -1,
+      new Vec(0, 0)
     );
     const dragonRightFist = new Bone(
       'dragonRightFist',
@@ -439,7 +455,8 @@ export class AnimationScene {
       243 - 122,
       1021 - 957,
       0,
-      13
+      13,
+      new Vec(0, 0)
     );
 
     const dragonLeftFist = new Bone(
@@ -452,7 +469,8 @@ export class AnimationScene {
       119 - 0,
       1024 - 964,
       0,
-      13
+      13,
+      new Vec(0, 0)
     );
 
     const firstTail = new Bone(
@@ -479,7 +497,8 @@ export class AnimationScene {
       1265 - 1170,
       668 - 510,
       0,
-      -15
+      -15,
+      new Vec(0, 0)
     );
     const thirdTail = new Bone(
       'thirdTail',
@@ -491,7 +510,8 @@ export class AnimationScene {
       1247 - 1171,
       821 - 680,
       0,
-      -16
+      -16,
+      new Vec(0, 0)
     );
 
     const fourthTail = new Bone(
@@ -504,7 +524,8 @@ export class AnimationScene {
       1092 - 1025,
       934 - 836,
       0,
-      -17
+      -17,
+      new Vec(0, 0)
     );
     const fifthTail = new Bone(
       'fifthTail',
@@ -516,7 +537,8 @@ export class AnimationScene {
       1145 - 1096,
       919 - 835,
       0,
-      -18
+      -18,
+      new Vec(0, 0)
     );
     const sixthTail = new Bone(
       'sixthTail',
@@ -528,7 +550,8 @@ export class AnimationScene {
       1188 - 1152,
       920 - 836,
       0,
-      -19
+      -19,
+      new Vec(0, 0)
     );
 
     const lastTail = new Bone(
@@ -541,7 +564,8 @@ export class AnimationScene {
       1274 - 1253,
       755 - 677,
       0,
-      -20
+      -20,
+      new Vec(0, 0)
     );
 
     const leftWing = new Bone(

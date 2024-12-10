@@ -8,12 +8,19 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { Bone } from '../components/bone';
 import { Vec } from '../vec';
+import { ImportBonesDialogComponent } from '../import-bones-dialog/import-bones-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
+import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
+import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-animation-creator',
@@ -24,12 +31,6 @@ import { Vec } from '../vec';
 export class AnimationCreatorComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
-importBones() {
-throw new Error('Method not implemented.');
-}
-importKeyframes() {
-throw new Error('Method not implemented.');
-}
   @ViewChild('canvas', { static: true })
   canvas!: ElementRef<HTMLCanvasElement>;
   ctx!: CanvasRenderingContext2D;
@@ -41,14 +42,21 @@ throw new Error('Method not implemented.');
   bones: Bone[] = new Array();
   keyframes: Keyframe[] = new Array();
   activeBone: Bone | null = null;
-  pivotPosition: Vec = new Vec(0, 0);
+  activeKeyframe: Keyframe | null = null;
   lengthSliderValue: number = 0;
   rotationSliderValue: number = 0;
   keyframeSliderValue: number = 0;
-  timeline: number = 0;
   play: boolean = false;
-  parentId: string | null = null;
-  boneId: string = 'root';
+  animationSpeed: number = 1;
+  readonly dialog = inject(MatDialog);
+  image = new Image();
+
+  activeKeyframeIndex: number = -1;
+  keyframeForm = new FormGroup({
+    time: new FormControl(0),
+    angle: new FormControl(0),
+    name: new FormControl(''),
+  });
 
   constructor() {}
 
@@ -58,6 +66,7 @@ throw new Error('Method not implemented.');
     this.canvasWidth = this.canvas.nativeElement.width;
     this.canvasHeight = this.canvas.nativeElement.height;
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
+    this.image.src = '../assets/sprites/Arden.png';
     this.addEventHandlers();
     this.animationLoop();
   }
@@ -66,6 +75,48 @@ throw new Error('Method not implemented.');
 
   ngOnDestroy() {
     cancelAnimationFrame(this.id);
+  }
+
+  checkActiveBone(bone: Bone) {
+    if (!bone) return;
+    this.activateBone(bone);
+  }
+
+  importBones() {
+    let dialogRef = this.dialog.open(ImportBonesDialogComponent, {
+      height: '400px',
+      width: '600px',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(`Dialog result: ${result}`); // Pizza!
+      try {
+        const boneArray = JSON.parse(result);
+        this.bones.push(...boneArray);
+      } catch (e) {
+        const errorDialog = this.dialog.open(ErrorDialogComponent, {
+          height: '400px',
+          width: '600px',
+        });
+      }
+    });
+  }
+
+  importKeyframes() {
+    let dialogRef = this.dialog.open(ImportKeyframeDialogComponent, {
+      height: '400px',
+      width: '600px',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      try {
+        const keyframeArray = JSON.parse(result);
+        this.keyframes.push(...keyframeArray);
+      } catch (e) {
+        const errorDialog = this.dialog.open(ErrorDialogComponent, {
+          height: '400px',
+          width: '600px',
+        });
+      }
+    });
   }
 
   animationLoop() {
@@ -80,35 +131,63 @@ throw new Error('Method not implemented.');
   }
 
   drawbone() {
-    this.ctx.save();
-    this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-    this.ctx.fillStyle = 'red';
-    this.ctx.strokeStyle = 'red';
-    this.ctx.lineWidth = 5;
+    this.bones.sort((a, b) => a.order - b.order);
+
     for (const bone of this.bones) {
-      this.ctx.beginPath();
       if (bone.parentId !== null) {
-        const parentBone = this.findBoneById(this.bones, bone.parentId);
-        if (!parentBone) return;
-        const childPosition = this.calculateParentPosition(
-          parentBone.position,
-          parentBone.length,
-          parentBone.rotation
-        );
-        bone.position = childPosition;
+        const parent = this.findBoneById(this.bones, bone.parentId);
+        if (parent) {
+          bone.offset = this.calculateParentPosition(
+            parent.offset,
+            parent.length,
+            parent.rotation
+          );
+        }
       }
-      this.ctx.arc(bone.position.X, bone.position.Y, 10, 0, Math.PI * 2, false);
-      const newPos = this.calculateParentPosition(
-        bone.position,
+
+      const newPosition = this.calculateParentPosition(
+        bone.offset,
         bone.length,
         bone.rotation
       );
-      this.ctx.lineTo(newPos.X, newPos.Y);
-      this.ctx.fill();
-      this.ctx.stroke();
-    }
 
-    this.ctx.restore();
+      this.ctx.save();
+      this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
+      if (bone.id === this.activeBone?.id) {
+        this.ctx.beginPath();
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = 'grey';
+        this.ctx.strokeRect(
+          bone.offset.X,
+          bone.offset.Y,
+          newPosition.X - bone.offset.X,
+          newPosition.Y - bone.offset.Y
+        );
+        this.ctx.stroke();
+        this.ctx.closePath();
+      }
+      this.ctx.beginPath();
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeStyle = bone.color;
+      this.ctx.moveTo(bone.offset.X, bone.offset.Y);
+      this.ctx.lineTo(newPosition.X, newPosition.Y);
+      this.ctx.stroke();
+      this.ctx.translate(bone.offset.X, bone.offset.Y);
+      this.ctx.rotate(this.degreesToRadians(bone.rotation) - Math.PI / 2);
+      this.ctx.translate(-bone.offset.X, -bone.offset.Y);
+      this.ctx.drawImage(
+        this.image,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        bone.offset.X - bone.endX / 2,
+        bone.offset.Y,
+        bone.endX,
+        bone.endY
+      );
+      this.ctx.restore();
+    }
   }
 
   drawGui() {
@@ -167,43 +246,31 @@ throw new Error('Method not implemented.');
 
     this.ctx.strokeStyle = 'green';
     this.ctx.beginPath();
-    this.ctx.moveTo(this.activeBone.position.X, this.activeBone.position.Y);
+    this.ctx.moveTo(this.activeBone.offset.X, this.activeBone.offset.Y);
+    this.ctx.lineTo(this.activeBone.offset.X, this.activeBone.offset.Y - 100);
     this.ctx.lineTo(
-      this.activeBone.position.X,
-      this.activeBone.position.Y - 100
+      this.activeBone.offset.X - 10,
+      this.activeBone.offset.Y - 80
     );
+    this.ctx.moveTo(this.activeBone.offset.X, this.activeBone.offset.Y - 100);
     this.ctx.lineTo(
-      this.activeBone.position.X - 10,
-      this.activeBone.position.Y - 80
-    );
-    this.ctx.moveTo(
-      this.activeBone.position.X,
-      this.activeBone.position.Y - 100
-    );
-    this.ctx.lineTo(
-      this.activeBone.position.X + 10,
-      this.activeBone.position.Y - 80
+      this.activeBone.offset.X + 10,
+      this.activeBone.offset.Y - 80
     );
     this.ctx.stroke();
 
     this.ctx.strokeStyle = 'red';
     this.ctx.beginPath();
-    this.ctx.moveTo(this.activeBone.position.X, this.activeBone.position.Y);
+    this.ctx.moveTo(this.activeBone.offset.X, this.activeBone.offset.Y);
+    this.ctx.lineTo(this.activeBone.offset.X + 100, this.activeBone.offset.Y);
     this.ctx.lineTo(
-      this.activeBone.position.X + 100,
-      this.activeBone.position.Y
+      this.activeBone.offset.X + 80,
+      this.activeBone.offset.Y + 10
     );
+    this.ctx.moveTo(this.activeBone.offset.X + 100, this.activeBone.offset.Y);
     this.ctx.lineTo(
-      this.activeBone.position.X + 80,
-      this.activeBone.position.Y + 10
-    );
-    this.ctx.moveTo(
-      this.activeBone.position.X + 100,
-      this.activeBone.position.Y
-    );
-    this.ctx.lineTo(
-      this.activeBone.position.X + 80,
-      this.activeBone.position.Y - 10
+      this.activeBone.offset.X + 80,
+      this.activeBone.offset.Y - 10
     );
     this.ctx.stroke();
     this.ctx.restore();
@@ -222,8 +289,15 @@ throw new Error('Method not implemented.');
         bound.top -
         this.canvas.nativeElement.clientTop -
         this.canvasHeight / 2;
-      this.mouseCollision();
+      if (!this.clickOnBone()) this.move();
     });
+  }
+
+  move() {
+    if (this.activeBone) {
+      this.activeBone.offset.X = this.mousePosX;
+      this.activeBone.offset.Y = this.mousePosY;
+    }
   }
 
   drawDebug() {
@@ -243,21 +317,14 @@ throw new Error('Method not implemented.');
   }
 
   addBone() {
-    if (this.findBoneById(this.bones, this.boneId)) return;
-    if (this.parentId == '') this.parentId = null;
-    const bone = new Bone(
-      this.boneId,
-      this.parentId,
-      new Vec(0, 0),
-      100,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    );
-    this.bones.push(bone);
+    let dialogRef = this.dialog.open(BoneDialogComponent, {
+      width: '600px',
+      height: '400px',
+    });
+    dialogRef.afterClosed().subscribe((result: Bone) => {
+      if (this.findBoneById(this.bones, result.id)) return;
+      this.bones.push(result);
+    });
   }
 
   activateBone(bone: Bone) {
@@ -268,9 +335,9 @@ throw new Error('Method not implemented.');
 
   mouseCollision() {
     if (!this.activeBone) return;
-    this.activeBone.position.X = this.mousePosX;
-    this.activeBone.position.Y = this.mousePosY;
-    console.log('test');
+    if (!this.activeBone.offset) return;
+    this.activeBone.offset.X = this.mousePosX;
+    this.activeBone.offset.Y = this.mousePosY;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {
@@ -307,33 +374,79 @@ throw new Error('Method not implemented.');
   addKeyframe() {
     if (!this.activeBone) return;
     this.keyframes.push({
-      angle: this.activeBone.rotation,
       time: this.keyframeSliderValue,
+      angle: this.activeBone.rotation,
       name: this.activeBone.id,
     });
-    this.keyframes.sort((a, b) => {
-      const idA = a.name;
-      const idB = b.name;
-      if (idA < idB) {
-        return -1;
-      }
-      if (idA > idB) {
-        return 1;
-      }
-      return 0;
+    // this.keyframes.sort((a, b) => {
+    //   const idA = a.name;
+    //   const idB = b.name;
+    //   if (idA < idB) {
+    //     return -1;
+    //   }
+    //   if (idA > idB) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // });
+  }
+
+  changeKeyframe(keyframe: Keyframe) {
+    this.activeKeyframe = keyframe;
+  }
+
+  updateKeyframe() {}
+
+  changeBone(index: number) {
+    let dialogRef = this.dialog.open(BoneDialogComponent, {
+      width: '600px',
+      height: '400px',
+      data: this.bones[index],
     });
   }
 
   removeKeyframe(id: number) {
     this.keyframes.splice(id, 1);
+    this.activeKeyframe = null;
+  }
+
+  removeBone(id: number) {
+    this.bones.splice(id, 1);
+    this.activeBone = null;
+  }
+
+  clickOnBone(): boolean {
+    for (const bone of this.bones) {
+      if (this.isMouseOverBone(bone)) {
+        console.log('Hitted bone', bone.id);
+        this.activateBone(bone);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isMouseOverBone(bone: Bone): boolean {
+    const newPosition = this.calculateParentPosition(
+      bone.offset,
+      bone.length,
+      bone.rotation
+    );
+    return (
+      this.mousePosX > Math.min(bone.offset.X, newPosition.X) &&
+      this.mousePosX < Math.max(bone.offset.X, newPosition.X) &&
+      this.mousePosY > Math.min(bone.offset.Y, newPosition.Y) &&
+      this.mousePosY < Math.max(bone.offset.Y, newPosition.Y)
+    );
   }
 
   runAnimation() {
     if (this.keyframes.length === 0) return;
     this.activeBone = null;
+    this.activeKeyframe = null;
     const totalDuration = this.keyframes[this.keyframes.length - 1].time;
-    // Använd startTime för att räkna ut hur långt in i animationen vi är
-    const elapsedTime = this.keyframeSliderValue;
+    const speed = 2000; // ms
+    const elapsedTime = performance.now() / speed;
     const loopedTime = elapsedTime % totalDuration;
     for (const bone of this.bones) {
       for (let i = 0; i < this.keyframes.length - 1; i++) {

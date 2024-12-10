@@ -49,6 +49,7 @@ import { AnimationCreatorComponent } from './animation-creator/animation-creator
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { CommonModule } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { CommonModule } from '@angular/common';
     MatSliderModule,
     MatIconModule,
     CommonModule,
+    MatListModule,
   ],
   providers: [
     {

@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Add bone</h2>
+<mat-dialog-content class="p-2">
+  <mat-form-field class="w-100">
+    <mat-label>Id</mat-label>
+    <input matInput [(ngModel)]="bone.id" />
+  </mat-form-field>
+  <mat-form-field class="w-100">
+    <mat-label>parentId</mat-label>
+    <input matInput [(ngModel)]="bone.parentId" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>No</button>
+  <button mat-button mat-dialog-close cdkFocusInitial [mat-dialog-close]="bone">
+    Ok
+  </button>
+</mat-dialog-actions>

@@ -15,7 +15,7 @@ export class Bone extends Component {
   color: string;
   pivot: Vec;
   jointRotation: number;
-  offset?: Vec;
+  offset: Vec;
   order: number;
 
   constructor(
@@ -29,7 +29,7 @@ export class Bone extends Component {
     endY: number,
     jointRotation: number,
     order: number,
-    offset?: Vec
+    offset: Vec
   ) {
     super();
     this.id = id;
