@@ -76,6 +76,10 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Canvas</mat-card-title>
+            <button mat-raised-button (click)="toggleHideSpritesheet()">
+              Show Spritesheet
+            </button>
+            <input type="file" (change)="onFileSelected($event)" />
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -125,32 +129,54 @@
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
-          <mat-list>
-            <mat-selection-list>
-              @for (bone of bones; track bone) {
-              <mat-list-option>
-                <div
-                  class="d-flex justify-content-around align-items-center"
-                  (click)="activateBone(bone)"
-                >
-                  <button mat-button [disabled]="true">{{ bone.id }}</button>
-                  <button mat-button (click)="removeBone($index)">
-                    Remove
-                  </button>
-                </div></mat-list-option
+          <mat-tree
+            #tree
+            [dataSource]="dataSource"
+            [childrenAccessor]="childrenAccessor"
+          >
+            <!-- This is the tree node template for leaf nodes -->
+            <mat-tree-node
+              *matTreeNodeDef="let bone"
+              matTreeNodePadding
+              class="border"
+            >
+              <!-- use a disabled button to provide padding for tree leaf -->
+              <button mat-icon-button disabled></button>
+              {{ bone.boneId }}
+              <button mat-raised-button (click)="activateBone(bone.boneId)">
+                Activate
+              </button>
+            </mat-tree-node>
+            <!-- This is the tree node template for expandable nodes -->
+            <mat-tree-node
+              *matTreeNodeDef="let bone; when: hasChild"
+              matTreeNodePadding
+              matTreeNodeToggle
+              [cdkTreeNodeTypeaheadLabel]="bone.boneId"
+              class="border"
+            >
+              <button
+                mat-icon-button
+                matTreeNodeToggle
+                [attr.aria-label]="'Toggle ' + bone.boneId"
               >
-              }
-            </mat-selection-list>
-          </mat-list>
+                <mat-icon class="mat-icon-rtl-mirror">
+                  {{ tree.isExpanded(bone) ? "expand_more" : "chevron_right" }}
+                </mat-icon>
+              </button>
+              {{ bone.boneId }}
+              <button mat-raised-button (click)="activateBone(bone.boneId)">
+                Activate
+              </button>
+            </mat-tree-node>
+          </mat-tree>
         </mat-card-content>
         <mat-card-actions
           class="justify-content-center sticky-bottom"
           style="margin-top: auto"
         >
-          <button mat-raised-button (click)="addBone()">
-            Add bone
-          </button></mat-card-actions
-        >
+          <button mat-raised-button (click)="addBone()">Add bone</button>
+        </mat-card-actions>
       </mat-card>
       <mat-card class="overflow-auto h-50">
         <mat-card-header>
@@ -176,6 +202,10 @@
           <mat-form-field class="w-100" appearance="fill">
             <mat-label>Rotation</mat-label>
             <input matInput disabled [value]="activeBone?.rotation" />
+          </mat-form-field>
+          <mat-form-field class="w-100" appearance="fill">
+            <mat-label>Length</mat-label>
+            <input matInput disabled [value]="activeBone?.length" />
           </mat-form-field>
           <mat-form-field class="w-100" appearance="fill">
             <mat-label>ParentId</mat-label>

@@ -2,16 +2,30 @@
 <mat-dialog-content class="p-2">
   <mat-form-field class="w-100">
     <mat-label>Id</mat-label>
-    <input matInput [(ngModel)]="bone.id" />
+    <input matInput [(ngModel)]="data.id" />
   </mat-form-field>
   <mat-form-field class="w-100">
     <mat-label>parentId</mat-label>
-    <input matInput [(ngModel)]="bone.parentId" />
+    <input matInput [(ngModel)]="data.parentId" />
+  </mat-form-field>
+  <mat-form-field class="w-100">
+    <mat-label>StartX</mat-label>
+    <input matInput [(ngModel)]="data.startX" />
+  </mat-form-field>
+  <mat-form-field class="w-100">
+    <mat-label>StartY</mat-label>
+    <input matInput [(ngModel)]="data.startY" />
+  </mat-form-field>
+  <mat-form-field class="w-100">
+    <mat-label>StartY</mat-label>
+    <input matInput [(ngModel)]="data.endX" />
+  </mat-form-field>
+  <mat-form-field class="w-100">
+    <mat-label>StartY</mat-label>
+    <input matInput [(ngModel)]="data.endY" />
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close>No</button>
-  <button mat-button mat-dialog-close cdkFocusInitial [mat-dialog-close]="bone">
-    Ok
-  </button>
+  <button mat-button [mat-dialog-close]="undefined">No</button>
+  <button mat-button cdkFocusInitial [mat-dialog-close]="data">Ok</button>
 </mat-dialog-actions>

@@ -290,7 +290,7 @@ export class AnimationScene {
       0,
       new Vec(0, 0)
     );
-    
+
     const joint = new Joint('root', null, 270, 'blue');
 
     //Draw root bones
@@ -626,6 +626,8 @@ export class AnimationScene {
     dragonSkeleton.joints.push(dragonJoint);
 
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
+
+    console.log(JSON.stringify(dragonSkeleton.bones));
 
     this.ecs.addComponent<Controlable>(
       player,

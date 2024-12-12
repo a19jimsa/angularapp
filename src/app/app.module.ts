@@ -50,6 +50,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
+import { MatTreeModule } from '@angular/material/tree';
 
 @NgModule({
   declarations: [
@@ -100,6 +101,7 @@ import { MatListModule } from '@angular/material/list';
     MatIconModule,
     CommonModule,
     MatListModule,
+    MatTreeModule,
   ],
   providers: [
     {
