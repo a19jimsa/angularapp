@@ -105,7 +105,6 @@ export class AnimationScene {
       145,
       33,
       55,
-      0,
       -1,
       new Vec(-5, 50)
     );
@@ -119,7 +118,6 @@ export class AnimationScene {
       145,
       33,
       55,
-      0,
       -1,
       new Vec(15, 50)
     );
@@ -134,7 +132,6 @@ export class AnimationScene {
       60,
       75,
       0,
-      0,
       new Vec(0, 0)
     );
 
@@ -147,7 +144,6 @@ export class AnimationScene {
       158,
       28,
       40,
-      0,
       2,
       new Vec(-15, 10)
     );
@@ -161,7 +157,6 @@ export class AnimationScene {
       150,
       22,
       45,
-      0,
       -20,
       new Vec(20, 10)
     );
@@ -175,7 +170,6 @@ export class AnimationScene {
       160,
       40,
       40,
-      0,
       -2,
       new Vec(0, 0)
     );
@@ -188,7 +182,6 @@ export class AnimationScene {
       160,
       40,
       40,
-      0,
       -2,
       new Vec(0, 0)
     );
@@ -202,7 +195,6 @@ export class AnimationScene {
       155,
       30,
       35,
-      0,
       -2,
       new Vec(0, 0)
     );
@@ -216,7 +208,6 @@ export class AnimationScene {
       155,
       30,
       35,
-      0,
       20,
       new Vec(0, 0)
     );
@@ -231,7 +222,6 @@ export class AnimationScene {
       75,
       75,
       0,
-      0,
       new Vec(0, -60)
     );
 
@@ -244,7 +234,6 @@ export class AnimationScene {
       293,
       41 - 5,
       359 - 293,
-      10,
       0,
       new Vec(0, 0)
     );
@@ -259,7 +248,6 @@ export class AnimationScene {
       41 - 5,
       427 - 377,
       0,
-      0,
       new Vec(0, 0)
     );
 
@@ -272,7 +260,6 @@ export class AnimationScene {
       303,
       80 - 61,
       355 - 303,
-      345,
       0,
       new Vec(0, 0)
     );
@@ -286,7 +273,6 @@ export class AnimationScene {
       384,
       80 - 59,
       426 - 384,
-      0,
       0,
       new Vec(0, 0)
     );
@@ -330,7 +316,6 @@ export class AnimationScene {
       517,
       499 - 237,
       655 - 517,
-      80,
       3,
       new Vec(-70, 20)
     );
@@ -344,7 +329,6 @@ export class AnimationScene {
       666,
       509 - 295,
       819 - 666,
-      0,
       4,
       new Vec(0, 0)
     );
@@ -358,7 +342,6 @@ export class AnimationScene {
       627,
       734 - 644,
       791 - 627,
-      0,
       -3,
       new Vec(110, 20)
     );
@@ -371,7 +354,6 @@ export class AnimationScene {
       503,
       642 - 512,
       713 - 503,
-      0,
       6,
       new Vec(-50, 0)
     );
@@ -385,7 +367,6 @@ export class AnimationScene {
       516,
       230,
       140,
-      12,
       50,
       new Vec(65, -50)
     );
@@ -399,7 +380,6 @@ export class AnimationScene {
       661,
       288 - 230,
       756 - 661,
-      0,
       8,
       new Vec(0, 0)
     );
@@ -413,7 +393,6 @@ export class AnimationScene {
       794,
       749 - 639,
       939 - 794,
-      0,
       -2,
       new Vec(0, 0)
     );
@@ -427,7 +406,6 @@ export class AnimationScene {
       705,
       638 - 518,
       950 - 705,
-      0,
       10,
       new Vec(0, 0)
     );
@@ -441,7 +419,6 @@ export class AnimationScene {
       827,
       512 - 334,
       1020 - 827,
-      0,
       -1,
       new Vec(0, 0)
     );
@@ -454,7 +431,6 @@ export class AnimationScene {
       957,
       243 - 122,
       1021 - 957,
-      0,
       13,
       new Vec(0, 0)
     );
@@ -468,7 +444,6 @@ export class AnimationScene {
       964,
       119 - 0,
       1024 - 964,
-      0,
       13,
       new Vec(0, 0)
     );
@@ -482,7 +457,6 @@ export class AnimationScene {
       514,
       1165 - 1033,
       826 - 514,
-      0,
       -14,
       new Vec(-300, -50)
     );
@@ -496,7 +470,6 @@ export class AnimationScene {
       510,
       1265 - 1170,
       668 - 510,
-      0,
       -15,
       new Vec(0, 0)
     );
@@ -509,7 +482,6 @@ export class AnimationScene {
       680,
       1247 - 1171,
       821 - 680,
-      0,
       -16,
       new Vec(0, 0)
     );
@@ -523,7 +495,6 @@ export class AnimationScene {
       836,
       1092 - 1025,
       934 - 836,
-      0,
       -17,
       new Vec(0, 0)
     );
@@ -536,7 +507,6 @@ export class AnimationScene {
       835,
       1145 - 1096,
       919 - 835,
-      0,
       -18,
       new Vec(0, 0)
     );
@@ -549,7 +519,6 @@ export class AnimationScene {
       836,
       1188 - 1152,
       920 - 836,
-      0,
       -19,
       new Vec(0, 0)
     );
@@ -563,7 +532,6 @@ export class AnimationScene {
       677,
       1274 - 1253,
       755 - 677,
-      0,
       -20,
       new Vec(0, 0)
     );
@@ -577,7 +545,6 @@ export class AnimationScene {
       666,
       1017 - 918,
       841 - 666,
-      0,
       -10,
       new Vec(100, -100)
     );
@@ -591,7 +558,6 @@ export class AnimationScene {
       514,
       936 - 641,
       618 - 514,
-      0,
       2,
       new Vec(-150, 0)
     );

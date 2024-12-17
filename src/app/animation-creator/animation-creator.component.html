@@ -8,6 +8,9 @@
             <button mat-button (click)="importKeyframes()">
               Import keyframes
             </button>
+            <button mat-button (click)="exportKeyframes()">
+              Export keyframes
+            </button>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -76,10 +79,26 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Canvas</mat-card-title>
-            <button mat-raised-button (click)="toggleHideSpritesheet()">
-              Show Spritesheet
-            </button>
-            <input type="file" (change)="onFileSelected($event)" />
+            <mat-card-subtitle>
+              <button mat-raised-button (click)="toggleHideSpritesheet()">
+                {{ hideSpritesheet ? "Show spritesheet" : "Hide spritesheet" }}
+              </button>
+              <button mat-raised-button (click)="toggleShowBones()">
+                {{ hideBones ? "Show bones" : "Hide bones" }}
+              </button>
+              <button mat-raised-button (click)="toggleShowSprites()">
+                {{ hideSprites ? "Show sprites" : "Hide sprites" }}
+              </button>
+              @if(activeBone){
+              <button
+                mat-raised-button
+                (click)="calculateGlobalRotation(activeBone)"
+              >
+                {{ calculateGlobalRotation(activeBone) }}
+              </button>
+              }
+              <input type="file" (change)="onFileSelected($event)"
+            /></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -126,6 +145,7 @@
           <mat-card-title-group class="overflow-hidden">
             <mat-card-title>Bones</mat-card-title>
             <button mat-button (click)="importBones()">Import bones</button>
+            <button mat-button (click)="exportBones()">Export bones</button>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -135,16 +155,11 @@
             [childrenAccessor]="childrenAccessor"
           >
             <!-- This is the tree node template for leaf nodes -->
-            <mat-tree-node
-              *matTreeNodeDef="let bone"
-              matTreeNodePadding
-              class="border"
-            >
+            <mat-tree-node *matTreeNodeDef="let bone" matTreeNodePadding>
               <!-- use a disabled button to provide padding for tree leaf -->
               <button mat-icon-button disabled></button>
-              {{ bone.boneId }}
-              <button mat-raised-button (click)="activateBone(bone.boneId)">
-                Activate
+              <button mat-button (click)="activateBone(bone.boneId)">
+                {{ bone.boneId }}
               </button>
             </mat-tree-node>
             <!-- This is the tree node template for expandable nodes -->
@@ -164,9 +179,8 @@
                   {{ tree.isExpanded(bone) ? "expand_more" : "chevron_right" }}
                 </mat-icon>
               </button>
-              {{ bone.boneId }}
-              <button mat-raised-button (click)="activateBone(bone.boneId)">
-                Activate
+              <button mat-button (click)="activateBone(bone.boneId)">
+                {{ bone.boneId }}
               </button>
             </mat-tree-node>
           </mat-tree>
@@ -181,36 +195,130 @@
       <mat-card class="overflow-auto h-50">
         <mat-card-header>
           <mat-card-title-group>
-            <mat-card-title>Properties {{ activeBone?.id }}</mat-card-title>
+            <mat-card-title
+              >Properties @if(activeBone){
+              {{ activeBone.id }}
+              }</mat-card-title
+            >
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
+          @if(activeBone !== null){
           <mat-form-field class="w-100" appearance="fill">
             <mat-label>Id</mat-label>
-            <input matInput disabled [value]="activeBone?.id" />
+            <input matInput disabled [value]="activeBone.id" />
           </mat-form-field>
-          <div class="row">
-            <mat-form-field class="w-50" appearance="fill">
-              <mat-label>X</mat-label>
-              <input matInput disabled [value]="activeBone?.offset?.X" />
-            </mat-form-field>
-            <mat-form-field class="w-50" appearance="fill">
-              <mat-label>Y</mat-label>
-              <input matInput disabled [value]="activeBone?.offset?.Y" />
-            </mat-form-field>
-          </div>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>X</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.offset.X"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>Y</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.offset.Y"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>Pivot X</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.pivot.X"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>Pivot Y</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.pivot.Y"
+              type="number"
+            />
+          </mat-form-field>
+
           <mat-form-field class="w-100" appearance="fill">
             <mat-label>Rotation</mat-label>
-            <input matInput disabled [value]="activeBone?.rotation" />
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="rotationSliderValue"
+              type="number"
+            />
           </mat-form-field>
           <mat-form-field class="w-100" appearance="fill">
             <mat-label>Length</mat-label>
-            <input matInput disabled [value]="activeBone?.length" />
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="lengthSliderValue"
+              type="number"
+            />
           </mat-form-field>
           <mat-form-field class="w-100" appearance="fill">
-            <mat-label>ParentId</mat-label>
-            <input matInput disabled [value]="activeBone?.parentId" />
+            <mat-label>Order</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.order"
+              type="number"
+            />
           </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>StartX</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.startX"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>StartY</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.startY"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>EndX</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.endX"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>EndY</mat-label>
+            <input
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.endY"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-100" appearance="fill">
+            <mat-label>AttachAt</mat-label>
+            <input
+              [step]="0.1"
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.attachAt"
+              type="number"
+            />
+          </mat-form-field>
+          }
         </mat-card-content>
       </mat-card>
     </div>
@@ -223,12 +331,15 @@
       >
         <mat-card-content>
           @if(activeBone !== null){
+          <mat-label>Length:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
           </mat-slider>
+          <mat-label>Rotation:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
+          <button mat-button (click)="inactivateBone()">inactivate bone</button>
           }
         </mat-card-content>
       </mat-card>

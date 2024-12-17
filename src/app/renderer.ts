@@ -286,7 +286,7 @@ export class Renderer {
 
   public renderBone(image: CanvasImageSource, bone: Bone) {
     const radians = (bone.rotation * Math.PI) / 180;
-    this.ctx.strokeStyle = bone.color;
+    this.ctx.strokeStyle = 'blue';
     this.ctx.lineWidth = 10;
     this.ctx.save();
     this.ctx.translate(bone.position.X, bone.position.Y);
@@ -305,29 +305,6 @@ export class Renderer {
       bone.endX,
       bone.endY
     );
-    this.ctx.restore();
-  }
-
-  public renderJoints(bone: Bone) {
-    this.ctx.save();
-    this.ctx.strokeStyle = 'red';
-    this.ctx.lineWidth = 5;
-    const radians = (bone.rotation * Math.PI) / 180;
-    const jointRotationRadians = (bone.jointRotation * Math.PI) / 180;
-    const endX =
-      bone.position.X + bone.length * Math.cos(radians + jointRotationRadians);
-    const endY =
-      bone.position.Y + bone.length * Math.sin(radians + jointRotationRadians);
-    this.ctx.beginPath();
-    this.ctx.arc(
-      bone.position.X + bone.pivot.X,
-      bone.position.Y + bone.pivot.Y,
-      2,
-      0,
-      Math.PI * 2
-    );
-    this.ctx.lineTo(endX + bone.pivot.X, endY + bone.pivot.Y);
-    this.ctx.stroke();
     this.ctx.restore();
   }
 

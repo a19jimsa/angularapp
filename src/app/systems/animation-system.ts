@@ -68,7 +68,7 @@ export class AnimationSystem {
             bone.position = this.calculateParentPosition(
               parentBone.position,
               parentBone.length,
-              parentBone.rotation + parentBone.jointRotation
+              parentBone.rotation
             );
           } else {
             if (bone.offset !== undefined) {

@@ -2,10 +2,10 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { SnakeTile } from '../snake-tile';
 
 @Component({
-    selector: 'app-snake',
-    templateUrl: './snake.component.html',
-    styleUrls: ['./snake.component.css'],
-    standalone: false
+  selector: 'app-snake',
+  templateUrl: './snake.component.html',
+  styleUrls: ['./snake.component.css'],
+  standalone: false,
 })
 export class SnakeComponent implements OnInit {
   tiles!: SnakeTile[];
@@ -18,7 +18,7 @@ export class SnakeComponent implements OnInit {
   constructor() {}
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
+  handleKeyboardEvent(event: KeyboardEvent): void {
     if (event.key == 'ArrowDown' && this.offset !== -10) {
       this.offset = 10;
     } else if (event.key === 'ArrowUp' && this.offset !== 10) {
@@ -47,7 +47,7 @@ export class SnakeComponent implements OnInit {
     }
   }
 
-  newGame() {
+  newGame(): void {
     this.tiles = new Array();
     this.snakeList = new Array();
     this.offset = 1;
@@ -106,7 +106,7 @@ export class SnakeComponent implements OnInit {
     }
   }
 
-  createApple() {
+  createApple(): number {
     let randomId = Math.floor(Math.random() * 100);
     console.log(randomId);
     let i = 0;
