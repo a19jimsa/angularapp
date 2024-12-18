@@ -89,14 +89,6 @@
               <button mat-raised-button (click)="toggleShowSprites()">
                 {{ hideSprites ? "Show sprites" : "Hide sprites" }}
               </button>
-              @if(activeBone){
-              <button
-                mat-raised-button
-                (click)="calculateGlobalRotation(activeBone)"
-              >
-                {{ calculateGlobalRotation(activeBone) }}
-              </button>
-              }
               <input type="file" (change)="onFileSelected($event)"
             /></mat-card-subtitle>
           </mat-card-title-group>
@@ -316,6 +308,15 @@
               [disabled]="activeBone === null"
               [(ngModel)]="activeBone.attachAt"
               type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-100" appearance="fill">
+            <mat-label>Flip</mat-label>
+            <input
+              [step]="0.1"
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.flip"
             />
           </mat-form-field>
           }

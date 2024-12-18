@@ -87,7 +87,7 @@ export class AnimationCreatorComponent
     this.canvasWidth = this.canvas.nativeElement.width;
     this.canvasHeight = this.canvas.nativeElement.height;
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
-    this.spriteSheet.src = '../assets/sprites/Arden.png';
+    this.spriteSheet.src = '../assets/sprites/Draug.png';
     this.addEventHandlers();
     this.animationLoop();
   }
@@ -192,7 +192,6 @@ export class AnimationCreatorComponent
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.drawSpritesheet();
     this.drawGui();
-    this.drawSprite();
     this.drawbone();
     this.drawPivot();
     //this.drawDebug();
@@ -226,8 +225,8 @@ export class AnimationCreatorComponent
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
-          const x = parent.offset.X;
-          const y = parent.offset.Y;
+          const x = parent.offset.X + parent.pivot.X;
+          const y = parent.offset.Y + parent.pivot.Y;
           bone.offset = this.calculateParentPosition(
             new Vec(x, y),
             parent.length * bone.attachAt,
@@ -236,61 +235,32 @@ export class AnimationCreatorComponent
         }
       }
 
-      const x = bone.offset.X;
-      const y = bone.offset.Y;
+      let totalRotation = this.calculateGlobalRotation(bone);
+
+      const x = bone.offset.X + bone.pivot.X;
+      const y = bone.offset.Y + bone.pivot.Y;
       const newPosition = this.calculateParentPosition(
         new Vec(x, y),
-        bone.length,
-        parentRotation + bone.rotation
+        bone.length * bone.attachAt,
+        totalRotation
       );
 
       this.ctx.save();
-      this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.lineWidth = 5;
-      this.ctx.strokeStyle = 'blue';
+      //Draw sprites
       this.ctx.beginPath();
-      this.ctx.moveTo(
-        bone.offset.X + bone.pivot.X,
-        bone.offset.Y + bone.pivot.Y
-      );
-      this.ctx.lineTo(newPosition.X, newPosition.Y);
-      this.ctx.stroke();
-      this.ctx.closePath();
-      this.ctx.restore();
-    }
-  }
-
-  drawSprite() {
-    if (this.hideSprites) return;
-    this.bones.sort((a, b) => a.order - b.order);
-    for (const bone of this.bones) {
-      let parentRotation = 0;
-      if (bone.parentId !== null) {
-        const parent = this.findBoneById(this.bones, bone.parentId);
-        if (parent) {
-          parentRotation = this.calculateGlobalRotation(parent);
-        }
-      }
-      parentRotation += bone.rotation;
-
-      this.ctx.save();
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
       this.ctx.translate(bone.offset.X, bone.offset.Y);
       this.ctx.translate(bone.pivot.X, bone.pivot.Y);
-      this.ctx.rotate(this.degreesToRadians(parentRotation) - Math.PI / 2);
+      this.ctx.rotate(this.degreesToRadians(totalRotation) - Math.PI / 2);
+      if (bone.flip) {
+        this.ctx.translate(0, bone.endY / 2);
+        this.ctx.scale(1, -1);
+        this.ctx.translate(0, -bone.endY / 2);
+        this.ctx.scale(-1, 1);
+      }
+
       this.ctx.translate(-bone.pivot.X, -bone.pivot.Y);
       this.ctx.translate(-bone.offset.X, -bone.offset.Y);
-      this.ctx.beginPath();
-      this.ctx.lineWidth = 1;
-      this.ctx.strokeStyle = 'red';
-      this.ctx.strokeRect(
-        bone.offset.X - bone.endX / 2,
-        bone.offset.Y,
-        bone.endX,
-        bone.endY
-      );
-      this.ctx.stroke();
-      this.ctx.closePath();
 
       this.ctx.drawImage(
         this.spriteSheet,
@@ -303,6 +273,14 @@ export class AnimationCreatorComponent
         bone.endX,
         bone.endY
       );
+
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeStyle = 'blue';
+      this.ctx.moveTo(0, 0);
+      this.ctx.lineTo(newPosition.X, newPosition.Y);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
       this.ctx.restore();
     }
   }
@@ -328,6 +306,7 @@ export class AnimationCreatorComponent
     this.ctx.moveTo(this.keyframeSliderValue, this.canvasHeight - 100);
     this.ctx.lineTo(this.keyframeSliderValue, this.canvasHeight);
     this.ctx.stroke();
+
     this.ctx.restore();
   }
 

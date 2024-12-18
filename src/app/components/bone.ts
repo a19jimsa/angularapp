@@ -16,6 +16,7 @@ export class Bone extends Component {
   offset: Vec;
   order: number;
   attachAt: number;
+  flip: boolean;
 
   constructor(
     id: string,
@@ -43,5 +44,6 @@ export class Bone extends Component {
     this.order = order;
     this.offset = offset;
     this.attachAt = 0;
+    this.flip = false;
   }
 }
