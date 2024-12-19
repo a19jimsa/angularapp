@@ -18,6 +18,9 @@ export class Bone extends Component {
   attachAt: number;
   flip: boolean;
 
+  globalPosition: Vec;
+  globalRotation: number;
+
   constructor(
     id: string,
     parentId: string | null,
@@ -45,5 +48,7 @@ export class Bone extends Component {
     this.offset = offset;
     this.attachAt = 0;
     this.flip = false;
+    this.globalPosition = new Vec(0, 0);
+    this.globalRotation = 0;
   }
 }
