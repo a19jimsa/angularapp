@@ -224,22 +224,13 @@ export class AnimationCreatorComponent
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
-      this.ctx.moveTo(
-        bone.offset.X + bone.pivot.X,
-        bone.offset.Y + bone.pivot.Y
-      );
+      this.ctx.moveTo(bone.offset.X, bone.offset.Y);
       this.ctx.lineTo(bone.globalPosition.X, bone.globalPosition.Y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
       this.ctx.strokeStyle = 'green';
-      this.ctx.arc(
-        bone.globalPosition.X,
-        bone.globalPosition.Y,
-        10,
-        0,
-        Math.PI * 2
-      );
+      this.ctx.arc(bone.offset.X, bone.offset.Y, 10, 0, Math.PI * 2);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.restore();
@@ -286,15 +277,12 @@ export class AnimationCreatorComponent
 
   drawSprite(): void {
     if (this.hideSprites) return;
+    this.bones.sort((a, b) => a.order - b.order);
     for (const bone of this.bones) {
       this.ctx.save();
       //Draw sprites
-      this.ctx.beginPath();
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.translate(
-        bone.offset.X + bone.pivot.X,
-        bone.offset.Y + bone.pivot.Y
-      );
+      this.ctx.translate(bone.offset.X, bone.offset.Y);
       this.ctx.rotate(this.degreesToRadians(bone.globalRotation) - Math.PI / 2);
       if (bone.flip) {
         // Flytta referenspunkten till spritens nederkant (för spegling)
@@ -302,11 +290,7 @@ export class AnimationCreatorComponent
         this.ctx.scale(-1, -1); // Spegla både X och Y
         this.ctx.translate(0, -bone.endY / 2); // Flytta tillbaka referenspunkten
       }
-      this.ctx.translate(
-        -bone.offset.X - bone.pivot.X,
-        -bone.offset.Y - bone.pivot.Y
-      );
-
+      this.ctx.translate(-bone.offset.X, -bone.offset.Y);
       this.ctx.drawImage(
         this.spriteSheet,
         bone.startX,
@@ -314,10 +298,11 @@ export class AnimationCreatorComponent
         bone.endX,
         bone.endY,
         bone.offset.X - bone.endX / 2,
-        bone.offset.Y,
+        bone.offset.Y - bone.pivot.Y,
         bone.endX,
         bone.endY
       );
+
       this.ctx.restore();
     }
   }
@@ -385,10 +370,14 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.globalPosition.X,
-      this.canvasHeight / 2 + this.activeBone.globalPosition.Y
+      this.canvasWidth / 2 +
+        this.activeBone.globalPosition.X +
+        this.activeBone.pivot.X,
+      this.canvasHeight / 2 +
+        this.activeBone.globalPosition.Y +
+        this.activeBone.pivot.Y
     );
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 3;
 
     this.ctx.strokeStyle = 'green';
     this.ctx.beginPath();
@@ -623,8 +612,10 @@ export class AnimationCreatorComponent
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
+          const x = parent.offset.X;
+          const y = parent.offset.Y;
           bone.offset = this.calculateParentPosition(
-            parent.offset,
+            new Vec(x, y),
             parent.length * bone.attachAt,
             parentRotation
           );

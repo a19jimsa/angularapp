@@ -20,6 +20,7 @@ export class Bone extends Component {
 
   globalPosition: Vec;
   globalRotation: number;
+  globalPivot: Vec;
 
   constructor(
     id: string,
@@ -50,5 +51,6 @@ export class Bone extends Component {
     this.flip = false;
     this.globalPosition = new Vec(0, 0);
     this.globalRotation = 0;
+    this.globalPivot = new Vec(0, 0);
   }
 }

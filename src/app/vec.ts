@@ -27,13 +27,15 @@ export class Vec {
     };
   }
 
-  public plus(other: Vec): void {
+  public plus(other: Vec): Vec {
     this.x += other.x;
     this.y += other.y;
+    return new Vec(this.x, this.y);
   }
-  public times(factor: number): void {
+  public times(factor: number): Vec {
     this.x *= factor;
     this.y *= factor;
+    return new Vec(this.x, this.y);
   }
   public minus(other: Vec): Vec {
     const newValueX = this.x - other.X;
