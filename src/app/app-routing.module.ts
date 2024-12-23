@@ -17,6 +17,7 @@ import { CollisionComponent } from './collision/collision.component';
 import { CurlingComponent } from './curling/curling.component';
 import { BoneAnimationComponent } from './bone-animation/bone-animation.component';
 import { AnimationCreatorComponent } from './animation-creator/animation-creator.component';
+import { CommonModule } from '@angular/common';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -37,9 +38,8 @@ const routes: Routes = [
   { path: 'animation', component: BoneAnimationComponent },
   { path: 'creator', component: AnimationCreatorComponent },
 ];
-
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true }), CommonModule],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

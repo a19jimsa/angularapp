@@ -27,6 +27,10 @@ export class Vec {
     };
   }
 
+  fromJSON(data: { X: number; Y: number }) {
+    return new Vec(data.X, data.Y);
+  }
+
   public plus(other: Vec): Vec {
     this.x += other.x;
     this.y += other.y;

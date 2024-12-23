@@ -88,7 +88,7 @@ export class AnimationCreatorComponent
     this.canvasWidth = this.canvas.nativeElement.width;
     this.canvasHeight = this.canvas.nativeElement.height;
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
-    this.spriteSheet.src = '../assets/sprites/Draug.png';
+    this.spriteSheet.src = '../assets/sprites/88022.png';
     this.addEventHandlers();
     this.animationLoop();
   }
@@ -96,13 +96,21 @@ export class AnimationCreatorComponent
   ngOnInit() {
     if (localStorage.getItem('bones') !== null) {
       this.bones.push(...JSON.parse(localStorage.getItem('bones')!));
+      for (const bone of this.bones) {
+        bone.offset = new Vec(bone.offset.X, bone.offset.Y);
+        bone.position = new Vec(bone.position.X, bone.position.Y);
+        bone.globalPivot = new Vec(bone.globalPivot.X, bone.globalPivot.Y);
+        bone.globalPosition = new Vec(
+          bone.globalPosition.X,
+          bone.globalPosition.Y
+        );
+      }
       this.createBoneHierarchy();
       console.log(localStorage.getItem('bones'));
     }
     if (localStorage.getItem('frames') !== null) {
-      this.bones.push(...JSON.parse(localStorage.getItem('frames')!));
+      this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
       this.createBoneHierarchy();
-      console.log(localStorage.getItem('frames'));
     }
   }
 
@@ -182,7 +190,7 @@ export class AnimationCreatorComponent
   }
 
   exportKeyframes() {
-    localStorage.setItem('keyframes', JSON.stringify(this.keyframes));
+    localStorage.setItem('frames', JSON.stringify(this.keyframes));
   }
 
   exportBones() {
@@ -297,7 +305,7 @@ export class AnimationCreatorComponent
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.offset.X - bone.endX / 2,
+        bone.offset.X - bone.pivot.X - bone.endX / 2,
         bone.offset.Y - bone.pivot.Y,
         bone.endX,
         bone.endY
@@ -370,12 +378,8 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 +
-        this.activeBone.globalPosition.X +
-        this.activeBone.pivot.X,
-      this.canvasHeight / 2 +
-        this.activeBone.globalPosition.Y +
-        this.activeBone.pivot.Y
+      this.canvasWidth / 2 + this.activeBone.offset.X,
+      this.canvasHeight / 2 + this.activeBone.offset.Y
     );
     this.ctx.lineWidth = 3;
 
@@ -612,10 +616,8 @@ export class AnimationCreatorComponent
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
-          const x = parent.offset.X;
-          const y = parent.offset.Y;
           bone.offset = this.calculateParentPosition(
-            new Vec(x, y),
+            parent.offset,
             parent.length * bone.attachAt,
             parentRotation
           );
@@ -682,11 +684,17 @@ export class AnimationCreatorComponent
     const mousePosX = this.mousePos.X - this.canvasWidth / 2;
     const mousePosY = this.mousePos.Y - this.canvasHeight / 2;
     for (const bone of this.bones) {
-      const distance = bone.globalPosition.dist(new Vec(mousePosX, mousePosY));
-      console.log(distance);
-      if (distance <= 20) {
-        this.activateBone(bone.id);
-        return true;
+      if (bone.offset instanceof Vec) {
+        console.log(bone.offset);
+
+        const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
+        console.log(distance);
+        if (distance <= 20) {
+          this.activateBone(bone.id);
+          return true;
+        }
+      } else {
+        console.log(bone.id);
       }
     }
     return false;
