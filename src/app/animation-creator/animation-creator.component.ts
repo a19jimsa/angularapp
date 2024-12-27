@@ -46,6 +46,7 @@ export class AnimationCreatorComponent
   keyframes: Keyframe[] = new Array();
   filteredKeyframes: Keyframe[] = new Array();
   spriteSheet = new Image();
+  isMouseDown: boolean = false;
 
   activeBone: Bone | null = null;
   activeKeyframe: Keyframe | null = null;
@@ -57,9 +58,9 @@ export class AnimationCreatorComponent
   mouseDown: Vec = new Vec(0, 0);
   mousePos: Vec = new Vec(0, 0);
 
-  hideSpritesheet: boolean = true;
-  hideBones: boolean = true;
-  hideSprites: boolean = true;
+  showSpritesheet: boolean = false;
+  showBones: boolean = false;
+  showSprites: boolean = false;
 
   play: boolean = false;
   animationSpeed: number = 1;
@@ -106,11 +107,10 @@ export class AnimationCreatorComponent
         );
       }
       this.createBoneHierarchy();
-      console.log(localStorage.getItem('bones'));
     }
     if (localStorage.getItem('frames') !== null) {
-      this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
-      this.createBoneHierarchy();
+      // this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
+      // this.createBoneHierarchy();
     }
   }
 
@@ -118,14 +118,10 @@ export class AnimationCreatorComponent
     cancelAnimationFrame(this.id);
   }
 
-  toggleHideSpritesheet() {
-    this.hideSpritesheet = !this.hideSpritesheet;
-  }
-
   createBoneSprite() {}
 
   drawSpritesheet() {
-    if (this.hideSpritesheet) return;
+    if (!this.showSpritesheet) return;
     this.ctx.save();
     this.ctx.drawImage(this.spriteSheet, 0, 0);
     this.ctx.restore();
@@ -225,7 +221,7 @@ export class AnimationCreatorComponent
   }
 
   drawbone(): void {
-    if (this.hideBones) return;
+    if (!this.showBones) return;
     for (const bone of this.bones) {
       this.ctx.save();
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
@@ -284,20 +280,14 @@ export class AnimationCreatorComponent
   }
 
   drawSprite(): void {
-    if (this.hideSprites) return;
-    this.bones.sort((a, b) => a.order - b.order);
-    for (const bone of this.bones) {
+    if (!this.showSprites) return;
+    const bones = this.bones.sort((a, b) => a.order - b.order);
+    for (const bone of bones) {
       this.ctx.save();
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
       this.ctx.translate(bone.offset.X, bone.offset.Y);
       this.ctx.rotate(this.degreesToRadians(bone.globalRotation) - Math.PI / 2);
-      if (bone.flip) {
-        // Flytta referenspunkten till spritens nederkant (för spegling)
-        this.ctx.translate(0, bone.endY / 2);
-        this.ctx.scale(-1, -1); // Spegla både X och Y
-        this.ctx.translate(0, -bone.endY / 2); // Flytta tillbaka referenspunkten
-      }
       this.ctx.translate(-bone.offset.X, -bone.offset.Y);
       this.ctx.drawImage(
         this.spriteSheet,
@@ -310,7 +300,6 @@ export class AnimationCreatorComponent
         bone.endX,
         bone.endY
       );
-
       this.ctx.restore();
     }
   }
@@ -318,30 +307,21 @@ export class AnimationCreatorComponent
   drawGui() {
     this.ctx.save();
     this.ctx.beginPath();
+    this.ctx.strokeStyle = 'red';
     this.ctx.rect(
       this.mouseDown.X,
       this.mouseDown.Y,
-      this.mouseUp.X - this.mouseDown.X,
-      this.mouseUp.Y - this.mouseDown.Y
+      this.mousePos.X - this.mouseDown.X,
+      this.mousePos.Y - this.mouseDown.Y
     );
-    this.ctx.strokeStyle = 'red';
-    this.ctx.moveTo(this.keyframeSliderValue, this.canvasHeight - 100);
-    this.ctx.lineTo(this.keyframeSliderValue, this.canvasHeight);
     this.ctx.stroke();
+    this.ctx.closePath();
 
     this.ctx.restore();
   }
 
   togglePlay() {
     this.play = !this.play;
-  }
-
-  toggleShowBones() {
-    this.hideBones = !this.hideBones;
-  }
-
-  toggleShowSprites() {
-    this.hideSprites = !this.hideSprites;
   }
 
   playAnimation() {
@@ -406,11 +386,14 @@ export class AnimationCreatorComponent
   addEventHandlers() {
     const bound = this.canvas.nativeElement.getBoundingClientRect();
     this.canvas.nativeElement.addEventListener('click', (event) => {
+      this.isMouseDown = true;
       if (!this.isMouseOverJoint()) {
         this.activeBone = null;
       }
+      this.isMouseDown = false;
     });
     this.canvas.nativeElement.addEventListener('mousemove', (event) => {
+      if (!this.isMouseDown) return;
       this.mousePos.X =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mousePos.Y =
@@ -421,14 +404,14 @@ export class AnimationCreatorComponent
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mouseDown.Y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
-      console.log(this.mouseDown);
+      this.isMouseDown = true;
     });
     this.canvas.nativeElement.addEventListener('mouseup', (event) => {
       this.mouseUp.X =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mouseUp.Y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
-      console.log(this.mouseUp);
+      this.isMouseDown = false;
     });
 
     addEventListener('keydown', (event) => {
@@ -499,7 +482,7 @@ export class AnimationCreatorComponent
     for (const keyframe of this.keyframes) {
       if (keyframe.time === 0) {
         const newKeyframe: Keyframe = {
-          time: 2,
+          time: this.keyframeSliderValue,
           angle: keyframe.angle,
           name: keyframe.name,
         };
@@ -624,7 +607,8 @@ export class AnimationCreatorComponent
         }
       }
 
-      bone.globalRotation = bone.rotation + parentRotation;
+      bone.globalRotation =
+        bone.rotation + parentRotation + bone.globalSpriteRotation;
 
       bone.globalPosition = this.calculateParentPosition(
         bone.offset,
@@ -681,15 +665,15 @@ export class AnimationCreatorComponent
   }
 
   isMouseOverJoint(): boolean {
-    const mousePosX = this.mousePos.X - this.canvasWidth / 2;
-    const mousePosY = this.mousePos.Y - this.canvasHeight / 2;
+    const mousePosX = this.mouseDown.X - this.canvasWidth / 2;
+    const mousePosY = this.mouseDown.Y - this.canvasHeight / 2;
     for (const bone of this.bones) {
       if (bone.offset instanceof Vec) {
         console.log(bone.offset);
 
         const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
         console.log(distance);
-        if (distance <= 20) {
+        if (distance <= 10) {
           this.activateBone(bone.id);
           return true;
         }

@@ -16,11 +16,11 @@ export class Bone extends Component {
   offset: Vec;
   order: number;
   attachAt: number;
-  flip: boolean;
 
   globalPosition: Vec;
   globalRotation: number;
   globalPivot: Vec;
+  globalSpriteRotation: number;
 
   constructor(
     id: string,
@@ -48,9 +48,9 @@ export class Bone extends Component {
     this.order = order;
     this.offset = offset;
     this.attachAt = 0;
-    this.flip = false;
     this.globalPosition = new Vec(0, 0);
     this.globalRotation = 0;
     this.globalPivot = new Vec(0, 0);
+    this.globalSpriteRotation = 0;
   }
 }

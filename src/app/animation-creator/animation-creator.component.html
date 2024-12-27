@@ -9,7 +9,7 @@
           class="h-100 d-flex flex-column justify-content-between align-items-center"
         >
           <button mat-fab aria-label="Example icon button with a delete icon">
-            <mat-icon>menu</mat-icon>
+            <mat-icon>filter_list</mat-icon>
           </button>
           <button mat-fab aria-label="Example icon button with a delete icon">
             <mat-icon>logout</mat-icon>
@@ -28,9 +28,6 @@
             <button mat-button (click)="exportKeyframes()">
               Export keyframes
             </button>
-            <button mat-button (click)="createKeyframesOfBones()">
-              Create keyframes
-            </button>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content class="h-50 overflow-auto">
@@ -38,12 +35,9 @@
           <div
             class="d-flex justify-content-between flex-row align-items-center"
           >
-            <div>
+            <div (click)="changeKeyframe(keyframe)">
               {{ keyframe | json }}
             </div>
-            <button mat-button (click)="changeKeyframe(keyframe)">
-              Change
-            </button>
           </div>
 
           }
@@ -52,13 +46,15 @@
           class="justify-content-center sticky-bottom"
           style="margin-top: auto"
         >
-          <button mat-flat-button (click)="addKeyframe()">Add keyframe</button>
+          <button mat-flat-button (click)="createKeyframesOfBones()">
+            Add keyframes
+          </button>
         </mat-card-actions>
         <mat-divider></mat-divider>
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title
-              >Keyframes form - {{ activeKeyframe }}</mat-card-title
+              >Keyframes form - {{ activeKeyframe?.name }}</mat-card-title
             >
           </mat-card-title-group>
         </mat-card-header>
@@ -93,21 +89,21 @@
     <div class="col-6 h-100">
       <mat-card appearance="outlined" class="h-100">
         <mat-card-header>
-          <mat-card-title-group>
-            <mat-card-title>Canvas</mat-card-title>
-            <mat-card-subtitle>
-              <button mat-raised-button (click)="toggleHideSpritesheet()">
-                {{ hideSpritesheet ? "Show spritesheet" : "Hide spritesheet" }}
-              </button>
-              <button mat-raised-button (click)="toggleShowBones()">
-                {{ hideBones ? "Show bones" : "Hide bones" }}
-              </button>
-              <button mat-raised-button (click)="toggleShowSprites()">
-                {{ hideSprites ? "Show sprites" : "Hide sprites" }}
-              </button>
-              <input type="file" (change)="onFileSelected($event)"
-            /></mat-card-subtitle>
-          </mat-card-title-group>
+          <mat-card-title>Canvas</mat-card-title>
+          <mat-card-subtitle>
+            <mat-card-title-group>
+              <mat-slide-toggle [(ngModel)]="showSpritesheet"
+                >Show Spritesheet</mat-slide-toggle
+              >
+              <mat-slide-toggle [(ngModel)]="showBones"
+                >Show Bones</mat-slide-toggle
+              >
+              <mat-slide-toggle [(ngModel)]="showSprites"
+                >Show Sprites</mat-slide-toggle
+              >
+              <input type="file" (change)="onFileSelected($event)" />
+            </mat-card-title-group>
+          </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <div class="row">
@@ -314,15 +310,6 @@
             />
           </mat-form-field>
           <mat-form-field class="w-100" appearance="fill">
-            <mat-label>Flip</mat-label>
-            <input
-              [step]="0.1"
-              matInput
-              [disabled]="activeBone === null"
-              [(ngModel)]="activeBone.flip"
-            />
-          </mat-form-field>
-          <mat-form-field class="w-100" appearance="fill">
             <mat-label>ParentId</mat-label>
             <input
               [step]="0.1"
@@ -345,12 +332,19 @@
         <mat-card-content>
           @if(activeBone !== null){
           <mat-label>Length:</mat-label>
-          <mat-slider [step]="1" [max]="360" discrete="true">
+          <mat-slider [step]="1" [max]="100" discrete="true">
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
           </mat-slider>
           <mat-label>Rotation:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
+          </mat-slider>
+          <mat-slider [step]="1" [max]="360" discrete="true">
+            <input
+              matSliderThumb
+              [(ngModel)]="activeBone.globalSpriteRotation"
+              #slider
+            />
           </mat-slider>
           <button mat-button (click)="inactivateBone()">inactivate bone</button>
           }
