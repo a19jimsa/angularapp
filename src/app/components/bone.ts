@@ -21,6 +21,7 @@ export class Bone extends Component {
   globalRotation: number;
   globalPivot: Vec;
   globalSpriteRotation: number;
+  hierarchyDepth: number;
 
   constructor(
     id: string,
@@ -52,5 +53,6 @@ export class Bone extends Component {
     this.globalRotation = 0;
     this.globalPivot = new Vec(0, 0);
     this.globalSpriteRotation = 0;
+    this.hierarchyDepth = 0;
   }
 }

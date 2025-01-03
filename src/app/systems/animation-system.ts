@@ -14,16 +14,7 @@ export class AnimationSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (skeleton === undefined || transform === undefined) continue;
       skeleton.position = transform.position;
-      skeleton.bones.sort((a, b) => {
-        if (a.parentId === null && b.parentId !== null) {
-          return -1; // Placera ben utan parent före ben med parent
-        } else if (a.parentId !== null && b.parentId === null) {
-          return 1; // Placera ben med parent efter ben utan parent
-        } else {
-          return 0; // Om båda antingen har eller saknar parent, lämna dem i samma ordning
-        }
-      });
-
+      this.sortAfterParent(skeleton);
       for (let i = 0; i < skeleton.joints.length; i++) {
         const joint = skeleton.joints[i];
         joint.position = transform.position;
@@ -135,5 +126,17 @@ export class AnimationSystem {
     const yEnd =
       position.Y + length * Math.sin(this.degreesToRadians(rotation));
     return new Vec(xEnd, yEnd);
+  }
+
+  sortAfterParent(skeleton: Skeleton) {
+    skeleton.bones.sort((a, b) => {
+      if (a.parentId === null && b.parentId !== null) {
+        return -1; // Placera ben utan parent före ben med parent
+      } else if (a.parentId !== null && b.parentId === null) {
+        return 1; // Placera ben med parent efter ben utan parent
+      } else {
+        return 0; // Om båda antingen har eller saknar parent, lämna dem i samma ordning
+      }
+    });
   }
 }

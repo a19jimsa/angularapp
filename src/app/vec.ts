@@ -52,13 +52,13 @@ export class Vec {
     return this.x * a.X + this.y * a.Y;
   }
 
-  public dist(other: Vec) {
+  public dist(other: Vec): number {
     const dx = other.x - this.x;
     const dy = other.y - this.y;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  public mag() {
+  public mag(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 

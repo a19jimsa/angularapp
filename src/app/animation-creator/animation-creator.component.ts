@@ -1,4 +1,4 @@
-type Keyframe = {
+export type Keyframe = {
   time: number; // Tidpunkten för keyframen
   name: string; // Namn på benet eller objektet som påverkas
   angle: number; // Rotationsvinkel i grader eller motsvarande enhet
@@ -18,14 +18,15 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Bone } from '../components/bone';
 import { Vec } from '../vec';
 import { ImportBonesDialogComponent } from '../import-bones-dialog/import-bones-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
 import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 
 @Component({
   selector: 'app-animation-creator',
@@ -64,6 +65,8 @@ export class AnimationCreatorComponent
 
   play: boolean = false;
   animationSpeed: number = 1;
+  startTime = performance.now();
+
   readonly dialog = inject(MatDialog);
 
   activeKeyframeIndex: number = -1;
@@ -97,15 +100,7 @@ export class AnimationCreatorComponent
   ngOnInit() {
     if (localStorage.getItem('bones') !== null) {
       this.bones.push(...JSON.parse(localStorage.getItem('bones')!));
-      for (const bone of this.bones) {
-        bone.offset = new Vec(bone.offset.X, bone.offset.Y);
-        bone.position = new Vec(bone.position.X, bone.position.Y);
-        bone.globalPivot = new Vec(bone.globalPivot.X, bone.globalPivot.Y);
-        bone.globalPosition = new Vec(
-          bone.globalPosition.X,
-          bone.globalPosition.Y
-        );
-      }
+      this.addBonesFromJSON();
       this.createBoneHierarchy();
     }
     if (localStorage.getItem('frames') !== null) {
@@ -153,9 +148,9 @@ export class AnimationCreatorComponent
 
     dialogRef.afterClosed().subscribe((result) => {
       try {
-        const boneArray: Bone[] = JSON.parse(result);
-        this.bones = boneArray;
-        this.createBoneHierarchy();
+        const bones: Bone[] = JSON.parse(result);
+        this.bones.push(...bones);
+        this.addBonesFromJSON();
       } catch (e) {
         const errorDialog = this.dialog.open(ErrorDialogComponent, {
           height: '400px',
@@ -164,6 +159,21 @@ export class AnimationCreatorComponent
         });
       }
     });
+  }
+
+  addBonesFromJSON() {
+    for (const bone of this.bones) {
+      bone.offset = new Vec(bone.offset.X, bone.offset.Y);
+      bone.position = new Vec(bone.position.X, bone.position.Y);
+      bone.globalPivot = new Vec(bone.globalPivot.X, bone.globalPivot.Y);
+      bone.globalPosition = new Vec(
+        bone.globalPosition.X,
+        bone.globalPosition.Y
+      );
+      bone.hierarchyDepth = 0;
+    }
+    this.createBoneHierarchy();
+    this.sortBonesByHierarchy();
   }
 
   importKeyframes() {
@@ -267,12 +277,15 @@ export class AnimationCreatorComponent
     });
   }
 
-  filterKeyframes($event: Event) {
-    const inputValue = ($event.target as HTMLInputElement).value;
-    this.filteredKeyframes = this.keyframes.filter((e) =>
-      e.name.includes(inputValue)
-    );
-    console.log(this.filteredKeyframes);
+  openDialogfilterKeyframes() {
+    const dialog = this.dialog.open(FilterDialogComponent, {
+      height: '400px',
+      width: '600px',
+      data: this.keyframes,
+    });
+    dialog.afterClosed().subscribe((result) => {
+      this.filteredKeyframes = result;
+    });
   }
 
   resetKeyframes() {
@@ -321,15 +334,13 @@ export class AnimationCreatorComponent
   }
 
   togglePlay() {
+    this.startTime = performance.now();
     this.play = !this.play;
   }
 
   playAnimation() {
     if (this.play) {
       this.runAnimation();
-      this.keyframeSliderValue++;
-      if (this.keyframeSliderValue > this.canvasWidth)
-        this.keyframeSliderValue = 0;
     }
   }
 
@@ -588,7 +599,22 @@ export class AnimationCreatorComponent
     return new Vec(xEnd, yEnd);
   }
 
+  calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
+    if (!bone.parentId) return 0; // Roten har djup 0
+    const parent = bones.find((b) => b.id === bone.parentId);
+    if (!parent) throw new Error(`Parent not found for bone ${bone.id}`);
+    return this.calculateHierarchyDepth(parent, bones) + 1;
+  }
+
+  sortBonesByHierarchy(): void {
+    for (const bone of this.bones) {
+      bone.hierarchyDepth = this.calculateHierarchyDepth(bone, this.bones);
+    }
+    this.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
+  }
+
   updateBonePositions(): void {
+    this.sortBonesByHierarchy();
     for (const bone of this.bones) {
       let parentRotation = 0;
       if (
@@ -700,9 +726,10 @@ export class AnimationCreatorComponent
     this.activeBone = null;
     this.activeKeyframe = null;
     const totalDuration = this.keyframes[this.keyframes.length - 1].time;
-    const speed = 1000; // ms
-    const elapsedTime = performance.now() / speed;
-    const loopedTime = elapsedTime % totalDuration;
+    const speed = 1000 / this.animationSpeed;
+    const elapsedTime = (performance.now() - this.startTime) / speed;
+    this.keyframeSliderValue = elapsedTime;
+    const loopedTime = this.keyframeSliderValue % totalDuration;
     for (const bone of this.bones) {
       for (let i = 0; i < this.keyframes.length - 1; i++) {
         const keyFrame = this.keyframes[i];

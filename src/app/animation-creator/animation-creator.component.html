@@ -8,7 +8,11 @@
         <mat-card-content
           class="h-100 d-flex flex-column justify-content-between align-items-center"
         >
-          <button mat-fab aria-label="Example icon button with a delete icon">
+          <button
+            mat-fab
+            aria-label="Example icon button with a delete icon"
+            (click)="openDialogfilterKeyframes()"
+          >
             <mat-icon>filter_list</mat-icon>
           </button>
           <button mat-fab aria-label="Example icon button with a delete icon">
@@ -20,14 +24,23 @@
     <div class="col-2 h-100">
       <mat-card class="h-100" appearance="outlined">
         <mat-card-header>
-          <mat-card-title-group>
+          <mat-card-title-group style="align-items: center">
             <mat-card-title>Keyframes</mat-card-title>
-            <button mat-button (click)="importKeyframes()">
-              Import keyframes
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              aria-label="Example icon-button with a menu"
+            >
+              <mat-icon>more_vert</mat-icon>
             </button>
-            <button mat-button (click)="exportKeyframes()">
-              Export keyframes
-            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="importKeyframes()">
+                Import keyframes
+              </button>
+              <button mat-menu-item (click)="exportKeyframes()">
+                Export keyframes
+              </button>
+            </mat-menu>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content class="h-50 overflow-auto">
@@ -114,18 +127,16 @@
         </mat-card-content>
         <mat-card-actions class="justify-content-around">
           <label for="slider">AnimationSpeed</label>
-          <mat-slider id="slider" [step]="1" [min]="1" [max]="3">
+          <mat-slider id="slider" [step]="1" [min]="1" [max]="3" discrete>
             <input matSliderThumb #slider [(ngModel)]="animationSpeed" />
           </mat-slider>
-          <label for="slider">{{ animationSpeed }}</label>
           <button mat-flat-button (click)="togglePlay()">
             <i class="bi bi-play-fill" style="font-size: 20px"></i>
           </button>
           <label>KeyFrames</label>
-          <mat-slider [step]="1" [max]="canvasWidth">
+          <mat-slider [step]="0.1" [min]="0" [max]="10" discrete>
             <input matSliderThumb [(ngModel)]="keyframeSliderValue" #slider />
           </mat-slider>
-          <label>{{ keyframeSliderValue }}</label>
           <button mat-flat-button (click)="createLoopFrame()">
             Create loop
           </button>
@@ -137,8 +148,21 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Bones</mat-card-title>
-            <button mat-button (click)="importBones()">Import bones</button>
-            <button mat-button (click)="exportBones()">Export bones</button>
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="boneMenu"
+              aria-label="Example icon-button with a menu"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #boneMenu="matMenu">
+              <button mat-menu-item (click)="importBones()">
+                Import bones
+              </button>
+              <button mat-menu-item (click)="exportBones()">
+                Export bones
+              </button>
+            </mat-menu>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content class="h-50 overflow-auto">
@@ -332,13 +356,14 @@
         <mat-card-content>
           @if(activeBone !== null){
           <mat-label>Length:</mat-label>
-          <mat-slider [step]="1" [max]="100" discrete="true">
+          <mat-slider [step]="1" [max]="300" discrete="true">
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
           </mat-slider>
           <mat-label>Rotation:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
+          <mat-label>Sprite Rotaion:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input
               matSliderThumb
