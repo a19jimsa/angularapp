@@ -26,6 +26,9 @@
         <mat-card-header>
           <mat-card-title-group style="align-items: center">
             <mat-card-title>Keyframes</mat-card-title>
+            <button mat-button (click)="openDialogfilterKeyframes()">
+              Filter
+            </button>
             <button
               mat-icon-button
               [matMenuTriggerFor]="menu"
@@ -39,6 +42,10 @@
               </button>
               <button mat-menu-item (click)="exportKeyframes()">
                 Export keyframes
+              </button>
+              <button mat-menu-item (click)="clearKeyframes()">
+                Clear keyframes
+                <mat-icon>delete</mat-icon>
               </button>
             </mat-menu>
           </mat-card-title-group>
@@ -95,6 +102,15 @@
               type="number"
             />
           </mat-form-field>
+          <mat-form-field class="w-100">
+            <mat-label>ScaleY</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.scale.Y"
+              type="number"
+            />
+          </mat-form-field>
           }
         </mat-card-content>
       </mat-card>
@@ -120,8 +136,8 @@
         </mat-card-header>
         <mat-card-content>
           <div class="row">
-            <div class="col-12 d-flex justify-content-center">
-              <canvas #canvas class="border"></canvas>
+            <div class="d-flex justify-content-center">
+              <canvas #canvas class="border" style="overflow: scroll"></canvas>
             </div>
           </div>
         </mat-card-content>
@@ -131,7 +147,12 @@
             <input matSliderThumb #slider [(ngModel)]="animationSpeed" />
           </mat-slider>
           <button mat-flat-button (click)="togglePlay()">
+            @if (play) {
+            <i class="bi bi-stop-fill" style="font-size: 20px"></i>
+
+            }@else {
             <i class="bi bi-play-fill" style="font-size: 20px"></i>
+            }
           </button>
           <label>KeyFrames</label>
           <mat-slider [step]="0.1" [min]="0" [max]="10" discrete>
@@ -185,7 +206,6 @@
               matTreeNodePadding
               matTreeNodeToggle
               [cdkTreeNodeTypeaheadLabel]="bone.boneId"
-              class="border"
             >
               <button
                 mat-icon-button
@@ -363,13 +383,17 @@
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
-          <mat-label>Sprite Rotaion:</mat-label>
+          <mat-label>Sprite Rotation:</mat-label>
           <mat-slider [step]="1" [max]="360" discrete="true">
             <input
               matSliderThumb
               [(ngModel)]="activeBone.globalSpriteRotation"
               #slider
             />
+          </mat-slider>
+          <mat-label>ScaleY:</mat-label>
+          <mat-slider [step]="0.1" [min]="-1" [max]="1" discrete="true">
+            <input matSliderThumb [(ngModel)]="activeBone.scale.Y" #slider />
           </mat-slider>
           <button mat-button (click)="inactivateBone()">inactivate bone</button>
           }

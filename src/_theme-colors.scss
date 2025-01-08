@@ -140,8 +140,8 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$red-palette,
+        primary: $primary-palette,
+        tertiary: $tertiary-palette,
         theme-type: dark,
       ),
       typography: Roboto,
