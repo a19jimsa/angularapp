@@ -1,5 +1,7 @@
 <nav>
   <mat-toolbar class="d-flex justify-content-between">
+    @if (!isMobile()) {
+
     <div>
       <a mat-button routerLink="/">Jimmydev.se</a>
       <a mat-button routerLink="/othello">Othello</a>
@@ -17,6 +19,13 @@
       <a mat-button routerLink="/animation">Game Engine</a>
       <a mat-button routerLink="/creator">Animation Creator</a>
     </div>
+    }@else {
+    <button mat-fab extended (click)="snav.toggle()">
+      <mat-icon>favorite</mat-icon>
+      Basic
+    </button>
+    }
+
     <div>
       <a
         mat-icon-button
@@ -29,4 +38,24 @@
       </a>
     </div>
   </mat-toolbar>
+  <mat-sidenav-container
+    class="example-sidenav-container h-100"
+    [style.marginTop.px]="isMobile() ? 56 : 0"
+  >
+    <mat-sidenav
+      #snav
+      [mode]="isMobile() ? 'over' : 'side'"
+      [fixedInViewport]="isMobile()"
+      fixedTopGap="56"
+    >
+      <mat-nav-list>
+        @for (nav of fillerNav; track nav) {
+        <a mat-list-item [routerLink]="nav.path">{{ nav.label }}</a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </nav>

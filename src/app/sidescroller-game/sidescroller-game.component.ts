@@ -9,10 +9,10 @@ import { Level } from './models/level.model';
 import { State } from './models/state.model';
 
 @Component({
-    selector: 'app-sidescroller-game',
-    templateUrl: './sidescroller-game.component.html',
-    styleUrls: ['./sidescroller-game.component.css'],
-    standalone: false
+  selector: 'app-sidescroller-game',
+  templateUrl: './sidescroller-game.component.html',
+  styleUrls: ['./sidescroller-game.component.css'],
+  standalone: false,
 })
 export class SidescrollerGameComponent implements AfterContentInit {
   private GAME_LEVELS = [
@@ -218,8 +218,10 @@ export class SidescrollerGameComponent implements AfterContentInit {
   ngAfterContentInit(): void {
     this.level = new Level(this.GAME_LEVELS[0]);
     this.CanvasDisplay = new CanvasDisplay(this.canvas, this.level);
-    setTimeout(() => this.runGame(this.GAME_LEVELS, this.CanvasDisplay), 3000);
+    //setTimeout(() => this.runGame(this.GAME_LEVELS, this.CanvasDisplay), 3000);
   }
+
+  ngDestroy() {}
 
   trackKeys(keys: any) {
     let down = Object.create(null);

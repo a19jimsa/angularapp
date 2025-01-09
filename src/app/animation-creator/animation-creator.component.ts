@@ -3,11 +3,19 @@ export type Keyframe = {
   name: string; // Namn på benet eller objektet som påverkas
   angle: number; // Rotationsvinkel i grader eller motsvarande enhet
   scale: Vec; // Skalan av ett ben för att kunna vinklas t ex en vinge som går upp och ned
+  clip: Vec; // Start X och Y för att byta bild vid en animation
 };
 
 type BoneHierarchy = {
   boneId: string;
   children: BoneHierarchy[];
+};
+
+type ClipAnimation = {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
 };
 
 import {
@@ -63,6 +71,7 @@ export class AnimationCreatorComponent
   mouseUp: Vec = new Vec(0, 0);
   mouseDown: Vec = new Vec(0, 0);
   mousePos: Vec = new Vec(0, 0);
+  animation: ClipAnimation = { startX: 0, startY: 0, endX: 0, endY: 0 };
 
   showSpritesheet: boolean = false;
   showBones: boolean = false;
@@ -127,7 +136,7 @@ export class AnimationCreatorComponent
     this.drawSprite();
     this.drawbone();
     this.drawPivot();
-    //this.drawDebug();
+    this.drawDebug();
     this.playAnimation();
     this.updateLength();
     this.updateRotation();
@@ -191,6 +200,7 @@ export class AnimationCreatorComponent
       if (e === 'yes') {
         this.bones = [];
         this.sortBonesByHierarchy();
+        this.createBoneHierarchy();
       }
     });
   }
@@ -236,7 +246,7 @@ export class AnimationCreatorComponent
 
     dialogRef.afterClosed().subscribe((result) => {
       try {
-        const keyframeArray = JSON.parse(result);
+        const keyframeArray: Keyframe[] = JSON.parse(result);
         this.keyframes.push(...keyframeArray);
         this.sortKeyframes();
       } catch (e) {
@@ -281,8 +291,8 @@ export class AnimationCreatorComponent
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
-      this.ctx.strokeStyle = 'green';
-      this.ctx.arc(bone.offset.X, bone.offset.Y, 10, 0, Math.PI * 2);
+      this.ctx.strokeStyle = 'red';
+      this.ctx.arc(bone.offset.X, bone.offset.Y, 5, 0, Math.PI * 2);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.restore();
@@ -296,6 +306,7 @@ export class AnimationCreatorComponent
         angle: bone.rotation,
         name: bone.id,
         scale: new Vec(bone.scale.X, bone.scale.Y),
+        clip: new Vec(bone.startX, bone.startY),
       };
       this.keyframes.push(keyframe);
     }
@@ -463,6 +474,10 @@ export class AnimationCreatorComponent
       this.mouseUp.Y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = false;
+      this.animation.startX = this.mouseDown.X;
+      this.animation.startY = this.mouseDown.Y;
+      this.animation.endX = this.mouseUp.X - this.mouseDown.X;
+      this.animation.endY = this.mouseUp.Y - this.mouseDown.Y;
     });
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
@@ -541,6 +556,7 @@ export class AnimationCreatorComponent
           angle: keyframe.angle,
           name: keyframe.name,
           scale: keyframe.scale,
+          clip: keyframe.clip,
         };
         tempKeyframe.push(newKeyframe);
       }
@@ -561,17 +577,19 @@ export class AnimationCreatorComponent
 
   drawDebug() {
     this.ctx.save();
-    this.ctx.font = 'Arial 100px';
-    if (this.activeBone) {
-      this.ctx.fillText(
-        'Pos X: ' +
-          this.activeBone.position.X.toString() +
-          ' Pos Y: ' +
-          this.activeBone.position.Y.toString(),
-        this.activeBone.position.X,
-        this.activeBone.position.Y
-      );
-    }
+    this.ctx.font = 'Arial';
+    this.ctx.fillStyle = 'green';
+    this.ctx.translate(20, 50);
+    this.ctx.scale(5, 5);
+    this.ctx.beginPath();
+    this.ctx.fillText(
+      'Pos X: ' +
+        this.mouseUp.X.toString() +
+        ' Pos Y: ' +
+        this.mouseUp.Y.toString(),
+      0,
+      0
+    );
     this.ctx.restore();
   }
 
@@ -732,7 +750,7 @@ export class AnimationCreatorComponent
     for (const bone of this.bones) {
       const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
       console.log(distance);
-      if (distance <= 10) {
+      if (distance <= 5) {
         this.activateBone(bone.id);
         return true;
       }
@@ -784,6 +802,8 @@ export class AnimationCreatorComponent
               this.keyframes[i + 1].scale.Y,
               progress
             );
+            bone.startX = keyFrame.clip.X;
+            bone.startY = keyFrame.clip.Y;
           }
         }
       }

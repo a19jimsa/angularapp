@@ -111,6 +111,24 @@
               type="number"
             />
           </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>ClipX</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.clip.X"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>ClipY</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.clip.Y"
+              type="number"
+            />
+          </mat-form-field>
           }
         </mat-card-content>
       </mat-card>
@@ -119,6 +137,10 @@
       <mat-card appearance="outlined" class="h-100">
         <mat-card-header>
           <mat-card-title>Canvas</mat-card-title>
+          @if (animation) {
+          {{ animation | json }}
+
+          }
           <mat-card-subtitle>
             <mat-card-title-group>
               <mat-slide-toggle [(ngModel)]="showSpritesheet"
@@ -156,7 +178,12 @@
           </button>
           <label>KeyFrames</label>
           <mat-slider [step]="0.1" [min]="0" [max]="10" discrete>
-            <input matSliderThumb [(ngModel)]="keyframeSliderValue" #slider />
+            <input
+              matSliderThumb
+              [(ngModel)]="keyframeSliderValue"
+              #slider
+              (drag)="runAnimation()"
+            />
           </mat-slider>
           <button mat-flat-button (click)="createLoopFrame()">
             Create loop
@@ -183,6 +210,7 @@
               <button mat-menu-item (click)="exportBones()">
                 Export bones
               </button>
+              <button mat-menu-item (click)="clearBones()">Clear bones</button>
             </mat-menu>
           </mat-card-title-group>
         </mat-card-header>
@@ -380,7 +408,7 @@
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
           </mat-slider>
           <mat-label>Rotation:</mat-label>
-          <mat-slider [step]="1" [max]="360" discrete="true">
+          <mat-slider [step]="1" [max]="720" discrete="true">
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
           <mat-label>Sprite Rotation:</mat-label>
@@ -390,6 +418,10 @@
               [(ngModel)]="activeBone.globalSpriteRotation"
               #slider
             />
+          </mat-slider>
+          <mat-label>ScaleX:</mat-label>
+          <mat-slider [step]="0.1" [min]="-1" [max]="1" discrete="true">
+            <input matSliderThumb [(ngModel)]="activeBone.scale.X" #slider />
           </mat-slider>
           <mat-label>ScaleY:</mat-label>
           <mat-slider [step]="0.1" [min]="-1" [max]="1" discrete="true">

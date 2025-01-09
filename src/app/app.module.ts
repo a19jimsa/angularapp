@@ -52,6 +52,11 @@ import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from '@angular/material/sidenav';
 
 @NgModule({
   declarations: [
@@ -104,6 +109,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatListModule,
     MatTreeModule,
     MatSlideToggleModule,
+    MatSidenavModule,
   ],
   providers: [
     {

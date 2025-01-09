@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { Component, inject, Input, signal } from '@angular/core';
+import { MediaMatcher } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-navbar',
@@ -8,13 +8,40 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
   standalone: false,
 })
 export class NavbarComponent {
-  isCollapse = true;
+  protected readonly fillerNav = [
+    { path: '/', label: 'Jimmydev.se' },
+    { path: '/othello', label: 'Othello' },
+    { path: '/memory', label: 'Memory' },
+    { path: '/calculator', label: 'Calculator' },
+    { path: '/mine', label: 'Minesweeper' },
+    { path: '/sudoku', label: 'Sudoku' },
+    { path: '/killersudoku', label: 'Killer Sudoku' },
+    { path: '/slidingpuzzle', label: 'Sliding puzzle' },
+    { path: '/snake', label: 'Snake' },
+    { path: '/particles', label: 'Particles' },
+    { path: '/sidescroller', label: 'Sidescroller' },
+    { path: '/collision', label: 'Collision detection' },
+    { path: '/curling', label: 'Curling' },
+    { path: '/animation', label: 'Game Engine' },
+    { path: '/creator', label: 'Animation Creator' },
+  ];
 
-  constructor(private router: Router) {
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationStart) {
-        this.isCollapse = true;
-      }
-    });
+  protected readonly isMobile = signal(true);
+
+  private readonly _mobileQuery: MediaQueryList;
+  private readonly _mobileQueryListener: () => void;
+
+  constructor() {
+    const media = inject(MediaMatcher);
+
+    this._mobileQuery = media.matchMedia('(max-width: 1400px)');
+    this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQueryListener = () =>
+      this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQuery.addEventListener('change', this._mobileQueryListener);
+  }
+
+  ngOnDestroy(): void {
+    this._mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
 }
