@@ -82,28 +82,20 @@ export class ControllerSystem {
         let speedY = 0;
 
         if (transform.velocity.X == 0 && !skeleton.activeAnimation) {
-          skeleton.stateMachine.currentState = 'idle';
-          skeleton.stateMachine.changeState();
           skeleton.startTime = performance.now();
         }
 
         if (this.keysPressed.left) {
-          skeleton.stateMachine.currentState = 'running';
-          skeleton.stateMachine.changeState();
           skeleton.flip = true;
           speedX += -5;
         }
 
         if (this.keysPressed.right) {
-          skeleton.stateMachine.currentState = 'running';
-          skeleton.stateMachine.changeState();
           skeleton.flip = false;
           speedX += 5;
         }
 
         if (this.keysPressed.attack) {
-          skeleton.stateMachine.currentState = 'attack';
-          skeleton.stateMachine.changeState();
           skeleton.startTime = performance.now();
           skeleton.activeAnimation = true;
           speedX = 0;

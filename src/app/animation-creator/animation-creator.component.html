@@ -1,9 +1,9 @@
-<div class="container-fluid mt-2">
-  <div class="row mb-2 p-2" style="height: 750px">
+<div class="container-fluid">
+  <div class="row mb-2 p-2" style="height: 760px">
     <div class="col-1 h-100">
-      <mat-card class="h-100" appearance="outlined">
-        <mat-card-header>
-          <mat-card-title> Menu </mat-card-title>
+      <mat-card class="h-100" appearance="raised">
+        <mat-card-header style="align-items: center">
+          <mat-card-title> States </mat-card-title>
         </mat-card-header>
         <mat-card-content
           class="h-100 d-flex flex-column justify-content-between align-items-center"
@@ -11,9 +11,16 @@
           <button
             mat-fab
             aria-label="Example icon button with a delete icon"
-            (click)="openDialogfilterKeyframes()"
+            (click)="changeState('walk')"
           >
-            <mat-icon>filter_list</mat-icon>
+            <mat-icon>directions_walk</mat-icon>
+          </button>
+          <button
+            mat-fab
+            aria-label="Example icon button with a delete icon"
+            (click)="changeState('run')"
+          >
+            <mat-icon>directions_run</mat-icon>
           </button>
           <button mat-fab aria-label="Example icon button with a delete icon">
             <mat-icon>logout</mat-icon>
@@ -134,7 +141,10 @@
       </mat-card>
     </div>
     <div class="col-6 h-100">
-      <mat-card appearance="outlined" class="h-100">
+      <mat-card
+        appearance="outlined"
+        class="h-100 flex-column d-flex justify-content-around"
+      >
         <mat-card-header>
           <mat-card-title>Canvas</mat-card-title>
           @if (animation) {

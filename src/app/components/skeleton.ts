@@ -1,5 +1,5 @@
 import { Bone } from './bone';
-import { StateMachine } from '../state-machine';
+import { StateMachine } from '../States/state-machine';
 import { Component } from './component';
 import { Joint } from './joint';
 import { Vec } from '../vec';
@@ -10,7 +10,7 @@ export class Skeleton extends Component {
   joints: Joint[] = [];
   bones: Bone[] = [];
   flip: boolean = false;
-  stateMachine: StateMachine = new StateMachine();
+  state!: StateMachine | null;
   position: Vec;
   activeAnimation: boolean;
   startTime: number = performance.now();

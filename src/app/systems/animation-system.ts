@@ -79,7 +79,7 @@ export class AnimationSystem {
   }
 
   runAnimation(bone: Bone, skeleton: Skeleton) {
-    const keyframes = skeleton.stateMachine.animations;
+    const keyframes = new Array();
     const totalDuration = keyframes[keyframes.length - 1].time;
     const speed = 2000; // ms
     // Använd startTime för att räkna ut hur långt in i animationen vi är

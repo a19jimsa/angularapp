@@ -37,6 +37,10 @@ import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
 import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
+import { StateMachine } from '../States/state-machine';
+import { OnGroundState } from '../States/on-ground-state';
+import { JumpingState } from '../States/jumping-state';
+import { RunningState } from '../States/running-state';
 
 @Component({
   selector: 'app-animation-creator',
@@ -130,20 +134,32 @@ export class AnimationCreatorComponent
   animationLoop(): void {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.updateBonePositions();
-    this.updateViewport();
     this.drawSpritesheet();
     this.drawGui();
     this.drawSprite();
     this.drawbone();
     this.drawPivot();
-    this.drawDebug();
+    //this.drawDebug();
     this.playAnimation();
     this.updateLength();
     this.updateRotation();
     this.id = requestAnimationFrame(() => this.animationLoop());
   }
 
-  updateViewport() {}
+  async changeState(name: string) {
+    switch (name) {
+      case 'walk':
+        this.addKeyframesFromJSON(
+          await new OnGroundState().loadAnimation('../assets/json/running.json')
+        );
+        break;
+      case 'run':
+        this.addKeyframesFromJSON(
+          await new RunningState().loadAnimation('../assets/json/attack.json')
+        );
+        break;
+    }
+  }
 
   drawSpritesheet() {
     if (!this.showSpritesheet) return;
@@ -247,8 +263,7 @@ export class AnimationCreatorComponent
     dialogRef.afterClosed().subscribe((result) => {
       try {
         const keyframeArray: Keyframe[] = JSON.parse(result);
-        this.keyframes.push(...keyframeArray);
-        this.sortKeyframes();
+        this.addKeyframesFromJSON(keyframeArray);
       } catch (e) {
         const errorDialog = this.dialog.open(ErrorDialogComponent, {
           height: '400px',
@@ -256,6 +271,12 @@ export class AnimationCreatorComponent
         });
       }
     });
+  }
+
+  addKeyframesFromJSON(keyframes: Keyframe[]) {
+    this.keyframes = [];
+    this.keyframes.push(...keyframes);
+    this.sortKeyframes();
   }
 
   exportKeyframes() {
@@ -628,7 +649,6 @@ export class AnimationCreatorComponent
     this.rotationSliderValue = bone.rotation;
     this.lengthSliderValue = bone.length;
     this.scaleSliderValue = bone.scale.Y;
-    console.log(this.activeBone);
   }
 
   inactivateBone() {
