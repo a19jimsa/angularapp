@@ -10,6 +10,7 @@ import { Attack } from './components/attack';
 import { Sprite } from './components/sprite';
 import { Weapon } from './components/weapon';
 import { Rotation } from './components/rotation';
+import { Ecs } from './ecs';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -268,72 +269,39 @@ export class Renderer {
     );
   }
 
-  public renderJoint(joint: Joint) {
-    const radians = (joint.rotation * Math.PI) / 180;
-    for (let i = 0; i < joint.angles.length; i++) {
-      this.ctx.save();
-      this.ctx.translate(joint.position.X, joint.position.Y);
-      this.ctx.rotate((joint.angles[i] * Math.PI) / 180 + radians);
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, 0);
-      this.ctx.lineTo(joint.lengths[i], 0);
-      this.ctx.lineWidth = 5;
-      this.ctx.strokeStyle = joint.color;
-      this.ctx.stroke();
-      this.ctx.restore();
-    }
-  }
-
   public renderBone(image: CanvasImageSource, bone: Bone) {
-    const radians = (bone.rotation * Math.PI) / 180;
-    this.ctx.strokeStyle = 'blue';
-    this.ctx.lineWidth = 10;
+    const radians = (bone.globalRotation * Math.PI) / 180;
     this.ctx.save();
-    this.ctx.translate(bone.position.X, bone.position.Y);
-    this.ctx.translate(bone.pivot.X, bone.pivot.Y);
+    this.ctx.translate(bone.offset.X, bone.offset.Y);
     this.ctx.rotate(radians - Math.PI / 2);
-    this.ctx.translate(-bone.pivot.X, -bone.pivot.Y);
-    this.ctx.translate(-bone.position.X, -bone.position.Y);
+    this.ctx.scale(bone.scale.X, bone.scale.Y);
+    this.ctx.translate(-bone.offset.X, -bone.offset.Y);
     this.ctx.drawImage(
       image,
       bone.startX,
       bone.startY,
       bone.endX,
       bone.endY,
-      bone.position.X - bone.endX / 2,
-      bone.position.Y,
+      bone.offset.X - bone.pivot.X - bone.endX / 2,
+      bone.offset.Y - bone.pivot.Y,
       bone.endX,
       bone.endY
     );
     this.ctx.restore();
   }
 
-  public renderCharacter(skeleton: Skeleton, transform: Transform) {
-    const sortedSkeletonBones = skeleton.bones.sort(
-      (a, b) => a.order - b.order
-    );
-    for (let i = 0; i < sortedSkeletonBones.length; i++) {
-      this.ctx.save();
-      this.ctx.translate(
-        transform.position.X - this.camera.position.X,
-        transform.position.Y - this.camera.position.Y
-      );
-      // this.ctx.beginPath();
-      // this.ctx.fillRect(-50, -150, 100, 20);
-      // this.ctx.fillStyle = 'blue';
-      // this.ctx.fill();
-      //this.ctx.rotate(Math.floor(performance.now()) * 0.002);
-      if (skeleton.flip) {
-        this.ctx.scale(-1, 1);
+  public renderCharacter(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      if (!skeleton) return;
+      for (let i = 0; i < skeleton.bones.length; i++) {
+        skeleton.bones.sort((a, b) => a.order - b.order);
+        this.ctx.save();
+        this.ctx.translate(skeleton.position.X, skeleton.position.Y);
+        this.renderBone(skeleton.image, skeleton.bones[i]);
+        this.ctx.translate(-skeleton.position.X, -skeleton.position.Y);
+        this.ctx.restore();
       }
-      this.ctx.fillStyle = 'blue';
-      this.ctx.font = '50px Arial';
-      this.ctx.fillText('' + this.camera.position.Y, 0, 0);
-      this.ctx.fill();
-      this.ctx.translate(-transform.position.X, -transform.position.Y);
-      this.renderBone(skeleton.image, skeleton.bones[i]);
-
-      this.ctx.restore();
     }
   }
 

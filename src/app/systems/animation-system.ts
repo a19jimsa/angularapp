@@ -1,106 +1,110 @@
 import { Bone } from '../components/bone';
-import { Joint } from '../components/joint';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
-import { Renderer } from '../renderer';
 import { Vec } from '../vec';
 
 export class AnimationSystem {
   startTime = performance.now();
-  update(ecs: Ecs, renderer: Renderer) {
+  update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      if (skeleton === undefined || transform === undefined) continue;
+      if (!skeleton) return;
+      if (!skeleton.state) return;
       skeleton.position = transform.position;
-      this.sortAfterParent(skeleton);
-      for (let i = 0; i < skeleton.joints.length; i++) {
-        const joint = skeleton.joints[i];
-        joint.position = transform.position;
-        //Render joint and update position based on parent
-        if (joint.parentId !== null) {
-          const jointParent = this.findJointById(
-            skeleton.joints,
-            joint.parentId
-          ) as Joint;
+      const keyframes = skeleton.state.keyframes;
+      const totalDuration = keyframes[keyframes.length - 1].time;
+      const speed = 1000 / 1;
+      const elapsedTime = (performance.now() - this.startTime) / speed;
+      const loopedTime = elapsedTime % totalDuration;
+      this.sortBonesByHierarchy(skeleton);
+      this.updateBonePositions(skeleton);
+      for (const bone of skeleton.bones) {
+        for (let i = 0; i < keyframes.length - 1; i++) {
+          const keyFrame = keyframes[i];
+          if (
+            loopedTime >= keyFrame.time &&
+            loopedTime < keyframes[i + 1].time
+          ) {
+            const progress =
+              (loopedTime - keyFrame.time) /
+              (keyframes[i + 1].time - keyFrame.time);
 
-          const radians =
-            ((jointParent.angles[jointParent.lengths.length - 1] +
-              jointParent.rotation) *
-              Math.PI) /
-            180;
-
-          const newX =
-            jointParent.position.X +
-            jointParent.lengths[jointParent.lengths.length - 1] *
-              Math.cos(radians);
-          const newY =
-            jointParent.position.Y +
-            jointParent.lengths[jointParent.lengths.length - 1] *
-              Math.sin(radians);
-
-          joint.position = new Vec(newX, newY);
-          joint.rotation = jointParent.rotation;
-
-          //renderer.renderJoint(joint);
-        }
-
-        // Loop all children of joint update their position
-        for (let j = 0; j < skeleton.bones.length; j++) {
-          const bone = skeleton.bones[j];
-          if (bone.parentId !== null) {
-            //Children of bones.
-            const parentBone = this.findBoneById(
-              skeleton.bones,
-              bone.parentId
-            ) as Bone;
-
-            bone.position = this.calculateParentPosition(
-              parentBone.position,
-              parentBone.length,
-              parentBone.rotation
-            );
-          } else {
-            if (bone.offset !== undefined) {
-              const xEnd = joint.position.X + bone.offset.X;
-              const yEnd = joint.position.Y + bone.offset.Y;
-              bone.position = new Vec(xEnd, yEnd);
+            if (bone.id === keyFrame.name) {
+              bone.rotation = this.interpolateKeyframe(
+                keyFrame.angle,
+                keyframes[i + 1].angle,
+                progress
+              );
+              bone.scale.Y = this.interpolateKeyframe(
+                keyFrame.scale.Y,
+                keyframes[i + 1].scale.Y,
+                progress
+              );
+              bone.startX = keyFrame.clip.X;
+              bone.startY = keyFrame.clip.Y;
             }
           }
-          //bone.rotation = joint.rotation + joint.angles[j];
-          bone.rotation = 90;
-          this.runAnimation(bone, skeleton);
-          //renderer.renderJoints(bone);
         }
       }
-      renderer.renderCharacter(skeleton, transform);
     }
   }
 
-  runAnimation(bone: Bone, skeleton: Skeleton) {
-    const keyframes = new Array();
-    const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 2000; // ms
-    // Använd startTime för att räkna ut hur långt in i animationen vi är
-    const elapsedTime = (performance.now() - skeleton.startTime) / speed;
-    const loopedTime = elapsedTime % totalDuration;
-    for (let i = 0; i < keyframes.length - 1; i++) {
-      const keyFrame = keyframes[i];
-      if (loopedTime >= keyFrame.time && loopedTime < keyframes[i + 1].time) {
-        const progress =
-          (loopedTime - keyFrame.time) /
-          (keyframes[i + 1].time - keyFrame.time);
+  calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
+    if (!bone.parentId) return 0; // Roten har djup 0
+    const parent = bones.find((b) => b.id === bone.parentId);
+    if (!parent) throw new Error(`Parent not found for bone ${bone.id}`);
+    return this.calculateHierarchyDepth(parent, bones) + 1;
+  }
 
-        if (bone.id === keyFrame.name) {
-          bone.rotation = this.interpolateKeyframe(
-            keyFrame.angle,
-            keyframes[i + 1].angle,
-            progress
+  sortBonesByHierarchy(skeleton: Skeleton): void {
+    for (const bone of skeleton.bones) {
+      bone.hierarchyDepth = this.calculateHierarchyDepth(bone, skeleton.bones);
+    }
+    skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
+  }
+
+  updateBonePositions(skeleton: Skeleton): void {
+    for (const bone of skeleton.bones) {
+      let parentRotation = 0;
+      if (
+        bone.parentId !== null &&
+        bone.parentId !== undefined &&
+        bone.parentId !== ''
+      ) {
+        const parent = this.findBoneById(skeleton.bones, bone.parentId);
+        if (parent) {
+          parentRotation = this.calculateGlobalRotation(skeleton, parent);
+          bone.offset = this.calculateParentPosition(
+            parent.offset,
+            parent.length * bone.attachAt,
+            parentRotation
           );
         }
       }
+
+      bone.globalRotation =
+        bone.rotation + parentRotation + bone.globalSpriteRotation;
+
+      bone.globalPosition = this.calculateParentPosition(
+        bone.offset,
+        bone.length,
+        parentRotation + bone.rotation
+      );
     }
+  }
+
+  calculateGlobalRotation(skeleton: Skeleton, bone: Bone): number {
+    if (bone.parentId !== null) {
+      const parent = this.findBoneById(skeleton.bones, bone.parentId);
+      if (parent) {
+        // Rekursivt addera förälderns globala rotation
+        return this.calculateGlobalRotation(skeleton, parent) + bone.rotation;
+      }
+    }
+    // Om det inte finns någon förälder (root), returnera bara benets egen rotation
+    return bone.rotation;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {
@@ -116,27 +120,11 @@ export class AnimationSystem {
     return bones.find((e) => e.id === parentId);
   }
 
-  findJointById(joint: Joint[], parentID: string) {
-    return joint.find((e) => e.id === parentID);
-  }
-
   calculateParentPosition(position: Vec, length: number, rotation: number) {
     const xEnd =
       position.X + length * Math.cos(this.degreesToRadians(rotation));
     const yEnd =
       position.Y + length * Math.sin(this.degreesToRadians(rotation));
     return new Vec(xEnd, yEnd);
-  }
-
-  sortAfterParent(skeleton: Skeleton) {
-    skeleton.bones.sort((a, b) => {
-      if (a.parentId === null && b.parentId !== null) {
-        return -1; // Placera ben utan parent före ben med parent
-      } else if (a.parentId !== null && b.parentId === null) {
-        return 1; // Placera ben med parent efter ben utan parent
-      } else {
-        return 0; // Om båda antingen har eller saknar parent, lämna dem i samma ordning
-      }
-    });
   }
 }

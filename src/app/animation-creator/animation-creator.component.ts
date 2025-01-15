@@ -37,7 +37,6 @@ import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
 import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
-import { StateMachine } from '../States/state-machine';
 import { OnGroundState } from '../States/on-ground-state';
 import { JumpingState } from '../States/jumping-state';
 import { RunningState } from '../States/running-state';
@@ -158,6 +157,10 @@ export class AnimationCreatorComponent
           await new RunningState().loadAnimation('../assets/json/attack.json')
         );
         break;
+      case 'jump':
+        this.addKeyframesFromJSON(
+          await new JumpingState().loadAnimation('../assets/json/jump.json')
+        );
     }
   }
 

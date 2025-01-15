@@ -5,6 +5,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
+import { JumpingState } from '../States/jumping-state';
 
 export class ControllerSystem {
   keysPressed = {
@@ -86,20 +87,15 @@ export class ControllerSystem {
         }
 
         if (this.keysPressed.left) {
-          skeleton.flip = true;
           speedX += -5;
         }
 
         if (this.keysPressed.right) {
-          skeleton.flip = false;
           speedX += 5;
         }
 
         if (this.keysPressed.attack) {
-          skeleton.startTime = performance.now();
-          skeleton.activeAnimation = true;
-          speedX = 0;
-          speedY = 0;
+          skeleton.state = new JumpingState();
         }
 
         transform.velocity.X = speedX;

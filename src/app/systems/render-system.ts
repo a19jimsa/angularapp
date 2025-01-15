@@ -6,7 +6,7 @@ import { Renderer } from '../renderer';
 
 export class RenderSystem {
   update(ecs: Ecs, renderer: Renderer) {
-    for (let entity of ecs.getEntities()) {
+    for (const entity of ecs.getEntities()) {
       const render = ecs.getComponent<Render>(entity, 'Render');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const rotation = ecs.getComponent<Rotation>(entity, 'Rotation');
