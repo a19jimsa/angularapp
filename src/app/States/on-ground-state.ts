@@ -2,6 +2,7 @@ import { Keyframe } from '../animation-creator/animation-creator.component';
 import { Skeleton } from '../components/skeleton';
 import { KeysPressed } from '../systems/controller-system';
 import { AttackState } from './attack-state';
+import { JumpingState } from './jumping-state';
 import { RunningState } from './running-state';
 import { State } from './state';
 
@@ -16,14 +17,15 @@ export class OnGroundState extends State {
   override exit(): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed, skeleton: Skeleton): State {
+  override handleInput(input: KeysPressed): State {
     if (input.right || input.left) {
       return new RunningState();
     } else if (input.attack) {
-      skeleton.startTime = performance.now();
       return new AttackState();
+    } else if (input.jump) {
+      return new JumpingState();
     }
     return this;
   }
-  override update(): void {}
+  override update(skeleton: Skeleton): void {}
 }

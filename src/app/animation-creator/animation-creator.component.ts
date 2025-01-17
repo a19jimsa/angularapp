@@ -711,7 +711,7 @@ export class AnimationCreatorComponent
           parentRotation = this.calculateGlobalRotation(parent);
           bone.offset = this.calculateParentPosition(
             parent.offset,
-            parent.length * bone.attachAt,
+            parent.length * bone.attachAt * parent.scale.Y * parent.scale.X,
             parentRotation
           );
         }

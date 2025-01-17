@@ -10,7 +10,6 @@ export class MovementSystem {
       // if (transform.velocity.mag() < 2) {
       //   transform.velocity.times(0.94);
       // }
-      console.log(transform);
       transform.position.X += transform.velocity.X;
       transform.position.Y += transform.velocity.Y;
     }

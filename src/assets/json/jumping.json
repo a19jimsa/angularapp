@@ -7,6 +7,13 @@
     "clip": { "X": 274.015625, "Y": 290 }
   },
   {
+    "time": 0.5,
+    "angle": 180,
+    "name": "armor_middle",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 290 }
+  },
+  {
     "time": 1,
     "angle": 180,
     "name": "armor_middle",
@@ -14,13 +21,6 @@
     "clip": { "X": 274.015625, "Y": 290 }
   },
   {
-    "time": 2,
-    "angle": 180,
-    "name": "armor_middle",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 274.015625, "Y": 290 }
-  },
-  {
     "time": 0,
     "angle": 0,
     "name": "head",
@@ -28,14 +28,14 @@
     "clip": { "X": 25, "Y": 23 }
   },
   {
-    "time": 1,
-    "angle": 5,
+    "time": 0.5,
+    "angle": 0,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 25, "Y": 23 }
   },
   {
-    "time": 2,
+    "time": 1,
     "angle": 0,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
@@ -43,27 +43,34 @@
   },
   {
     "time": 0,
-    "angle": 14,
+    "angle": 23,
+    "name": "left_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 152.015625, "Y": 149 }
+  },
+  {
+    "time": 0.5,
+    "angle": 76,
     "name": "left_arm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 152.015625, "Y": 149 }
   },
   {
     "time": 1,
-    "angle": 34,
-    "name": "left_arm",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 152.015625, "Y": 149 }
-  },
-  {
-    "time": 2,
-    "angle": 14,
+    "angle": 23,
     "name": "left_arm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 152.015625, "Y": 149 }
   },
   {
     "time": 0,
+    "angle": 199,
+    "name": "left_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 337.015625, "Y": 286 }
+  },
+  {
+    "time": 0.5,
     "angle": 199,
     "name": "left_armor",
     "scale": { "X": 1, "Y": 1 },
@@ -77,14 +84,14 @@
     "clip": { "X": 337.015625, "Y": 286 }
   },
   {
-    "time": 2,
-    "angle": 199,
-    "name": "left_armor",
+    "time": 0,
+    "angle": 74,
+    "name": "left_foot",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 337.015625, "Y": 286 }
+    "clip": { "X": 467.015625, "Y": 145 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 0,
     "name": "left_foot",
     "scale": { "X": 1, "Y": 1 },
@@ -92,41 +99,41 @@
   },
   {
     "time": 1,
-    "angle": 0,
-    "name": "left_foot",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 467.015625, "Y": 145 }
-  },
-  {
-    "time": 2,
-    "angle": 0,
+    "angle": 74,
     "name": "left_foot",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 467.015625, "Y": 145 }
   },
   {
     "time": 0,
-    "angle": 0,
+    "angle": -90,
+    "name": "left_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 212.015625, "Y": 154 }
+  },
+  {
+    "time": 0.5,
+    "angle": -90,
     "name": "left_forearm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 212.015625, "Y": 154 }
   },
   {
     "time": 1,
-    "angle": 0,
-    "name": "left_forearm",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 212.015625, "Y": 154 }
-  },
-  {
-    "time": 2,
-    "angle": 0,
+    "angle": -90,
     "name": "left_forearm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 212.015625, "Y": 154 }
   },
   {
     "time": 0,
+    "angle": 0,
+    "name": "left_hand",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0.5,
     "angle": 0,
     "name": "left_hand",
     "scale": { "X": 1, "Y": 1 },
@@ -140,35 +147,35 @@
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
-    "time": 2,
-    "angle": 0,
-    "name": "left_hand",
+    "time": 0,
+    "angle": 38,
+    "name": "left_leg",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 19.015625, "Y": 242 }
+    "clip": { "X": 400.015625, "Y": 146 }
   },
   {
-    "time": 0,
-    "angle": 109,
+    "time": 0.5,
+    "angle": 132,
     "name": "left_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 400.015625, "Y": 146 }
   },
   {
     "time": 1,
-    "angle": 109,
-    "name": "left_leg",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 400.015625, "Y": 146 }
-  },
-  {
-    "time": 2,
-    "angle": 109,
+    "angle": 38,
     "name": "left_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 400.015625, "Y": 146 }
   },
   {
     "time": 0,
+    "angle": 63,
+    "name": "left_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 618.015625, "Y": 243 }
+  },
+  {
+    "time": 0.5,
     "angle": 63,
     "name": "left_pelvis",
     "scale": { "X": 1, "Y": 1 },
@@ -182,14 +189,14 @@
     "clip": { "X": 618.015625, "Y": 243 }
   },
   {
-    "time": 2,
-    "angle": 63,
-    "name": "left_pelvis",
+    "time": 0,
+    "angle": 120,
+    "name": "left_shoulder",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 618.015625, "Y": 243 }
+    "clip": { "X": 411.015625, "Y": 238 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 120,
     "name": "left_shoulder",
     "scale": { "X": 1, "Y": 1 },
@@ -203,13 +210,6 @@
     "clip": { "X": 411.015625, "Y": 238 }
   },
   {
-    "time": 2,
-    "angle": 120,
-    "name": "left_shoulder",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 411.015625, "Y": 238 }
-  },
-  {
     "time": 0,
     "angle": 0,
     "name": "right_arm",
@@ -217,14 +217,14 @@
     "clip": { "X": 15.015625, "Y": 151 }
   },
   {
-    "time": 1,
-    "angle": -36,
+    "time": 0.5,
+    "angle": 0,
     "name": "right_arm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 15.015625, "Y": 151 }
   },
   {
-    "time": 2,
+    "time": 1,
     "angle": 0,
     "name": "right_arm",
     "scale": { "X": 1, "Y": 1 },
@@ -238,6 +238,13 @@
     "clip": { "X": 408.015625, "Y": 291 }
   },
   {
+    "time": 0.5,
+    "angle": 171,
+    "name": "right_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 408.015625, "Y": 291 }
+  },
+  {
     "time": 1,
     "angle": 171,
     "name": "right_armor",
@@ -245,56 +252,56 @@
     "clip": { "X": 408.015625, "Y": 291 }
   },
   {
-    "time": 2,
-    "angle": 171,
-    "name": "right_armor",
+    "time": 0,
+    "angle": 67,
+    "name": "right_foot",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 408.015625, "Y": 291 }
+    "clip": { "X": 471, "Y": 148 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 0,
     "name": "right_foot",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 340, "Y": 148 }
+    "clip": { "X": 471, "Y": 148 }
   },
   {
     "time": 1,
-    "angle": 0,
+    "angle": 67,
     "name": "right_foot",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 340, "Y": 148 }
-  },
-  {
-    "time": 2,
-    "angle": 0,
-    "name": "right_foot",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 340, "Y": 148 }
+    "clip": { "X": 471, "Y": 148 }
   },
   {
     "time": 0,
-    "angle": -40,
+    "angle": -86,
+    "name": "right_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 86.015625, "Y": 152 }
+  },
+  {
+    "time": 0.5,
+    "angle": -105,
     "name": "right_forearm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 86.015625, "Y": 152 }
   },
   {
     "time": 1,
-    "angle": 0,
-    "name": "right_forearm",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 86.015625, "Y": 152 }
-  },
-  {
-    "time": 2,
-    "angle": -40,
+    "angle": -86,
     "name": "right_forearm",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 86.015625, "Y": 152 }
   },
   {
     "time": 0,
+    "angle": 265,
+    "name": "right_hand",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0.5,
     "angle": 265,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
@@ -308,35 +315,35 @@
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
-    "time": 2,
-    "angle": 265,
-    "name": "right_hand",
+    "time": 0,
+    "angle": -174,
+    "name": "right_leg",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 19.015625, "Y": 242 }
+    "clip": { "X": 274.015625, "Y": 150 }
   },
   {
-    "time": 0,
-    "angle": -113,
+    "time": 0.5,
+    "angle": -98,
     "name": "right_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 274.015625, "Y": 150 }
   },
   {
     "time": 1,
-    "angle": -113,
-    "name": "right_leg",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 274.015625, "Y": 150 }
-  },
-  {
-    "time": 2,
-    "angle": -113,
+    "angle": -174,
     "name": "right_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 274.015625, "Y": 150 }
   },
   {
     "time": 0,
+    "angle": 300,
+    "name": "right_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 587.015625, "Y": 164 }
+  },
+  {
+    "time": 0.5,
     "angle": 300,
     "name": "right_pelvis",
     "scale": { "X": 1, "Y": 1 },
@@ -350,14 +357,14 @@
     "clip": { "X": 587.015625, "Y": 164 }
   },
   {
-    "time": 2,
-    "angle": 300,
-    "name": "right_pelvis",
+    "time": 0,
+    "angle": 232.17679999999382,
+    "name": "right_shoulder",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 587.015625, "Y": 164 }
+    "clip": { "X": 258.015625, "Y": 228 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 232.17679999999382,
     "name": "right_shoulder",
     "scale": { "X": 1, "Y": 1 },
@@ -371,14 +378,14 @@
     "clip": { "X": 258.015625, "Y": 228 }
   },
   {
-    "time": 2,
-    "angle": 232.17679999999382,
-    "name": "right_shoulder",
+    "time": 0,
+    "angle": 271.0720000000299,
+    "name": "root",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 258.015625, "Y": 228 }
+    "clip": { "X": 414, "Y": 68 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 271.0720000000299,
     "name": "root",
     "scale": { "X": 1, "Y": 1 },
@@ -392,14 +399,14 @@
     "clip": { "X": 414, "Y": 68 }
   },
   {
-    "time": 2,
-    "angle": 271.0720000000299,
-    "name": "root",
+    "time": 0,
+    "angle": 0,
+    "name": "sword",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 414, "Y": 68 }
+    "clip": { "X": 126.015625, "Y": 295 }
   },
   {
-    "time": 0,
+    "time": 0.5,
     "angle": 0,
     "name": "sword",
     "scale": { "X": 1, "Y": 1 },
@@ -413,29 +420,22 @@
     "clip": { "X": 126.015625, "Y": 295 }
   },
   {
-    "time": 2,
-    "angle": 0,
-    "name": "sword",
+    "time": 0,
+    "angle": 10,
+    "name": "torso",
     "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 126.015625, "Y": 295 }
+    "clip": { "X": 414.015625, "Y": 2 }
   },
   {
-    "time": 0,
-    "angle": 0,
+    "time": 0.5,
+    "angle": 21,
     "name": "torso",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 414.015625, "Y": 2 }
   },
   {
     "time": 1,
-    "angle": 5,
-    "name": "torso",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 414.015625, "Y": 2 }
-  },
-  {
-    "time": 2,
-    "angle": 0,
+    "angle": 10,
     "name": "torso",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 414.015625, "Y": 2 }

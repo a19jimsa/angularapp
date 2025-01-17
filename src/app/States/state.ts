@@ -19,6 +19,6 @@ export abstract class State {
   abstract enter(): void;
   abstract execute(): void;
   abstract exit(): void;
-  abstract handleInput(input: KeysPressed, skeleton: Skeleton): State;
-  abstract update(): void;
+  abstract handleInput(input: KeysPressed): State;
+  abstract update(skeleton: Skeleton): void;
 }

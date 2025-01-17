@@ -18,11 +18,11 @@ export class RunningState extends State {
   override exit(): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed, skeleton: Skeleton): State {
+  override handleInput(input: KeysPressed): State {
     if (input.right || input.left) {
       return this;
     }
     return new OnGroundState();
   }
-  override update(): void {}
+  override update(skeleton: Skeleton): void {}
 }

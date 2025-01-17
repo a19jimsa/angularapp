@@ -90,11 +90,15 @@ export class ControllerSystem {
         let speedX = 0;
         let speedY = 0;
 
-        skeleton.state = skeleton.state.handleInput(this.keysPressed, skeleton);
-        skeleton.state.update();
+        skeleton.state = skeleton.state.handleInput(this.keysPressed);
+        skeleton.state.update(skeleton);
 
         if (transform.velocity.X == 0) {
           skeleton.startTime = performance.now();
+        }
+
+        if (this.keysPressed.jump) {
+          speedY += -10;
         }
 
         if (this.keysPressed.left) {

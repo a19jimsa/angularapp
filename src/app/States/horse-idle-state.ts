@@ -1,13 +1,11 @@
-import { Keyframe } from '../animation-creator/animation-creator.component';
 import { Skeleton } from '../components/skeleton';
 import { KeysPressed } from '../systems/controller-system';
 import { State } from './state';
 
-export class JumpingState extends State {
+export class HorseIdleState extends State {
   constructor() {
-    super('assets/json/jumping.json');
+    super('assets/json/horseidle.json');
   }
-
   override enter(): void {
     throw new Error('Method not implemented.');
   }
@@ -18,9 +16,9 @@ export class JumpingState extends State {
     throw new Error('Method not implemented.');
   }
   override handleInput(input: KeysPressed): State {
-    return this;
+    throw new Error('Method not implemented.');
   }
   override update(skeleton: Skeleton): void {
-    
+    throw new Error('Method not implemented.');
   }
 }

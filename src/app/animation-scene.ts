@@ -23,6 +23,8 @@ import { Loader } from './loader';
 import { OnGroundState } from './States/on-ground-state';
 import { JumpingState } from './States/jumping-state';
 import { FlyerIdleState } from './States/flyer-idle-state';
+import { DragonIdleState } from './States/dragon-idle-state';
+import { HorseIdleState } from './States/horse-idle-state';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -84,6 +86,8 @@ export class AnimationScene {
     const player = this.ecs.createEntity();
     const dragon = this.ecs.createEntity();
     const flyer = this.ecs.createEntity();
+    const draug = this.ecs.createEntity();
+    const horse = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
@@ -92,7 +96,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(300, 350), new Vec(0, 0), 10)
+      new Transform(new Vec(200, 150), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
@@ -100,29 +104,51 @@ export class AnimationScene {
       new Transform(new Vec(500, this.canvasHeight / 3), new Vec(0, 0), 10)
     );
 
+    this.ecs.addComponent<Transform>(
+      draug,
+      new Transform(new Vec(200, 350), new Vec(0, 0), 0)
+    );
+
+    this.ecs.addComponent<Transform>(
+      horse,
+      new Transform(new Vec(800, 100), new Vec(0, 0), 0)
+    );
+
     const playerSkeleton = new Skeleton('assets/sprites/88022.png');
-    const enemySkeleton = new Skeleton('assets/sprites/88444.png');
+    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
     const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
+    const draugSkeleton = new Skeleton('assets/sprites/104085.png');
+    const horseSkeleton = new Skeleton('assets/sprites/115616.png');
 
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
       './assets/json/skeleton.json'
     );
-    const enemyBones = await Loader.loadFromJSON('assets/json/skeleton.json');
+    const dragonBones = await Loader.loadFromJSON(
+      'assets/json/dragonbones.json'
+    );
     const flyerBones = await Loader.loadFromJSON('assets/json/flyerbones.json');
+    const draugBones = await Loader.loadFromJSON('assets/json/skeleton.json');
+    const horseBones = await Loader.loadFromJSON('assets/json/horsebones.json');
 
     playerSkeleton.bones.push(...skeletonBones);
-    playerSkeleton.state = new OnGroundState();
 
-    enemySkeleton.bones.push(...enemyBones);
-    enemySkeleton.state = new OnGroundState();
+    dragonSkeleton.bones.push(...dragonBones);
+    dragonSkeleton.state = new DragonIdleState();
 
     flyerSkeleton.bones.push(...flyerBones);
     flyerSkeleton.state = new FlyerIdleState();
 
+    draugSkeleton.bones.push(...draugBones);
+
+    horseSkeleton.bones.push(...horseBones);
+    horseSkeleton.state = new HorseIdleState();
+
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-    this.ecs.addComponent<Skeleton>(dragon, enemySkeleton);
+    this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
+    this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
+    this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
@@ -133,7 +159,7 @@ export class AnimationScene {
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
     this.player = player;
 
-    this.ecs.addComponent<Ai>(enemySkeleton, new Ai('idle', null, 500, 500));
+    this.ecs.addComponent<Ai>(dragonSkeleton, new Ai('idle', null, 500, 500));
   }
 
   start() {

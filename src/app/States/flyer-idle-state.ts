@@ -15,10 +15,10 @@ export class FlyerIdleState extends State {
   override exit(): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed, skeleton: Skeleton): State {
+  override handleInput(input: KeysPressed): State {
     throw new Error('Method not implemented.');
   }
-  override update(): void {
+  override update(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
 }

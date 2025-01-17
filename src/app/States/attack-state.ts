@@ -17,13 +17,13 @@ export class AttackState extends State {
   override exit(): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed, skeleton: Skeleton): State {
+  override handleInput(input: KeysPressed): State {
     if (this.frameTimer > 20) {
       return new OnGroundState();
     }
     return this;
   }
-  override update(): void {
+  override update(skeleton: Skeleton): void {
     this.frameTimer++;
   }
 }
