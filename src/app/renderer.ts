@@ -297,7 +297,13 @@ export class Renderer {
       for (let i = 0; i < skeleton.bones.length; i++) {
         skeleton.bones.sort((a, b) => a.order - b.order);
         this.ctx.save();
-        this.ctx.translate(skeleton.position.X, skeleton.position.Y);
+        this.ctx.translate(
+          skeleton.position.X - this.camera.position.X,
+          skeleton.position.Y - this.camera.position.Y
+        );
+        if (skeleton.flip) {
+          this.ctx.scale(-1, 1);
+        }
         this.renderBone(skeleton.image, skeleton.bones[i]);
         this.ctx.translate(-skeleton.position.X, -skeleton.position.Y);
         this.ctx.restore();

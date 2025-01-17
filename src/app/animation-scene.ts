@@ -3,13 +3,11 @@ import { Ecs } from './ecs';
 import { Renderer } from './renderer';
 import { Transform } from './components/transform';
 import { Vec } from './vec';
-import { Bone } from './components/bone';
 import { Skeleton } from './components/skeleton';
 import { AnimationSystem } from './systems/animation-system';
 import { MovementSystem } from './systems/movement-system';
 import { ControllerSystem } from './systems/controller-system';
 import { Controlable } from './components/controlable';
-import { Joint } from './components/joint';
 import { Camera } from './components/camera';
 import { CameraSystem } from './systems/camera-system';
 import { AttackSystem } from './systems/attack-system';
@@ -20,15 +18,11 @@ import { Entity } from './entity';
 import { Ai } from './components/ai';
 import { HitBoxSystem } from './systems/hit-box-system';
 import { ProjectileSystem } from './systems/projectile-system';
-import { Sprite } from './components/sprite';
-import { ParentBone } from './components/parent-bone';
 import { WeaponSystem } from './systems/weapon-system';
-import { Rotation } from './components/rotation';
-import { Damage } from './components/damage';
-import { Element } from './components/element';
 import { Loader } from './loader';
 import { OnGroundState } from './States/on-ground-state';
 import { JumpingState } from './States/jumping-state';
+import { FlyerIdleState } from './States/flyer-idle-state';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -89,43 +83,46 @@ export class AnimationScene {
     this.renderer = new Renderer(this.canvas);
     const player = this.ecs.createEntity();
     const dragon = this.ecs.createEntity();
+    const flyer = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(0, this.canvasHeight / 2), new Vec(0, 0), 10)
+      new Transform(new Vec(0, 350), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(500, this.canvasHeight / 2), new Vec(0, 0), 10)
+      new Transform(new Vec(300, 350), new Vec(0, 0), 10)
+    );
+
+    this.ecs.addComponent<Transform>(
+      flyer,
+      new Transform(new Vec(500, this.canvasHeight / 3), new Vec(0, 0), 10)
     );
 
     const playerSkeleton = new Skeleton('assets/sprites/88022.png');
-    const enemySkeleton = new Skeleton('assets/sprites/88022.png');
+    const enemySkeleton = new Skeleton('assets/sprites/88444.png');
+    const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
 
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
       './assets/json/skeleton.json'
     );
-
     const enemyBones = await Loader.loadFromJSON('assets/json/skeleton.json');
+    const flyerBones = await Loader.loadFromJSON('assets/json/flyerbones.json');
 
     playerSkeleton.bones.push(...skeletonBones);
     playerSkeleton.state = new OnGroundState();
-    const keyframes = await playerSkeleton.state.loadAnimation(
-      'assets/json/running.json'
-    );
-    playerSkeleton.state.keyframes = keyframes;
 
     enemySkeleton.bones.push(...enemyBones);
+    enemySkeleton.state = new OnGroundState();
 
-    enemySkeleton.state = new JumpingState();
-    enemySkeleton.state.keyframes = await playerSkeleton.state.loadAnimation(
-      'assets/json/attack.json'
-    );
+    flyerSkeleton.bones.push(...flyerBones);
+    flyerSkeleton.state = new FlyerIdleState();
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(dragon, enemySkeleton);
+    this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
@@ -141,7 +138,8 @@ export class AnimationScene {
 
   start() {
     this.renderer.clearScreen();
-    this.controllerSystem.update(this.ecs);
+    this.renderer.drawForeground();
+    this.movementSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -149,10 +147,11 @@ export class AnimationScene {
       this.width,
       this.height
     );
+    this.controllerSystem.update(this.ecs);
 
     this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs);
-    this.movementSystem.update(this.ecs);
+
     this.weaponSystem.update(this.ecs, this.renderer);
     this.attackSystem.update(this.ecs, this.renderer);
     this.attackDurationSystem.update(this.ecs);

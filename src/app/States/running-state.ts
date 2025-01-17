@@ -1,10 +1,12 @@
 import { Keyframe } from '../animation-creator/animation-creator.component';
-import { StateMachine } from './state-machine';
+import { Skeleton } from '../components/skeleton';
+import { KeysPressed } from '../systems/controller-system';
+import { OnGroundState } from './on-ground-state';
+import { State } from './state';
 
-export class RunningState extends StateMachine {
-  override keyframes: Keyframe[] = [];
+export class RunningState extends State {
   constructor() {
-    super();
+    super('assets/json/running.json');
   }
 
   override enter(): void {
@@ -16,10 +18,11 @@ export class RunningState extends StateMachine {
   override exit(): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: string): void {
-    throw new Error('Method not implemented.');
+  override handleInput(input: KeysPressed, skeleton: Skeleton): State {
+    if (input.right || input.left) {
+      return this;
+    }
+    return new OnGroundState();
   }
-  override update(): void {
-    throw new Error('Method not implemented.');
-  }
+  override update(): void {}
 }

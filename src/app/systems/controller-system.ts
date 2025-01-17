@@ -5,10 +5,19 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { JumpingState } from '../States/jumping-state';
+
+export type KeysPressed = {
+  left: boolean;
+  right: boolean;
+  up: boolean;
+  down: boolean;
+  jump: boolean;
+  attack: boolean;
+};
 
 export class ControllerSystem {
-  keysPressed = {
+  active = false;
+  keysPressed: KeysPressed = {
     left: false,
     right: false,
     up: false,
@@ -16,7 +25,6 @@ export class ControllerSystem {
     jump: false,
     attack: false,
   };
-  active = false;
 
   constructor() {
     console.log('Skapade controller');
@@ -82,20 +90,21 @@ export class ControllerSystem {
         let speedX = 0;
         let speedY = 0;
 
-        if (transform.velocity.X == 0 && !skeleton.activeAnimation) {
+        skeleton.state = skeleton.state.handleInput(this.keysPressed, skeleton);
+        skeleton.state.update();
+
+        if (transform.velocity.X == 0) {
           skeleton.startTime = performance.now();
         }
 
         if (this.keysPressed.left) {
-          speedX += -5;
+          speedX += -10;
+          skeleton.flip = true;
         }
 
         if (this.keysPressed.right) {
-          speedX += 5;
-        }
-
-        if (this.keysPressed.attack) {
-          skeleton.state = new JumpingState();
+          speedX += 10;
+          skeleton.flip = false;
         }
 
         transform.velocity.X = speedX;

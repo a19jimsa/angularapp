@@ -145,22 +145,17 @@ export class AnimationCreatorComponent
     this.id = requestAnimationFrame(() => this.animationLoop());
   }
 
-  async changeState(name: string) {
+  changeState(name: string) {
     switch (name) {
       case 'walk':
-        this.addKeyframesFromJSON(
-          await new OnGroundState().loadAnimation('../assets/json/running.json')
-        );
+        this.addKeyframesFromJSON(new OnGroundState().keyframes);
         break;
       case 'run':
-        this.addKeyframesFromJSON(
-          await new RunningState().loadAnimation('../assets/json/attack.json')
-        );
+        this.addKeyframesFromJSON(new RunningState().keyframes);
         break;
       case 'jump':
-        this.addKeyframesFromJSON(
-          await new JumpingState().loadAnimation('../assets/json/jump.json')
-        );
+        this.addKeyframesFromJSON(new JumpingState().keyframes);
+        break;
     }
   }
 
@@ -241,16 +236,18 @@ export class AnimationCreatorComponent
     for (const bone of this.bones) {
       bone.offset = new Vec(bone.offset.X, bone.offset.Y);
       bone.position = new Vec(bone.position.X, bone.position.Y);
-      bone.globalPivot = new Vec(bone.globalPivot.X, bone.globalPivot.Y);
-      bone.globalPosition = new Vec(
-        bone.globalPosition.X,
-        bone.globalPosition.Y
-      );
+      bone.position = new Vec(bone.position.X, bone.position.Y);
       bone.hierarchyDepth = 0;
       if (bone.scale) {
         bone.scale = new Vec(bone.scale.X, bone.scale.Y);
       } else {
         bone.scale = new Vec(1, 1);
+      }
+      if (!bone.minAngle) {
+        bone.minAngle = 0;
+      }
+      if (!bone.maxAngle) {
+        bone.maxAngle = 0;
       }
     }
     this.createBoneHierarchy();
@@ -311,7 +308,7 @@ export class AnimationCreatorComponent
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
       this.ctx.moveTo(bone.offset.X, bone.offset.Y);
-      this.ctx.lineTo(bone.globalPosition.X, bone.globalPosition.Y);
+      this.ctx.lineTo(bone.position.X, bone.position.Y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
@@ -597,8 +594,6 @@ export class AnimationCreatorComponent
     }
   }
 
-  uploadImage() {}
-
   drawDebug() {
     this.ctx.save();
     this.ctx.font = 'Arial';
@@ -628,7 +623,9 @@ export class AnimationCreatorComponent
       this.mouseUp.X - this.mouseDown.X,
       this.mouseUp.Y - this.mouseDown.Y,
       0,
-      new Vec(0, 0)
+      new Vec(0, 0),
+      0,
+      0
     );
     let dialogRef = this.dialog.open(BoneDialogComponent, {
       width: '600px',
@@ -723,7 +720,7 @@ export class AnimationCreatorComponent
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
 
-      bone.globalPosition = this.calculateParentPosition(
+      bone.position = this.calculateParentPosition(
         bone.offset,
         bone.length,
         parentRotation + bone.rotation

@@ -403,6 +403,26 @@
               [(ngModel)]="activeBone.parentId"
             />
           </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>Min Angle</mat-label>
+            <input
+              [step]="1"
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.minAngle"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50" appearance="fill">
+            <mat-label>Max Angle</mat-label>
+            <input
+              [step]="1"
+              matInput
+              [disabled]="activeBone === null"
+              [(ngModel)]="activeBone.maxAngle"
+              type="number"
+            />
+          </mat-form-field>
           }
         </mat-card-content>
       </mat-card>
@@ -421,7 +441,12 @@
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
           </mat-slider>
           <mat-label>Rotation:</mat-label>
-          <mat-slider [step]="1" [max]="720" discrete="true">
+          <mat-slider
+            [min]="activeBone.minAngle"
+            [max]="activeBone.maxAngle"
+            [step]="1"
+            discrete="true"
+          >
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
           <mat-label>Sprite Rotation:</mat-label>
