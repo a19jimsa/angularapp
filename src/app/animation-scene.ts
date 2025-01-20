@@ -24,6 +24,7 @@ import { FlyerIdleState } from './States/flyer-idle-state';
 import { DragonIdleState } from './States/dragon-idle-state';
 import { HorseIdleState } from './States/horse-idle-state';
 import { PhysicsSystem } from './systems/physics-system';
+import { Weapon } from './components/weapon';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -89,6 +90,7 @@ export class AnimationScene {
     const flyer = this.ecs.createEntity();
     const draug = this.ecs.createEntity();
     const horse = this.ecs.createEntity();
+    const weapon = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
@@ -161,6 +163,21 @@ export class AnimationScene {
     this.player = player;
 
     this.ecs.addComponent<Ai>(dragonSkeleton, new Ai('idle', null, 500, 500));
+
+    this.ecs.addComponent<Transform>(
+      weapon,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
+    this.ecs.addComponent<Weapon>(
+      weapon,
+      new Weapon(
+        'right_hand',
+        'assets/sprites/wep_ax039.png',
+        new Vec(-40, 150)
+      )
+    );
+
+    playerSkeleton.heldEntity = weapon;
   }
 
   start() {
@@ -179,7 +196,7 @@ export class AnimationScene {
     this.controllerSystem.update(this.ecs);
     this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs);
-    this.weaponSystem.update(this.ecs, this.renderer);
+    this.weaponSystem.update(this.ecs);
     this.attackSystem.update(this.ecs, this.renderer);
     this.attackDurationSystem.update(this.ecs);
     this.deadSystem.update(this.ecs);

@@ -7,7 +7,7 @@ export abstract class State {
   constructor(private path: string) {
     this.loadAnimation();
   }
-  async loadAnimation(): Promise<void> {
+  private async loadAnimation(): Promise<void> {
     try {
       const response = await fetch(this.path);
       this.keyframes = await response.json();

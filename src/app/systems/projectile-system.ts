@@ -19,7 +19,7 @@ export class ProjectileSystem {
       const rotation = ecs.getComponent<Rotation>(entity, 'Rotation');
       if (projectile && attackDuration && sprite && transform && rotation) {
         rotation.angle += 10;
-        renderer.drawWeapon(sprite, transform, rotation.angle);
+        //renderer.drawWeapon(sprite, transform, rotation.angle);
         if (attackDuration.cooldown <= 0) {
           ecs.removeEntity(entity);
         }

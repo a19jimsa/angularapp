@@ -3,6 +3,7 @@ import { State } from '../States/state';
 import { Component } from './component';
 import { Vec } from '../vec';
 import { OnGroundState } from '../States/on-ground-state';
+import { Entity } from '../entity';
 
 export class Skeleton extends Component {
   override type = 'Skeleton';
@@ -13,10 +14,12 @@ export class Skeleton extends Component {
   position: Vec;
   startTime: number = 0;
   yPos: number = 0;
+  heldEntity: Entity | null;
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
     this.position = new Vec(0, 0);
     this.state = new OnGroundState();
+    this.heldEntity = null;
   }
 }

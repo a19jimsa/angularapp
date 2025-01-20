@@ -1,0 +1,25 @@
+[
+  {
+    "type": "Bone",
+    "id": "sword",
+    "pivot": { "X": 0, "Y": 23 },
+    "position": { "X": -94.855825826156, "Y": -116.51620870488291 },
+    "parentId": "right_hand",
+    "length": 125,
+    "rotation": 0,
+    "startX": 126.015625,
+    "startY": 295,
+    "endX": 51,
+    "endY": 165,
+    "order": 3,
+    "offset": { "X": 14.398789660168962, "Y": -55.78377095589015 },
+    "attachAt": 1,
+    "globalPosition": { "X": 98.43176052512695, "Y": -62.442619027597814 },
+    "globalRotation": 569.0687999973416,
+    "globalSpriteRotation": 0,
+    "hierarchyDepth": 6,
+    "scale": { "X": 1, "Y": 1 },
+    "minAngle": 0,
+    "maxAngle": 0
+  }
+]

@@ -269,6 +269,37 @@ export class Renderer {
     );
   }
 
+  public renderCharacter(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      let draw = true;
+      if (!skeleton) return;
+
+      for (let i = 0; i < skeleton.bones.length; i++) {
+        skeleton.bones.sort((a, b) => a.order - b.order);
+        this.ctx.save();
+        this.ctx.translate(
+          skeleton.position.X - this.camera.position.X,
+          skeleton.position.Y - this.camera.position.Y
+        );
+        if (skeleton.flip) {
+          this.ctx.scale(-1, 1);
+        }
+        const entity = skeleton.heldEntity;
+        if (entity) {
+          const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
+          if (weapon && skeleton.bones[i].order === weapon.order && draw) {
+            this.drawWeapon(weapon.image, weapon, skeleton.flip);
+            draw = false;
+          }
+        }
+
+        this.renderBone(skeleton.image, skeleton.bones[i]);
+        this.ctx.restore();
+      }
+    }
+  }
+
   public renderBone(image: CanvasImageSource, bone: Bone) {
     const radians = (bone.globalRotation * Math.PI) / 180;
     this.ctx.save();
@@ -288,27 +319,6 @@ export class Renderer {
       bone.endY
     );
     this.ctx.restore();
-  }
-
-  public renderCharacter(ecs: Ecs) {
-    for (const entity of ecs.getEntities()) {
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (!skeleton) return;
-      for (let i = 0; i < skeleton.bones.length; i++) {
-        skeleton.bones.sort((a, b) => a.order - b.order);
-        this.ctx.save();
-        this.ctx.translate(
-          skeleton.position.X - this.camera.position.X,
-          skeleton.position.Y - this.camera.position.Y
-        );
-        if (skeleton.flip) {
-          this.ctx.scale(-1, 1);
-        }
-        this.renderBone(skeleton.image, skeleton.bones[i]);
-        this.ctx.translate(-skeleton.position.X, -skeleton.position.Y);
-        this.ctx.restore();
-      }
-    }
   }
 
   public renderFont(text: string) {
@@ -334,25 +344,16 @@ export class Renderer {
     this.ctx.restore();
   }
 
-  drawWeapon(sprite: Sprite, transform: Transform, angle: number) {
-    const radians = (angle * Math.PI) / 180;
+  drawWeapon(image: HTMLImageElement, weapon: Weapon, flip: boolean) {
+    const radians = (weapon.rotation * Math.PI) / 180;
     this.ctx.save();
-    this.ctx.translate(
-      transform.position.X - this.camera.position.X,
-      transform.position.Y - this.camera.position.Y
-    );
-    if (sprite.flip) {
-      this.ctx.scale(-1, 1);
-    }
-    this.ctx.rotate(radians);
-    this.ctx.translate(-transform.position.X, -transform.position.Y);
-
-    this.drawImage(
-      sprite.image,
-      transform.position.X - 20,
-      transform.position.Y - sprite.image.height + 20,
-      sprite.image.width,
-      sprite.image.height
+    this.ctx.translate(weapon.offset.X, weapon.offset.Y);
+    this.ctx.rotate(radians - Math.PI / 2);
+    this.ctx.translate(-weapon.offset.X, -weapon.offset.Y);
+    this.ctx.drawImage(
+      image,
+      weapon.offset.X - weapon.pivot.X - image.width / 2,
+      weapon.offset.Y - weapon.pivot.Y
     );
     this.ctx.restore();
   }

@@ -5,7 +5,6 @@ import { Weapon } from '../components/weapon';
 import { Skeleton } from '../components/skeleton';
 import { HitBox } from '../components/hit-box';
 import { Attack } from '../components/attack';
-import { Vec } from '../vec';
 
 export class AttackSystem {
   update(ecs: Ecs, renderer: Renderer): void {
