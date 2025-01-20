@@ -6,16 +6,16 @@ export class HorseIdleState extends State {
   constructor() {
     super('assets/json/horseidle.json');
   }
-  override enter(): void {
-    throw new Error('Method not implemented.');
+  override enter(skeleton: Skeleton): void {
+    skeleton.state.keyframes = this.keyframes;
   }
   override execute(): void {
     throw new Error('Method not implemented.');
   }
-  override exit(): void {
+  override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed): State {
+  override handleInput(skeleton: Skeleton, input: KeysPressed): State {
     throw new Error('Method not implemented.');
   }
   override update(skeleton: Skeleton): void {

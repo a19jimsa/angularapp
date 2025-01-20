@@ -5,6 +5,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
+import { State } from '../States/state';
 
 export type KeysPressed = {
   left: boolean;
@@ -89,13 +90,12 @@ export class ControllerSystem {
       if (controlable && transform && skeleton) {
         let speedX = 0;
         let speedY = 0;
-
-        skeleton.state = skeleton.state.handleInput(this.keysPressed);
-        skeleton.state.update(skeleton);
-
-        if (transform.velocity.X == 0) {
-          skeleton.startTime = performance.now();
+        const state = skeleton.state.handleInput(skeleton, this.keysPressed);
+        if (state !== null) {
+          skeleton.state = state;
+          skeleton.state.enter(skeleton);
         }
+        skeleton.state.update(skeleton);
 
         if (this.keysPressed.jump) {
           speedY += -10;

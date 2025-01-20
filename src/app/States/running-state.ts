@@ -1,4 +1,3 @@
-import { Keyframe } from '../animation-creator/animation-creator.component';
 import { Skeleton } from '../components/skeleton';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
@@ -9,18 +8,18 @@ export class RunningState extends State {
     super('assets/json/running.json');
   }
 
-  override enter(): void {
-    throw new Error('Method not implemented.');
+  override enter(skeleton: Skeleton): void {
+    skeleton.state.keyframes = this.keyframes;
   }
   override execute(): void {
     throw new Error('Method not implemented.');
   }
-  override exit(): void {
+  override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(input: KeysPressed): State {
+  override handleInput(skeleton: Skeleton, input: KeysPressed): State | null {
     if (input.right || input.left) {
-      return this;
+      return null;
     }
     return new OnGroundState();
   }

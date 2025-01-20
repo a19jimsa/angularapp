@@ -16,9 +16,9 @@ export abstract class State {
       console.log(error);
     }
   }
-  abstract enter(): void;
+  abstract enter(skeleton: Skeleton): void;
   abstract execute(): void;
-  abstract exit(): void;
-  abstract handleInput(input: KeysPressed): State;
+  abstract exit(skeleton: Skeleton): void;
+  abstract handleInput(skeleton: Skeleton, input: KeysPressed): State | null;
   abstract update(skeleton: Skeleton): void;
 }

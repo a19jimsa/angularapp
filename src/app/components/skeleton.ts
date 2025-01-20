@@ -11,7 +11,8 @@ export class Skeleton extends Component {
   flip: boolean = false;
   state: State;
   position: Vec;
-  startTime: number = performance.now();
+  startTime: number = 0;
+  yPos: number = 0;
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;

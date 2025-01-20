@@ -12,12 +12,13 @@ export class AnimationSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (!skeleton) return;
       if (!skeleton.state) return;
-      skeleton.position = transform.position;
       const keyframes = skeleton.state.keyframes;
       if (keyframes.length === 0) return;
+      skeleton.position = transform.position;
+
       const totalDuration = keyframes[keyframes.length - 1].time;
       const speed = 1000 / 1;
-      const elapsedTime = (performance.now() - this.startTime) / speed;
+      const elapsedTime = (performance.now() - skeleton.startTime) / speed;
       const loopedTime = elapsedTime % totalDuration;
       this.sortBonesByHierarchy(skeleton);
       this.updateBonePositions(skeleton);

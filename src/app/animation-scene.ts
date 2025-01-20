@@ -20,11 +20,10 @@ import { HitBoxSystem } from './systems/hit-box-system';
 import { ProjectileSystem } from './systems/projectile-system';
 import { WeaponSystem } from './systems/weapon-system';
 import { Loader } from './loader';
-import { OnGroundState } from './States/on-ground-state';
-import { JumpingState } from './States/jumping-state';
 import { FlyerIdleState } from './States/flyer-idle-state';
 import { DragonIdleState } from './States/dragon-idle-state';
 import { HorseIdleState } from './States/horse-idle-state';
+import { PhysicsSystem } from './systems/physics-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -46,6 +45,7 @@ export class AnimationScene {
   hitBoxSystem: HitBoxSystem;
   projectileSystem: ProjectileSystem;
   weaponSystem: WeaponSystem;
+  physicsSystem: PhysicsSystem;
   loopId = 0;
 
   constructor(
@@ -79,6 +79,7 @@ export class AnimationScene {
     this.hitBoxSystem = new HitBoxSystem();
     this.projectileSystem = new ProjectileSystem();
     this.weaponSystem = new WeaponSystem();
+    this.physicsSystem = new PhysicsSystem();
   }
 
   async init() {
@@ -165,6 +166,7 @@ export class AnimationScene {
   start() {
     this.renderer.clearScreen();
     this.renderer.drawForeground();
+    this.physicsSystem.update(this.ecs);
     this.movementSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
@@ -173,17 +175,17 @@ export class AnimationScene {
       this.width,
       this.height
     );
-    this.controllerSystem.update(this.ecs);
 
+    this.controllerSystem.update(this.ecs);
     this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs);
-
     this.weaponSystem.update(this.ecs, this.renderer);
     this.attackSystem.update(this.ecs, this.renderer);
     this.attackDurationSystem.update(this.ecs);
     this.deadSystem.update(this.ecs);
     this.hitBoxSystem.update(this.ecs, this.renderer);
     this.projectileSystem.update(this.ecs, this.renderer);
+
     this.renderer.renderCharacter(this.ecs);
 
     this.loopId = window.requestAnimationFrame(() => this.start());

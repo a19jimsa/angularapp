@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AnimationScene } from '../animation-scene';
-import { Vec } from '../vec';
+
 
 @Component({
     selector: 'app-bone-animation',
