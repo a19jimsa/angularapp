@@ -10,7 +10,7 @@ export class JumpingState extends State {
   }
 
   override enter(skeleton: Skeleton): void {
-    skeleton.state.keyframes = this.keyframes;
+
     skeleton.startTime = performance.now();
   }
   override execute(): void {

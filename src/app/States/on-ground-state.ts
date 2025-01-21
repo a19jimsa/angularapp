@@ -10,9 +10,7 @@ export class OnGroundState extends State {
   constructor() {
     super('assets/json/idle.json');
   }
-  override enter(skeleton: Skeleton): void {
-    skeleton.state.keyframes = this.keyframes;
-  }
+  override enter(skeleton: Skeleton): void {}
   override execute(): void {
     throw new Error('Method not implemented.');
   }

@@ -91,6 +91,7 @@ export class AnimationScene {
     const draug = this.ecs.createEntity();
     const horse = this.ecs.createEntity();
     const weapon = this.ecs.createEntity();
+    const woman = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
@@ -109,12 +110,16 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       draug,
-      new Transform(new Vec(200, 350), new Vec(0, 0), 0)
+      new Transform(new Vec(700, 350), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
       horse,
       new Transform(new Vec(800, 100), new Vec(0, 0), 0)
+    );
+    this.ecs.addComponent<Transform>(
+      woman,
+      new Transform(new Vec(1000, 350), new Vec(0, 0), 0)
     );
 
     const playerSkeleton = new Skeleton('assets/sprites/88022.png');
@@ -122,6 +127,7 @@ export class AnimationScene {
     const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
     const draugSkeleton = new Skeleton('assets/sprites/104085.png');
     const horseSkeleton = new Skeleton('assets/sprites/115616.png');
+    const womanSkeleton = new Skeleton('assets/sprites/88444.png');
 
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
@@ -133,6 +139,7 @@ export class AnimationScene {
     const flyerBones = await Loader.loadFromJSON('assets/json/flyerbones.json');
     const draugBones = await Loader.loadFromJSON('assets/json/skeleton.json');
     const horseBones = await Loader.loadFromJSON('assets/json/horsebones.json');
+    const womanBones = await Loader.loadFromJSON('assets/json/skeleton.json');
 
     playerSkeleton.bones.push(...skeletonBones);
 
@@ -147,11 +154,14 @@ export class AnimationScene {
     horseSkeleton.bones.push(...horseBones);
     horseSkeleton.state = new HorseIdleState();
 
+    womanSkeleton.bones.push(...womanBones);
+
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
     this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
     this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
+    this.ecs.addComponent<Skeleton>(woman, womanSkeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
@@ -170,20 +180,27 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       weapon,
+      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
+    );
+    const newWeapon = this.ecs.createEntity();
+    this.ecs.addComponent<Weapon>(
+      newWeapon,
       new Weapon(
         'right_hand',
-        'assets/sprites/wep_ax039.png',
-        new Vec(-40, 150)
+        'assets/sprites/wep_ax066.png',
+        new Vec(-10, 105)
       )
     );
 
     playerSkeleton.heldEntity = weapon;
+    draugSkeleton.heldEntity = newWeapon;
+    womanSkeleton.heldEntity = newWeapon;
   }
 
   start() {
     this.renderer.clearScreen();
     this.renderer.drawForeground();
-    this.physicsSystem.update(this.ecs);
+    this.controllerSystem.update(this.ecs);
     this.movementSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
@@ -193,7 +210,7 @@ export class AnimationScene {
       this.height
     );
 
-    this.controllerSystem.update(this.ecs);
+    this.physicsSystem.update(this.ecs);
     this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);

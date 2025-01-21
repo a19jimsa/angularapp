@@ -1,5 +1,6 @@
 import { Skeleton } from '../components/skeleton';
 import { KeysPressed } from '../systems/controller-system';
+import { JumpingState } from './jumping-state';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 
@@ -8,9 +9,7 @@ export class RunningState extends State {
     super('assets/json/running.json');
   }
 
-  override enter(skeleton: Skeleton): void {
-    skeleton.state.keyframes = this.keyframes;
-  }
+  override enter(skeleton: Skeleton): void {}
   override execute(): void {
     throw new Error('Method not implemented.');
   }
@@ -18,6 +17,9 @@ export class RunningState extends State {
     throw new Error('Method not implemented.');
   }
   override handleInput(skeleton: Skeleton, input: KeysPressed): State | null {
+    if (input.jump) {
+      return new JumpingState();
+    }
     if (input.right || input.left) {
       return null;
     }

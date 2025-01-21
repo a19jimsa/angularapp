@@ -293,7 +293,6 @@ export class Renderer {
             draw = false;
           }
         }
-
         this.renderBone(skeleton.image, skeleton.bones[i]);
         this.ctx.restore();
       }

@@ -295,21 +295,21 @@
   },
   {
     "time": 0,
-    "angle": 265,
+    "angle": 90,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
     "time": 1,
-    "angle": 265,
+    "angle": 90,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
     "time": 2,
-    "angle": 265,
+    "angle": 90,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }

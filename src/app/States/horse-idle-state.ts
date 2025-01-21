@@ -7,7 +7,7 @@ export class HorseIdleState extends State {
     super('assets/json/horseidle.json');
   }
   override enter(skeleton: Skeleton): void {
-    skeleton.state.keyframes = this.keyframes;
+   
   }
   override execute(): void {
     throw new Error('Method not implemented.');

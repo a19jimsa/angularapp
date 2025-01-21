@@ -316,21 +316,21 @@
   },
   {
     "time": 0,
-    "angle": 265,
+    "angle": 100,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
     "time": 0.5,
-    "angle": 265,
+    "angle": 180,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }
   },
   {
     "time": 1,
-    "angle": 265,
+    "angle": 100,
     "name": "right_hand",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 19.015625, "Y": 242 }

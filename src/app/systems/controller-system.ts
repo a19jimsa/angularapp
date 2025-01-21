@@ -1,6 +1,7 @@
 import { Attack } from '../components/attack';
 import { AttackDuration } from '../components/attack-duration';
 import { Controlable } from '../components/controlable';
+import { Jump } from '../components/jump';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
@@ -17,7 +18,6 @@ export type KeysPressed = {
 };
 
 export class ControllerSystem {
-  active = false;
   keysPressed: KeysPressed = {
     left: false,
     right: false,
@@ -30,54 +30,44 @@ export class ControllerSystem {
   constructor() {
     console.log('Skapade controller');
     window.addEventListener('keydown', (event) => {
-      switch (event.code) {
-        case 'KeyA':
-          this.keysPressed.left = true;
-          break;
-        case 'KeyD':
-          this.keysPressed.right = true;
-          break;
-        case 'KeyW':
-          this.keysPressed.up = true;
-          break;
-        case 'KeyS':
-          this.keysPressed.down = true;
-          break;
-        case 'Space':
-          this.keysPressed.jump = true;
-          break;
-        case 'Enter':
-          this.keysPressed.attack = true;
-          break;
+      if (event.code === 'KeyA') {
+        this.keysPressed.left = true;
+      }
+      if (event.code === 'KeyD') {
+        this.keysPressed.right = true;
+      }
+      if (event.code === 'KeyW') {
+        this.keysPressed.up = true;
+      }
+      if (event.code === 'KeyS') {
+        this.keysPressed.down = true;
+      }
+      if (event.code === 'Space') {
+        this.keysPressed.jump = true;
+      }
+      if (event.code === 'Enter') {
+        this.keysPressed.attack = true;
       }
     });
 
     window.addEventListener('keyup', (event) => {
-      switch (event.code) {
-        case 'KeyA':
-          this.keysPressed.left = false;
-          this.active = false;
-          break;
-        case 'KeyD':
-          this.keysPressed.right = false;
-          this.active = false;
-          break;
-        case 'KeyW':
-          this.keysPressed.up = false;
-          this.active = false;
-          break;
-        case 'KeyS':
-          this.keysPressed.down = false;
-          this.active = false;
-          break;
-        case 'Enter':
-          this.keysPressed.attack = false;
-          this.active = false;
-          break;
-        case 'Space':
-          this.keysPressed.jump = false;
-          this.active = false;
-          break;
+      if (event.code === 'KeyA') {
+        this.keysPressed.left = false;
+      }
+      if (event.code === 'KeyD') {
+        this.keysPressed.right = false;
+      }
+      if (event.code === 'KeyW') {
+        this.keysPressed.up = false;
+      }
+      if (event.code === 'KeyS') {
+        this.keysPressed.down = false;
+      }
+      if (event.code === 'Space') {
+        this.keysPressed.jump = false;
+      }
+      if (event.code === 'Enter') {
+        this.keysPressed.attack = false;
       }
     });
   }
@@ -89,7 +79,6 @@ export class ControllerSystem {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (controlable && transform && skeleton) {
         let speedX = 0;
-        let speedY = 0;
         const state = skeleton.state.handleInput(skeleton, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
@@ -98,7 +87,10 @@ export class ControllerSystem {
         skeleton.state.update(skeleton);
 
         if (this.keysPressed.jump) {
-          speedY += -10;
+          //IF standing on ground
+          if (transform.position.Y === 350) {
+            ecs.addComponent<Jump>(entity, new Jump());
+          }
         }
 
         if (this.keysPressed.left) {
@@ -110,9 +102,7 @@ export class ControllerSystem {
           speedX += 10;
           skeleton.flip = false;
         }
-
         transform.velocity.X = speedX;
-        transform.velocity.Y = speedY;
       }
     }
   }
