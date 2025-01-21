@@ -38,7 +38,7 @@ testem.log
 /typings
 
 # Assets
-./src/assets
+/src/assets
 
 # System files
 .DS_Store
