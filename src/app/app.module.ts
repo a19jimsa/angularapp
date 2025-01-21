@@ -57,6 +57,7 @@ import {
   MatSidenavContainer,
   MatSidenavModule,
 } from '@angular/material/sidenav';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -110,6 +111,7 @@ import {
     MatTreeModule,
     MatSlideToggleModule,
     MatSidenavModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     {

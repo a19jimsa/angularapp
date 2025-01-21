@@ -4,9 +4,10 @@ import { Controlable } from '../components/controlable';
 import { Jump } from '../components/jump';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { State } from '../States/state';
+import { Vec } from '../vec';
 
 export type KeysPressed = {
   left: boolean;
@@ -18,6 +19,7 @@ export type KeysPressed = {
 };
 
 export class ControllerSystem {
+  timer: number = 0;
   keysPressed: KeysPressed = {
     left: false,
     right: false,
@@ -79,7 +81,7 @@ export class ControllerSystem {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (controlable && transform && skeleton) {
         let speedX = 0;
-        const state = skeleton.state.handleInput(skeleton, this.keysPressed);
+        const state = skeleton.state.handleInput(transform, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
           skeleton.state.enter(skeleton);
@@ -101,6 +103,39 @@ export class ControllerSystem {
         if (this.keysPressed.right) {
           speedX += 10;
           skeleton.flip = false;
+        }
+
+        if (this.keysPressed.up) {
+          if (this.timer > 100) {
+            if (!skeleton.heldOffhandEntity) return;
+            const parentWeapon = ecs.getComponent<Weapon>(
+              skeleton.heldOffhandEntity,
+              'Weapon'
+            );
+            if (!parentWeapon) return;
+            const weapon = ecs.createEntity();
+            let speedX = 20;
+            if (skeleton.flip) {
+              speedX = -20;
+            }
+            ecs.addComponent<Transform>(
+              weapon,
+              new Transform(
+                new Vec(
+                  skeleton.position.X + parentWeapon.offset.X,
+                  skeleton.position.Y + parentWeapon.offset.Y
+                ),
+                new Vec(speedX, 0),
+                0
+              )
+            );
+            ecs.addComponent<Weapon>(
+              weapon,
+              new Weapon(null, parentWeapon.image.src, new Vec(0, 0))
+            );
+            this.timer = 0;
+          }
+          this.timer++;
         }
         transform.velocity.X = speedX;
       }

@@ -1,28 +1,22 @@
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { KeysPressed } from '../systems/controller-system';
-import { FallingState } from './falling-state';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 
-export class JumpingState extends State {
-  frameTime = 0;
+export class FallingState extends State {
   constructor() {
-    super('assets/json/jumping.json');
+    super('assets/json/falling.json');
   }
-  override enter(skeleton: Skeleton): void {
-    skeleton.startTime = performance.now();
-  }
+  override enter(skeleton: Skeleton): void {}
   override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
   override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (transform.velocity.Y > 0) {
-      return new FallingState();
+    if (transform.position.Y >= 350) {
+      return new OnGroundState();
     }
     return null;
   }
-  override update(skeleton: Skeleton): void {
-    this.frameTime++;
-  }
+  override update(skeleton: Skeleton): void {}
 }

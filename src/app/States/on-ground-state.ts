@@ -1,4 +1,5 @@
 import { Skeleton } from '../components/skeleton';
+import { Transform } from '../components/transform';
 import { KeysPressed } from '../systems/controller-system';
 import { AttackState } from './attack-state';
 import { JumpingState } from './jumping-state';
@@ -11,13 +12,10 @@ export class OnGroundState extends State {
     super('assets/json/idle.json');
   }
   override enter(skeleton: Skeleton): void {}
-  override execute(): void {
-    throw new Error('Method not implemented.');
-  }
   override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(skeleton: Skeleton, input: KeysPressed): State | null {
+  override handleInput(transform: Transform, input: KeysPressed): State | null {
     if (input.right || input.left) {
       return new RunningState();
     } else if (input.attack) {

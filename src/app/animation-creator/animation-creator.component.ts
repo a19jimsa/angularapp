@@ -19,6 +19,7 @@ type ClipAnimation = {
 };
 
 import {
+  AfterContentInit,
   AfterViewInit,
   Component,
   ElementRef,
@@ -110,8 +111,8 @@ export class AnimationCreatorComponent
     this.canvasHeight = this.canvas.nativeElement.height;
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
     this.spriteSheet.src = '../assets/sprites/88022.png';
-    this.addEventHandlers();
     this.animationLoop();
+    setTimeout(() => this.addEventHandlers(), 3000);
   }
 
   ngOnInit() {
@@ -121,8 +122,7 @@ export class AnimationCreatorComponent
       this.createBoneHierarchy();
     }
     if (localStorage.getItem('frames') !== null) {
-      // this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
-      // this.createBoneHierarchy();
+      this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
     }
   }
 

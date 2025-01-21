@@ -13,13 +13,14 @@ export class Skeleton extends Component {
   state: State;
   position: Vec;
   startTime: number = 0;
-  yPos: number = 0;
   heldEntity: Entity | null;
+  heldOffhandEntity: Entity | null;
   constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
     this.position = new Vec(0, 0);
     this.state = new OnGroundState();
     this.heldEntity = null;
+    this.heldOffhandEntity = null;
   }
 }

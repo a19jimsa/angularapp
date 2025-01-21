@@ -1,4 +1,5 @@
 import { Skeleton } from '../components/skeleton';
+import { Transform } from '../components/transform';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
@@ -10,16 +11,12 @@ export class LoadArrowState extends State {
   }
 
   override enter(skeleton: Skeleton): void {
-
     skeleton.startTime = performance.now();
-  }
-  override execute(): void {
-    throw new Error('Method not implemented.');
   }
   override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
-  override handleInput(skeleton: Skeleton, input: KeysPressed): State | null {
+  override handleInput(transform: Transform, input: KeysPressed): State | null {
     if (input.up) {
       return null;
     }

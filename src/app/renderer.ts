@@ -273,6 +273,7 @@ export class Renderer {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       let draw = true;
+      let drawOffhand = true;
       if (!skeleton) return;
 
       for (let i = 0; i < skeleton.bones.length; i++) {
@@ -286,11 +287,23 @@ export class Renderer {
           this.ctx.scale(-1, 1);
         }
         const entity = skeleton.heldEntity;
+        const offEntity = skeleton.heldOffhandEntity;
         if (entity) {
           const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
           if (weapon && skeleton.bones[i].order === weapon.order && draw) {
             this.drawWeapon(weapon.image, weapon, skeleton.flip);
             draw = false;
+          }
+        }
+        if (offEntity) {
+          const weapon = ecs.getComponent<Weapon>(offEntity, 'Weapon');
+          if (
+            weapon &&
+            skeleton.bones[i].order === weapon.order &&
+            drawOffhand
+          ) {
+            this.drawWeapon(weapon.image, weapon, skeleton.flip);
+            drawOffhand = false;
           }
         }
         this.renderBone(skeleton.image, skeleton.bones[i]);
@@ -355,5 +368,14 @@ export class Renderer {
       weapon.offset.Y - weapon.pivot.Y
     );
     this.ctx.restore();
+  }
+
+  renderWeapons(ecs: Ecs) {
+    const pool = ecs.getPool<[Weapon, Transform]>('Weapon', 'Transform');
+    for (const [weapon, transform] of pool) {
+      weapon.offset.X = transform.position.X - this.camera.position.X;
+      weapon.offset.Y = transform.position.Y - this.camera.position.Y;
+      this.drawWeapon(weapon.image, weapon, false);
+    }
   }
 }

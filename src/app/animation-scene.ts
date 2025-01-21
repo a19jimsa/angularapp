@@ -174,14 +174,6 @@ export class AnimationScene {
 
     this.ecs.addComponent<Ai>(dragonSkeleton, new Ai('idle', null, 500, 500));
 
-    this.ecs.addComponent<Transform>(
-      weapon,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
-    );
-    this.ecs.addComponent<Weapon>(
-      weapon,
-      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
-    );
     const newWeapon = this.ecs.createEntity();
     this.ecs.addComponent<Weapon>(
       newWeapon,
@@ -191,7 +183,17 @@ export class AnimationScene {
         new Vec(-10, 105)
       )
     );
+    this.ecs.addComponent<Weapon>(
+      weapon,
+      new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 140))
+    );
+    const arrow = this.ecs.createEntity();
+    this.ecs.addComponent<Weapon>(
+      arrow,
+      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 0))
+    );
 
+    playerSkeleton.heldOffhandEntity = arrow;
     playerSkeleton.heldEntity = weapon;
     draugSkeleton.heldEntity = newWeapon;
     womanSkeleton.heldEntity = newWeapon;
@@ -221,6 +223,7 @@ export class AnimationScene {
     this.projectileSystem.update(this.ecs, this.renderer);
 
     this.renderer.renderCharacter(this.ecs);
+    this.renderer.renderWeapons(this.ecs);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }
