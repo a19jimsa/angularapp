@@ -11,6 +11,7 @@ import { Sprite } from './components/sprite';
 import { Weapon } from './components/weapon';
 import { Rotation } from './components/rotation';
 import { Ecs } from './ecs';
+import { Hit } from './components/hit';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -275,17 +276,16 @@ export class Renderer {
       let draw = true;
       let drawOffhand = true;
       if (!skeleton) return;
-
+      skeleton.bones.sort((a, b) => a.order - b.order);
+      this.ctx.save();
+      this.ctx.translate(
+        skeleton.position.X - this.camera.position.X,
+        skeleton.position.Y - this.camera.position.Y
+      );
+      if (skeleton.flip) {
+        this.ctx.scale(-1, 1);
+      }
       for (let i = 0; i < skeleton.bones.length; i++) {
-        skeleton.bones.sort((a, b) => a.order - b.order);
-        this.ctx.save();
-        this.ctx.translate(
-          skeleton.position.X - this.camera.position.X,
-          skeleton.position.Y - this.camera.position.Y
-        );
-        if (skeleton.flip) {
-          this.ctx.scale(-1, 1);
-        }
         const entity = skeleton.heldEntity;
         const offEntity = skeleton.heldOffhandEntity;
         if (entity) {
@@ -307,26 +307,26 @@ export class Renderer {
           }
         }
         this.renderBone(skeleton.image, skeleton.bones[i]);
-        this.ctx.restore();
       }
+      this.ctx.restore();
     }
   }
 
   public renderBone(image: CanvasImageSource, bone: Bone) {
     const radians = (bone.globalRotation * Math.PI) / 180;
     this.ctx.save();
-    this.ctx.translate(bone.offset.X, bone.offset.Y);
+    this.ctx.translate(bone.position.X, bone.position.Y);
     this.ctx.rotate(radians - Math.PI / 2);
     this.ctx.scale(bone.scale.X, bone.scale.Y);
-    this.ctx.translate(-bone.offset.X, -bone.offset.Y);
+    this.ctx.translate(-bone.position.X, -bone.position.Y);
     this.ctx.drawImage(
       image,
       bone.startX,
       bone.startY,
       bone.endX,
       bone.endY,
-      bone.offset.X - bone.pivot.X - bone.endX / 2,
-      bone.offset.Y - bone.pivot.Y,
+      bone.position.X - bone.pivot.X - bone.endX / 2,
+      bone.position.Y - bone.pivot.Y,
       bone.endX,
       bone.endY
     );

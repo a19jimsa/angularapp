@@ -41,6 +41,7 @@ import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
 import { OnGroundState } from '../States/on-ground-state';
 import { JumpingState } from '../States/jumping-state';
 import { RunningState } from '../States/running-state';
+import { Skeleton } from '../components/skeleton';
 
 @Component({
   selector: 'app-animation-creator',
@@ -234,9 +235,8 @@ export class AnimationCreatorComponent
 
   addBonesFromJSON() {
     for (const bone of this.bones) {
-      bone.offset = new Vec(bone.offset.X, bone.offset.Y);
       bone.position = new Vec(bone.position.X, bone.position.Y);
-      bone.position = new Vec(bone.position.X, bone.position.Y);
+      bone.pivot = new Vec(bone.pivot.X, bone.pivot.Y);
       bone.hierarchyDepth = 0;
       if (bone.scale) {
         bone.scale = new Vec(bone.scale.X, bone.scale.Y);
@@ -307,13 +307,13 @@ export class AnimationCreatorComponent
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
-      this.ctx.moveTo(bone.offset.X, bone.offset.Y);
+      this.ctx.moveTo(bone.position.X, bone.position.Y);
       this.ctx.lineTo(bone.position.X, bone.position.Y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
       this.ctx.strokeStyle = 'red';
-      this.ctx.arc(bone.offset.X, bone.offset.Y, 5, 0, Math.PI * 2);
+      this.ctx.arc(bone.position.X, bone.position.Y, 5, 0, Math.PI * 2);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.restore();
@@ -370,18 +370,18 @@ export class AnimationCreatorComponent
       this.ctx.save();
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.translate(bone.offset.X, bone.offset.Y);
+      this.ctx.translate(bone.position.X, bone.position.Y);
       this.ctx.rotate(this.degreesToRadians(bone.globalRotation) - Math.PI / 2);
       this.ctx.scale(bone.scale.X, bone.scale.Y);
-      this.ctx.translate(-bone.offset.X, -bone.offset.Y);
+      this.ctx.translate(-bone.position.X, -bone.position.Y);
       this.ctx.drawImage(
         this.spriteSheet,
         bone.startX,
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.offset.X - bone.pivot.X - bone.endX / 2,
-        bone.offset.Y - bone.pivot.Y,
+        bone.position.X - bone.pivot.X - bone.endX / 2,
+        bone.position.Y - bone.pivot.Y,
         bone.endX,
         bone.endY
       );
@@ -441,8 +441,8 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.offset.X,
-      this.canvasHeight / 2 + this.activeBone.offset.Y
+      this.canvasWidth / 2 + this.activeBone.position.X,
+      this.canvasHeight / 2 + this.activeBone.position.Y
     );
     this.ctx.lineWidth = 3;
 
@@ -509,7 +509,7 @@ export class AnimationCreatorComponent
       console.log(event.key);
       if (event.key == 'ArrowDown') {
         if (this.activeBone) {
-          this.activeBone.offset.Y += 1;
+          this.activeBone.position.Y += 1;
           return;
         }
         this.mouseDown.Y += 1;
@@ -517,7 +517,7 @@ export class AnimationCreatorComponent
       }
       if (event.key == 'ArrowUp') {
         if (this.activeBone) {
-          this.activeBone.offset.Y -= 1;
+          this.activeBone.position.Y -= 1;
           return;
         }
         this.mouseDown.Y -= 1;
@@ -525,7 +525,7 @@ export class AnimationCreatorComponent
       }
       if (event.key == 'ArrowRight') {
         if (this.activeBone) {
-          this.activeBone.offset.X += 1;
+          this.activeBone.position.X += 1;
           return;
         }
         this.mouseDown.X += 1;
@@ -533,7 +533,7 @@ export class AnimationCreatorComponent
       }
       if (event.key == 'ArrowLeft') {
         if (this.activeBone) {
-          this.activeBone.offset.X -= 1;
+          this.activeBone.position.X -= 1;
           return;
         }
         this.mouseDown.X -= 1;
@@ -589,8 +589,8 @@ export class AnimationCreatorComponent
 
   mouseClick() {
     if (this.activeBone) {
-      this.activeBone.offset.X = this.mousePos.X - this.canvasWidth / 2;
-      this.activeBone.offset.Y = this.mousePos.Y - this.canvasHeight / 2;
+      this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
+      this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
     }
   }
 
@@ -657,9 +657,9 @@ export class AnimationCreatorComponent
 
   mouseCollision() {
     if (!this.activeBone) return;
-    if (!this.activeBone.offset) return;
-    this.activeBone.offset.X = this.mousePos.X - this.canvasWidth / 2;
-    this.activeBone.offset.Y = this.mousePos.Y - this.canvasHeight / 2;
+    if (!this.activeBone.position) return;
+    this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
+    this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {
@@ -709,8 +709,8 @@ export class AnimationCreatorComponent
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
-          bone.offset = this.calculateParentPosition(
-            parent.offset,
+          bone.position = this.calculateParentPosition(
+            parent.position,
             parent.length * bone.attachAt * parent.scale.Y * parent.scale.X,
             parentRotation
           );
@@ -719,12 +719,6 @@ export class AnimationCreatorComponent
 
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
-
-      bone.position = this.calculateParentPosition(
-        bone.offset,
-        bone.length,
-        parentRotation + bone.rotation
-      );
     }
   }
 
@@ -768,7 +762,7 @@ export class AnimationCreatorComponent
     const mousePosX = this.mouseDown.X - this.canvasWidth / 2;
     const mousePosY = this.mouseDown.Y - this.canvasHeight / 2;
     for (const bone of this.bones) {
-      const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
+      const distance = bone.position.dist(new Vec(mousePosX, mousePosY));
       console.log(distance);
       if (distance <= 5) {
         this.activateBone(bone.id);
@@ -783,9 +777,9 @@ export class AnimationCreatorComponent
     const mouseX = this.mousePos.X - this.canvasWidth / 2;
     const mouseY = this.mousePos.Y - this.canvasHeight / 2;
     return (
-      mouseX > bone.offset.X - bone.endX / 2 &&
+      mouseX > bone.position.X - bone.endX / 2 &&
       mouseX < bone.endX &&
-      mouseY > bone.offset.Y &&
+      mouseY > bone.position.Y &&
       mouseY < bone.endY
     );
   }

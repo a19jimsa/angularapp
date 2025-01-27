@@ -42,9 +42,9 @@ export class Vec {
     return new Vec(this.x, this.y);
   }
   public minus(other: Vec): Vec {
-    const newValueX = this.x - other.X;
-    const newValueY = this.y - other.Y;
-    return new Vec(newValueX, newValueY);
+    this.x - other.X;
+    this.y - other.Y;
+    return new Vec(this.x, this.y);
   }
 
   public dotProduct(a: Vec): number {

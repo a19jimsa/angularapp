@@ -2,7 +2,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { KeysPressed } from '../systems/controller-system';
 import { FallingState } from './falling-state';
-import { OnGroundState } from './on-ground-state';
+import { JumpAttackState } from './jump-attack-state';
 import { State } from './state';
 
 export class JumpingState extends State {
@@ -17,6 +17,9 @@ export class JumpingState extends State {
     throw new Error('Method not implemented.');
   }
   override handleInput(transform: Transform, input: KeysPressed): State | null {
+    if (input.attack) {
+      return new JumpAttackState();
+    }
     if (transform.velocity.Y > 0) {
       return new FallingState();
     }

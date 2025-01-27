@@ -13,16 +13,18 @@ export class Bone extends Component {
   endX: number;
   endY: number;
   pivot: Vec;
-  offset: Vec;
   order: number;
   attachAt: number;
   scale: Vec;
   globalRotation: number;
   globalSpriteRotation: number;
   hierarchyDepth: number;
+  globalPosition: Vec;
 
   minAngle: number;
   maxAngle: number;
+
+  lowestY: number = 30;
 
   constructor(
     id: string,
@@ -50,7 +52,6 @@ export class Bone extends Component {
     this.endX = endX;
     this.endY = endY;
     this.order = order;
-    this.offset = offset;
     this.attachAt = 1;
     this.globalRotation = 0;
     this.globalSpriteRotation = 0;
@@ -58,5 +59,6 @@ export class Bone extends Component {
     this.scale = new Vec(1, 1);
     this.minAngle = minAngle;
     this.maxAngle = maxAngle;
+    this.globalPosition = new Vec(0, 0);
   }
 }

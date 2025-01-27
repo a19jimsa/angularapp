@@ -4,23 +4,22 @@ import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 
-export class LoadArrowState extends State {
+export class JumpAttackState extends State {
   frameTime = 0;
   constructor() {
-    super('assets/json/loadarrow.json');
+    super('assets/json/jumpattack.json');
   }
 
-  override enter(skeleton: Skeleton): void {
-    skeleton.startTime = performance.now();
-  }
+  override enter(skeleton: Skeleton): void {}
   override exit(skeleton: Skeleton): void {
     throw new Error('Method not implemented.');
   }
   override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (input.up) {
-      return null;
+    if (this.frameTime >= 60) {
+      return new OnGroundState();
     }
-    return new OnGroundState();
+    this.frameTime++;
+    return this;
   }
   override update(skeleton: Skeleton): void {}
 }

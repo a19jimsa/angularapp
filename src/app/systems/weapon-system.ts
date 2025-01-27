@@ -13,8 +13,8 @@ export class WeaponSystem {
         if (!weapon) return;
         const parent = skeleton.bones.find((e) => e.id === weapon.parentId);
         if (parent) {
-          weapon.offset.X = parent.offset.X;
-          weapon.offset.Y = parent.offset.Y;
+          weapon.offset.X = parent.position.X;
+          weapon.offset.Y = parent.position.Y;
           weapon.rotation = parent.globalRotation;
           weapon.order = parent.order - 1;
         }
@@ -25,8 +25,8 @@ export class WeaponSystem {
         if (!weapon) return;
         const parent = skeleton.bones.find((e) => e.id === weapon.parentId);
         if (parent) {
-          weapon.offset.X = parent.offset.X;
-          weapon.offset.Y = parent.offset.Y;
+          weapon.offset.X = parent.position.X;
+          weapon.offset.Y = parent.position.Y;
           weapon.rotation = parent.globalRotation;
           weapon.order = parent.order - 1;
         }

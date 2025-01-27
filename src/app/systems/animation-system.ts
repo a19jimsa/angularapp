@@ -15,7 +15,6 @@ export class AnimationSystem {
       const keyframes = skeleton.state.keyframes;
       if (keyframes.length === 0) return;
       skeleton.position = transform.position;
-
       const totalDuration = keyframes[keyframes.length - 1].time;
       const speed = 1000 / 1;
       const elapsedTime = (performance.now() - skeleton.startTime) / speed;
@@ -78,8 +77,8 @@ export class AnimationSystem {
         const parent = this.findBoneById(skeleton.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(skeleton, parent);
-          bone.offset = this.calculateParentPosition(
-            parent.offset,
+          bone.position = this.calculateParentPosition(
+            parent.position,
             parent.length * bone.attachAt,
             parentRotation
           );
@@ -88,12 +87,6 @@ export class AnimationSystem {
 
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
-
-      bone.position = this.calculateParentPosition(
-        bone.offset,
-        bone.length,
-        parentRotation + bone.rotation
-      );
     }
   }
 
@@ -123,10 +116,8 @@ export class AnimationSystem {
   }
 
   calculateParentPosition(position: Vec, length: number, rotation: number) {
-    const xEnd =
-      position.X + length * Math.cos(this.degreesToRadians(rotation));
-    const yEnd =
-      position.Y + length * Math.sin(this.degreesToRadians(rotation));
-    return new Vec(xEnd, yEnd);
+    const x = position.X + length * Math.cos(this.degreesToRadians(rotation));
+    const y = position.Y + length * Math.sin(this.degreesToRadians(rotation));
+    return new Vec(x, y);
   }
 }

@@ -43,21 +43,21 @@
   },
   {
     "time": 0,
-    "angle": 0,
+    "angle": -10,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 25, "Y": 23 }
   },
   {
     "time": 0.5,
-    "angle": 0,
+    "angle": -10,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 25, "Y": 23 }
   },
   {
     "time": 1,
-    "angle": 0,
+    "angle": -10,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 25, "Y": 23 }
@@ -442,7 +442,7 @@
   },
   {
     "time": 0,
-    "angle": 0,
+    "angle": 20,
     "name": "torso",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 414.015625, "Y": 2 }
@@ -456,7 +456,7 @@
   },
   {
     "time": 1,
-    "angle": 0,
+    "angle": 20,
     "name": "torso",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 414.015625, "Y": 2 }

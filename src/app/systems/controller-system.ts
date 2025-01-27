@@ -75,12 +75,12 @@ export class ControllerSystem {
   }
 
   update(ecs: Ecs) {
+    let speedX = 0;
     for (let entity of ecs.getEntities()) {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (controlable && transform && skeleton) {
-        let speedX = 0;
         const state = skeleton.state.handleInput(transform, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
@@ -113,11 +113,11 @@ export class ControllerSystem {
               'Weapon'
             );
             if (!parentWeapon) return;
-            const weapon = ecs.createEntity();
-            let speedX = 20;
+
             if (skeleton.flip) {
               speedX = -20;
             }
+            const weapon = ecs.createEntity();
             ecs.addComponent<Transform>(
               weapon,
               new Transform(
@@ -125,7 +125,7 @@ export class ControllerSystem {
                   skeleton.position.X + parentWeapon.offset.X,
                   skeleton.position.Y + parentWeapon.offset.Y
                 ),
-                new Vec(speedX, 0),
+                new Vec(20, 0),
                 0
               )
             );

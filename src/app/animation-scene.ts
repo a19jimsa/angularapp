@@ -25,6 +25,9 @@ import { DragonIdleState } from './States/dragon-idle-state';
 import { HorseIdleState } from './States/horse-idle-state';
 import { PhysicsSystem } from './systems/physics-system';
 import { Weapon } from './components/weapon';
+import { Flying } from './components/flying';
+import { DragonBossState } from './States/dragon-boss-state';
+import { Hit } from './components/hit';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -92,6 +95,7 @@ export class AnimationScene {
     const horse = this.ecs.createEntity();
     const weapon = this.ecs.createEntity();
     const woman = this.ecs.createEntity();
+    const dragon2 = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       player,
@@ -101,6 +105,11 @@ export class AnimationScene {
     this.ecs.addComponent<Transform>(
       dragon,
       new Transform(new Vec(200, 150), new Vec(0, 0), 10)
+    );
+
+    this.ecs.addComponent<Transform>(
+      dragon2,
+      new Transform(new Vec(1500, 200), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
@@ -122,12 +131,13 @@ export class AnimationScene {
       new Transform(new Vec(1000, 350), new Vec(0, 0), 0)
     );
 
-    const playerSkeleton = new Skeleton('assets/sprites/88022.png');
+    const playerSkeleton = new Skeleton('assets/sprites/108414.png');
     const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
     const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
     const draugSkeleton = new Skeleton('assets/sprites/104085.png');
     const horseSkeleton = new Skeleton('assets/sprites/115616.png');
     const womanSkeleton = new Skeleton('assets/sprites/88444.png');
+    const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
 
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
@@ -140,6 +150,7 @@ export class AnimationScene {
     const draugBones = await Loader.loadFromJSON('assets/json/skeleton.json');
     const horseBones = await Loader.loadFromJSON('assets/json/horsebones.json');
     const womanBones = await Loader.loadFromJSON('assets/json/skeleton.json');
+    const dragonBones2 = await Loader.loadFromJSON('assets/json/dragon2.json');
 
     playerSkeleton.bones.push(...skeletonBones);
 
@@ -156,23 +167,28 @@ export class AnimationScene {
 
     womanSkeleton.bones.push(...womanBones);
 
+    dragon2Skeleton.bones.push(...dragonBones2);
+    dragon2Skeleton.state = new DragonBossState();
+
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
     this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
     this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
     this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
     this.ecs.addComponent<Skeleton>(woman, womanSkeleton);
+    this.ecs.addComponent<Skeleton>(dragon2, dragon2Skeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
-
     this.ecs.addComponent<Camera>(player, new Camera());
+
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
     this.player = player;
 
-    this.ecs.addComponent<Ai>(dragonSkeleton, new Ai('idle', null, 500, 500));
+    this.ecs.addComponent<Ai>(flyer, new Ai('idle', null, 500, 500));
+    this.ecs.addComponent<Flying>(flyer, new Flying());
 
     const newWeapon = this.ecs.createEntity();
     this.ecs.addComponent<Weapon>(
@@ -193,10 +209,19 @@ export class AnimationScene {
       new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 0))
     );
 
-    playerSkeleton.heldOffhandEntity = arrow;
-    playerSkeleton.heldEntity = weapon;
+    const sword = this.ecs.createEntity();
+    this.ecs.addComponent<Weapon>(
+      sword,
+      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
+    );
+
+    this.ecs.addComponent<Hit>(player, new Hit());
+
+    // playerSkeleton.heldOffhandEntity = arrow;
+    playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = newWeapon;
     womanSkeleton.heldEntity = newWeapon;
+    console.log(this.ecs);
   }
 
   start() {
@@ -212,15 +237,16 @@ export class AnimationScene {
       this.height
     );
 
+    this.aiSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
-    this.aiSystem.update(this.ecs, this.player!);
     this.animationSystem.update(this.ecs);
+
     this.weaponSystem.update(this.ecs);
-    this.attackSystem.update(this.ecs, this.renderer);
-    this.attackDurationSystem.update(this.ecs);
-    this.deadSystem.update(this.ecs);
-    this.hitBoxSystem.update(this.ecs, this.renderer);
-    this.projectileSystem.update(this.ecs, this.renderer);
+    // this.attackSystem.update(this.ecs, this.renderer);
+    // this.attackDurationSystem.update(this.ecs);
+    // this.deadSystem.update(this.ecs);
+    // this.hitBoxSystem.update(this.ecs, this.renderer);
+    // this.projectileSystem.update(this.ecs, this.renderer);
 
     this.renderer.renderCharacter(this.ecs);
     this.renderer.renderWeapons(this.ecs);

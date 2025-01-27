@@ -12,7 +12,6 @@ export abstract class State {
     try {
       const response = await fetch(this.path);
       this.keyframes = await response.json();
-      console.log(this.keyframes);
     } catch (error) {
       console.log(error);
     }
