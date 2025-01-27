@@ -308,7 +308,12 @@ export class AnimationCreatorComponent
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
       this.ctx.moveTo(bone.position.X, bone.position.Y);
-      this.ctx.lineTo(bone.position.X, bone.position.Y);
+      const vector = this.calculateParentPosition(
+        bone.position,
+        bone.length,
+        bone.globalRotation
+      );
+      this.ctx.lineTo(vector.X, vector.Y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
@@ -623,7 +628,6 @@ export class AnimationCreatorComponent
       this.mouseUp.X - this.mouseDown.X,
       this.mouseUp.Y - this.mouseDown.Y,
       0,
-      new Vec(0, 0),
       0,
       0
     );

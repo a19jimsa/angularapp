@@ -273,14 +273,15 @@ export class Renderer {
   public renderCharacter(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const transform = ecs.getComponent<Transform>(entity, 'Transform');
       let draw = true;
       let drawOffhand = true;
       if (!skeleton) return;
       skeleton.bones.sort((a, b) => a.order - b.order);
       this.ctx.save();
       this.ctx.translate(
-        skeleton.position.X - this.camera.position.X,
-        skeleton.position.Y - this.camera.position.Y
+        transform.position.X - this.camera.position.X,
+        transform.position.Y - this.camera.position.Y
       );
       if (skeleton.flip) {
         this.ctx.scale(-1, 1);

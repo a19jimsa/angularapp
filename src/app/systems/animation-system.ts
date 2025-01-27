@@ -9,12 +9,10 @@ export class AnimationSystem {
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      if (!skeleton) return;
-      if (!skeleton.state) return;
+      if (!skeleton) continue;
+      if (!skeleton.state) continue;
       const keyframes = skeleton.state.keyframes;
-      if (keyframes.length === 0) return;
-      skeleton.position = transform.position;
+      if (keyframes.length === 0) continue;
       const totalDuration = keyframes[keyframes.length - 1].time;
       const speed = 1000 / 1;
       const elapsedTime = (performance.now() - skeleton.startTime) / speed;

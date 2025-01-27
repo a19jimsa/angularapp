@@ -75,12 +75,12 @@ export class ControllerSystem {
   }
 
   update(ecs: Ecs) {
-    let speedX = 0;
     for (let entity of ecs.getEntities()) {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (controlable && transform && skeleton) {
+        let speedX = 0;
         const state = skeleton.state.handleInput(transform, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
@@ -107,12 +107,12 @@ export class ControllerSystem {
 
         if (this.keysPressed.up) {
           if (this.timer > 100) {
-            if (!skeleton.heldOffhandEntity) return;
+            if (!skeleton.heldOffhandEntity) continue;
             const parentWeapon = ecs.getComponent<Weapon>(
               skeleton.heldOffhandEntity,
               'Weapon'
             );
-            if (!parentWeapon) return;
+            if (!parentWeapon) continue;
 
             if (skeleton.flip) {
               speedX = -20;

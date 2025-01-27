@@ -104,7 +104,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(200, 150), new Vec(0, 0), 10)
+      new Transform(new Vec(-100, 150), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
@@ -119,7 +119,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       draug,
-      new Transform(new Vec(700, 350), new Vec(0, 0), 0)
+      new Transform(new Vec(300, 350), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
@@ -180,6 +180,10 @@ export class AnimationScene {
 
     this.ecs.addComponent<Controlable>(
       player,
+      new Controlable(new Vec(0, 0), 0, false)
+    );
+    this.ecs.addComponent<Controlable>(
+      draug,
       new Controlable(new Vec(0, 0), 0, false)
     );
     this.ecs.addComponent<Camera>(player, new Camera());

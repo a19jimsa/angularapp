@@ -19,7 +19,7 @@ export class Bone extends Component {
   globalRotation: number;
   globalSpriteRotation: number;
   hierarchyDepth: number;
-  globalPosition: Vec;
+  absolutePosition: Vec;
 
   minAngle: number;
   maxAngle: number;
@@ -36,7 +36,6 @@ export class Bone extends Component {
     endX: number,
     endY: number,
     order: number,
-    offset: Vec,
     minAngle: number,
     maxAngle: number
   ) {
@@ -59,6 +58,6 @@ export class Bone extends Component {
     this.scale = new Vec(1, 1);
     this.minAngle = minAngle;
     this.maxAngle = maxAngle;
-    this.globalPosition = new Vec(0, 0);
+    this.absolutePosition = new Vec(0, 0);
   }
 }
