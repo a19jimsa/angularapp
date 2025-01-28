@@ -28,6 +28,7 @@ import { Weapon } from './components/weapon';
 import { Flying } from './components/flying';
 import { DragonBossState } from './States/dragon-boss-state';
 import { Hit } from './components/hit';
+import { Foot } from './components/foot';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -182,10 +183,14 @@ export class AnimationScene {
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
-    this.ecs.addComponent<Controlable>(
-      draug,
-      new Controlable(new Vec(0, 0), 0, false)
-    );
+    // this.ecs.addComponent<Controlable>(
+    //   draug,
+    //   new Controlable(new Vec(0, 0), 0, false)
+    // );
+    // this.ecs.addComponent<Controlable>(
+    //   woman,
+    //   new Controlable(new Vec(0, 0), 0, false)
+    // );
     this.ecs.addComponent<Camera>(player, new Camera());
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
@@ -220,6 +225,7 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Hit>(player, new Hit());
+    this.ecs.addComponent<Foot>(player, new Foot(70-29));
 
     // playerSkeleton.heldOffhandEntity = arrow;
     playerSkeleton.heldEntity = sword;

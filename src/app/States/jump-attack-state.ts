@@ -15,7 +15,7 @@ export class JumpAttackState extends State {
     throw new Error('Method not implemented.');
   }
   override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (this.frameTime >= 60) {
+    if (this.frameTime >= 50) {
       return new OnGroundState();
     }
     this.frameTime++;

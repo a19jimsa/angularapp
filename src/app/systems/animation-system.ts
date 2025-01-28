@@ -1,6 +1,5 @@
 import { Bone } from '../components/bone';
 import { Skeleton } from '../components/skeleton';
-import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Vec } from '../vec';
 

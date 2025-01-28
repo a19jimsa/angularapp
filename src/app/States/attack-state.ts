@@ -14,7 +14,7 @@ export class AttackState extends State {
   }
   override exit(skeleton: Skeleton): void {}
   override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (this.frameTimer > 16) {
+    if (this.frameTimer > 15) {
       return new OnGroundState();
     }
     return null;

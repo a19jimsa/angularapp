@@ -92,6 +92,8 @@ export class ControllerSystem {
           //IF standing on ground
           if (transform.position.Y === 350) {
             ecs.addComponent<Jump>(entity, new Jump());
+            transform.velocity.Y += -10;
+            break;
           }
         }
 
@@ -107,12 +109,12 @@ export class ControllerSystem {
 
         if (this.keysPressed.up) {
           if (this.timer > 100) {
-            if (!skeleton.heldOffhandEntity) continue;
+            if (!skeleton.heldOffhandEntity) return;
             const parentWeapon = ecs.getComponent<Weapon>(
               skeleton.heldOffhandEntity,
               'Weapon'
             );
-            if (!parentWeapon) continue;
+            if (!parentWeapon) return;
 
             if (skeleton.flip) {
               speedX = -20;
