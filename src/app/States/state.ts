@@ -1,6 +1,8 @@
 import { Keyframe } from '../animation-creator/animation-creator.component';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { KeysPressed } from '../systems/controller-system';
 
 export abstract class State {
@@ -16,8 +18,12 @@ export abstract class State {
       console.log(error);
     }
   }
-  abstract enter(skeleton: Skeleton): void;
-  abstract exit(skeleton: Skeleton): void;
-  abstract handleInput(transform: Transform, input: KeysPressed): State | null;
-  abstract update(skeleton: Skeleton): void;
+  abstract enter(entity: Entity, ecs: Ecs): void;
+  abstract exit(entity: Entity, ecs: Ecs): void;
+  abstract handleInput(
+    entity: Entity,
+    ecs: Ecs,
+    input: KeysPressed
+  ): State | null;
+  abstract update(entity: Entity, ecs: Ecs): void;
 }

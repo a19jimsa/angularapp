@@ -1,5 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
@@ -9,17 +11,29 @@ export class AttackState extends State {
   constructor() {
     super('assets/json/attack.json');
   }
-  override enter(skeleton: Skeleton): void {
-    skeleton.startTime = performance.now();
+  override enter(entity: Entity, ecs: Ecs): void {
+    console.log('Attack');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (skeleton) {
+      skeleton.startTime = performance.now();
+    }
+    if (transform) {
+      transform.velocity.X = 0;
+    }
   }
-  override exit(skeleton: Skeleton): void {}
-  override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (this.frameTimer > 15) {
+  override exit(entity: Entity, ecs: Ecs): void {}
+  override handleInput(
+    entity: Entity,
+    ecs: Ecs,
+    input: KeysPressed
+  ): State | null {
+    if (this.frameTimer > 10) {
       return new OnGroundState();
     }
     return null;
   }
-  override update(skeleton: Skeleton): void {
+  override update(entity: Entity, ecs: Ecs): void {
     this.frameTimer++;
   }
 }

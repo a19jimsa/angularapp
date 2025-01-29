@@ -1,5 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { KeysPressed } from '../systems/controller-system';
 import { FallingState } from './falling-state';
 import { JumpAttackState } from './jump-attack-state';
@@ -10,22 +12,34 @@ export class JumpingState extends State {
   constructor() {
     super('assets/json/jumping.json');
   }
-  override enter(skeleton: Skeleton): void {
-    skeleton.startTime = performance.now();
+  override enter(entity: Entity, ecs: Ecs): void {
+    console.log('Jumping');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton) {
+      skeleton.startTime = performance.now();
+    }
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (!transform) return;
+    transform.velocity.Y -= 20;
   }
-  override exit(skeleton: Skeleton): void {
-    throw new Error('Method not implemented.');
-  }
-  override handleInput(transform: Transform, input: KeysPressed): State | null {
+  override exit(entity: Entity, ecs: Ecs): void {}
+  override handleInput(
+    entity: Entity,
+    ecs: Ecs,
+    input: KeysPressed
+  ): State | null {
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (transform) {
+      if (transform.velocity.Y >= 0) {
+        return new FallingState();
+      }
+    }
     if (input.attack) {
       return new JumpAttackState();
     }
-    if (transform.velocity.Y > 0) {
-      return new FallingState();
-    }
     return null;
   }
-  override update(skeleton: Skeleton): void {
+  override update(entity: Entity, ecs: Ecs): void {
     this.frameTime++;
   }
 }

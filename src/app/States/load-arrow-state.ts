@@ -1,5 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
@@ -10,17 +12,21 @@ export class LoadArrowState extends State {
     super('assets/json/loadarrow.json');
   }
 
-  override enter(skeleton: Skeleton): void {
+  override enter(entity: Entity, ecs: Ecs): void {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return;
     skeleton.startTime = performance.now();
   }
-  override exit(skeleton: Skeleton): void {
-    throw new Error('Method not implemented.');
-  }
-  override handleInput(transform: Transform, input: KeysPressed): State | null {
+  override exit(entity: Entity, ecs: Ecs): void {}
+  override handleInput(
+    entity: Entity,
+    ecs: Ecs,
+    input: KeysPressed
+  ): State | null {
     if (input.up) {
       return null;
     }
     return new OnGroundState();
   }
-  override update(skeleton: Skeleton): void {}
+  override update(entity: Entity, ecs: Ecs): void {}
 }

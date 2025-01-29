@@ -1,55 +1,57 @@
+import { Bone } from '../components/bone';
 import { Falling } from '../components/falling';
 import { Flying } from '../components/flying';
 import { Foot } from '../components/foot';
 import { Jump } from '../components/jump';
 import { Skeleton } from '../components/skeleton';
-import { Standing } from '../components/standing';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 
 export class PhysicsSystem {
-  GRAVITY: number = 0.5;
+  GRAVITY: number = 1;
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      const falling = ecs.getComponent<Falling>(entity, 'Falling');
-      const jumping = ecs.getComponent<Jump>(entity, 'Jump');
-      const flying = ecs.getComponent<Flying>(entity, 'Flying');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const jumping = ecs.getComponent<Jump>(entity, 'Jump');
       const foot = ecs.getComponent<Foot>(entity, 'Foot');
-
-      if (flying) continue;
+      const falling = ecs.getComponent<Falling>(entity, 'Falling');
       if (!skeleton) continue;
-      const root = skeleton.bones.find((e) => e.id === 'root');
       if (!transform) continue;
-      if (root) {
-        if (!foot) continue;
-        let maxBone = 0;
-        // Beräkna den absoluta positionen för varje ben
+      if (foot) {
+        let maxPos = 0;
+        let id = '';
         for (const bone of skeleton.bones) {
-          const y =
+          const targetY =
             bone.position.Y +
             bone.length *
-              Math.sin((bone.rotation + bone.globalRotation * Math.PI) / 180);
-          maxBone = Math.max(y, maxBone);
+              Math.sin(
+                ((bone.globalRotation +
+                  bone.rotation +
+                  bone.globalSpriteRotation) *
+                  Math.PI) /
+                  180
+              );
+          if (targetY > maxPos) {
+            id = bone.id;
+          }
+          maxPos = Math.max(targetY, maxPos);
         }
-        root.position.Y += foot.value - maxBone;
-        console.log(root.position.Y);
+        foot.value = foot.startValue - maxPos;
       }
-      if (transform.velocity.Y > 0) {
+      if (transform.velocity.Y >= 0) {
+        ecs.removeComponent<Jump>(entity, 'Jump');
       }
       if (transform.velocity.Y < 0) {
         ecs.removeComponent<Jump>(entity, 'Jump');
         ecs.addComponent<Falling>(entity, new Falling());
       }
-      if (transform.position.Y >= 350) {
-        transform.velocity.Y = 0;
-        transform.position.Y = 350;
+      if (foot && transform.position.Y >= foot.startPositionY) {
         ecs.removeComponent<Falling>(entity, 'Falling');
         ecs.removeComponent<Jump>(entity, 'Jump');
-        continue;
+        transform.position.Y = foot.startPositionY;
       }
-      if (falling || jumping) transform.velocity.Y += this.GRAVITY;
+      if (falling) transform.velocity.Y += this.GRAVITY;
     }
   }
 }

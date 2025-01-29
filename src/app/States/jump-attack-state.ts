@@ -1,5 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
+import { Ecs } from '../ecs';
+import { Entity } from '../entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
@@ -10,16 +12,25 @@ export class JumpAttackState extends State {
     super('assets/json/jumpattack.json');
   }
 
-  override enter(skeleton: Skeleton): void {}
-  override exit(skeleton: Skeleton): void {
-    throw new Error('Method not implemented.');
+  override enter(entity: Entity, ecs: Ecs): void {
+    console.log('Jump attack');
   }
-  override handleInput(transform: Transform, input: KeysPressed): State | null {
-    if (this.frameTime >= 50) {
+  override exit(entity: Entity, ecs: Ecs): void {}
+  override handleInput(
+    entity: Entity,
+    ecs: Ecs,
+    input: KeysPressed
+  ): State | null {
+    if (this.frameTime >= 80) {
       return new OnGroundState();
     }
-    this.frameTime++;
-    return this;
+    return null;
   }
-  override update(skeleton: Skeleton): void {}
+  override update(entity: Entity, ecs: Ecs): void {
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (transform.position.Y === 350) {
+      transform.velocity.X = 0;
+    }
+    this.frameTime++;
+  }
 }

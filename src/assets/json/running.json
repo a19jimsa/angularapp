@@ -22,27 +22,6 @@
   },
   {
     "time": 0,
-    "angle": 0,
-    "name": "arrow",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 85.015625, "Y": 306 }
-  },
-  {
-    "time": 0.5,
-    "angle": 0,
-    "name": "arrow",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 85.015625, "Y": 306 }
-  },
-  {
-    "time": 1,
-    "angle": 0,
-    "name": "arrow",
-    "scale": { "X": 1, "Y": 1 },
-    "clip": { "X": 85.015625, "Y": 306 }
-  },
-  {
-    "time": 0,
     "angle": -10,
     "name": "head",
     "scale": { "X": 1, "Y": 1 },
@@ -337,7 +316,7 @@
   },
   {
     "time": 0,
-    "angle": -49,
+    "angle": 0,
     "name": "right_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 274.015625, "Y": 150 }
@@ -351,7 +330,7 @@
   },
   {
     "time": 1,
-    "angle": -49,
+    "angle": 0,
     "name": "right_leg",
     "scale": { "X": 1, "Y": 1 },
     "clip": { "X": 274.015625, "Y": 150 }

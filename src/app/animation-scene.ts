@@ -29,6 +29,7 @@ import { Flying } from './components/flying';
 import { DragonBossState } from './States/dragon-boss-state';
 import { Hit } from './components/hit';
 import { Foot } from './components/foot';
+import { InitializationSystem } from './systems/initialization-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -51,6 +52,7 @@ export class AnimationScene {
   projectileSystem: ProjectileSystem;
   weaponSystem: WeaponSystem;
   physicsSystem: PhysicsSystem;
+  initializationSystem: InitializationSystem;
   loopId = 0;
 
   constructor(
@@ -85,6 +87,7 @@ export class AnimationScene {
     this.projectileSystem = new ProjectileSystem();
     this.weaponSystem = new WeaponSystem();
     this.physicsSystem = new PhysicsSystem();
+    this.initializationSystem = new InitializationSystem();
   }
 
   async init() {
@@ -105,12 +108,12 @@ export class AnimationScene {
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(-100, 150), new Vec(0, 0), 10)
+      new Transform(new Vec(0, 200), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
       dragon2,
-      new Transform(new Vec(1500, 200), new Vec(0, 0), 0)
+      new Transform(new Vec(1500, 400), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
@@ -225,13 +228,16 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Hit>(player, new Hit());
-    this.ecs.addComponent<Foot>(player, new Foot(70-29));
+    this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
+    this.ecs.addComponent<Foot>(dragon, new Foot('right_hand'));
+    this.ecs.addComponent<Foot>(flyer, new Foot('last_tail'));
 
     // playerSkeleton.heldOffhandEntity = arrow;
     playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = newWeapon;
     womanSkeleton.heldEntity = newWeapon;
     console.log(this.ecs);
+    this.initializationSystem.update(this.ecs);
   }
 
   start() {
@@ -250,7 +256,6 @@ export class AnimationScene {
     this.aiSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
     this.animationSystem.update(this.ecs);
-
     this.weaponSystem.update(this.ecs);
     // this.attackSystem.update(this.ecs, this.renderer);
     // this.attackDurationSystem.update(this.ecs);

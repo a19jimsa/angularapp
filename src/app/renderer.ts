@@ -12,6 +12,7 @@ import { Weapon } from './components/weapon';
 import { Rotation } from './components/rotation';
 import { Ecs } from './ecs';
 import { Hit } from './components/hit';
+import { Foot } from './components/foot';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -274,14 +275,19 @@ export class Renderer {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
+      const foot = ecs.getComponent<Foot>(entity, 'Foot');
       let draw = true;
       let drawOffhand = true;
-      if (!skeleton) return;
+      if (!skeleton) continue;
+      let offset = 0;
+      if (foot) {
+        offset = foot.value;
+      }
       skeleton.bones.sort((a, b) => a.order - b.order);
       this.ctx.save();
       this.ctx.translate(
         transform.position.X - this.camera.position.X,
-        transform.position.Y - this.camera.position.Y
+        transform.position.Y + offset - this.camera.position.Y
       );
       if (skeleton.flip) {
         this.ctx.scale(-1, 1);
@@ -309,6 +315,9 @@ export class Renderer {
         }
         this.renderBone(skeleton.image, skeleton.bones[i]);
       }
+      // this.ctx.fillStyle = 'red';
+      // this.ctx.fillRect(0, 0, 80, 100);
+      // this.ctx.fill();
       this.ctx.restore();
     }
   }

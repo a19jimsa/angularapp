@@ -25,15 +25,15 @@ export class AiSystem {
             //   ai.target = playerEntity;
             //   console.log('Changed to attack state');
             // }
-            if (this.timer >= 0 && this.timer <= 50) {
-              transform.velocity.Y = 0.5;
-            } else if (this.timer > 50) {
-              transform.velocity.Y = -0.5;
-            }
-            if (this.timer > 100) {
-              this.timer = 0;
-            }
-            this.timer++;
+            // if (this.timer >= 0 && this.timer <= 50) {
+            //   transform.velocity.Y = 0.5;
+            // } else if (this.timer > 50) {
+            //   transform.velocity.Y = -0.5;
+            // }
+            // if (this.timer > 100) {
+            //   this.timer = 0;
+            // }
+            // this.timer++;
 
             break;
           case 'chase':

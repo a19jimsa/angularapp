@@ -75,36 +75,22 @@ export class ControllerSystem {
   }
 
   update(ecs: Ecs) {
-    for (let entity of ecs.getEntities()) {
+    for (const entity of ecs.getEntities()) {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const jump = ecs.getComponent<Jump>(entity, 'Jump');
       if (controlable && transform && skeleton) {
         let speedX = 0;
-        const state = skeleton.state.handleInput(transform, this.keysPressed);
+        const state = skeleton.state.handleInput(entity, ecs, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
-          skeleton.state.enter(skeleton);
+          skeleton.state.enter(entity, ecs);
         }
-        skeleton.state.update(skeleton);
+        skeleton.state.update(entity, ecs);
 
-        if (this.keysPressed.jump) {
-          //IF standing on ground
-          if (transform.position.Y === 350) {
-            ecs.addComponent<Jump>(entity, new Jump());
-            transform.velocity.Y += -10;
-            break;
-          }
-        }
-
-        if (this.keysPressed.left) {
-          speedX += -10;
-          skeleton.flip = true;
-        }
-
-        if (this.keysPressed.right) {
-          speedX += 10;
-          skeleton.flip = false;
+        if (this.keysPressed.jump && !jump) {
+          ecs.addComponent<Jump>(entity, new Jump());
         }
 
         if (this.keysPressed.up) {
@@ -139,7 +125,6 @@ export class ControllerSystem {
           }
           this.timer++;
         }
-        transform.velocity.X = speedX;
       }
     }
   }
