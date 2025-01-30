@@ -28,7 +28,7 @@ export class AttackState extends State {
     ecs: Ecs,
     input: KeysPressed
   ): State | null {
-    if (this.frameTimer > 10) {
+    if (this.frameTimer > 120) {
       return new OnGroundState();
     }
     return null;

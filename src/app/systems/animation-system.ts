@@ -1,7 +1,7 @@
 import { Bone } from '../components/bone';
 import { Skeleton } from '../components/skeleton';
 import { Ecs } from '../ecs';
-import { Vec } from '../vec';
+import { MathUtils } from '../Util/MathUtils';
 
 export class AnimationSystem {
   startTime = performance.now();
@@ -30,12 +30,12 @@ export class AnimationSystem {
               (keyframes[i + 1].time - keyFrame.time);
 
             if (bone.id === keyFrame.name) {
-              bone.rotation = this.interpolateKeyframe(
+              bone.rotation = MathUtils.interpolateKeyframe(
                 keyFrame.angle,
                 keyframes[i + 1].angle,
                 progress
               );
-              bone.scale.Y = this.interpolateKeyframe(
+              bone.scale.Y = MathUtils.interpolateKeyframe(
                 keyFrame.scale.Y,
                 keyframes[i + 1].scale.Y,
                 progress
@@ -71,10 +71,10 @@ export class AnimationSystem {
         bone.parentId !== undefined &&
         bone.parentId !== ''
       ) {
-        const parent = this.findBoneById(skeleton.bones, bone.parentId);
+        const parent = MathUtils.findBoneById(skeleton.bones, bone.parentId);
         if (parent) {
-          parentRotation = this.calculateGlobalRotation(skeleton, parent);
-          bone.position = this.calculateParentPosition(
+          parentRotation = MathUtils.calculateGlobalRotation(skeleton, parent);
+          bone.position = MathUtils.calculateParentPosition(
             parent.position,
             parent.length * bone.attachAt,
             parentRotation
@@ -85,36 +85,5 @@ export class AnimationSystem {
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
     }
-  }
-
-  calculateGlobalRotation(skeleton: Skeleton, bone: Bone): number {
-    if (bone.parentId !== null) {
-      const parent = this.findBoneById(skeleton.bones, bone.parentId);
-      if (parent) {
-        // Rekursivt addera förälderns globala rotation
-        return this.calculateGlobalRotation(skeleton, parent) + bone.rotation;
-      }
-    }
-    // Om det inte finns någon förälder (root), returnera bara benets egen rotation
-    return bone.rotation;
-  }
-
-  interpolateKeyframe(startValue: number, endValue: number, progress: number) {
-    return startValue + (endValue - startValue) * progress;
-  }
-
-  degreesToRadians(degrees: number) {
-    const rotationRadians = (degrees * Math.PI) / 180;
-    return rotationRadians;
-  }
-
-  findBoneById(bones: Bone[], parentId: string) {
-    return bones.find((e) => e.id === parentId);
-  }
-
-  calculateParentPosition(position: Vec, length: number, rotation: number) {
-    const x = position.X + length * Math.cos(this.degreesToRadians(rotation));
-    const y = position.Y + length * Math.sin(this.degreesToRadians(rotation));
-    return new Vec(x, y);
   }
 }

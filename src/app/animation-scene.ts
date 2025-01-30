@@ -234,10 +234,10 @@ export class AnimationScene {
 
     // playerSkeleton.heldOffhandEntity = arrow;
     playerSkeleton.heldEntity = sword;
-    draugSkeleton.heldEntity = newWeapon;
-    womanSkeleton.heldEntity = newWeapon;
-    console.log(this.ecs);
+    // draugSkeleton.heldEntity = newWeapon;
+    // womanSkeleton.heldEntity = newWeapon;
     this.initializationSystem.update(this.ecs);
+    console.log(this.ecs);
   }
 
   start() {
@@ -257,14 +257,14 @@ export class AnimationScene {
     this.physicsSystem.update(this.ecs);
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
-    // this.attackSystem.update(this.ecs, this.renderer);
+    this.attackSystem.update(this.ecs);
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
     // this.projectileSystem.update(this.ecs, this.renderer);
 
     this.renderer.renderCharacter(this.ecs);
-    this.renderer.renderWeapons(this.ecs);
+    this.renderer.drawHitBox(this.ecs);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }

@@ -13,6 +13,7 @@ import { Rotation } from './components/rotation';
 import { Ecs } from './ecs';
 import { Hit } from './components/hit';
 import { Foot } from './components/foot';
+import { MathUtils } from './Util/MathUtils';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -45,23 +46,6 @@ export class Renderer {
 
   clearScreen(): void {
     this.ctx.clearRect(0, 0, this.width, this.height);
-  }
-
-  public drawHitBox(hitBox: HitBox, rotation: Rotation) {
-    const radians = ((rotation.angle - 90) * Math.PI) / 180;
-    this.ctx.save();
-    this.ctx.fillStyle = 'green';
-    this.ctx.translate(hitBox.position.X, hitBox.position.Y);
-    this.ctx.rotate(radians);
-    this.ctx.translate(-hitBox.position.X, -hitBox.position.Y);
-    this.ctx.fillRect(
-      hitBox.position.X - this.camera.position.X,
-      hitBox.position.Y,
-      hitBox.height,
-      hitBox.width
-    );
-
-    this.ctx.restore();
   }
 
   private drawCircle(
@@ -323,10 +307,11 @@ export class Renderer {
   }
 
   public renderBone(image: CanvasImageSource, bone: Bone) {
-    const radians = (bone.globalRotation * Math.PI) / 180;
     this.ctx.save();
     this.ctx.translate(bone.position.X, bone.position.Y);
-    this.ctx.rotate(radians - Math.PI / 2);
+    this.ctx.rotate(
+      MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
+    );
     this.ctx.scale(bone.scale.X, bone.scale.Y);
     this.ctx.translate(-bone.position.X, -bone.position.Y);
     this.ctx.drawImage(
@@ -353,24 +338,27 @@ export class Renderer {
     this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
   }
 
-  drawAttackBox(attack: HitBox) {
+  drawHitBox(ecs: Ecs) {
     this.ctx.save();
     this.ctx.fillStyle = 'red';
-    this.ctx.fillRect(
-      attack.position.X - this.camera.position.X,
-      attack.position.Y - this.camera.position.Y,
-      attack.width,
-      attack.height
-    );
-    this.ctx.fill();
+    for (const entity of ecs.getEntities()) {
+      const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
+      if (hitBox) {
+        this.ctx.fillRect(
+          hitBox.position.X - this.camera.position.X,
+          hitBox.position.Y - this.camera.position.Y,
+          hitBox.width,
+          hitBox.height
+        );
+      }
+    }
     this.ctx.restore();
   }
 
   drawWeapon(image: HTMLImageElement, weapon: Weapon, flip: boolean) {
-    const radians = (weapon.rotation * Math.PI) / 180;
     this.ctx.save();
     this.ctx.translate(weapon.offset.X, weapon.offset.Y);
-    this.ctx.rotate(radians - Math.PI / 2);
+    this.ctx.rotate(MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2);
     this.ctx.translate(-weapon.offset.X, -weapon.offset.Y);
     this.ctx.drawImage(
       image,

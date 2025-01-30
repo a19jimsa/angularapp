@@ -1,7 +1,6 @@
 import { Skeleton } from '../components/skeleton';
 import { Ecs } from '../ecs';
 import { Weapon } from '../components/weapon';
-import { Transform } from '../components/transform';
 
 export class WeaponSystem {
   update(ecs: Ecs) {

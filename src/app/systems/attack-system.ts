@@ -1,47 +1,44 @@
 import { Ecs } from '../ecs';
-import { Renderer } from '../renderer';
 import { Bone } from '../components/bone';
 import { Weapon } from '../components/weapon';
 import { Skeleton } from '../components/skeleton';
 import { HitBox } from '../components/hit-box';
-import { Attack } from '../components/attack';
+import { Vec } from '../vec';
+import { Transform } from '../components/transform';
+import { MathUtils } from '../Util/MathUtils';
 
 export class AttackSystem {
-  update(ecs: Ecs, renderer: Renderer): void {
-    const pool = ecs.getPool<[Weapon, Attack, Skeleton]>(
-      'Weapon',
-      'Attack',
-      'Skeleton'
-    );
-    // for (const [weapon, attack, skeleton] of pool) {
-    //   const weaponX =
-    //     weapon.position.X +
-    //     weapon.length * Math.cos((weapon.rotation * Math.PI) / 180);
-    //   const weaponY =
-    //     weapon.position.Y +
-    //     weapon.length * Math.sin((weapon.rotation * Math.PI) / 180);
-    //   const hitBox = new HitBox(
-    //     new Vec(weaponX, weaponY),
-    //     weapon.width,
-    //     weapon.height
-    //   );
-    //   if (skeleton.flip) {
-    //     weapon.position.X =
-    //       skeleton.position.X + (skeleton.position.X - weaponX);
-    //     weapon.position.X -= weapon.width;
-    //     hitBox.position.X = weapon.position.X;
-    //   }
-
-    //   renderer.drawAttackBox(hitBox);
-    //   for (const [weapon, attack, skeleton] of pool) {
-    //     for (const bone of skeleton.bones) {
-    //       if (this.isColliding(hitBox, bone)) {
-    //         console.log('Hitted ' + bone.id);
-    //         return;
-    //       }
-    //     }
-    //   }
-    // }
+  update(ecs: Ecs): void {
+    for (const entity of ecs.getEntities()) {
+      const transform = ecs.getComponent<Transform>(entity, 'Transform');
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
+      if (!skeleton || !skeleton.heldEntity) continue;
+      if (!hitBox) {
+        ecs.addComponent<HitBox>(entity, new HitBox(new Vec(0, 0), 50, 50));
+        continue;
+      }
+      const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
+      console.log(weapon.offset);
+      const position = MathUtils.calculateParentPosition(
+        weapon.offset,
+        weapon.image.height - (weapon.image.height - weapon.pivot.Y),
+        weapon.rotation - 180
+      );
+      hitBox.position = transform.position.plus(position);
+      if (skeleton.flip) {
+        hitBox.position.X =
+          transform.position.X - (hitBox.position.X - transform.position.X);
+      }
+      // for (const [weapon, attack, skeleton] of pool) {
+      //   for (const bone of skeleton.bones) {
+      //     if (this.isColliding(hitBox, bone)) {
+      //       console.log('Hitted ' + bone.id);
+      //       return;
+      //     }
+      //   }
+      // }
+    }
   }
 
   // Kontrollera om två hitboxar kolliderar (rektangel-baserad kollision)

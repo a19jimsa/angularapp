@@ -80,6 +80,7 @@ export class ControllerSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const jump = ecs.getComponent<Jump>(entity, 'Jump');
+      const attack = ecs.getComponent<Attack>(entity, 'Attack');
       if (controlable && transform && skeleton) {
         let speedX = 0;
         const state = skeleton.state.handleInput(entity, ecs, this.keysPressed);
@@ -91,6 +92,10 @@ export class ControllerSystem {
 
         if (this.keysPressed.jump && !jump) {
           ecs.addComponent<Jump>(entity, new Jump());
+        }
+
+        if (this.keysPressed.attack && !attack) {
+          this.createAttack(ecs, entity);
         }
 
         if (this.keysPressed.up) {
@@ -109,10 +114,7 @@ export class ControllerSystem {
             ecs.addComponent<Transform>(
               weapon,
               new Transform(
-                new Vec(
-                  skeleton.position.X + parentWeapon.offset.X,
-                  skeleton.position.Y + parentWeapon.offset.Y
-                ),
+                new Vec(parentWeapon.offset.X, parentWeapon.offset.Y),
                 new Vec(20, 0),
                 0
               )
@@ -133,5 +135,6 @@ export class ControllerSystem {
     console.log('Skapade attack');
     ecs.addComponent<Attack>(entity, new Attack());
     ecs.addComponent<AttackDuration>(entity, new AttackDuration(10));
+    console.log(ecs);
   }
 }
