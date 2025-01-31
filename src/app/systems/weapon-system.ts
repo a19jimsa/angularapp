@@ -1,6 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Ecs } from '../ecs';
 import { Weapon } from '../components/weapon';
+import { MathUtils } from '../Util/MathUtils';
 
 export class WeaponSystem {
   update(ecs: Ecs) {
@@ -16,6 +17,7 @@ export class WeaponSystem {
           weapon.offset.Y = parent.position.Y;
           weapon.rotation = parent.globalRotation;
           weapon.order = parent.order - 1;
+          weapon.scale = parent.scale;
         }
       }
       if (skeleton.heldOffhandEntity) {
@@ -28,6 +30,7 @@ export class WeaponSystem {
           weapon.offset.Y = parent.position.Y;
           weapon.rotation = parent.globalRotation;
           weapon.order = parent.order - 1;
+          weapon.scale = parent.scale;
         }
       }
     }

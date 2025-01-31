@@ -29,6 +29,7 @@ export class MathUtils {
     const y = position.Y + length * Math.sin(this.degreesToRadians(rotation));
     return new Vec(x, y);
   }
+  
   static calculateGlobalRotation(skeleton: Skeleton, bone: Bone): number {
     if (bone.parentId !== null) {
       const parent = this.findBoneById(skeleton.bones, bone.parentId);

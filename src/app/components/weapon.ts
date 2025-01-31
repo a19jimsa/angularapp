@@ -6,6 +6,7 @@ export class Weapon extends Component {
   parentId: string | null;
   image: HTMLImageElement = new Image();
   offset: Vec;
+  scale: Vec;
   pivot: Vec;
   rotation: number;
   order: number;
@@ -15,6 +16,7 @@ export class Weapon extends Component {
     this.parentId = parentId;
     this.image.src = image;
     this.offset = new Vec(0, 0);
+    this.scale = new Vec(0, 0);
     this.pivot = pivot;
     this.rotation = 0;
     this.order = 0;

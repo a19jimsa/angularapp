@@ -15,10 +15,10 @@ export class JumpingState extends State {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Jumping');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (skeleton) {
       skeleton.startTime = performance.now();
     }
-    const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!transform) return;
     transform.velocity.Y -= 20;
   }

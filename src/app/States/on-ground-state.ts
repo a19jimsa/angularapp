@@ -15,11 +15,6 @@ export class OnGroundState extends State {
     super('assets/json/idle.json');
   }
   override enter(entity: Entity, ecs: Ecs): void {
-    const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    if (transform) {
-      transform.velocity.X = 0;
-      transform.velocity.Y = 0;
-    }
     console.log('On Ground');
   }
   override exit(entity: Entity, ecs: Ecs): void {}
@@ -41,5 +36,11 @@ export class OnGroundState extends State {
     }
     return null;
   }
-  override update(entity: Entity, ecs: Ecs): void {}
+  override update(entity: Entity, ecs: Ecs): void {
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (transform) {
+      transform.velocity.X = 0;
+      transform.velocity.Y = 0;
+    }
+  }
 }

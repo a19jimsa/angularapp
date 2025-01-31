@@ -12,7 +12,6 @@ export class RunningState extends State {
   constructor() {
     super('assets/json/running.json');
   }
-
   override enter(entity: Entity, ecs: Ecs): void {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton) return;
@@ -30,12 +29,7 @@ export class RunningState extends State {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton && !transform) return null;
-    if (input.jump) {
-      return new JumpingState();
-    }
-    if (input.attack) {
-      return new AttackState();
-    }
+
     if (input.left) {
       speedX += -10;
       skeleton.flip = true;
@@ -46,11 +40,17 @@ export class RunningState extends State {
       skeleton.flip = false;
       touch++;
     }
+    if (input.jump) {
+      transform.velocity.X = speedX;
+      return new JumpingState();
+    }
+    if (input.attack) {
+      return new AttackState();
+    }
     if (touch > 0) {
       transform.velocity.X = speedX;
       return null;
     }
-
     return new OnGroundState();
   }
   override update(entity: Entity, ecs: Ecs): void {}

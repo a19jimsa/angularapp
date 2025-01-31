@@ -14,30 +14,24 @@ export class AttackSystem {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
       if (!skeleton || !skeleton.heldEntity) continue;
+      const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
       if (!hitBox) {
         ecs.addComponent<HitBox>(entity, new HitBox(new Vec(0, 0), 50, 50));
         continue;
       }
-      const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
-      console.log(weapon.offset);
       const position = MathUtils.calculateParentPosition(
         weapon.offset,
-        weapon.image.height - (weapon.image.height - weapon.pivot.Y),
+        (weapon.image.height - (weapon.image.height - weapon.pivot.Y)) *
+          weapon.scale.Y,
         weapon.rotation - 180
       );
       hitBox.position = transform.position.plus(position);
       if (skeleton.flip) {
         hitBox.position.X =
-          transform.position.X - (hitBox.position.X - transform.position.X);
+          transform.position.X -
+          (hitBox.position.X - transform.position.X) -
+          50;
       }
-      // for (const [weapon, attack, skeleton] of pool) {
-      //   for (const bone of skeleton.bones) {
-      //     if (this.isColliding(hitBox, bone)) {
-      //       console.log('Hitted ' + bone.id);
-      //       return;
-      //     }
-      //   }
-      // }
     }
   }
 

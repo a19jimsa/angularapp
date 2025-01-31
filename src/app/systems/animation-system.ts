@@ -35,6 +35,11 @@ export class AnimationSystem {
                 keyframes[i + 1].angle,
                 progress
               );
+              bone.scale.X = MathUtils.interpolateKeyframe(
+                keyFrame.scale.X,
+                keyframes[i + 1].scale.X,
+                progress
+              );
               bone.scale.Y = MathUtils.interpolateKeyframe(
                 keyFrame.scale.Y,
                 keyframes[i + 1].scale.Y,
@@ -76,7 +81,7 @@ export class AnimationSystem {
           parentRotation = MathUtils.calculateGlobalRotation(skeleton, parent);
           bone.position = MathUtils.calculateParentPosition(
             parent.position,
-            parent.length * bone.attachAt,
+            parent.length * bone.attachAt * parent.scale.Y,
             parentRotation
           );
         }

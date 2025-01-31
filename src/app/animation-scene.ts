@@ -30,6 +30,8 @@ import { DragonBossState } from './States/dragon-boss-state';
 import { Hit } from './components/hit';
 import { Foot } from './components/foot';
 import { InitializationSystem } from './systems/initialization-system';
+import { HurtBox } from './components/hurt-box';
+import { HurtBoxSystem } from './systems/hurt-box-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -53,6 +55,7 @@ export class AnimationScene {
   weaponSystem: WeaponSystem;
   physicsSystem: PhysicsSystem;
   initializationSystem: InitializationSystem;
+  hurtBoxSystem: HurtBoxSystem;
   loopId = 0;
 
   constructor(
@@ -88,6 +91,7 @@ export class AnimationScene {
     this.weaponSystem = new WeaponSystem();
     this.physicsSystem = new PhysicsSystem();
     this.initializationSystem = new InitializationSystem();
+    this.hurtBoxSystem = new HurtBoxSystem();
   }
 
   async init() {
@@ -227,15 +231,23 @@ export class AnimationScene {
       new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
     );
 
+    const sword2 = this.ecs.createEntity();
+    this.ecs.addComponent<Weapon>(
+      sword2,
+      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
+    );
+
     this.ecs.addComponent<Hit>(player, new Hit());
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Foot>(dragon, new Foot('right_hand'));
     this.ecs.addComponent<Foot>(flyer, new Foot('last_tail'));
 
+    //this.ecs.addComponent<HurtBox>(player, new HurtBox());
+
     // playerSkeleton.heldOffhandEntity = arrow;
     playerSkeleton.heldEntity = sword;
-    // draugSkeleton.heldEntity = newWeapon;
-    // womanSkeleton.heldEntity = newWeapon;
+    draugSkeleton.heldEntity = sword2;
+    womanSkeleton.heldEntity = newWeapon;
     this.initializationSystem.update(this.ecs);
     console.log(this.ecs);
   }
@@ -258,6 +270,7 @@ export class AnimationScene {
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
     this.attackSystem.update(this.ecs);
+    this.hurtBoxSystem.update(this.ecs);
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
@@ -265,6 +278,7 @@ export class AnimationScene {
 
     this.renderer.renderCharacter(this.ecs);
     this.renderer.drawHitBox(this.ecs);
+    this.renderer.renderHurtBox(this.ecs);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }

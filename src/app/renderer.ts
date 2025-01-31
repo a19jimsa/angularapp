@@ -14,6 +14,7 @@ import { Ecs } from './ecs';
 import { Hit } from './components/hit';
 import { Foot } from './components/foot';
 import { MathUtils } from './Util/MathUtils';
+import { HurtBox } from './components/hurt-box';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -359,6 +360,7 @@ export class Renderer {
     this.ctx.save();
     this.ctx.translate(weapon.offset.X, weapon.offset.Y);
     this.ctx.rotate(MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2);
+    this.ctx.scale(weapon.scale.X, weapon.scale.Y);
     this.ctx.translate(-weapon.offset.X, -weapon.offset.Y);
     this.ctx.drawImage(
       image,
@@ -374,6 +376,20 @@ export class Renderer {
       weapon.offset.X = transform.position.X - this.camera.position.X;
       weapon.offset.Y = transform.position.Y - this.camera.position.Y;
       this.drawWeapon(weapon.image, weapon, false);
+    }
+  }
+
+  renderHurtBox(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const hurtBox = ecs.getComponent<HurtBox>(entity, 'HurtBox');
+      if (hurtBox) {
+        this.ctx.fillRect(
+          hurtBox.position.X - this.camera.position.X,
+          hurtBox.position.Y - this.camera.position.Y,
+          hurtBox.width,
+          hurtBox.height
+        );
+      }
     }
   }
 }
