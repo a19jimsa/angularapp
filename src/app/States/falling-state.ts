@@ -2,7 +2,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 
@@ -21,10 +21,14 @@ export class FallingState extends State {
   ): State | null {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!transform) return null;
-    if (transform.position.Y >= 350) {
+    if (transform.velocity.Y === 0) {
       return new OnGroundState();
     }
     return null;
   }
-  override update(entity: Entity, ecs: Ecs): void {}
+  override update(entity: Entity, ecs: Ecs): void {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return;
+    if (skeleton.rotation <= 360) skeleton.rotation += 10;
+  }
 }

@@ -19,7 +19,6 @@ type ClipAnimation = {
 };
 
 import {
-  AfterContentInit,
   AfterViewInit,
   Component,
   ElementRef,
@@ -29,7 +28,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Bone } from '../components/bone';
 import { Vec } from '../vec';
 import { ImportBonesDialogComponent } from '../import-bones-dialog/import-bones-dialog.component';
@@ -42,6 +41,9 @@ import { OnGroundState } from '../States/on-ground-state';
 import { JumpingState } from '../States/jumping-state';
 import { RunningState } from '../States/running-state';
 import { State } from '../States/state';
+import { ChangeBoneCommand } from '../Commands/change-bone-command';
+import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
+import { MathUtils } from '../Utils/MathUtils';
 
 @Component({
   selector: 'app-animation-creator',
@@ -61,11 +63,15 @@ export class AnimationCreatorComponent
   bones: Bone[] = new Array();
   keyframes: Keyframe[] = new Array();
   filteredKeyframes: Keyframe[] = new Array();
+  filteredBones: Bone[] = new Array();
   spriteSheet = new Image();
   isMouseDown: boolean = false;
 
   activeBone: Bone | null = null;
   activeKeyframe: Keyframe | null = null;
+
+  loopedTime: number = 0;
+  totalDuration: number = 0;
 
   camera: Vec = new Vec(0, 0);
 
@@ -102,6 +108,11 @@ export class AnimationCreatorComponent
 
   hasChild = (_: number, bone: BoneHierarchy) =>
     !!bone.children && bone.children.length > 0;
+
+  private readonly _formBuilder = inject(FormBuilder);
+  boneForm = this._formBuilder.group(this.dataSource);
+
+  changeBoneCommand!: ChangeBoneCommand;
 
   constructor() {}
 
@@ -323,9 +334,10 @@ export class AnimationCreatorComponent
   }
 
   createKeyframesOfBones() {
-    for (const bone of this.bones) {
+    console.log(this.filteredBones);
+    for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
-        time: this.keyframeSliderValue,
+        time: this.loopedTime,
         angle: bone.rotation,
         name: bone.id,
         scale: new Vec(bone.scale.X, bone.scale.Y),
@@ -356,8 +368,20 @@ export class AnimationCreatorComponent
       width: '600px',
       data: this.keyframes,
     });
-    dialog.afterClosed().subscribe((result) => {
+    dialog.afterClosed().subscribe((result: Keyframe[]) => {
       this.filteredKeyframes = result;
+    });
+  }
+
+  openDialogfilterBones() {
+    const dialog = this.dialog.open(FilterBonesDialogComponent, {
+      height: '400px',
+      width: '600px',
+      data: this.bones,
+    });
+    dialog.afterClosed().subscribe((result: Bone[]) => {
+      this.filteredBones = result;
+      console.log(this.filteredBones);
     });
   }
 
@@ -395,6 +419,7 @@ export class AnimationCreatorComponent
     this.ctx.save();
     this.ctx.beginPath();
     this.ctx.strokeStyle = 'red';
+    this.ctx.lineWidth = 1;
     this.ctx.rect(
       this.mouseDown.X,
       this.mouseDown.Y,
@@ -402,8 +427,26 @@ export class AnimationCreatorComponent
       this.mousePos.Y - this.mouseDown.Y
     );
     this.ctx.stroke();
-    this.ctx.closePath();
-
+    const margin = 100;
+    this.ctx.fillRect(0, this.canvasHeight - margin, this.canvasWidth, margin);
+    this.ctx.beginPath();
+    this.ctx.moveTo(
+      MathUtils.interpolateKeyframe(
+        this.loopedTime,
+        this.canvasWidth,
+        this.loopedTime
+      ),
+      this.canvasHeight - margin
+    );
+    this.ctx.lineTo(
+      MathUtils.interpolateKeyframe(
+        this.loopedTime,
+        this.canvasWidth,
+        this.loopedTime
+      ),
+      this.canvasHeight
+    );
+    this.ctx.stroke();
     this.ctx.restore();
   }
 
@@ -575,7 +618,7 @@ export class AnimationCreatorComponent
     for (const keyframe of this.keyframes) {
       if (keyframe.time === 0) {
         const newKeyframe: Keyframe = {
-          time: this.keyframeSliderValue,
+          time: this.loopedTime,
           angle: keyframe.angle,
           name: keyframe.name,
           scale: keyframe.scale,
@@ -777,7 +820,6 @@ export class AnimationCreatorComponent
         return true;
       }
     }
-
     return false;
   }
 
@@ -796,21 +838,20 @@ export class AnimationCreatorComponent
     if (this.keyframes.length === 0) return;
     this.activeBone = null;
     this.activeKeyframe = null;
-    const totalDuration = this.keyframes[this.keyframes.length - 1].time;
+    this.totalDuration = this.keyframes[this.keyframes.length - 1].time;
     const speed = 1000 / this.animationSpeed;
     const elapsedTime = (performance.now() - this.startTime) / speed;
     this.keyframeSliderValue = elapsedTime;
-    const loopedTime = elapsedTime % totalDuration;
-
+    this.loopedTime = elapsedTime % this.totalDuration;
     for (const bone of this.bones) {
       for (let i = 0; i < this.keyframes.length - 1; i++) {
         const keyFrame = this.keyframes[i];
         if (
-          loopedTime >= keyFrame.time &&
-          loopedTime < this.keyframes[i + 1].time
+          this.loopedTime >= keyFrame.time &&
+          this.loopedTime < this.keyframes[i + 1].time
         ) {
           const progress =
-            (loopedTime - keyFrame.time) /
+            (this.loopedTime - keyFrame.time) /
             (this.keyframes[i + 1].time - keyFrame.time);
 
           if (bone.id === keyFrame.name) {

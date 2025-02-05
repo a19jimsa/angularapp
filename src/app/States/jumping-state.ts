@@ -1,8 +1,9 @@
+import { Enemy } from '../components/enemy';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { FallingState } from './falling-state';
 import { JumpAttackState } from './jump-attack-state';
 import { State } from './state';
@@ -19,8 +20,9 @@ export class JumpingState extends State {
     if (skeleton) {
       skeleton.startTime = performance.now();
     }
-    if (!transform) return;
-    transform.velocity.Y -= 20;
+    if (transform) {
+      transform.velocity.Y = -20;
+    }
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(
@@ -40,6 +42,8 @@ export class JumpingState extends State {
     return null;
   }
   override update(entity: Entity, ecs: Ecs): void {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton.rotation <= 360) skeleton.rotation += 10;
     this.frameTime++;
   }
 }

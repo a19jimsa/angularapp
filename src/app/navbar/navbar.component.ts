@@ -10,6 +10,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 export class NavbarComponent {
   protected readonly fillerNav = [
     { path: '/', label: 'Jimmydev.se' },
+    { path: '/chess', label: 'Chess' },
     { path: '/othello', label: 'Othello' },
     { path: '/memory', label: 'Memory' },
     { path: '/calculator', label: 'Calculator' },
@@ -20,6 +21,7 @@ export class NavbarComponent {
     { path: '/snake', label: 'Snake' },
     { path: '/particles', label: 'Particles' },
     { path: '/sidescroller', label: 'Sidescroller' },
+    { path: '/sand', label: 'Falling Sand' },
     { path: '/collision', label: 'Collision detection' },
     { path: '/curling', label: 'Curling' },
     { path: '/animation', label: 'Game Engine' },

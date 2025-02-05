@@ -79,24 +79,13 @@ export class ControllerSystem {
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      const jump = ecs.getComponent<Jump>(entity, 'Jump');
-      const attack = ecs.getComponent<Attack>(entity, 'Attack');
       if (controlable && transform && skeleton) {
-        let speedX = 0;
         const state = skeleton.state.handleInput(entity, ecs, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;
           skeleton.state.enter(entity, ecs);
         }
         skeleton.state.update(entity, ecs);
-
-        if (this.keysPressed.jump && !jump) {
-          ecs.addComponent<Jump>(entity, new Jump());
-        }
-
-        if (this.keysPressed.attack && !attack) {
-          this.createAttack(ecs, entity);
-        }
 
         if (this.keysPressed.up) {
           if (this.timer > 100) {
@@ -106,15 +95,11 @@ export class ControllerSystem {
               'Weapon'
             );
             if (!parentWeapon) return;
-
-            if (skeleton.flip) {
-              speedX = -20;
-            }
             const weapon = ecs.createEntity();
             ecs.addComponent<Transform>(
               weapon,
               new Transform(
-                new Vec(parentWeapon.offset.X, parentWeapon.offset.Y),
+                new Vec(transform.position.X, transform.position.Y),
                 new Vec(20, 0),
                 0
               )

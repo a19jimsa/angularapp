@@ -2,7 +2,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 
@@ -28,9 +28,14 @@ export class JumpAttackState extends State {
   }
   override update(entity: Entity, ecs: Ecs): void {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    if (transform.position.Y === 350) {
-      transform.velocity.X = 0;
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (transform) {
+      transform.velocity.X *= 0.95;
     }
+    if (skeleton) {
+      skeleton.rotation = 0;
+    }
+
     this.frameTime++;
   }
 }

@@ -64,6 +64,8 @@ export class Vec {
 
   public normalize(): Vec {
     const magnitude = this.mag();
-    return new Vec(this.x / magnitude, this.y / magnitude);
+    const x = this.x / magnitude;
+    const y = this.y / magnitude;
+    return new Vec(x, y);
   }
 }

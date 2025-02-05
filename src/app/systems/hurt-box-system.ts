@@ -1,20 +1,34 @@
 import { HurtBox } from '../components/hurt-box';
 import { Transform } from '../components/transform';
+import { Weapon } from '../components/weapon';
 import { Ecs } from '../ecs';
+import { MathUtils } from '../Utils/MathUtils';
 
 export class HurtBoxSystem {
   update(ecs: Ecs) {
-    const pool = ecs.getPool<[Transform, HurtBox]>('Transform', 'HurtBox');
-    for (const [transform, hurtBox] of pool) {
+    const pool = ecs.getPool<[Transform, HurtBox, Weapon]>(
+      'Transform',
+      'HurtBox',
+      'Weapon'
+    );
+    for (const [transform, hurtBox, weapon] of pool) {
       //Dereference
-      const x = transform.position.X;
-      const y = transform.position.Y;
-      hurtBox.position.X = x;
-      hurtBox.position.Y = y;
-      hurtBox.width = 100;
-      hurtBox.height = 150;
-      hurtBox.position.X -= hurtBox.width / 2;
-      hurtBox.position.Y -= hurtBox.height / 2;
+      const newPos = MathUtils.calculateParentPosition(
+        transform.position,
+        weapon.image.height - 25,
+        weapon.rotation - 180
+      );
+      hurtBox.width = 50;
+      hurtBox.height = 50;
+      hurtBox.position.X = newPos.X;
+      hurtBox.position.Y = newPos.Y;
+      if (weapon.scale.Y === -1) {
+        hurtBox.position = MathUtils.calculateParentPosition(
+          transform.position,
+          -weapon.image.height + 25,
+          weapon.rotation - 180
+        );
+      }
     }
   }
 }

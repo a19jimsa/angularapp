@@ -2,19 +2,16 @@ import { ElementRef } from '@angular/core';
 import { Vec } from './vec';
 import { Camera } from './components/camera';
 import { Bone } from './components/bone';
-import { Joint } from './components/joint';
 import { Skeleton } from './components/skeleton';
 import { Transform } from './components/transform';
 import { HitBox } from './components/hit-box';
-import { Attack } from './components/attack';
-import { Sprite } from './components/sprite';
 import { Weapon } from './components/weapon';
-import { Rotation } from './components/rotation';
-import { Ecs } from './ecs';
-import { Hit } from './components/hit';
 import { Foot } from './components/foot';
-import { MathUtils } from './Util/MathUtils';
+import { MathUtils } from './Utils/MathUtils';
 import { HurtBox } from './components/hurt-box';
+import { Smear } from './components/smear';
+import { Ecs } from './ecs';
+import { Sprite } from './components/sprite';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -38,7 +35,7 @@ export class Renderer {
         'Failed to get 2d content, come up with a solution dumbass ://'
       );
     }
-    this.image.src = 'assets/sprites/sbackground4.png';
+    this.image.src = 'assets/sprites/backgrounds/87844.png';
   }
 
   setCamera(camera: Camera) {
@@ -118,43 +115,17 @@ export class Renderer {
     this.ctx.drawImage(src, x, y, width, height);
   }
 
-  public drawForeground() {
-    this.ctx.drawImage(this.image, 0, 0, 1024, 450, 0, 0, 1024, 450);
-    this.ctx.drawImage(this.image, 1024, 0, 1024, 450, 0, 0, 1024, 450);
-    this.ctx.drawImage(
-      this.image,
-      0,
-      450,
-      1024,
-      450,
-      0 - this.camera.position.X,
-      0,
-      1024,
-      450
-    );
+  public drawSprites(ecs: Ecs) {
+    const pool = ecs.getPool<[Sprite, Transform]>('Sprite', 'Transform');
+    this.ctx.save();
 
-    this.ctx.save();
-    this.ctx.translate(1024 - this.camera.position.X + 1024, 0);
-    this.ctx.scale(-1, 1);
-    this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
-    this.ctx.restore();
-    this.ctx.save();
-    this.ctx.drawImage(
-      this.image,
-      0,
-      450,
-      1024,
-      450,
-      2048 - this.camera.position.X,
-      0,
-      1024,
-      450
-    );
-    this.ctx.restore();
-    this.ctx.save();
-    this.ctx.translate(3072 - this.camera.position.X + 1024, 0);
-    this.ctx.scale(-1, 1);
-    this.ctx.drawImage(this.image, 0, 450, 1024, 450, 0, 0, 1024, 450);
+    for (const [sprite, transform] of pool) {
+      this.ctx.drawImage(
+        sprite.image,
+        transform.position.X - this.camera.position.X,
+        transform.position.Y - this.camera.position.Y
+      );
+    }
     this.ctx.restore();
   }
 
@@ -268,61 +239,79 @@ export class Renderer {
       if (foot) {
         offset = foot.value;
       }
+
       skeleton.bones.sort((a, b) => a.order - b.order);
-      this.ctx.save();
-      this.ctx.translate(
-        transform.position.X - this.camera.position.X,
-        transform.position.Y + offset - this.camera.position.Y
-      );
-      if (skeleton.flip) {
-        this.ctx.scale(-1, 1);
-      }
       for (let i = 0; i < skeleton.bones.length; i++) {
+        this.ctx.save();
+        this.ctx.translate(
+          transform.position.X - this.camera.position.X,
+          transform.position.Y - this.camera.position.Y
+        );
+        if (skeleton.flip) {
+          this.ctx.scale(-1, 1);
+        }
+        this.renderBone(skeleton.image, transform, skeleton.bones[i]);
+        this.ctx.restore();
         const entity = skeleton.heldEntity;
         const offEntity = skeleton.heldOffhandEntity;
         if (entity) {
           const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
-          if (weapon && skeleton.bones[i].order === weapon.order && draw) {
-            this.drawWeapon(weapon.image, weapon, skeleton.flip);
+          const smear = ecs.getComponent<Smear>(entity, 'Smear');
+          const hitbox = ecs.getComponent<HitBox>(entity, 'HitBox');
+          const transform = ecs.getComponent<Transform>(entity, 'Transform');
+          if (
+            weapon &&
+            transform &&
+            skeleton.bones[i].order === weapon.order &&
+            draw
+          ) {
+            this.drawWeapon(weapon, transform);
+
             draw = false;
+          }
+          if (smear) {
+            this.drawSmear(smear);
           }
         }
         if (offEntity) {
           const weapon = ecs.getComponent<Weapon>(offEntity, 'Weapon');
+          const transform = ecs.getComponent<Transform>(offEntity, 'Transform');
           if (
             weapon &&
+            transform &&
             skeleton.bones[i].order === weapon.order &&
             drawOffhand
           ) {
-            this.drawWeapon(weapon.image, weapon, skeleton.flip);
+            this.drawWeapon(weapon, transform);
             drawOffhand = false;
           }
         }
-        this.renderBone(skeleton.image, skeleton.bones[i]);
       }
-      // this.ctx.fillStyle = 'red';
-      // this.ctx.fillRect(0, 0, 80, 100);
-      // this.ctx.fill();
-      this.ctx.restore();
     }
   }
 
-  public renderBone(image: CanvasImageSource, bone: Bone) {
+  public renderBone(
+    image: CanvasImageSource,
+    transform: Transform,
+    bone: Bone
+  ) {
+    const screenX = bone.position.X;
+    const screenY = bone.position.Y;
     this.ctx.save();
-    this.ctx.translate(bone.position.X, bone.position.Y);
+    this.ctx.translate(screenX, screenY);
     this.ctx.rotate(
       MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
     );
     this.ctx.scale(bone.scale.X, bone.scale.Y);
-    this.ctx.translate(-bone.position.X, -bone.position.Y);
+    this.ctx.translate(-screenX, -screenY);
     this.ctx.drawImage(
       image,
       bone.startX,
       bone.startY,
       bone.endX,
       bone.endY,
-      bone.position.X - bone.pivot.X - bone.endX / 2,
-      bone.position.Y - bone.pivot.Y,
+      screenX - bone.pivot.X - bone.endX / 2,
+      screenY - bone.pivot.Y,
       bone.endX,
       bone.endY
     );
@@ -339,57 +328,78 @@ export class Renderer {
     this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
   }
 
-  drawHitBox(ecs: Ecs) {
-    this.ctx.save();
+  drawHitBox(hitBox: HitBox, transform: Transform) {
     this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(
+      transform.position.X,
+      transform.position.Y,
+      hitBox.width,
+      hitBox.height
+    );
+  }
+
+  renderHitBox(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
+      const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (hitBox) {
+        this.ctx.fillStyle = 'red';
         this.ctx.fillRect(
-          hitBox.position.X - this.camera.position.X,
-          hitBox.position.Y - this.camera.position.Y,
+          transform.position.X,
+          transform.position.Y,
           hitBox.width,
           hitBox.height
         );
       }
     }
-    this.ctx.restore();
   }
 
-  drawWeapon(image: HTMLImageElement, weapon: Weapon, flip: boolean) {
+  drawWeapon(weapon: Weapon, transform: Transform) {
+    const screenX = transform.position.X - this.camera.position.X;
+    const screenY = transform.position.Y - this.camera.position.Y;
     this.ctx.save();
-    this.ctx.translate(weapon.offset.X, weapon.offset.Y);
+    this.ctx.translate(screenX, screenY);
     this.ctx.rotate(MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2);
     this.ctx.scale(weapon.scale.X, weapon.scale.Y);
-    this.ctx.translate(-weapon.offset.X, -weapon.offset.Y);
+    this.ctx.translate(-screenX, -screenY);
     this.ctx.drawImage(
-      image,
-      weapon.offset.X - weapon.pivot.X - image.width / 2,
-      weapon.offset.Y - weapon.pivot.Y
+      weapon.image,
+      screenX - weapon.pivot.X - weapon.image.width / 2,
+      screenY - weapon.pivot.Y
     );
     this.ctx.restore();
-  }
-
-  renderWeapons(ecs: Ecs) {
-    const pool = ecs.getPool<[Weapon, Transform]>('Weapon', 'Transform');
-    for (const [weapon, transform] of pool) {
-      weapon.offset.X = transform.position.X - this.camera.position.X;
-      weapon.offset.Y = transform.position.Y - this.camera.position.Y;
-      this.drawWeapon(weapon.image, weapon, false);
-    }
   }
 
   renderHurtBox(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const hurtBox = ecs.getComponent<HurtBox>(entity, 'HurtBox');
       if (hurtBox) {
+        this.ctx.save();
         this.ctx.fillRect(
           hurtBox.position.X - this.camera.position.X,
           hurtBox.position.Y - this.camera.position.Y,
           hurtBox.width,
           hurtBox.height
         );
+        this.ctx.restore();
       }
     }
+  }
+
+  drawSmear(smear: Smear) {
+    if (smear.positions.length === 0) return;
+    this.ctx.beginPath();
+    this.ctx.moveTo(smear.positions[0].X, smear.positions[0].Y);
+    for (let i = 0; i < smear.positions.length - 1; i++) {
+      this.ctx.bezierCurveTo(
+        smear.positions[i].X,
+        smear.positions[i].Y,
+        smear.positions[i + 1].X,
+        smear.positions[i + 1].Y,
+        smear.positions[i + 1].X,
+        smear.positions[i + 1].Y
+      );
+    }
+    this.ctx.stroke();
   }
 }

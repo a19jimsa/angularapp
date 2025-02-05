@@ -1,3 +1,4 @@
 canvas {
-  background-color: white;
+  background-color: cornflowerblue;
+  overflow: auto;
 }

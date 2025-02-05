@@ -22,7 +22,7 @@ export class BoneAnimationComponent {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    this.scene = new AnimationScene(this.canvas, 1024, 420, 4096, 420);
+    this.scene = new AnimationScene(this.canvas, 1280, 720, 2048 * 4, 720);
     try {
       await this.scene.init();
       this.scene.start();

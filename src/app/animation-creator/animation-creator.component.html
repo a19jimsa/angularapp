@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="row mb-2 p-2" style="height: 760px">
-    <div class="col-1 h-100">
+    <!-- <div class="col-1 h-100">
       <mat-card class="h-100" appearance="raised">
         <mat-card-header style="align-items: center">
           <mat-card-title> States </mat-card-title>
@@ -30,8 +30,8 @@
           </button>
         </mat-card-content>
       </mat-card>
-    </div>
-    <div class="col-2 h-100">
+    </div> -->
+    <div class="col-3 h-100">
       <mat-card class="h-100" appearance="outlined">
         <mat-card-header>
           <mat-card-title-group style="align-items: center">
@@ -190,10 +190,10 @@
             }
           </button>
           <label>KeyFrames</label>
-          <mat-slider [step]="0.1" [min]="0" [max]="10" discrete>
+          <mat-slider [step]="0.1" [min]="0" [max]="20" discrete>
             <input
               matSliderThumb
-              [(ngModel)]="keyframeSliderValue"
+              [(ngModel)]="this.loopedTime"
               #slider
               (drag)="runAnimation()"
             />
@@ -209,6 +209,7 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Bones</mat-card-title>
+            <button mat-button (click)="openDialogfilterBones()">Filter</button>
             <button
               mat-icon-button
               [matMenuTriggerFor]="boneMenu"
@@ -232,6 +233,7 @@
             #tree
             [dataSource]="dataSource"
             [childrenAccessor]="childrenAccessor"
+            [formGroup]="boneForm"
           >
             <!-- This is the tree node template for leaf nodes -->
             <mat-tree-node *matTreeNodeDef="let bone" matTreeNodePadding>
@@ -428,11 +430,11 @@
       </mat-card>
     </div>
   </div>
-  <div class="row">
-    <div class="col-12">
+  <div class="row" style="height: 80px">
+    <div class="col-12 h-100">
       <mat-card
-        appearance="raised"
-        class="d-flex flex-row justify-content-center"
+        appearance="outlined"
+        class="d-flex flex-row justify-content-center h-100"
       >
         <mat-card-content>
           @if(activeBone !== null){

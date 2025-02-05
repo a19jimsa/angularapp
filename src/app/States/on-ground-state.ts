@@ -2,7 +2,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { AttackState } from './attack-state';
 import { DamageState } from './damage-state';
 import { JumpingState } from './jumping-state';
@@ -16,6 +16,14 @@ export class OnGroundState extends State {
   }
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('On Ground');
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+
+    if (!skeleton) return;
+    skeleton.rotation = 0;
+    if (!transform) return;
+    transform.velocity.X = 0;
+    skeleton.equipment = new OnGroundState();
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(
@@ -36,11 +44,5 @@ export class OnGroundState extends State {
     }
     return null;
   }
-  override update(entity: Entity, ecs: Ecs): void {
-    const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    if (transform) {
-      transform.velocity.X = 0;
-      transform.velocity.Y = 0;
-    }
-  }
+  override update(entity: Entity, ecs: Ecs): void {}
 }

@@ -1,0 +1,443 @@
+[
+  {
+    "time": 0,
+    "angle": 180,
+    "name": "armor_middle",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 290 }
+  },
+  {
+    "time": 0.2,
+    "angle": 180,
+    "name": "armor_middle",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 290 }
+  },
+  {
+    "time": 2,
+    "angle": 180,
+    "name": "armor_middle",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 290 }
+  },
+  {
+    "time": 0,
+    "angle": 2.185,
+    "name": "head",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 25, "Y": 23 }
+  },
+  {
+    "time": 0.2,
+    "angle": 2.185,
+    "name": "head",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 25, "Y": 23 }
+  },
+  {
+    "time": 2,
+    "angle": 2.185,
+    "name": "head",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 25, "Y": 23 }
+  },
+  {
+    "time": 0,
+    "angle": 22.740000000000002,
+    "name": "left_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 152.015625, "Y": 149 }
+  },
+  {
+    "time": 0.2,
+    "angle": 22.740000000000002,
+    "name": "left_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 152.015625, "Y": 149 }
+  },
+  {
+    "time": 2,
+    "angle": 22.740000000000002,
+    "name": "left_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 152.015625, "Y": 149 }
+  },
+  {
+    "time": 0,
+    "angle": 199,
+    "name": "left_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 337.015625, "Y": 286 }
+  },
+  {
+    "time": 0.2,
+    "angle": 199,
+    "name": "left_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 337.015625, "Y": 286 }
+  },
+  {
+    "time": 2,
+    "angle": 199,
+    "name": "left_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 337.015625, "Y": 286 }
+  },
+  {
+    "time": 0,
+    "angle": 0,
+    "name": "left_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 467.015625, "Y": 145 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "left_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 467.015625, "Y": 145 }
+  },
+  {
+    "time": 2,
+    "angle": 0,
+    "name": "left_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 467.015625, "Y": 145 }
+  },
+  {
+    "time": 0,
+    "angle": -6.555,
+    "name": "left_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 212.015625, "Y": 154 }
+  },
+  {
+    "time": 0.2,
+    "angle": -6.555,
+    "name": "left_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 212.015625, "Y": 154 }
+  },
+  {
+    "time": 2,
+    "angle": -6.555,
+    "name": "left_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 212.015625, "Y": 154 }
+  },
+  {
+    "time": 0,
+    "angle": 0,
+    "name": "left_hand",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "left_hand",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 2,
+    "angle": 0,
+    "name": "left_hand",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0,
+    "angle": 109,
+    "name": "left_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 400.015625, "Y": 146 }
+  },
+  {
+    "time": 0.2,
+    "angle": 109,
+    "name": "left_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 400.015625, "Y": 146 }
+  },
+  {
+    "time": 2,
+    "angle": 109,
+    "name": "left_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 400.015625, "Y": 146 }
+  },
+  {
+    "time": 0,
+    "angle": 63,
+    "name": "left_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 618.015625, "Y": 243 }
+  },
+  {
+    "time": 0.2,
+    "angle": 63,
+    "name": "left_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 618.015625, "Y": 243 }
+  },
+  {
+    "time": 2,
+    "angle": 63,
+    "name": "left_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 618.015625, "Y": 243 }
+  },
+  {
+    "time": 0,
+    "angle": 120,
+    "name": "left_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 411.015625, "Y": 238 }
+  },
+  {
+    "time": 0.2,
+    "angle": 120,
+    "name": "left_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 411.015625, "Y": 238 }
+  },
+  {
+    "time": 2,
+    "angle": 120,
+    "name": "left_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 411.015625, "Y": 238 }
+  },
+  {
+    "time": 0,
+    "angle": 8,
+    "name": "right_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 15.015625, "Y": 151 }
+  },
+  {
+    "time": 0.2,
+    "angle": -138,
+    "name": "right_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 15.015625, "Y": 151 }
+  },
+  {
+    "time": 2,
+    "angle": -137.69340000032633,
+    "name": "right_arm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 15.015625, "Y": 151 }
+  },
+  {
+    "time": 0,
+    "angle": 171,
+    "name": "right_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 408.015625, "Y": 291 }
+  },
+  {
+    "time": 0.2,
+    "angle": 171,
+    "name": "right_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 408.015625, "Y": 291 }
+  },
+  {
+    "time": 2,
+    "angle": 171,
+    "name": "right_armor",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 408.015625, "Y": 291 }
+  },
+  {
+    "time": 0,
+    "angle": 0,
+    "name": "right_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 340, "Y": 148 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "right_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 340, "Y": 148 }
+  },
+  {
+    "time": 2,
+    "angle": 0,
+    "name": "right_foot",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 340, "Y": 148 }
+  },
+  {
+    "time": 0,
+    "angle": -105,
+    "name": "right_forearm",
+    "scale": { "X": 1, "Y": -1 },
+    "clip": { "X": 86.015625, "Y": 152 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "right_forearm",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 86.015625, "Y": 152 }
+  },
+  {
+    "time": 2,
+    "angle": -0.22049999976529477,
+    "name": "right_forearm",
+    "scale": { "X": 1, "Y": 0.9958000000044704 },
+    "clip": { "X": 86.015625, "Y": 152 }
+  },
+  {
+    "time": 0,
+    "angle": 180,
+    "name": "right_hand",
+    "scale": { "X": 0.5, "Y": -1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "right_hand",
+    "scale": { "X": 0.5, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 2,
+    "angle": 0,
+    "name": "right_hand",
+    "scale": { "X": 0.5, "Y": 1 },
+    "clip": { "X": 19.015625, "Y": 242 }
+  },
+  {
+    "time": 0,
+    "angle": -113,
+    "name": "right_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 150 }
+  },
+  {
+    "time": 0.2,
+    "angle": -113,
+    "name": "right_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 150 }
+  },
+  {
+    "time": 2,
+    "angle": -113,
+    "name": "right_leg",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 274.015625, "Y": 150 }
+  },
+  {
+    "time": 0,
+    "angle": 300,
+    "name": "right_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 587.015625, "Y": 164 }
+  },
+  {
+    "time": 0.2,
+    "angle": 300,
+    "name": "right_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 587.015625, "Y": 164 }
+  },
+  {
+    "time": 2,
+    "angle": 300,
+    "name": "right_pelvis",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 587.015625, "Y": 164 }
+  },
+  {
+    "time": 0,
+    "angle": 232.17679999999382,
+    "name": "right_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 258.015625, "Y": 228 }
+  },
+  {
+    "time": 0.2,
+    "angle": 232.17679999999382,
+    "name": "right_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 258.015625, "Y": 228 }
+  },
+  {
+    "time": 2,
+    "angle": 232.17679999999382,
+    "name": "right_shoulder",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 258.015625, "Y": 228 }
+  },
+  {
+    "time": 0,
+    "angle": 271.0720000000299,
+    "name": "root",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414, "Y": 68 }
+  },
+  {
+    "time": 0.2,
+    "angle": 271.0720000000299,
+    "name": "root",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414, "Y": 68 }
+  },
+  {
+    "time": 2,
+    "angle": 271.0720000000299,
+    "name": "root",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414, "Y": 68 }
+  },
+  {
+    "time": 0,
+    "angle": 0,
+    "name": "sword",
+    "scale": { "X": 0.5, "Y": -1 },
+    "clip": { "X": 130.015625, "Y": 297 }
+  },
+  {
+    "time": 0.2,
+    "angle": 0,
+    "name": "sword",
+    "scale": { "X": 0.5, "Y": 1 },
+    "clip": { "X": 130.015625, "Y": 297 }
+  },
+  {
+    "time": 2,
+    "angle": 0,
+    "name": "sword",
+    "scale": { "X": 0.4, "Y": 0.9958000000044704 },
+    "clip": { "X": 130.015625, "Y": 297 }
+  },
+  {
+    "time": 0,
+    "angle": 2.185,
+    "name": "torso",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414.015625, "Y": 2 }
+  },
+  {
+    "time": 0.2,
+    "angle": 2.185,
+    "name": "torso",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414.015625, "Y": 2 }
+  },
+  {
+    "time": 2,
+    "angle": 2.185,
+    "name": "torso",
+    "scale": { "X": 1, "Y": 1 },
+    "clip": { "X": 414.015625, "Y": 2 }
+  }
+]

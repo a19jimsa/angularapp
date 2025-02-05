@@ -69,7 +69,7 @@ export class AiSystem {
     ecs.addComponent<Rotation>(attack, new Rotation());
     ecs.addComponent<HitBox>(
       attack,
-      new HitBox(aiBone.position, sprite.image.width, sprite.image.height)
+      new HitBox(sprite.image.width, sprite.image.height)
     );
   }
 }

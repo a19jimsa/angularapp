@@ -1,7 +1,7 @@
 import { Skeleton } from '../components/skeleton';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
 

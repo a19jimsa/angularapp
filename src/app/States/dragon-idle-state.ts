@@ -2,7 +2,7 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../ecs';
 import { Entity } from '../entity';
-import { KeysPressed } from '../systems/controller-system';
+import { KeysPressed } from '../Systems/controller-system';
 import { State } from './state';
 
 export class DragonIdleState extends State {

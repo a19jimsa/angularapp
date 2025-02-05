@@ -1,7 +1,8 @@
+import { Keyframe } from '../animation-creator/animation-creator.component';
 import { Bone } from '../components/bone';
 import { Skeleton } from '../components/skeleton';
 import { Ecs } from '../ecs';
-import { MathUtils } from '../Util/MathUtils';
+import { MathUtils } from '../Utils/MathUtils';
 
 export class AnimationSystem {
   startTime = performance.now();
@@ -9,45 +10,47 @@ export class AnimationSystem {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!skeleton) continue;
-      if (!skeleton.state) continue;
-      const keyframes = skeleton.state.keyframes;
-      if (keyframes.length === 0) continue;
-      const totalDuration = keyframes[keyframes.length - 1].time;
-      const speed = 1000 / 1;
-      const elapsedTime = (performance.now() - skeleton.startTime) / speed;
-      const loopedTime = elapsedTime % totalDuration;
-      this.sortBonesByHierarchy(skeleton);
-      this.updateBonePositions(skeleton);
-      for (const bone of skeleton.bones) {
-        for (let i = 0; i < keyframes.length - 1; i++) {
-          const keyFrame = keyframes[i];
-          if (
-            loopedTime >= keyFrame.time &&
-            loopedTime < keyframes[i + 1].time
-          ) {
-            const progress =
-              (loopedTime - keyFrame.time) /
-              (keyframes[i + 1].time - keyFrame.time);
+      this.runAnimation(skeleton, skeleton.state.keyframes);
+      if (skeleton.equipment) {
+        this.runAnimation(skeleton, skeleton.equipment.keyframes);
+      }
+    }
+  }
 
-            if (bone.id === keyFrame.name) {
-              bone.rotation = MathUtils.interpolateKeyframe(
-                keyFrame.angle,
-                keyframes[i + 1].angle,
-                progress
-              );
-              bone.scale.X = MathUtils.interpolateKeyframe(
-                keyFrame.scale.X,
-                keyframes[i + 1].scale.X,
-                progress
-              );
-              bone.scale.Y = MathUtils.interpolateKeyframe(
-                keyFrame.scale.Y,
-                keyframes[i + 1].scale.Y,
-                progress
-              );
-              bone.startX = keyFrame.clip.X;
-              bone.startY = keyFrame.clip.Y;
-            }
+  runAnimation(skeleton: Skeleton, keyframes: Keyframe[]) {
+    if (keyframes.length === 0) return;
+    const totalDuration = keyframes[keyframes.length - 1].time;
+    const speed = 1000 / 1;
+    const elapsedTime = (performance.now() - skeleton.startTime) / speed;
+    const loopedTime = elapsedTime % totalDuration;
+    this.sortBonesByHierarchy(skeleton);
+    this.updateBonePositions(skeleton);
+    for (const bone of skeleton.bones) {
+      for (let i = 0; i < keyframes.length - 1; i++) {
+        const keyFrame = keyframes[i];
+        if (loopedTime >= keyFrame.time && loopedTime < keyframes[i + 1].time) {
+          const progress =
+            (loopedTime - keyFrame.time) /
+            (keyframes[i + 1].time - keyFrame.time);
+
+          if (bone.id === keyFrame.name) {
+            bone.rotation = MathUtils.interpolateKeyframe(
+              keyFrame.angle,
+              keyframes[i + 1].angle,
+              progress
+            );
+            bone.scale.X = MathUtils.interpolateKeyframe(
+              keyFrame.scale.X,
+              keyframes[i + 1].scale.X,
+              progress
+            );
+            bone.scale.Y = MathUtils.interpolateKeyframe(
+              keyFrame.scale.Y,
+              keyframes[i + 1].scale.Y,
+              progress
+            );
+            bone.startX = keyFrame.clip.X;
+            bone.startY = keyFrame.clip.Y;
           }
         }
       }

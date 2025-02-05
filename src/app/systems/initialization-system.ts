@@ -5,12 +5,23 @@ import { Ecs } from '../ecs';
 
 export class InitializationSystem {
   update(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const transform = ecs.getComponent<Transform>(entity, 'Transform');
+      if (!transform) {
+        throw Error(
+          'All entities must have transform component!\n Failed entity' + entity
+        );
+      }
+    }
+
     const pool = ecs.getPool<[Foot, Transform, Skeleton]>(
       'Foot',
       'Transform',
       'Skeleton'
     );
+
     for (const [foot, transform, skeleton] of pool) {
+      const root = skeleton.bones.find((e) => e.id === 'root');
       let max = 0;
       for (const bone of skeleton.bones) {
         const target = bone.position.Y;
@@ -18,7 +29,7 @@ export class InitializationSystem {
       }
       foot.startValue = max;
       foot.startPositionY = transform.position.Y;
-      console.log(foot.startValue);
+      foot.value;
     }
   }
 }

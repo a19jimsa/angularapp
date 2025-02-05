@@ -4,34 +4,37 @@ import { Renderer } from './renderer';
 import { Transform } from './components/transform';
 import { Vec } from './vec';
 import { Skeleton } from './components/skeleton';
-import { AnimationSystem } from './systems/animation-system';
-import { MovementSystem } from './systems/movement-system';
-import { ControllerSystem } from './systems/controller-system';
+import { AnimationSystem } from './Systems/animation-system';
+import { MovementSystem } from './Systems/movement-system';
+import { ControllerSystem } from './Systems/controller-system';
 import { Controlable } from './components/controlable';
 import { Camera } from './components/camera';
-import { CameraSystem } from './systems/camera-system';
-import { AttackSystem } from './systems/attack-system';
-import { DeadSystem } from './systems/dead-system';
-import { AttackDurationSystem } from './systems/attack-duration-system';
-import { AiSystem } from './systems/ai-system';
+import { CameraSystem } from './Systems/camera-system';
+import { AttackSystem } from './Systems/attack-system';
+import { DeadSystem } from './Systems/dead-system';
+import { AttackDurationSystem } from './Systems/attack-duration-system';
+import { AiSystem } from './Systems/ai-system';
 import { Entity } from './entity';
 import { Ai } from './components/ai';
-import { HitBoxSystem } from './systems/hit-box-system';
-import { ProjectileSystem } from './systems/projectile-system';
-import { WeaponSystem } from './systems/weapon-system';
+import { HitBoxSystem } from './Systems/hit-box-system';
+import { ProjectileSystem } from './Systems/projectile-system';
+import { WeaponSystem } from './Systems/weapon-system';
 import { Loader } from './loader';
 import { FlyerIdleState } from './States/flyer-idle-state';
 import { DragonIdleState } from './States/dragon-idle-state';
 import { HorseIdleState } from './States/horse-idle-state';
-import { PhysicsSystem } from './systems/physics-system';
+import { PhysicsSystem } from './Systems/physics-system';
 import { Weapon } from './components/weapon';
 import { Flying } from './components/flying';
 import { DragonBossState } from './States/dragon-boss-state';
 import { Hit } from './components/hit';
 import { Foot } from './components/foot';
-import { InitializationSystem } from './systems/initialization-system';
+import { InitializationSystem } from './Systems/initialization-system';
+import { HurtBoxSystem } from './Systems/hurt-box-system';
+import { Smear } from './components/smear';
+import { Sprite } from './components/sprite';
+import { HitBox } from './components/hit-box';
 import { HurtBox } from './components/hurt-box';
-import { HurtBoxSystem } from './systems/hurt-box-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -76,8 +79,6 @@ export class AnimationScene {
     this.canvas.nativeElement.width = canvasWidth;
     this.canvas.nativeElement.height = canvasheight;
 
-    this.canvas.nativeElement.width = canvasWidth;
-    this.canvas.nativeElement.height = canvasheight;
     this.animationSystem = new AnimationSystem();
     this.movementSystem = new MovementSystem();
     this.controllerSystem = new ControllerSystem();
@@ -102,41 +103,70 @@ export class AnimationScene {
     const draug = this.ecs.createEntity();
     const horse = this.ecs.createEntity();
     const weapon = this.ecs.createEntity();
-    const woman = this.ecs.createEntity();
+    const enemy = this.ecs.createEntity();
     const dragon2 = this.ecs.createEntity();
+
+    for (let i = 1; i < 5; i++) {
+      const background = this.ecs.createEntity();
+      this.ecs.addComponent<Sprite>(
+        background,
+        new Sprite('assets/sprites/backgrounds/87844.png')
+      );
+      const backgroundSprite = this.ecs.getComponent<Sprite>(
+        background,
+        'Sprite'
+      );
+      this.ecs.addComponent<Transform>(
+        background,
+        new Transform(
+          new Vec(
+            (i - 1) * backgroundSprite.image.width,
+            this.canvasHeight - backgroundSprite.image.height
+          ),
+          new Vec(0, 0),
+          0
+        )
+      );
+    }
+    const walkBox = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      walkBox,
+      new Transform(new Vec(0, this.canvasHeight - 200), new Vec(0, 0), 0)
+    );
+    this.ecs.addComponent<HitBox>(walkBox, new HitBox(this.canvasWidth, 1));
 
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(0, 350), new Vec(0, 0), 10)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
       dragon,
-      new Transform(new Vec(0, 200), new Vec(0, 0), 10)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
       dragon2,
-      new Transform(new Vec(1500, 400), new Vec(0, 0), 0)
+      new Transform(new Vec(1500, 0), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
       flyer,
-      new Transform(new Vec(500, this.canvasHeight / 3), new Vec(0, 0), 10)
+      new Transform(new Vec(500, 0), new Vec(0, 0), 10)
     );
 
     this.ecs.addComponent<Transform>(
       draug,
-      new Transform(new Vec(300, 350), new Vec(0, 0), 0)
+      new Transform(new Vec(300, 0), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Transform>(
       horse,
-      new Transform(new Vec(800, 100), new Vec(0, 0), 0)
+      new Transform(new Vec(800, 0), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
-      woman,
-      new Transform(new Vec(1000, 350), new Vec(0, 0), 0)
+      enemy,
+      new Transform(new Vec(1000, 0), new Vec(0, 0), 0)
     );
 
     const playerSkeleton = new Skeleton('assets/sprites/108414.png');
@@ -144,7 +174,7 @@ export class AnimationScene {
     const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
     const draugSkeleton = new Skeleton('assets/sprites/104085.png');
     const horseSkeleton = new Skeleton('assets/sprites/115616.png');
-    const womanSkeleton = new Skeleton('assets/sprites/88444.png');
+    const enemeySkeleton = new Skeleton('assets/sprites/94814.png');
     const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
 
     //Create character bones from JSON file
@@ -173,7 +203,7 @@ export class AnimationScene {
     horseSkeleton.bones.push(...horseBones);
     horseSkeleton.state = new HorseIdleState();
 
-    womanSkeleton.bones.push(...womanBones);
+    enemeySkeleton.bones.push(...womanBones);
 
     dragon2Skeleton.bones.push(...dragonBones2);
     dragon2Skeleton.state = new DragonBossState();
@@ -183,7 +213,7 @@ export class AnimationScene {
     this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
     this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
     this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
-    this.ecs.addComponent<Skeleton>(woman, womanSkeleton);
+    this.ecs.addComponent<Skeleton>(enemy, enemeySkeleton);
     this.ecs.addComponent<Skeleton>(dragon2, dragon2Skeleton);
 
     this.ecs.addComponent<Controlable>(
@@ -207,6 +237,10 @@ export class AnimationScene {
     this.ecs.addComponent<Flying>(flyer, new Flying());
 
     const newWeapon = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      newWeapon,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     this.ecs.addComponent<Weapon>(
       newWeapon,
       new Weapon(
@@ -215,27 +249,43 @@ export class AnimationScene {
         new Vec(-10, 105)
       )
     );
+    this.ecs.addComponent<Transform>(
+      weapon,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     this.ecs.addComponent<Weapon>(
       weapon,
       new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 140))
     );
     const arrow = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      arrow,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     this.ecs.addComponent<Weapon>(
       arrow,
       new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 0))
     );
 
     const sword = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      sword,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     this.ecs.addComponent<Weapon>(
       sword,
       new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
     );
-
     const sword2 = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      sword2,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     this.ecs.addComponent<Weapon>(
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
+    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
 
     this.ecs.addComponent<Hit>(player, new Hit());
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
@@ -245,18 +295,16 @@ export class AnimationScene {
     //this.ecs.addComponent<HurtBox>(player, new HurtBox());
 
     // playerSkeleton.heldOffhandEntity = arrow;
+    this.ecs.addComponent<Smear>(sword, new Smear());
     playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = sword2;
-    womanSkeleton.heldEntity = newWeapon;
+    enemeySkeleton.heldEntity = newWeapon;
     this.initializationSystem.update(this.ecs);
     console.log(this.ecs);
   }
 
   start() {
     this.renderer.clearScreen();
-    this.renderer.drawForeground();
-    this.controllerSystem.update(this.ecs);
-    this.movementSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -264,21 +312,26 @@ export class AnimationScene {
       this.width,
       this.height
     );
+    this.controllerSystem.update(this.ecs);
+    this.movementSystem.update(this.ecs);
 
     this.aiSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
-    this.attackSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs);
     this.hurtBoxSystem.update(this.ecs);
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
     // this.projectileSystem.update(this.ecs, this.renderer);
 
+    this.renderer.drawSprites(this.ecs);
     this.renderer.renderCharacter(this.ecs);
-    this.renderer.drawHitBox(this.ecs);
+    //this.renderer.drawHitBox(this.ecs);
     this.renderer.renderHurtBox(this.ecs);
+    // this.renderer.renderHitBox(this.ecs);
+    //this.renderer.drawWeapon(this.ecs);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }

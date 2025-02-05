@@ -5,7 +5,6 @@ export class Weapon extends Component {
   override type = 'Weapon';
   parentId: string | null;
   image: HTMLImageElement = new Image();
-  offset: Vec;
   scale: Vec;
   pivot: Vec;
   rotation: number;
@@ -15,7 +14,6 @@ export class Weapon extends Component {
     super();
     this.parentId = parentId;
     this.image.src = image;
-    this.offset = new Vec(0, 0);
     this.scale = new Vec(0, 0);
     this.pivot = pivot;
     this.rotation = 0;
