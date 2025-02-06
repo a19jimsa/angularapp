@@ -1,0 +1,14 @@
+[
+  {
+    "name": "idle"
+  },
+  {
+    "name": "running"
+  },
+  {
+    "name": "attack"
+  },
+  {
+    "name": "jumpattack"
+  }
+]

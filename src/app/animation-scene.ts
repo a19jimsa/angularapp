@@ -1,40 +1,42 @@
 import { ElementRef } from '@angular/core';
-import { Ecs } from './ecs';
+import { Ecs } from '../core/ecs';
 import { Renderer } from './renderer';
-import { Transform } from './components/transform';
+import { Transform } from '../components/transform';
 import { Vec } from './vec';
-import { Skeleton } from './components/skeleton';
-import { AnimationSystem } from './Systems/animation-system';
-import { MovementSystem } from './Systems/movement-system';
-import { ControllerSystem } from './Systems/controller-system';
-import { Controlable } from './components/controlable';
-import { Camera } from './components/camera';
-import { CameraSystem } from './Systems/camera-system';
-import { AttackSystem } from './Systems/attack-system';
-import { DeadSystem } from './Systems/dead-system';
-import { AttackDurationSystem } from './Systems/attack-duration-system';
-import { AiSystem } from './Systems/ai-system';
+import { Skeleton } from '../components/skeleton';
+import { AnimationSystem } from '../systems/animation-system';
+import { MovementSystem } from '../systems/movement-system';
+import { ControllerSystem } from '../systems/controller-system';
+import { Controlable } from '../components/controlable';
+import { Camera } from '../components/camera';
+import { CameraSystem } from '../systems/camera-system';
+import { AttackSystem } from '../systems/attack-system';
+import { DeadSystem } from '../systems/dead-system';
+import { AttackDurationSystem } from '../systems/attack-duration-system';
+import { AiSystem } from '../systems/ai-system';
 import { Entity } from './entity';
-import { Ai } from './components/ai';
-import { HitBoxSystem } from './Systems/hit-box-system';
-import { ProjectileSystem } from './Systems/projectile-system';
-import { WeaponSystem } from './Systems/weapon-system';
+import { Ai } from '../components/ai';
+import { HitBoxSystem } from '../systems/hit-box-system';
+import { ProjectileSystem } from '../systems/projectile-system';
+import { WeaponSystem } from '../systems/weapon-system';
 import { Loader } from './loader';
-import { FlyerIdleState } from './States/flyer-idle-state';
-import { DragonIdleState } from './States/dragon-idle-state';
-import { HorseIdleState } from './States/horse-idle-state';
-import { PhysicsSystem } from './Systems/physics-system';
-import { Weapon } from './components/weapon';
-import { Flying } from './components/flying';
-import { DragonBossState } from './States/dragon-boss-state';
-import { Hit } from './components/hit';
-import { Foot } from './components/foot';
-import { InitializationSystem } from './Systems/initialization-system';
-import { HurtBoxSystem } from './Systems/hurt-box-system';
-import { Smear } from './components/smear';
-import { Sprite } from './components/sprite';
-import { HitBox } from './components/hit-box';
-import { HurtBox } from './components/hurt-box';
+import { FlyerIdleState } from '../states/flyer-idle-state';
+import { DragonIdleState } from '../states/dragon-idle-state';
+import { HorseIdleState } from '../states/horse-idle-state';
+import { PhysicsSystem } from '../systems/physics-system';
+import { Weapon } from '../components/weapon';
+import { Flying } from '../components/flying';
+import { DragonBossState } from '../states/dragon-boss-state';
+import { Hit } from '../components/hit';
+import { Foot } from '../components/foot';
+import { InitializationSystem } from '../systems/initialization-system';
+import { HurtBoxSystem } from '../systems/hurt-box-system';
+import { Smear } from '../components/smear';
+import { Sprite } from '../components/sprite';
+import { HitBox } from '../components/hit-box';
+import { HurtBox } from '../components/hurt-box';
+import { ResourceManager } from 'src/core/resource-manager';
+import { OnGroundState } from 'src/states/on-ground-state';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -169,13 +171,7 @@ export class AnimationScene {
       new Transform(new Vec(1000, 0), new Vec(0, 0), 0)
     );
 
-    const playerSkeleton = new Skeleton('assets/sprites/108414.png');
-    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
-    const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
-    const draugSkeleton = new Skeleton('assets/sprites/104085.png');
-    const horseSkeleton = new Skeleton('assets/sprites/115616.png');
-    const enemeySkeleton = new Skeleton('assets/sprites/94814.png');
-    const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
+    await ResourceManager.loadAllAnimation();
 
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
@@ -190,23 +186,27 @@ export class AnimationScene {
     const womanBones = await Loader.loadFromJSON('assets/json/skeleton.json');
     const dragonBones2 = await Loader.loadFromJSON('assets/json/dragon2.json');
 
+    const playerSkeleton = new Skeleton('assets/sprites/108414.png');
+    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
+    const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
+    const draugSkeleton = new Skeleton('assets/sprites/104085.png');
+    const horseSkeleton = new Skeleton('assets/sprites/115616.png');
+    const enemeySkeleton = new Skeleton('assets/sprites/94814.png');
+    const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
+
     playerSkeleton.bones.push(...skeletonBones);
 
     dragonSkeleton.bones.push(...dragonBones);
-    dragonSkeleton.state = new DragonIdleState();
 
     flyerSkeleton.bones.push(...flyerBones);
-    flyerSkeleton.state = new FlyerIdleState();
 
     draugSkeleton.bones.push(...draugBones);
 
     horseSkeleton.bones.push(...horseBones);
-    horseSkeleton.state = new HorseIdleState();
 
     enemeySkeleton.bones.push(...womanBones);
 
     dragon2Skeleton.bones.push(...dragonBones2);
-    dragon2Skeleton.state = new DragonBossState();
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
@@ -299,6 +299,7 @@ export class AnimationScene {
     playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = sword2;
     enemeySkeleton.heldEntity = newWeapon;
+
     this.initializationSystem.update(this.ecs);
     console.log(this.ecs);
   }

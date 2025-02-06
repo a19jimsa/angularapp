@@ -6,7 +6,7 @@ import {
   MatDialogContent,
   MatDialogTitle,
 } from '@angular/material/dialog';
-import { Bone } from '../components/bone';
+import { Bone } from '../../components/bone';
 import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';

@@ -1,5 +1,5 @@
 import { Keyframe } from './animation-creator/animation-creator.component';
-import { Bone } from './components/bone';
+import { Bone } from '../components/bone';
 
 export class Loader {
   static async loadFromJSON(path: string): Promise<Bone[]> {

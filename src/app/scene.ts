@@ -1,19 +1,19 @@
 import { ElementRef } from '@angular/core';
-import { Ecs } from './ecs';
+import { Ecs } from '../core/ecs';
 import { Renderer } from './renderer';
-import { CollisionSystem } from './Systems/collision-system';
-import { RenderSystem } from './Systems/render-system';
-import { CameraSystem } from './Systems/camera-system';
-import { Transform } from './components/transform';
+import { CollisionSystem } from '../systems/collision-system';
+import { RenderSystem } from '../systems/render-system';
+import { CameraSystem } from '../systems/camera-system';
+import { Transform } from '../components/transform';
 import { Vec } from './vec';
-import { Render } from './components/render';
-import { Camera } from './components/camera';
-import { ControlSystem } from './Systems/control-system';
-import { Controlable } from './components/controlable';
-import { RotationSystem } from './Systems/rotation-system';
-import { Rotation } from './components/rotation';
+import { Render } from '../components/render';
+import { Camera } from '../components/camera';
+import { ControlSystem } from '../systems/control-system';
+import { Controlable } from '../components/controlable';
+import { RotationSystem } from '../systems/rotation-system';
+import { Rotation } from '../components/rotation';
 import { MouseHandler } from './mouse-handler';
-import { MovementSystem } from './Systems/movement-system';
+import { MovementSystem } from '../systems/movement-system';
 
 export class Scene {
   ecs: Ecs;

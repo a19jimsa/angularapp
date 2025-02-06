@@ -10,7 +10,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Bone } from '../components/bone';
+import { Bone } from '../../components/bone';
 
 @Component({
   selector: 'app-bone-dialog',

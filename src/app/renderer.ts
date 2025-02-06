@@ -1,17 +1,17 @@
 import { ElementRef } from '@angular/core';
 import { Vec } from './vec';
-import { Camera } from './components/camera';
-import { Bone } from './components/bone';
-import { Skeleton } from './components/skeleton';
-import { Transform } from './components/transform';
-import { HitBox } from './components/hit-box';
-import { Weapon } from './components/weapon';
-import { Foot } from './components/foot';
+import { Camera } from '../components/camera';
+import { Bone } from '../components/bone';
+import { Skeleton } from '../components/skeleton';
+import { Transform } from '../components/transform';
+import { HitBox } from '../components/hit-box';
+import { Weapon } from '../components/weapon';
+import { Foot } from '../components/foot';
 import { MathUtils } from './Utils/MathUtils';
-import { HurtBox } from './components/hurt-box';
-import { Smear } from './components/smear';
-import { Ecs } from './ecs';
-import { Sprite } from './components/sprite';
+import { HurtBox } from '../components/hurt-box';
+import { Smear } from '../components/smear';
+import { Ecs } from '../core/ecs';
+import { Sprite } from '../components/sprite';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;

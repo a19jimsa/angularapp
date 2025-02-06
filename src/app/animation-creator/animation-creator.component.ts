@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { Bone } from '../components/bone';
+import { Bone } from '../../components/bone';
 import { Vec } from '../vec';
 import { ImportBonesDialogComponent } from '../import-bones-dialog/import-bones-dialog.component';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
@@ -37,11 +37,11 @@ import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
 import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
-import { OnGroundState } from '../States/on-ground-state';
-import { JumpingState } from '../States/jumping-state';
-import { RunningState } from '../States/running-state';
-import { State } from '../States/state';
-import { ChangeBoneCommand } from '../Commands/change-bone-command';
+import { OnGroundState } from '../../states/on-ground-state';
+import { JumpingState } from '../../states/jumping-state';
+import { RunningState } from '../../states/running-state';
+import { State } from '../../states/state';
+import { ChangeBoneCommand } from '../../Commands/change-bone-command';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
 import { MathUtils } from '../Utils/MathUtils';
 
