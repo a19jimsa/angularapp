@@ -8,6 +8,10 @@ import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
 import { Vec } from '../app/vec';
+import { WalkBox } from 'src/components/walk-box';
+import { Hit } from 'src/components/hit';
+import { Enemy } from 'src/components/enemy';
+import { MathUtils } from 'src/app/Utils/MathUtils';
 
 export class PhysicsSystem {
   GRAVITY: number = 1.2;
@@ -18,6 +22,8 @@ export class PhysicsSystem {
       const jumping = ecs.getComponent<Jump>(entity, 'Jump');
       const foot = ecs.getComponent<Foot>(entity, 'Foot');
       const falling = ecs.getComponent<Falling>(entity, 'Falling');
+      const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
+      const hit = ecs.getComponent<Hit>(entity, 'Hit');
       if (!skeleton) continue;
       if (!transform) continue;
       // if (foot) {
@@ -41,15 +47,31 @@ export class PhysicsSystem {
       //   }
       //   foot.value = foot.startValue - maxPos;
       // }
-      const pool = ecs.getPool<[Transform, HitBox]>('Transform', 'HitBox');
-      for (const [hitBoxtransform, hitbox] of pool) {
-        const movedX = transform.position.plus(
-          new Vec(transform.velocity.X, 0)
-        );
+
+      const enemyPool = ecs.getPool<[Transform, HitBox, Enemy]>(
+        'Transform',
+        'HitBox',
+        'Enemy'
+      );
+
+      if (hitBox) {
+        for (const [enemyTransform, enemyhitBox, enemy] of enemyPool) {
+          const newHitbox = new HitBox(hitBox.width, hitBox.height);
+          newHitbox.position = hitBox.position.plus(
+            new Vec(transform.velocity.X, 0)
+          );
+          if (MathUtils.isColliding(newHitbox, enemyhitBox)) {
+            transform.velocity.X = 0;
+          }
+        }
+      }
+
+      const pool = ecs.getPool<[HitBox, WalkBox]>('HitBox', 'WalkBox');
+      for (const [hitbox, walkBox] of pool) {
         const movedY = transform.position.plus(
           new Vec(0, transform.velocity.Y + this.GRAVITY)
         );
-        if (movedY.Y >= hitBoxtransform.position.Y) {
+        if (movedY.Y >= hitbox.position.Y) {
           transform.velocity.Y = 0;
         } else {
           transform.velocity.Y = transform.velocity.Y + this.GRAVITY;

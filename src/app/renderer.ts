@@ -12,6 +12,7 @@ import { HurtBox } from '../components/hurt-box';
 import { Smear } from '../components/smear';
 import { Ecs } from '../core/ecs';
 import { Sprite } from '../components/sprite';
+import { MouseHandler } from './mouse-handler';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -341,12 +342,11 @@ export class Renderer {
   renderHitBox(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
-      const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (hitBox) {
         this.ctx.fillStyle = 'red';
         this.ctx.fillRect(
-          transform.position.X,
-          transform.position.Y,
+          hitBox.position.X - this.camera.position.X,
+          hitBox.position.Y - this.camera.position.Y,
           hitBox.width,
           hitBox.height
         );
@@ -401,5 +401,28 @@ export class Renderer {
       );
     }
     this.ctx.stroke();
+  }
+
+  drawTriangle(ecs: Ecs, mouseHandler: MouseHandler) {
+    const pool = ecs.getPool<[Transform, Skeleton, Camera]>(
+      'Transform',
+      'Skeleton',
+      'Camera'
+    );
+    for (const [transform, skeleton, camera] of pool) {
+      const torso = skeleton.bones.find((e) => e.id === 'torso');
+      if (!torso) continue;
+      const newPosition = transform.position
+        .plus(torso.position)
+        .minus(camera.position);
+      const hypotenuse = newPosition.dist(mouseHandler.position);
+      const adjacent = mouseHandler.position.X - newPosition.X;
+      const angleRadians = Math.acos(adjacent / hypotenuse);
+      this.ctx.beginPath();
+      this.ctx.moveTo(newPosition.X, newPosition.Y);
+      this.ctx.lineTo(mouseHandler.position.X, newPosition.Y);
+      this.ctx.lineTo(mouseHandler.position.X, mouseHandler.position.Y);
+      this.ctx.fill();
+    }
   }
 }

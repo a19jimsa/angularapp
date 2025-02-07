@@ -1,6 +1,8 @@
+import { HitBox } from 'src/components/hit-box';
 import { Bone } from '../../components/bone';
 import { Skeleton } from '../../components/skeleton';
 import { Vec } from '../vec';
+import { HurtBox } from 'src/components/hurt-box';
 
 export class MathUtils {
   static interpolateKeyframe(
@@ -40,5 +42,14 @@ export class MathUtils {
     }
     // Om det inte finns någon förälder (root), returnera bara benets egen rotation
     return bone.rotation;
+  }
+
+  static isColliding(hitBox: HitBox, hurtBox: HurtBox): boolean {
+    return (
+      hitBox.position.X + hitBox.width > hurtBox.position.X &&
+      hitBox.position.X < hurtBox.position.X + hurtBox.width &&
+      hitBox.position.Y + hitBox.height > hurtBox.position.Y &&
+      hitBox.position.Y < hurtBox.position.Y + hurtBox.height
+    );
   }
 }

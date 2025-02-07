@@ -20,7 +20,6 @@ export class Bone extends Component {
   globalRotation: number;
   globalSpriteRotation: number;
   hierarchyDepth: number;
-
   minAngle: number;
   maxAngle: number;
 

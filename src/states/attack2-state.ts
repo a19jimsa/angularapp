@@ -4,6 +4,7 @@ import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
+import { ResourceManager } from 'src/core/resource-manager';
 
 export class Attack2State extends State {
   frameTimer = 0;
@@ -11,6 +12,7 @@ export class Attack2State extends State {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.startTime = performance.now();
+      skeleton.state.keyframes = ResourceManager.getAnimation('attack2');
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {

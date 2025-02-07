@@ -15,10 +15,10 @@ export class Skeleton extends Component {
   heldEntity: Entity | null;
   heldOffhandEntity: Entity | null;
   rotation: number;
-  constructor(imageSrc: string) {
+  constructor(imageSrc: string, state: State) {
     super();
     this.image.src = imageSrc;
-    this.state = new OnGroundState();
+    this.state = state;
     this.equipment = null;
     this.heldEntity = null;
     this.heldOffhandEntity = null;

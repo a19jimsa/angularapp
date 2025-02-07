@@ -22,6 +22,7 @@ export class AttackState extends State {
       skeleton.startTime = performance.now();
     }
     this.keyframes = ResourceManager.getAnimation('attack');
+    this.frameTimer = 0;
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(
@@ -29,19 +30,14 @@ export class AttackState extends State {
     ecs: Ecs,
     input: KeysPressed
   ): State | null {
-    if (this.frameTimer > 30 && input.attack) {
+    if (this.frameTimer > 12 && input.attack) {
       return new Attack2State();
-    } else if (this.frameTimer > 30) {
+    } else if (this.frameTimer > 12) {
       return new OnGroundState();
     }
     return null;
   }
   override update(entity: Entity, ecs: Ecs): void {
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (skeleton && skeleton.heldEntity) {
-      const hitBox = ecs.getComponent<HitBox>(skeleton.heldEntity, 'HitBox');
-      const smear = ecs.getComponent<Smear>(skeleton.heldEntity, 'Smear');
-    }
     this.frameTimer++;
   }
 }

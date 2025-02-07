@@ -6,7 +6,7 @@ import { ResourceManager } from 'src/core/resource-manager';
 
 export class DragonIdleState extends State {
   override enter(entity: Entity, ecs: Ecs): void {
-    this.keyframes = ResourceManager.getAnimation('idle');
+    this.keyframes = ResourceManager.getAnimation('dragonidle');
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(entity: Entity, ecs: Ecs, input: KeysPressed): State {

@@ -41,9 +41,9 @@ import { OnGroundState } from '../../states/on-ground-state';
 import { JumpingState } from '../../states/jumping-state';
 import { RunningState } from '../../states/running-state';
 import { State } from '../../states/state';
-import { ChangeBoneCommand } from '../../Commands/change-bone-command';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
 import { MathUtils } from '../Utils/MathUtils';
+import { ChangeBoneCommand } from 'src/commands/change-bone-command';
 
 @Component({
   selector: 'app-animation-creator',

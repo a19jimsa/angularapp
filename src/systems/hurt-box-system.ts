@@ -12,7 +12,6 @@ export class HurtBoxSystem {
       'Weapon'
     );
     for (const [transform, hurtBox, weapon] of pool) {
-      //Dereference
       const newPos = MathUtils.calculateParentPosition(
         transform.position,
         weapon.image.height - 25,
