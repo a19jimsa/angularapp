@@ -89,7 +89,7 @@ export class AnimationScene {
 
     this.animationSystem = new AnimationSystem();
     this.movementSystem = new MovementSystem();
-    this.controllerSystem = new ControllerSystem();
+    this.controllerSystem = new ControllerSystem(this.mouseHandler);
     this.cameraSystem = new CameraSystem();
     this.attackSystem = new AttackSystem();
     this.deadSystem = new DeadSystem();
@@ -111,7 +111,6 @@ export class AnimationScene {
     const flyer = this.ecs.createEntity();
     const draug = this.ecs.createEntity();
     const horse = this.ecs.createEntity();
-    const weapon = this.ecs.createEntity();
     const enemy = this.ecs.createEntity();
     const dragon2 = this.ecs.createEntity();
 
@@ -197,7 +196,7 @@ export class AnimationScene {
     const dragonBones2 = await Loader.loadFromJSON('assets/json/dragon2.json');
 
     const playerSkeleton = new Skeleton(
-      'assets/sprites/108414.png',
+      'assets/sprites/88022.png',
       new OnGroundState()
     );
     const dragonSkeleton = new Skeleton(
@@ -273,14 +272,17 @@ export class AnimationScene {
         new Vec(-10, 105)
       )
     );
+
+    const bow = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
-      weapon,
+      bow,
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Weapon>(
-      weapon,
+      bow,
       new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 140))
     );
+
     const arrow = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       arrow,
@@ -309,7 +311,7 @@ export class AnimationScene {
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
-    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    this.ecs.addComponent<HurtBox>(arrow, new HurtBox());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Foot>(dragon, new Foot('right_hand'));
@@ -317,9 +319,9 @@ export class AnimationScene {
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 100));
 
-    // playerSkeleton.heldOffhandEntity = arrow;
+    playerSkeleton.heldOffhandEntity = bow;
     //this.ecs.addComponent<Smear>(sword, new Smear());
-    playerSkeleton.heldEntity = sword;
+    playerSkeleton.heldEntity = arrow;
     draugSkeleton.heldEntity = sword2;
     enemySkeleton.heldEntity = newWeapon;
 
@@ -349,9 +351,8 @@ export class AnimationScene {
 
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
-    this.hurtBoxSystem.update(this.ecs);
-
     this.aimingSystem.update(this.ecs);
+    this.hurtBoxSystem.update(this.ecs);
 
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
@@ -359,11 +360,11 @@ export class AnimationScene {
     // this.projectileSystem.update(this.ecs, this.renderer);
 
     this.renderer.drawSprites(this.ecs);
-    this.renderer.renderHurtBox(this.ecs);
-    this.renderer.renderHitBox(this.ecs);
+    //this.renderer.renderHurtBox(this.ecs);
+    //this.renderer.renderHitBox(this.ecs);
 
     this.renderer.renderCharacter(this.ecs);
-    this.renderer.drawTriangle(this.ecs, this.mouseHandler);
+    //this.renderer.drawTriangle(this.ecs, this.mouseHandler);
 
     this.loopId = window.requestAnimationFrame(() => this.start());
   }

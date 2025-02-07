@@ -15,17 +15,17 @@ export class HurtBoxSystem {
       const newPos = MathUtils.calculateParentPosition(
         transform.position,
         weapon.image.height - 25,
-        weapon.rotation - 180
+        weapon.rotation
       );
-      hurtBox.width = 50;
-      hurtBox.height = 50;
+      hurtBox.width = weapon.image.width;
+      hurtBox.height = weapon.image.height;
       hurtBox.position.X = newPos.X;
       hurtBox.position.Y = newPos.Y;
-      if (weapon.scale.Y === -1) {
+      if (weapon.flip) {
         hurtBox.position = MathUtils.calculateParentPosition(
           transform.position,
-          -weapon.image.height + 25,
-          weapon.rotation - 180
+          -weapon.image.height,
+          weapon.rotation
         );
       }
     }

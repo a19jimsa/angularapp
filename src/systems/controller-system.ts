@@ -8,6 +8,8 @@ import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { Vec } from '../app/vec';
+import { MouseHandler } from 'src/app/mouse-handler';
+import { AttackState } from 'src/states/attack-state';
 
 export type KeysPressed = {
   left: boolean;
@@ -29,7 +31,7 @@ export class ControllerSystem {
     attack: false,
   };
 
-  constructor() {
+  constructor(private mouseHandler: MouseHandler) {
     console.log('Skapade controller');
     window.addEventListener('keydown', (event) => {
       if (event.code === 'KeyA') {
@@ -80,6 +82,11 @@ export class ControllerSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (controlable && transform && skeleton) {
+        if (this.mouseHandler.isMouseDown) {
+          this.keysPressed.attack = true;
+        } else if (this.mouseHandler.isMouseUp) {
+          this.keysPressed.attack = false;
+        }
         const state = skeleton.state.handleInput(entity, ecs, this.keysPressed);
         if (state !== null) {
           skeleton.state = state;

@@ -8,6 +8,7 @@ import { JumpingState } from './jumping-state';
 import { State } from './state';
 import { OnGroundState } from './on-ground-state';
 import { ResourceManager } from 'src/core/resource-manager';
+import { LoadArrowState } from './load-arrow-state';
 
 export class RunningState extends State {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -28,7 +29,6 @@ export class RunningState extends State {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton && !transform) return null;
-
     if (input.attack && (input.right || input.left)) {
       skeleton.equipment = new AttackState();
       return null;
@@ -36,12 +36,10 @@ export class RunningState extends State {
 
     if (input.left) {
       speedX += -10;
-      skeleton.flip = true;
       touch++;
     }
     if (input.right) {
       speedX += 10;
-      skeleton.flip = false;
       touch++;
     }
     if (input.jump) {

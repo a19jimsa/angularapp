@@ -469,27 +469,5 @@
     "scale": { "X": 1, "Y": 0.9977093200024288 },
     "minAngle": 0,
     "maxAngle": 0
-  },
-  {
-    "type": "Bone",
-    "id": "sword",
-    "pivot": { "X": 0, "Y": 22 },
-    "position": { "X": 24.60121019307411, "Y": -32.62098923939969 },
-    "parentId": "right_hand",
-    "length": 0,
-    "rotation": 0,
-    "startX": 130.015625,
-    "startY": 297,
-    "endX": 42,
-    "endY": 162,
-    "order": 0,
-    "offset": { "X": 24.60121019307411, "Y": -32.62098923939969 },
-    "attachAt": 1,
-    "globalRotation": 28.738800002780167,
-    "globalSpriteRotation": 0,
-    "hierarchyDepth": 6,
-    "scale": { "X": 1, "Y": 0.9977093200024288 },
-    "minAngle": 0,
-    "maxAngle": 0
   }
 ]

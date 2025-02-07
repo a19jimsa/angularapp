@@ -27,7 +27,6 @@ export class AimingSystem {
         deegrees *= -1;
       }
 
-      console.log(deegrees);
       if (torso) {
         if (
           this.mouseHandler.position.X <

@@ -26,6 +26,7 @@ export class WeaponSystem {
       }
     }
   }
+
   updateWeaponPosition(
     transform: Transform,
     entity: Entity,
@@ -40,11 +41,7 @@ export class WeaponSystem {
       if (parent) {
         weaponTransform.position.X = transform.position.X + parent.position.X;
         weaponTransform.position.Y = transform.position.Y + parent.position.Y;
-        weapon.rotation =
-          parent.rotation +
-          parent.globalRotation +
-          parent.globalSpriteRotation -
-          180;
+        weapon.rotation = parent.globalRotation + parent.globalSpriteRotation;
         weapon.order = parent.order - 1;
         weapon.scale = parent.scale;
       }
@@ -56,6 +53,7 @@ export class WeaponSystem {
         weapon.rotation = -weapon.rotation;
         weapon.scale.Y = -1;
       }
+      weapon.flip = skeleton.flip;
     }
   }
 }

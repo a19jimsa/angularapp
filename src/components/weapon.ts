@@ -9,6 +9,7 @@ export class Weapon extends Component {
   pivot: Vec;
   rotation: number;
   order: number;
+  flip: boolean;
 
   constructor(parentId: string | null, image: string, pivot: Vec) {
     super();
@@ -18,5 +19,6 @@ export class Weapon extends Component {
     this.pivot = pivot;
     this.rotation = 0;
     this.order = 0;
+    this.flip = false;
   }
 }
