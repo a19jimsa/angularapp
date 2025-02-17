@@ -16,7 +16,6 @@ export class RunningState extends State {
     if (!skeleton) return;
     skeleton.startTime = performance.now();
     console.log('Running');
-    skeleton.state.keyframes = ResourceManager.getAnimation('running');
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(
@@ -30,7 +29,6 @@ export class RunningState extends State {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton && !transform) return null;
     if (input.attack && (input.right || input.left)) {
-      skeleton.equipment = new AttackState();
       return null;
     }
 

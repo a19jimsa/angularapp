@@ -20,7 +20,6 @@ export class OnGroundState extends State {
     skeleton.rotation = 0;
     if (!transform) return;
     transform.velocity.X = 0;
-    this.keyframes = ResourceManager.getAnimation('idle');
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(

@@ -42,7 +42,7 @@ import { JumpingState } from '../../states/jumping-state';
 import { RunningState } from '../../states/running-state';
 import { State } from '../../states/state';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
-import { MathUtils } from '../Utils/MathUtils';
+import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
 
 @Component({
@@ -397,7 +397,9 @@ export class AnimationCreatorComponent
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
       this.ctx.translate(bone.offset.X, bone.offset.Y);
-      this.ctx.rotate(this.degreesToRadians(bone.globalRotation) - Math.PI / 2);
+      this.ctx.rotate(
+        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
+      );
       this.ctx.scale(bone.scale.X, bone.scale.Y);
       this.ctx.translate(-bone.offset.X, -bone.offset.Y);
       this.ctx.drawImage(
@@ -547,7 +549,7 @@ export class AnimationCreatorComponent
     });
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      this.camera.X += event.deltaY / 10;
+      this.camera.Y += event.deltaY / 10;
     });
 
     addEventListener('keydown', (event) => {
@@ -711,21 +713,8 @@ export class AnimationCreatorComponent
     return startValue + (endValue - startValue) * progress;
   }
 
-  degreesToRadians(degrees: number) {
-    const rotationRadians = (degrees * Math.PI) / 180;
-    return rotationRadians;
-  }
-
   findBoneById(bones: Bone[], parentId: string) {
     return bones.find((e) => e.id === parentId);
-  }
-
-  calculateParentPosition(position: Vec, length: number, rotation: number) {
-    const xEnd =
-      position.X + length * Math.cos(this.degreesToRadians(rotation));
-    const yEnd =
-      position.Y + length * Math.sin(this.degreesToRadians(rotation));
-    return new Vec(xEnd, yEnd);
   }
 
   calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
@@ -746,15 +735,11 @@ export class AnimationCreatorComponent
     this.sortBonesByHierarchy();
     for (const bone of this.bones) {
       let parentRotation = 0;
-      if (
-        bone.parentId !== null &&
-        bone.parentId !== undefined &&
-        bone.parentId !== ''
-      ) {
+      if (bone.parentId) {
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
-          bone.offset = this.calculateParentPosition(
+          bone.offset = MathUtils.calculateParentPosition(
             parent.offset,
             parent.length * bone.attachAt * parent.scale.Y,
             parentRotation
@@ -765,7 +750,7 @@ export class AnimationCreatorComponent
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
 
-      bone.position = this.calculateParentPosition(
+      bone.position = MathUtils.calculateParentPosition(
         bone.offset,
         bone.length,
         parentRotation + bone.rotation
@@ -858,6 +843,11 @@ export class AnimationCreatorComponent
             bone.rotation = this.interpolateKeyframe(
               keyFrame.angle,
               this.keyframes[i + 1].angle,
+              progress
+            );
+            bone.scale.X = this.interpolateKeyframe(
+              keyFrame.scale.X,
+              this.keyframes[i + 1].scale.X,
               progress
             );
             bone.scale.Y = this.interpolateKeyframe(

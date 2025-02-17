@@ -1,6 +1,5 @@
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
-import { MathUtils } from 'src/app/Utils/MathUtils';
-import { Bone } from 'src/components/bone';
+import { MathUtils } from 'src/Utils/MathUtils';
 import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
 
@@ -10,7 +9,7 @@ export class AnimationSystem {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!skeleton) continue;
-      this.runAnimation(skeleton, skeleton.state.keyframes);
+      this.runAnimation(skeleton, skeleton.keyframes);
     }
   }
 
@@ -54,17 +53,7 @@ export class AnimationSystem {
     }
   }
 
-  calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
-    if (!bone.parentId) return 0; // Roten har djup 0
-    const parent = bones.find((b) => b.id === bone.parentId);
-    if (!parent) throw new Error(`Parent not found for bone ${bone.id}`);
-    return this.calculateHierarchyDepth(parent, bones) + 1;
-  }
-
   sortBonesByHierarchy(skeleton: Skeleton): void {
-    for (const bone of skeleton.bones) {
-      bone.hierarchyDepth = this.calculateHierarchyDepth(bone, skeleton.bones);
-    }
     skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
   }
 
@@ -86,7 +75,6 @@ export class AnimationSystem {
           );
         }
       }
-
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
     }

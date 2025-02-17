@@ -1,7 +1,7 @@
 import { HitBox } from 'src/components/hit-box';
-import { Bone } from '../../components/bone';
-import { Skeleton } from '../../components/skeleton';
-import { Vec } from '../vec';
+import { Bone } from '../components/bone';
+import { Skeleton } from '../components/skeleton';
+import { Vec } from '../app/vec';
 import { HurtBox } from 'src/components/hurt-box';
 
 export class MathUtils {

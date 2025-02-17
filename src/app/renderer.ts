@@ -7,12 +7,13 @@ import { Transform } from '../components/transform';
 import { HitBox } from '../components/hit-box';
 import { Weapon } from '../components/weapon';
 import { Foot } from '../components/foot';
-import { MathUtils } from './Utils/MathUtils';
+import { MathUtils } from '../Utils/MathUtils';
 import { HurtBox } from '../components/hurt-box';
 import { Smear } from '../components/smear';
 import { Ecs } from '../core/ecs';
 import { Sprite } from '../components/sprite';
 import { MouseHandler } from './mouse-handler';
+import { Projectile } from 'src/components/projectile';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -266,7 +267,7 @@ export class Renderer {
             skeleton.bones[i].order === weapon.order &&
             draw
           ) {
-            this.drawWeapon(weapon, transform);
+            this.drawCharacterWeapon(weapon, transform);
 
             draw = false;
           }
@@ -283,7 +284,7 @@ export class Renderer {
             skeleton.bones[i].order === weapon.order &&
             drawOffhand
           ) {
-            this.drawWeapon(weapon, transform);
+            this.drawCharacterWeapon(weapon, transform);
             drawOffhand = false;
           }
         }
@@ -354,7 +355,7 @@ export class Renderer {
     }
   }
 
-  drawWeapon(weapon: Weapon, transform: Transform) {
+  drawCharacterWeapon(weapon: Weapon, transform: Transform) {
     const screenX = transform.position.X - this.camera.position.X;
     const screenY = transform.position.Y - this.camera.position.Y;
     this.ctx.save();
@@ -368,6 +369,30 @@ export class Renderer {
       screenY - weapon.pivot.Y
     );
     this.ctx.restore();
+  }
+
+  drawProjectile(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const transform = ecs.getComponent<Transform>(entity, 'Transform');
+      const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
+      const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
+      if (!transform || !weapon || !projectile) continue;
+      const screenX = transform.position.X - this.camera.position.X;
+      const screenY = transform.position.Y - this.camera.position.Y;
+      this.ctx.save();
+      this.ctx.translate(screenX, screenY);
+      this.ctx.rotate(
+        MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2
+      );
+      this.ctx.scale(weapon.scale.X, weapon.scale.Y);
+      this.ctx.translate(-screenX, -screenY);
+      this.ctx.drawImage(
+        weapon.image,
+        screenX - weapon.pivot.X - weapon.image.width / 2,
+        screenY - weapon.pivot.Y
+      );
+      this.ctx.restore();
+    }
   }
 
   renderHurtBox(ecs: Ecs) {

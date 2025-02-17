@@ -11,7 +11,7 @@ import { Vec } from '../app/vec';
 import { WalkBox } from 'src/components/walk-box';
 import { Hit } from 'src/components/hit';
 import { Enemy } from 'src/components/enemy';
-import { MathUtils } from 'src/app/Utils/MathUtils';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class PhysicsSystem {
   GRAVITY: number = 1.2;

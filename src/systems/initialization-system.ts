@@ -8,14 +8,11 @@ export class InitializationSystem {
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!transform) {
         throw Error(
           'All entities must have transform component!\n Failed entity' + entity
         );
       }
-      if (!skeleton) continue;
-      skeleton.state.enter(entity, ecs);
     }
 
     const pool = ecs.getPool<[Foot, Transform, Skeleton]>(

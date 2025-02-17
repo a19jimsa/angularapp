@@ -3,7 +3,7 @@ import { HitBox } from 'src/components/hit-box';
 import { HurtBox } from 'src/components/hurt-box';
 import { Weapon } from 'src/components/weapon';
 import { Ecs } from 'src/core/ecs';
-import { MathUtils } from 'src/app/Utils/MathUtils';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class AttackSystem {
   update(ecs: Ecs) {

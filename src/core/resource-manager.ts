@@ -1,33 +1,41 @@
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
+import { State } from 'src/components/state';
 
 type Animations = {
   name: string;
 };
 
+type AnimationsData = {};
+
 export class ResourceManager {
-  private static animations: Map<string, Keyframe[]> = new Map();
+  private static animations: Map<string, any> = new Map();
   public static async loadAllAnimation(): Promise<void> {
     try {
       fetch('/assets/json/list.json')
         .then((res) => res.json())
         .then((files) => {
           files.forEach((file: Animations) => {
-            fetch('/assets/json/' + file.name + '.json')
+            fetch('/assets/json/animations/' + file.name + '.json')
               .then((res) => res.json())
-              .then((data: Keyframe[]) => {
-                console.log(data);
+              .then((data) => {
                 ResourceManager.animations.set(file.name, data);
+                console.log(ResourceManager.animations);
               });
           });
         });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
-  static getAnimation(name: string): Keyframe[] {
-    const keyFrames = this.animations.get(name);
-    if (!keyFrames) return [];
-    return keyFrames;
+  public static getAnimation(state: State): any {
+    console.log(state.resource);
+    const keyframes = this.animations.get(state.resource)[state.state];
+    console.log(keyframes);
+    if (!keyframes) {
+      console.log("Couldn't find animation");
+      return [];
+    }
+    return keyframes;
   }
 }

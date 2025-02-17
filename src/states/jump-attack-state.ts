@@ -12,9 +12,6 @@ export class JumpAttackState extends State {
 
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Jump attack');
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (skeleton)
-      skeleton.state.keyframes = ResourceManager.getAnimation('jumpattack');
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(

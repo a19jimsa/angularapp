@@ -20,13 +20,9 @@ import { HitBoxSystem } from '../systems/hit-box-system';
 import { ProjectileSystem } from '../systems/projectile-system';
 import { WeaponSystem } from '../systems/weapon-system';
 import { Loader } from './loader';
-import { FlyerIdleState } from '../states/flyer-idle-state';
-import { DragonIdleState } from '../states/dragon-idle-state';
-import { HorseIdleState } from '../states/horse-idle-state';
 import { PhysicsSystem } from '../systems/physics-system';
 import { Weapon } from '../components/weapon';
 import { Flying } from '../components/flying';
-import { DragonBossState } from '../states/dragon-boss-state';
 import { Foot } from '../components/foot';
 import { InitializationSystem } from '../systems/initialization-system';
 import { HurtBoxSystem } from '../systems/hurt-box-system';
@@ -34,11 +30,13 @@ import { Sprite } from '../components/sprite';
 import { HitBox } from '../components/hit-box';
 import { HurtBox } from '../components/hurt-box';
 import { ResourceManager } from 'src/core/resource-manager';
-import { OnGroundState } from 'src/states/on-ground-state';
 import { WalkBox } from 'src/components/walk-box';
 import { Enemy } from 'src/components/enemy';
 import { AimingSystem } from 'src/systems/aiming-system';
 import { MouseHandler } from './mouse-handler';
+import { State } from 'src/components/state';
+import { StateSystem } from 'src/systems/state-system';
+import { Idle } from 'src/components/idle';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -64,6 +62,7 @@ export class AnimationScene {
   initializationSystem: InitializationSystem;
   hurtBoxSystem: HurtBoxSystem;
   aimingSystem: AimingSystem;
+  stateSystem: StateSystem;
   mouseHandler: MouseHandler;
   loopId = 0;
 
@@ -102,6 +101,7 @@ export class AnimationScene {
     this.initializationSystem = new InitializationSystem();
     this.hurtBoxSystem = new HurtBoxSystem();
     this.aimingSystem = new AimingSystem(this.mouseHandler);
+    this.stateSystem = new StateSystem();
   }
 
   async init() {
@@ -113,7 +113,9 @@ export class AnimationScene {
     const horse = this.ecs.createEntity();
     const enemy = this.ecs.createEntity();
     const dragon2 = this.ecs.createEntity();
+    const birdBoss = this.ecs.createEntity();
 
+    //Just create some ground that is walkable with collision
     for (let i = 1; i < 5; i++) {
       const background = this.ecs.createEntity();
       this.ecs.addComponent<Sprite>(
@@ -141,7 +143,7 @@ export class AnimationScene {
     const walkBox = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       walkBox,
-      new Transform(new Vec(0, this.canvasHeight - 200), new Vec(0, 0), 0)
+      new Transform(new Vec(0, this.canvasHeight - 100), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<HitBox>(walkBox, new HitBox(this.canvasWidth, 1));
     this.ecs.addComponent<WalkBox>(walkBox, new WalkBox());
@@ -180,49 +182,36 @@ export class AnimationScene {
       new Transform(new Vec(1000, 0), new Vec(0, 0), 0)
     );
 
-    await ResourceManager.loadAllAnimation();
+    this.ecs.addComponent<Transform>(
+      birdBoss,
+      new Transform(new Vec(1500, 0), new Vec(0, 0), 0)
+    );
 
+    await ResourceManager.loadAllAnimation();
     //Create character bones from JSON file
     const skeletonBones = await Loader.loadFromJSON(
-      './assets/json/skeleton.json'
+      'assets/json/skeleton.json'
     );
     const dragonBones = await Loader.loadFromJSON(
       'assets/json/dragonbones.json'
     );
+
     const flyerBones = await Loader.loadFromJSON('assets/json/flyerbones.json');
     const draugBones = await Loader.loadFromJSON('assets/json/skeleton.json');
     const horseBones = await Loader.loadFromJSON('assets/json/horsebones.json');
     const womanBones = await Loader.loadFromJSON('assets/json/skeleton.json');
     const dragonBones2 = await Loader.loadFromJSON('assets/json/dragon2.json');
+    const birdBones = await Loader.loadFromJSON('assets/json/bigbird.json');
 
-    const playerSkeleton = new Skeleton(
-      'assets/sprites/88022.png',
-      new OnGroundState()
-    );
-    const dragonSkeleton = new Skeleton(
-      'assets/sprites/Dragon.png',
-      new DragonIdleState()
-    );
-    const flyerSkeleton = new Skeleton(
-      'assets/sprites/161452.png',
-      new FlyerIdleState()
-    );
-    const draugSkeleton = new Skeleton(
-      'assets/sprites/104085.png',
-      new OnGroundState()
-    );
-    const horseSkeleton = new Skeleton(
-      'assets/sprites/115616.png',
-      new HorseIdleState()
-    );
-    const enemySkeleton = new Skeleton(
-      'assets/sprites/94814.png',
-      new OnGroundState()
-    );
-    const dragon2Skeleton = new Skeleton(
-      'assets/sprites/161326.png',
-      new DragonBossState()
-    );
+    //TODO Add sprites to resource manager instead
+    const playerSkeleton = new Skeleton('assets/sprites/88022.png');
+    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
+    const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
+    const draugSkeleton = new Skeleton('assets/sprites/104085.png');
+    const horseSkeleton = new Skeleton('assets/sprites/115616.png');
+    const enemySkeleton = new Skeleton('assets/sprites/115013.png');
+    const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
+    const birdBossSkeleton = new Skeleton('assets/sprites/113969.png');
 
     playerSkeleton.bones.push(...skeletonBones);
     dragonSkeleton.bones.push(...dragonBones);
@@ -231,6 +220,7 @@ export class AnimationScene {
     horseSkeleton.bones.push(...horseBones);
     enemySkeleton.bones.push(...womanBones);
     dragon2Skeleton.bones.push(...dragonBones2);
+    birdBossSkeleton.bones.push(...birdBones);
 
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
     this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
@@ -239,19 +229,21 @@ export class AnimationScene {
     this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
     this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
     this.ecs.addComponent<Skeleton>(dragon2, dragon2Skeleton);
+    this.ecs.addComponent<Skeleton>(birdBoss, birdBossSkeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
-    // this.ecs.addComponent<Controlable>(
-    //   draug,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
-    // this.ecs.addComponent<Controlable>(
-    //   woman,
-    //   new Controlable(new Vec(0, 0), 0, false)
-    // );
+
+    this.ecs.addComponent<Idle>(player, new Idle());
+    this.ecs.addComponent<State>(player, new State('playerAnimations'));
+    this.ecs.addComponent<Idle>(enemy, new Idle());
+    this.ecs.addComponent<State>(enemy, new State('playerAnimations'));
+    this.ecs.addComponent<Idle>(draug, new Idle());
+    this.ecs.addComponent<State>(draug, new State('playerAnimations'));
+    this.ecs.addComponent<Idle>(dragon, new Idle());
+    this.ecs.addComponent<State>(dragon, new State('dragonAnimations'));
     this.ecs.addComponent<Camera>(player, new Camera());
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
@@ -341,14 +333,16 @@ export class AnimationScene {
       this.width,
       this.height
     );
+
     this.controllerSystem.update(this.ecs);
+    this.movementSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
 
-    this.movementSystem.update(this.ecs);
     this.hitBoxSystem.update(this.ecs);
     this.attackSystem.update(this.ecs);
     this.aiSystem.update(this.ecs);
 
+    this.stateSystem.update(this.ecs);
     this.animationSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
     this.aimingSystem.update(this.ecs);
@@ -364,6 +358,7 @@ export class AnimationScene {
     //this.renderer.renderHitBox(this.ecs);
 
     this.renderer.renderCharacter(this.ecs);
+    this.renderer.drawProjectile(this.ecs);
     //this.renderer.drawTriangle(this.ecs, this.mouseHandler);
 
     this.loopId = window.requestAnimationFrame(() => this.start());

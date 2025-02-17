@@ -2,7 +2,7 @@ import { HurtBox } from '../components/hurt-box';
 import { Transform } from '../components/transform';
 import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
-import { MathUtils } from '../app/Utils/MathUtils';
+import { MathUtils } from '../Utils/MathUtils';
 
 export class HurtBoxSystem {
   update(ecs: Ecs) {

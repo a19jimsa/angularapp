@@ -1,15 +1,14 @@
-import { Attack } from '../components/attack';
-import { AttackDuration } from '../components/attack-duration';
+import { Player } from 'src/components/player';
 import { Controlable } from '../components/controlable';
-import { Jump } from '../components/jump';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
-import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
-import { Entity } from '../app/entity';
-import { Vec } from '../app/vec';
 import { MouseHandler } from 'src/app/mouse-handler';
-import { AttackState } from 'src/states/attack-state';
+import { State, States } from 'src/components/state';
+import { Attack } from 'src/components/attack';
+import { Run } from 'src/components/run';
+import { Idle } from 'src/components/idle';
+import { Jump } from 'src/components/jump';
 
 export type KeysPressed = {
   left: boolean;
@@ -78,55 +77,29 @@ export class ControllerSystem {
 
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
-      const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (controlable && transform && skeleton) {
+      const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
+      if (controlable && transform) {
+        let speedX = 0;
+        let speedY = transform.velocity.Y;
+        if (this.keysPressed.right) {
+          speedX += 10;
+          ecs.addComponent<Run>(entity, new Run());
+        }
+        if (this.keysPressed.left) {
+          speedX += -10;
+          ecs.addComponent<Run>(entity, new Run());
+        }
         if (this.mouseHandler.isMouseDown) {
-          this.keysPressed.attack = true;
-        } else if (this.mouseHandler.isMouseUp) {
-          this.keysPressed.attack = false;
+          ecs.addComponent<Attack>(entity, new Attack());
         }
-        const state = skeleton.state.handleInput(entity, ecs, this.keysPressed);
-        if (state !== null) {
-          skeleton.state = state;
-          skeleton.state.enter(entity, ecs);
+        if (this.keysPressed.jump) {
+          speedY = -10;
+          ecs.addComponent<Jump>(entity, new Jump());
         }
-        skeleton.state.update(entity, ecs);
-
-        if (this.keysPressed.up) {
-          if (this.timer > 100) {
-            if (!skeleton.heldOffhandEntity) return;
-            const parentWeapon = ecs.getComponent<Weapon>(
-              skeleton.heldOffhandEntity,
-              'Weapon'
-            );
-            if (!parentWeapon) return;
-            const weapon = ecs.createEntity();
-            ecs.addComponent<Transform>(
-              weapon,
-              new Transform(
-                new Vec(transform.position.X, transform.position.Y),
-                new Vec(20, 0),
-                0
-              )
-            );
-            ecs.addComponent<Weapon>(
-              weapon,
-              new Weapon(null, parentWeapon.image.src, new Vec(0, 0))
-            );
-            this.timer = 0;
-          }
-          this.timer++;
-        }
+        transform.velocity.X = speedX;
+        transform.velocity.Y = speedY;
       }
     }
-  }
-
-  createAttack(ecs: Ecs, entity: Entity) {
-    console.log('Skapade attack');
-    ecs.addComponent<Attack>(entity, new Attack());
-    ecs.addComponent<AttackDuration>(entity, new AttackDuration(10));
-    console.log(ecs);
   }
 }

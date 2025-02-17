@@ -1,15 +1,11 @@
-import { HitBox } from '../components/hit-box';
 import { Skeleton } from '../components/skeleton';
-import { Smear } from '../components/smear';
 import { Transform } from '../components/transform';
-import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { Attack2State } from './attack2-state';
 import { OnGroundState } from './on-ground-state';
 import { State } from './state';
-import { ResourceManager } from 'src/core/resource-manager';
 
 export class AttackState extends State {
   frameTimer = 0;
@@ -21,7 +17,6 @@ export class AttackState extends State {
     if (skeleton) {
       skeleton.startTime = performance.now();
     }
-    this.keyframes = ResourceManager.getAnimation('attack');
     this.frameTimer = 0;
   }
   override exit(entity: Entity, ecs: Ecs): void {}

@@ -1,29 +1,8 @@
 [
   {
-    "name": "idle"
+    "name": "playerAnimations"
   },
   {
-    "name": "running"
-  },
-  {
-    "name": "attack"
-  },
-  {
-    "name": "jumpattack"
-  },
-  {
-    "name": "dragonidle"
-  },
-  {
-    "name": "flying"
-  },
-  {
-    "name": "horseidle"
-  },
-  {
-    "name": "attack2"
-  },
-  {
-    "name": "loadarrow"
+    "name": "dragonAnimations"
   }
 ]

@@ -1,25 +1,25 @@
 import { Bone } from './bone';
-import { State } from '../states/state';
+import { State } from '../components/state';
 import { Component } from './component';
-import { OnGroundState } from '../states/on-ground-state';
 import { Entity } from '../app/entity';
+import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
 
 export class Skeleton extends Component {
   override type = 'Skeleton';
   image = new Image();
   bones: Bone[] = [];
   flip: boolean = false;
-  state: State;
-  equipment: State | null;
+  keyframes: Keyframe[];
+  equipment: Keyframe[];
   startTime: number = 0;
   heldEntity: Entity | null;
   heldOffhandEntity: Entity | null;
   rotation: number;
-  constructor(imageSrc: string, state: State) {
+  constructor(imageSrc: string) {
     super();
     this.image.src = imageSrc;
-    this.state = state;
-    this.equipment = null;
+    this.keyframes = [];
+    this.equipment = [];
     this.heldEntity = null;
     this.heldOffhandEntity = null;
     this.rotation = 0;
