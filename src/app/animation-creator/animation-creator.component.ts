@@ -40,7 +40,7 @@ import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
 import { OnGroundState } from '../../states/on-ground-state';
 import { JumpingState } from '../../states/jumping-state';
 import { RunningState } from '../../states/running-state';
-import { State } from '../../states/state';
+import { StateMachine } from '../../states/state-machine';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
 import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
@@ -286,7 +286,7 @@ export class AnimationCreatorComponent
     });
   }
 
-  addKeyframesFromJSON(state: State) {
+  addKeyframesFromJSON(state: StateMachine) {
     this.keyframes = [];
     this.keyframes.push(...state.keyframes);
     this.sortKeyframes();

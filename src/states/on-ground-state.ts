@@ -1,5 +1,3 @@
-import { Skeleton } from '../components/skeleton';
-import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
@@ -8,25 +6,21 @@ import { DamageState } from './damage-state';
 import { JumpingState } from './jumping-state';
 import { LoadArrowState } from './load-arrow-state';
 import { RunningState } from './running-state';
-import { State } from './state';
-import { ResourceManager } from 'src/core/resource-manager';
+import { StateMachine } from './state-machine';
+import { Idle } from 'src/components/idle';
 
-export class OnGroundState extends State {
+export class OnGroundState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
-    console.log('On Ground');
-    const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (!skeleton) return;
-    skeleton.rotation = 0;
-    if (!transform) return;
-    transform.velocity.X = 0;
+    ecs.addComponent<Idle>(entity, new Idle());
   }
-  override exit(entity: Entity, ecs: Ecs): void {}
+  override exit(entity: Entity, ecs: Ecs): void {
+    ecs.removeComponent<Idle>(entity, 'Idle');
+  }
   override handleInput(
     entity: Entity,
     ecs: Ecs,
     input: KeysPressed
-  ): State | null {
+  ): StateMachine | null {
     if (input.right || input.left) {
       return new RunningState();
     } else if (input.attack) {

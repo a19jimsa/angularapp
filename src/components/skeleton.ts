@@ -1,5 +1,4 @@
 import { Bone } from './bone';
-import { State } from '../components/state';
 import { Component } from './component';
 import { Entity } from '../app/entity';
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';

@@ -23,49 +23,19 @@ export class StateSystem {
           if (state.state !== States.Idle) {
             state.state = States.Idle;
             skeleton.keyframes = ResourceManager.getAnimation(state);
-            console.log('idle');
-            ecs.removeComponent<Idle>(entity, 'Run');
-            ecs.removeComponent<Attack>(entity, 'Attack');
-            ecs.removeComponent<Jump>(entity, 'Jump');
           }
           idle.timer++;
-        }
-        if (attack) {
-          if (state.state !== States.Attacking) {
-            state.state = States.Attacking;
-            skeleton.keyframes = ResourceManager.getAnimation(state);
-            console.log('Attacking');
-            ecs.removeComponent<Idle>(entity, 'Idle');
-          }
-          if (attack.timer > 20) {
-            ecs.removeComponent<Attack>(entity, 'Attack');
-            ecs.addComponent<Idle>(entity, new Idle());
-          }
-          console.log(attack.timer);
-          attack.timer++;
         }
         if (run) {
           if (state.state !== States.Running) {
             state.state = States.Running;
             skeleton.keyframes = ResourceManager.getAnimation(state);
-            console.log('Running');
-            ecs.removeComponent<Idle>(entity, 'Idle');
-          }
-          if (transform.velocity.X === 0) {
-            ecs.addComponent<Idle>(entity, new Idle());
           }
         }
         if (jump) {
           if (state.state !== States.Jump) {
             state.state = States.Jump;
             skeleton.keyframes = ResourceManager.getAnimation(state);
-            console.log('Jumping');
-            ecs.removeComponent<Idle>(entity, 'Idle');
-            ecs.removeComponent<Run>(entity, 'Run');
-          }
-          if (transform.velocity.Y === 0) {
-            ecs.addComponent<Idle>(entity, new Idle());
-            ecs.removeComponent<Run>(entity, 'Jump');
           }
         }
       }

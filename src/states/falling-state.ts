@@ -4,9 +4,9 @@ import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
-import { State } from './state';
+import { StateMachine } from './state-machine';
 
-export class FallingState extends State {
+export class FallingState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Falling');
   }
@@ -15,7 +15,7 @@ export class FallingState extends State {
     entity: Entity,
     ecs: Ecs,
     input: KeysPressed
-  ): State | null {
+  ): StateMachine | null {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!transform) return null;
     if (transform.velocity.Y === 0) {

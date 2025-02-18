@@ -3,9 +3,9 @@ import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
-import { State } from './state';
+import { StateMachine } from './state-machine';
 
-export class DamageState extends State {
+export class DamageState extends StateMachine {
   frameTime = 0;
   override enter(entity: Entity, ecs: Ecs): void {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
@@ -19,7 +19,7 @@ export class DamageState extends State {
     entity: Entity,
     ecs: Ecs,
     input: KeysPressed
-  ): State | null {
+  ): StateMachine | null {
     if (this.frameTime >= 30) {
       return new OnGroundState();
     }

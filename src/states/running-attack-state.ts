@@ -4,12 +4,9 @@ import { Ecs } from '../core/ecs';
 import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
-import { State } from './state';
+import { StateMachine } from './state-machine';
 
-export class RunningAttackState extends State {
-  constructor() {
-    super('assets/json/running-attack.json');
-  }
+export class RunningAttackState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     const skeleton = ecs.getComponent<Skeleton>(Enemy, 'Skeleton');
     if (!skeleton) return;
@@ -20,7 +17,7 @@ export class RunningAttackState extends State {
     entity: Entity,
     ecs: Ecs,
     input: KeysPressed
-  ): State | null {
+  ): StateMachine | null {
     if (input.attack && (input.right || input.left)) {
       return null;
     }

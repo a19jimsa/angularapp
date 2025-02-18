@@ -37,6 +37,7 @@ import { MouseHandler } from './mouse-handler';
 import { State } from 'src/components/state';
 import { StateSystem } from 'src/systems/state-system';
 import { Idle } from 'src/components/idle';
+import { Player } from 'src/components/player';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -245,6 +246,7 @@ export class AnimationScene {
     this.ecs.addComponent<Idle>(dragon, new Idle());
     this.ecs.addComponent<State>(dragon, new State('dragonAnimations'));
     this.ecs.addComponent<Camera>(player, new Camera());
+    this.ecs.addComponent<Player>(player, new Player());
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
 
@@ -326,6 +328,20 @@ export class AnimationScene {
 
   start() {
     this.renderer.clearScreen();
+    this.movementSystem.update(this.ecs);
+
+    this.controllerSystem.update(this.ecs);
+    this.stateSystem.update(this.ecs);
+    this.physicsSystem.update(this.ecs);
+
+    this.attackSystem.update(this.ecs);
+    this.aiSystem.update(this.ecs);
+    this.weaponSystem.update(this.ecs);
+    this.aimingSystem.update(this.ecs);
+    this.animationSystem.update(this.ecs);
+    this.hurtBoxSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs);
+
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -334,28 +350,14 @@ export class AnimationScene {
       this.height
     );
 
-    this.controllerSystem.update(this.ecs);
-    this.movementSystem.update(this.ecs);
-    this.physicsSystem.update(this.ecs);
-
-    this.hitBoxSystem.update(this.ecs);
-    this.attackSystem.update(this.ecs);
-    this.aiSystem.update(this.ecs);
-
-    this.stateSystem.update(this.ecs);
-    this.animationSystem.update(this.ecs);
-    this.weaponSystem.update(this.ecs);
-    this.aimingSystem.update(this.ecs);
-    this.hurtBoxSystem.update(this.ecs);
-
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
     // this.projectileSystem.update(this.ecs, this.renderer);
 
     this.renderer.drawSprites(this.ecs);
-    //this.renderer.renderHurtBox(this.ecs);
-    //this.renderer.renderHitBox(this.ecs);
+    this.renderer.renderHurtBox(this.ecs);
+    this.renderer.renderHitBox(this.ecs);
 
     this.renderer.renderCharacter(this.ecs);
     this.renderer.drawProjectile(this.ecs);

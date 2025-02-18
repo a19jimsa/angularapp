@@ -9,6 +9,7 @@ import { Attack } from 'src/components/attack';
 import { Run } from 'src/components/run';
 import { Idle } from 'src/components/idle';
 import { Jump } from 'src/components/jump';
+import { state } from '@angular/animations';
 
 export type KeysPressed = {
   left: boolean;
@@ -79,26 +80,16 @@ export class ControllerSystem {
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
-      if (controlable && transform) {
-        let speedX = 0;
-        let speedY = transform.velocity.Y;
-        if (this.keysPressed.right) {
-          speedX += 10;
-          ecs.addComponent<Run>(entity, new Run());
+      const state = ecs.getComponent<State>(entity, 'State');
+      const player = ecs.getComponent<Player>(entity, 'Player');
+      if (controlable && transform && state && player) {
+        const state = player.state.handleInput(entity, ecs, this.keysPressed);
+        if (state !== null) {
+          player.state.exit(entity, ecs);
+          player.state = state;
+          player.state.enter(entity, ecs);
         }
-        if (this.keysPressed.left) {
-          speedX += -10;
-          ecs.addComponent<Run>(entity, new Run());
-        }
-        if (this.mouseHandler.isMouseDown) {
-          ecs.addComponent<Attack>(entity, new Attack());
-        }
-        if (this.keysPressed.jump) {
-          speedY = -10;
-          ecs.addComponent<Jump>(entity, new Jump());
-        }
-        transform.velocity.X = speedX;
-        transform.velocity.Y = speedY;
+        player.state.update(entity, ecs);
       }
     }
   }

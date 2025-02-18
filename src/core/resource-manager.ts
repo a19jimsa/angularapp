@@ -29,7 +29,6 @@ export class ResourceManager {
   }
 
   public static getAnimation(state: State): any {
-    console.log(state.resource);
     const keyframes = this.animations.get(state.resource)[state.state];
     console.log(keyframes);
     if (!keyframes) {
