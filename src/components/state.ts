@@ -7,13 +7,15 @@ export enum States {
   Flying = 'flying',
   Bow = 'bow',
   Jump = 'jump',
+  JumpAttack = 'jumpattack',
+  Damage = 'damage',
   No = 'noState',
 }
 
 export class State extends Component {
   override type: string = 'State';
   resource: string;
-  state: States = States.No;
+  state: States = States.Idle;
 
   constructor(resource: string) {
     super();

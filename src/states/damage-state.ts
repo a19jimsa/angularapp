@@ -4,6 +4,7 @@ import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { StateMachine } from './state-machine';
+import { Damage } from 'src/components/damage';
 
 export class DamageState extends StateMachine {
   frameTime = 0;
@@ -11,9 +12,10 @@ export class DamageState extends StateMachine {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!transform) return;
     transform.velocity.X = 0;
+    ecs.addComponent<Damage>(entity, new Damage());
   }
   override exit(entity: Entity, ecs: Ecs): void {
-    throw new Error('Method not implemented.');
+    ecs.removeComponent<Damage>(entity, 'Damage');
   }
   override handleInput(
     entity: Entity,

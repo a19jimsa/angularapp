@@ -36,8 +36,10 @@ import { AimingSystem } from 'src/systems/aiming-system';
 import { MouseHandler } from './mouse-handler';
 import { State } from 'src/components/state';
 import { StateSystem } from 'src/systems/state-system';
-import { Idle } from 'src/components/idle';
 import { Player } from 'src/components/player';
+import { Target } from 'src/components/target';
+import { PatrolSystem } from 'src/systems/patrol-system';
+import { ChaseSystem } from 'src/systems/chase-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -65,6 +67,8 @@ export class AnimationScene {
   aimingSystem: AimingSystem;
   stateSystem: StateSystem;
   mouseHandler: MouseHandler;
+  patrolSystem: PatrolSystem;
+  chaseSystem: ChaseSystem;
   loopId = 0;
 
   constructor(
@@ -103,6 +107,8 @@ export class AnimationScene {
     this.hurtBoxSystem = new HurtBoxSystem();
     this.aimingSystem = new AimingSystem(this.mouseHandler);
     this.stateSystem = new StateSystem();
+    this.patrolSystem = new PatrolSystem();
+    this.chaseSystem = new ChaseSystem();
   }
 
   async init() {
@@ -210,7 +216,7 @@ export class AnimationScene {
     const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
     const draugSkeleton = new Skeleton('assets/sprites/104085.png');
     const horseSkeleton = new Skeleton('assets/sprites/115616.png');
-    const enemySkeleton = new Skeleton('assets/sprites/115013.png');
+    const enemySkeleton = new Skeleton('assets/sprites/94814.png');
     const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
     const birdBossSkeleton = new Skeleton('assets/sprites/113969.png');
 
@@ -237,20 +243,19 @@ export class AnimationScene {
       new Controlable(new Vec(0, 0), 0, false)
     );
 
-    this.ecs.addComponent<Idle>(player, new Idle());
     this.ecs.addComponent<State>(player, new State('playerAnimations'));
-    this.ecs.addComponent<Idle>(enemy, new Idle());
     this.ecs.addComponent<State>(enemy, new State('playerAnimations'));
-    this.ecs.addComponent<Idle>(draug, new Idle());
     this.ecs.addComponent<State>(draug, new State('playerAnimations'));
-    this.ecs.addComponent<Idle>(dragon, new Idle());
     this.ecs.addComponent<State>(dragon, new State('dragonAnimations'));
     this.ecs.addComponent<Camera>(player, new Camera());
     this.ecs.addComponent<Player>(player, new Player());
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
 
-    this.ecs.addComponent<Ai>(flyer, new Ai('idle', null, 500, 500));
+    this.ecs.addComponent<Ai>(enemy, new Ai(1000, 150));
+    this.ecs.addComponent<Ai>(draug, new Ai(1000, 150));
+    this.ecs.addComponent<Target>(enemy, new Target(player));
+    this.ecs.addComponent<Target>(draug, new Target(player));
     this.ecs.addComponent<Flying>(flyer, new Flying());
 
     const newWeapon = this.ecs.createEntity();
@@ -305,7 +310,7 @@ export class AnimationScene {
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
-    this.ecs.addComponent<HurtBox>(arrow, new HurtBox());
+    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Foot>(dragon, new Foot('right_hand'));
@@ -313,35 +318,22 @@ export class AnimationScene {
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 100));
 
-    playerSkeleton.heldOffhandEntity = bow;
+    playerSkeleton.heldOffhandEntity = null;
     //this.ecs.addComponent<Smear>(sword, new Smear());
-    playerSkeleton.heldEntity = arrow;
+    playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = sword2;
     enemySkeleton.heldEntity = newWeapon;
 
     this.ecs.addComponent<Enemy>(enemy, new Enemy());
     this.ecs.addComponent<HitBox>(enemy, new HitBox(100, 100));
+    this.ecs.addComponent<Enemy>(draug, new Enemy());
+    this.ecs.addComponent<HitBox>(draug, new HitBox(100, 100));
 
     this.initializationSystem.update(this.ecs);
     console.log(this.ecs);
   }
 
-  start() {
-    this.renderer.clearScreen();
-    this.movementSystem.update(this.ecs);
-
-    this.controllerSystem.update(this.ecs);
-    this.stateSystem.update(this.ecs);
-    this.physicsSystem.update(this.ecs);
-
-    this.attackSystem.update(this.ecs);
-    this.aiSystem.update(this.ecs);
-    this.weaponSystem.update(this.ecs);
-    this.aimingSystem.update(this.ecs);
-    this.animationSystem.update(this.ecs);
-    this.hurtBoxSystem.update(this.ecs);
-    this.hitBoxSystem.update(this.ecs);
-
+  gameLoop() {
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -349,12 +341,25 @@ export class AnimationScene {
       this.width,
       this.height
     );
+    this.aiSystem.update(this.ecs);
+    this.controllerSystem.update(this.ecs);
+    this.movementSystem.update(this.ecs);
+    this.physicsSystem.update(this.ecs);
+    this.patrolSystem.update(this.ecs);
+    this.chaseSystem.update(this.ecs);
+    this.stateSystem.update(this.ecs);
+    this.animationSystem.update(this.ecs);
+    this.aimingSystem.update(this.ecs);
+    this.weaponSystem.update(this.ecs);
+    this.attackSystem.update(this.ecs);
+    this.hurtBoxSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs);
 
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
     // this.projectileSystem.update(this.ecs, this.renderer);
-
+    this.renderer.clearScreen();
     this.renderer.drawSprites(this.ecs);
     this.renderer.renderHurtBox(this.ecs);
     this.renderer.renderHitBox(this.ecs);
@@ -363,6 +368,6 @@ export class AnimationScene {
     this.renderer.drawProjectile(this.ecs);
     //this.renderer.drawTriangle(this.ecs, this.mouseHandler);
 
-    this.loopId = window.requestAnimationFrame(() => this.start());
+    this.loopId = window.requestAnimationFrame(() => this.gameLoop());
   }
 }

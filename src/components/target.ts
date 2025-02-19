@@ -3,10 +3,10 @@ import { Component } from './component';
 
 export class Target extends Component {
   override type: string = 'Target';
-  target: Entity;
+  player: Entity;
 
-  constructor() {
+  constructor(player: Entity) {
     super();
-    this.target = 0;
+    this.player = player;
   }
 }

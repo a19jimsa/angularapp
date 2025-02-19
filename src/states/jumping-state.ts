@@ -7,11 +7,12 @@ import { KeysPressed } from '../systems/controller-system';
 import { FallingState } from './falling-state';
 import { StateMachine } from './state-machine';
 import { Jump } from 'src/components/jump';
+import { Attack } from 'src/components/attack';
+import { JumpAttackState } from './jump-attack-state';
 
 export class JumpingState extends StateMachine {
   frameTime = 0;
   override enter(entity: Entity, ecs: Ecs): void {
-    console.log('Jumping');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (skeleton) {
@@ -21,6 +22,7 @@ export class JumpingState extends StateMachine {
       transform.velocity.Y = -20;
     }
     ecs.addComponent<Jump>(entity, new Jump());
+    console.log('Jumping');
   }
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<Jump>(entity, 'Jump');
@@ -37,6 +39,7 @@ export class JumpingState extends StateMachine {
       }
     }
     if (input.attack) {
+      return new JumpAttackState();
     }
     return null;
   }

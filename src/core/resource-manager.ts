@@ -30,7 +30,6 @@ export class ResourceManager {
 
   public static getAnimation(state: State): any {
     const keyframes = this.animations.get(state.resource)[state.state];
-    console.log(keyframes);
     if (!keyframes) {
       console.log("Couldn't find animation");
       return [];

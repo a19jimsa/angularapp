@@ -25,12 +25,10 @@ export class BoneAnimationComponent {
     this.scene = new AnimationScene(this.canvas, 1280, 720, 2048 * 4, 720);
     try {
       await this.scene.init();
-      this.scene.start();
+      this.scene.gameLoop();
       this.isLoading = false;
     } catch (error) {
       console.error('kunde inte ladda assets', error);
-    } finally {
-      this.isLoading = false;
     }
   }
 }

@@ -48,13 +48,13 @@ export class Ecs {
 
   removeComponent<T extends Component>(entity: Entity, componentType: string) {
     // Hämta komponentlistan för entiteten
-    const components = this.components.get(entity);
+    const components = this.components.get(entity) as T[];
 
     if (!components) return; // Om det inte finns några komponenter, gör ingenting
 
     // Filtrera bort den komponent du vill ta bort (baserat på typen)
     const updatedComponents = components.filter(
-      (comp) => !(comp.type == componentType)
+      (comp) => !(comp.type === componentType)
     );
 
     // Uppdatera komponentlistan i mappen

@@ -77,12 +77,16 @@ export class ControllerSystem {
   }
 
   update(ecs: Ecs) {
+    if (this.mouseHandler.isMouseDown) {
+      this.keysPressed.attack = true;
+    } else if (this.mouseHandler.isMouseUp) {
+      this.keysPressed.attack = false;
+    }
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
-      const state = ecs.getComponent<State>(entity, 'State');
       const player = ecs.getComponent<Player>(entity, 'Player');
-      if (controlable && transform && state && player) {
+      if (controlable && transform && player) {
         const state = player.state.handleInput(entity, ecs, this.keysPressed);
         if (state !== null) {
           player.state.exit(entity, ecs);

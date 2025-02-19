@@ -13,6 +13,7 @@ export class AttackSystem {
       for (const [enemyhitBox, enemy] of enemypool) {
         if (MathUtils.isColliding(enemyhitBox, hurtBox)) {
           console.log('I AM HITTED');
+          
           break;
         }
       }

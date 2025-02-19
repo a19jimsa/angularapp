@@ -41,7 +41,8 @@ export class WeaponSystem {
       if (parent) {
         weaponTransform.position.X = transform.position.X + parent.position.X;
         weaponTransform.position.Y = transform.position.Y + parent.position.Y;
-        weapon.rotation = parent.globalRotation + parent.globalSpriteRotation;
+        weapon.rotation =
+          parent.globalRotation + parent.globalSpriteRotation - 180;
         weapon.order = parent.order - 1;
         weapon.scale = parent.scale;
       }
@@ -50,8 +51,8 @@ export class WeaponSystem {
           transform.position.X +
           (transform.position.X - weaponTransform.position.X);
 
-        weapon.rotation = -weapon.rotation;
-        weapon.scale.Y = -1;
+        weapon.rotation = -weapon.rotation - 180;
+        weapon.scale.X = -1;
       }
       weapon.flip = skeleton.flip;
     }

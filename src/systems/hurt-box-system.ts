@@ -14,20 +14,13 @@ export class HurtBoxSystem {
     for (const [transform, hurtBox, weapon] of pool) {
       const newPos = MathUtils.calculateParentPosition(
         transform.position,
-        weapon.image.height - 25,
+        weapon.image.height - (weapon.pivot.Y + weapon.image.height),
         weapon.rotation
       );
       hurtBox.width = weapon.image.width;
       hurtBox.height = weapon.image.height;
       hurtBox.position.X = newPos.X;
       hurtBox.position.Y = newPos.Y;
-      if (weapon.flip) {
-        hurtBox.position = MathUtils.calculateParentPosition(
-          transform.position,
-          -weapon.image.height,
-          weapon.rotation
-        );
-      }
     }
   }
 }
