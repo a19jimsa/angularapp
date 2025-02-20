@@ -29,7 +29,6 @@ import { HurtBoxSystem } from '../systems/hurt-box-system';
 import { Sprite } from '../components/sprite';
 import { HitBox } from '../components/hit-box';
 import { HurtBox } from '../components/hurt-box';
-import { ResourceManager } from 'src/core/resource-manager';
 import { WalkBox } from 'src/components/walk-box';
 import { Enemy } from 'src/components/enemy';
 import { AimingSystem } from 'src/systems/aiming-system';
@@ -111,16 +110,11 @@ export class AnimationScene {
     this.chaseSystem = new ChaseSystem();
   }
 
-  async init() {
+  init() {
     this.renderer = new Renderer(this.canvas);
     const player = this.ecs.createEntity();
-    const dragon = this.ecs.createEntity();
-    const flyer = this.ecs.createEntity();
     const draug = this.ecs.createEntity();
-    const horse = this.ecs.createEntity();
     const enemy = this.ecs.createEntity();
-    const dragon2 = this.ecs.createEntity();
-    const birdBoss = this.ecs.createEntity();
 
     //Just create some ground that is walkable with collision
     for (let i = 1; i < 5; i++) {
@@ -161,54 +155,13 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Transform>(
-      dragon,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
-    );
-
-    this.ecs.addComponent<Transform>(
-      dragon2,
-      new Transform(new Vec(1500, 0), new Vec(0, 0), 0)
-    );
-
-    this.ecs.addComponent<Transform>(
-      flyer,
-      new Transform(new Vec(500, 0), new Vec(0, 0), 10)
-    );
-
-    this.ecs.addComponent<Transform>(
       draug,
       new Transform(new Vec(300, 0), new Vec(0, 0), 0)
-    );
-
-    this.ecs.addComponent<Transform>(
-      horse,
-      new Transform(new Vec(800, 0), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<Transform>(
       enemy,
       new Transform(new Vec(1000, 0), new Vec(0, 0), 0)
     );
-
-    this.ecs.addComponent<Transform>(
-      birdBoss,
-      new Transform(new Vec(1500, 0), new Vec(0, 0), 0)
-    );
-
-    await ResourceManager.loadAllAnimation();
-    //Create character bones from JSON file
-    const skeletonBones = await Loader.loadFromJSON(
-      'assets/json/skeleton.json'
-    );
-    const dragonBones = await Loader.loadFromJSON(
-      'assets/json/dragonbones.json'
-    );
-
-    const flyerBones = await Loader.loadFromJSON('assets/json/flyerbones.json');
-    const draugBones = await Loader.loadFromJSON('assets/json/skeleton.json');
-    const horseBones = await Loader.loadFromJSON('assets/json/horsebones.json');
-    const womanBones = await Loader.loadFromJSON('assets/json/skeleton.json');
-    const dragonBones2 = await Loader.loadFromJSON('assets/json/dragon2.json');
-    const birdBones = await Loader.loadFromJSON('assets/json/bigbird.json');
 
     //TODO Add sprites to resource manager instead
     const playerSkeleton = new Skeleton('assets/sprites/88022.png');
@@ -217,26 +170,13 @@ export class AnimationScene {
     const draugSkeleton = new Skeleton('assets/sprites/104085.png');
     const horseSkeleton = new Skeleton('assets/sprites/115616.png');
     const enemySkeleton = new Skeleton('assets/sprites/94814.png');
-    const dragon2Skeleton = new Skeleton('assets/sprites/161326.png');
-    const birdBossSkeleton = new Skeleton('assets/sprites/113969.png');
 
-    playerSkeleton.bones.push(...skeletonBones);
-    dragonSkeleton.bones.push(...dragonBones);
-    flyerSkeleton.bones.push(...flyerBones);
-    draugSkeleton.bones.push(...draugBones);
-    horseSkeleton.bones.push(...horseBones);
-    enemySkeleton.bones.push(...womanBones);
-    dragon2Skeleton.bones.push(...dragonBones2);
-    birdBossSkeleton.bones.push(...birdBones);
-
+    playerSkeleton.bones = Loader.getBones('skeleton');
+    draugSkeleton.bones = Loader.getBones('skeleton');
+    enemySkeleton.bones = Loader.getBones('skeleton');
     this.ecs.addComponent<Skeleton>(player, playerSkeleton);
-    this.ecs.addComponent<Skeleton>(dragon, dragonSkeleton);
-    this.ecs.addComponent<Skeleton>(flyer, flyerSkeleton);
     this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
-    this.ecs.addComponent<Skeleton>(horse, horseSkeleton);
     this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
-    this.ecs.addComponent<Skeleton>(dragon2, dragon2Skeleton);
-    this.ecs.addComponent<Skeleton>(birdBoss, birdBossSkeleton);
 
     this.ecs.addComponent<Controlable>(
       player,
@@ -246,7 +186,6 @@ export class AnimationScene {
     this.ecs.addComponent<State>(player, new State('playerAnimations'));
     this.ecs.addComponent<State>(enemy, new State('playerAnimations'));
     this.ecs.addComponent<State>(draug, new State('playerAnimations'));
-    this.ecs.addComponent<State>(dragon, new State('dragonAnimations'));
     this.ecs.addComponent<Camera>(player, new Camera());
     this.ecs.addComponent<Player>(player, new Player());
 
@@ -256,7 +195,6 @@ export class AnimationScene {
     this.ecs.addComponent<Ai>(draug, new Ai(1000, 150));
     this.ecs.addComponent<Target>(enemy, new Target(player));
     this.ecs.addComponent<Target>(draug, new Target(player));
-    this.ecs.addComponent<Flying>(flyer, new Flying());
 
     const newWeapon = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -265,11 +203,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon(
-        'right_hand',
-        'assets/sprites/wep_ax066.png',
-        new Vec(-10, 105)
-      )
+      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, -20))
     );
 
     const bow = this.ecs.createEntity();
@@ -279,7 +213,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       bow,
-      new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 140))
+      new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 0))
     );
 
     const arrow = this.ecs.createEntity();
@@ -289,7 +223,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       arrow,
-      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 0))
+      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, -20))
     );
 
     const sword = this.ecs.createEntity();
@@ -299,7 +233,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword,
-      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
+      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, -20))
     );
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -308,13 +242,11 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword2,
-      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
+      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, -20))
     );
     this.ecs.addComponent<HurtBox>(sword, new HurtBox());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
-    this.ecs.addComponent<Foot>(dragon, new Foot('right_hand'));
-    this.ecs.addComponent<Foot>(flyer, new Foot('last_tail'));
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 100));
 

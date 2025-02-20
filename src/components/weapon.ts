@@ -11,12 +11,12 @@ export class Weapon extends Component {
   order: number;
   flip: boolean;
 
-  constructor(parentId: string | null, image: string, pivot: Vec) {
+  constructor(parentId: string | null, image: string, offset: Vec) {
     super();
     this.parentId = parentId;
     this.image.src = image;
     this.scale = new Vec(0, 0);
-    this.pivot = pivot;
+    this.pivot = new Vec(offset.X, offset.Y + this.image.height);
     this.rotation = 0;
     this.order = 0;
     this.flip = false;

@@ -1,5 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AnimationScene } from '../animation-scene';
+import { ResourceManager } from 'src/core/resource-manager';
+import { Loader } from '../loader';
 
 @Component({
   selector: 'app-bone-animation',
@@ -21,14 +23,18 @@ export class BoneAnimationComponent {
     console.log('Destroyed game engine with loopID' + this.scene.loopId);
   }
 
-  async ngAfterViewInit(): Promise<void> {
+  ngAfterViewInit() {
     this.scene = new AnimationScene(this.canvas, 1280, 720, 2048 * 4, 720);
-    try {
-      await this.scene.init();
-      this.scene.gameLoop();
-      this.isLoading = false;
-    } catch (error) {
-      console.error('kunde inte ladda assets', error);
-    }
+    (async () => {
+      await ResourceManager.loadAllAnimation();
+      await Loader.loadAllAnimation();
+    })()
+      .then(() => {
+        this.scene.init();
+      })
+      .then(() => {
+        this.scene.gameLoop();
+        this.isLoading = false;
+      });
   }
 }

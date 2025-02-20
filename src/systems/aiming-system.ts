@@ -14,7 +14,7 @@ export class AimingSystem {
       'Camera'
     );
     for (const [transform, skeleton, camera] of pool) {
-      const torso = skeleton.bones.find((e) => e.id === 'right_forearm');
+      const torso = skeleton.bones.find((e) => e.id === 'right_hand');
       if (!torso) continue;
       const newPosition = transform.position
         .plus(torso.position)

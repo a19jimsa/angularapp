@@ -22,10 +22,10 @@ export class DamageState extends StateMachine {
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
-    if (this.frameTime >= 30) {
-      return new OnGroundState();
+    if (input.down) {
+      return null;
     }
-    return null;
+    return new OnGroundState();
   }
   override update(entity: Entity, ecs: Ecs): void {
     this.frameTime++;
