@@ -10,7 +10,5 @@ export class PatrolSystem {
       'Patrol',
       'Target'
     );
-    for (const [transform, patrol, target] of pool) {
-    }
   }
 }

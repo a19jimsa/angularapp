@@ -22,7 +22,6 @@ import { WeaponSystem } from '../systems/weapon-system';
 import { Loader } from './loader';
 import { PhysicsSystem } from '../systems/physics-system';
 import { Weapon } from '../components/weapon';
-import { Flying } from '../components/flying';
 import { Foot } from '../components/foot';
 import { InitializationSystem } from '../systems/initialization-system';
 import { HurtBoxSystem } from '../systems/hurt-box-system';
@@ -33,12 +32,15 @@ import { WalkBox } from 'src/components/walk-box';
 import { Enemy } from 'src/components/enemy';
 import { AimingSystem } from 'src/systems/aiming-system';
 import { MouseHandler } from './mouse-handler';
-import { State } from 'src/components/state';
 import { StateSystem } from 'src/systems/state-system';
 import { Player } from 'src/components/player';
 import { Target } from 'src/components/target';
 import { PatrolSystem } from 'src/systems/patrol-system';
-import { ChaseSystem } from 'src/systems/chase-system';
+import { ChaseAISystem } from 'src/systems/chase-ai-system';
+import { IdleAiSystem } from 'src/systems/idle-ai-system';
+import { Idle } from 'src/components/idle';
+import { DamageAiSystem } from 'src/systems/damage-ai-system';
+import { AttackAiSystem } from 'src/systems/attack-ai-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -67,7 +69,10 @@ export class AnimationScene {
   stateSystem: StateSystem;
   mouseHandler: MouseHandler;
   patrolSystem: PatrolSystem;
-  chaseSystem: ChaseSystem;
+  chaseSystem: ChaseAISystem;
+  idleSystem: IdleAiSystem;
+  damageSystem: DamageAiSystem;
+  attackAiSystem: AttackAiSystem;
   loopId = 0;
 
   constructor(
@@ -107,7 +112,10 @@ export class AnimationScene {
     this.aimingSystem = new AimingSystem(this.mouseHandler);
     this.stateSystem = new StateSystem();
     this.patrolSystem = new PatrolSystem();
-    this.chaseSystem = new ChaseSystem();
+    this.chaseSystem = new ChaseAISystem();
+    this.idleSystem = new IdleAiSystem();
+    this.damageSystem = new DamageAiSystem();
+    this.attackAiSystem = new AttackAiSystem();
   }
 
   init() {
@@ -164,12 +172,30 @@ export class AnimationScene {
     );
 
     //TODO Add sprites to resource manager instead
-    const playerSkeleton = new Skeleton('assets/sprites/88022.png');
-    const dragonSkeleton = new Skeleton('assets/sprites/Dragon.png');
-    const flyerSkeleton = new Skeleton('assets/sprites/161452.png');
-    const draugSkeleton = new Skeleton('assets/sprites/104085.png');
-    const horseSkeleton = new Skeleton('assets/sprites/115616.png');
-    const enemySkeleton = new Skeleton('assets/sprites/94814.png');
+    const playerSkeleton = new Skeleton(
+      'assets/sprites/88022.png',
+      'playerAnimations'
+    );
+    const dragonSkeleton = new Skeleton(
+      'assets/sprites/Dragon.png',
+      'playerAnimations'
+    );
+    const flyerSkeleton = new Skeleton(
+      'assets/sprites/161452.png',
+      'playerAnimations'
+    );
+    const draugSkeleton = new Skeleton(
+      'assets/sprites/104085.png',
+      'playerAnimations'
+    );
+    const horseSkeleton = new Skeleton(
+      'assets/sprites/115616.png',
+      'playerAnimations'
+    );
+    const enemySkeleton = new Skeleton(
+      'assets/sprites/94814.png',
+      'playerAnimations'
+    );
 
     playerSkeleton.bones = Loader.getBones('skeleton');
     draugSkeleton.bones = Loader.getBones('skeleton');
@@ -182,17 +208,15 @@ export class AnimationScene {
       player,
       new Controlable(new Vec(0, 0), 0, false)
     );
-
-    this.ecs.addComponent<State>(player, new State('playerAnimations'));
-    this.ecs.addComponent<State>(enemy, new State('playerAnimations'));
-    this.ecs.addComponent<State>(draug, new State('playerAnimations'));
     this.ecs.addComponent<Camera>(player, new Camera());
     this.ecs.addComponent<Player>(player, new Player());
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
 
-    this.ecs.addComponent<Ai>(enemy, new Ai(1000, 150));
-    this.ecs.addComponent<Ai>(draug, new Ai(1000, 150));
+    this.ecs.addComponent<Ai>(enemy, new Ai(500, 150));
+    this.ecs.addComponent<Idle>(enemy, new Idle());
+    this.ecs.addComponent<Ai>(draug, new Ai(500, 150));
+    this.ecs.addComponent<Idle>(draug, new Idle());
     this.ecs.addComponent<Target>(enemy, new Target(player));
     this.ecs.addComponent<Target>(draug, new Target(player));
 
@@ -203,7 +227,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, -20))
+      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, 120))
     );
 
     const bow = this.ecs.createEntity();
@@ -211,19 +235,22 @@ export class AnimationScene {
       bow,
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
+
     this.ecs.addComponent<Weapon>(
       bow,
       new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 0))
     );
 
     const arrow = this.ecs.createEntity();
+
     this.ecs.addComponent<Transform>(
       arrow,
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
+
     this.ecs.addComponent<Weapon>(
       arrow,
-      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, -20))
+      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 120))
     );
 
     const sword = this.ecs.createEntity();
@@ -233,7 +260,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword,
-      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, -20))
+      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
     );
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -242,7 +269,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword2,
-      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, -20))
+      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
     this.ecs.addComponent<HurtBox>(sword, new HurtBox());
 
@@ -275,28 +302,35 @@ export class AnimationScene {
     );
     this.aiSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
-    this.movementSystem.update(this.ecs);
+
+    this.hurtBoxSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
+    this.idleSystem.update(this.ecs);
     this.patrolSystem.update(this.ecs);
     this.chaseSystem.update(this.ecs);
+    this.damageSystem.update(this.ecs);
+    this.attackAiSystem.update(this.ecs);
     this.stateSystem.update(this.ecs);
+
+    this.movementSystem.update(this.ecs);
+
     this.animationSystem.update(this.ecs);
     this.aimingSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
     this.attackSystem.update(this.ecs);
-    this.hurtBoxSystem.update(this.ecs);
-    this.hitBoxSystem.update(this.ecs);
 
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
     // this.hitBoxSystem.update(this.ecs, this.renderer);
     // this.projectileSystem.update(this.ecs, this.renderer);
     this.renderer.clearScreen();
+
     this.renderer.drawSprites(this.ecs);
     this.renderer.renderHurtBox(this.ecs);
     this.renderer.renderHitBox(this.ecs);
-
     this.renderer.renderCharacter(this.ecs);
+
     this.renderer.drawProjectile(this.ecs);
     //this.renderer.drawTriangle(this.ecs, this.mouseHandler);
 

@@ -1,4 +1,4 @@
-import { HitBoxSystem } from '../hit-box-system';
+import { HitBoxSystem } from './hit-box-system';
 
 describe('HitBoxSystem', () => {
   it('should create an instance', () => {

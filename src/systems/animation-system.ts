@@ -15,6 +15,10 @@ export class AnimationSystem {
 
   runAnimation(skeleton: Skeleton, keyframes: Keyframe[]) {
     if (keyframes.length === 0) return;
+    const timer = keyframes.at(-1)?.time;
+    if (timer) {
+      skeleton.animationDuration = timer;
+    }
     const totalDuration = keyframes[keyframes.length - 1].time;
     const speed = 1000 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;

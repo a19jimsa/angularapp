@@ -9,7 +9,9 @@ export enum States {
   Jump = 'jump',
   JumpAttack = 'jumpattack',
   Damage = 'damage',
+  Dead = 'dead',
   No = 'noState',
+  Stagger = 'stagger',
 }
 
 export class State extends Component {

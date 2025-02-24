@@ -14,7 +14,9 @@ export class Skeleton extends Component {
   heldEntity: Entity | null;
   heldOffhandEntity: Entity | null;
   rotation: number;
-  constructor(imageSrc: string) {
+  resource: string;
+  animationDuration: number = 0;
+  constructor(imageSrc: string, resource: string) {
     super();
     this.image.src = imageSrc;
     this.keyframes = [];
@@ -22,5 +24,6 @@ export class Skeleton extends Component {
     this.heldEntity = null;
     this.heldOffhandEntity = null;
     this.rotation = 0;
+    this.resource = resource;
   }
 }

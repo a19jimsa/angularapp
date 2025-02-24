@@ -121,13 +121,14 @@ export class Renderer {
     const pool = ecs.getPool<[Sprite, Transform]>('Sprite', 'Transform');
     this.ctx.save();
 
-    for (const [sprite, transform] of pool) {
+    pool.forEach(({ entity, components }) => {
+      const [sprite, transform] = components;
       this.ctx.drawImage(
         sprite.image,
         transform.position.X - this.camera.position.X,
         transform.position.Y - this.camera.position.Y
       );
-    }
+    });
     this.ctx.restore();
   }
 
@@ -434,9 +435,10 @@ export class Renderer {
       'Skeleton',
       'Camera'
     );
-    for (const [transform, skeleton, camera] of pool) {
+    pool.forEach(({ entity, components }) => {
+      const [transform, skeleton, camera] = components;
       const torso = skeleton.bones.find((e) => e.id === 'torso');
-      if (!torso) continue;
+      if (!torso) return;
       const newPosition = transform.position
         .plus(torso.position)
         .minus(camera.position);
@@ -448,6 +450,6 @@ export class Renderer {
       this.ctx.lineTo(mouseHandler.position.X, newPosition.Y);
       this.ctx.lineTo(mouseHandler.position.X, mouseHandler.position.Y);
       this.ctx.fill();
-    }
+    });
   }
 }

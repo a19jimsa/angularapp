@@ -1,4 +1,4 @@
-import { ChaseSystem } from './chase-system';
+import { ChaseSystem } from './chase-ai-system';
 
 describe('ChaseSystem', () => {
   it('should create an instance', () => {

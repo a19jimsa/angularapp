@@ -1,5 +1,4 @@
 import { MouseHandler } from 'src/app/mouse-handler';
-import { Bow } from 'src/components/bow';
 import { Camera } from 'src/components/camera';
 import { Skeleton } from 'src/components/skeleton';
 import { Transform } from 'src/components/transform';
@@ -13,9 +12,12 @@ export class AimingSystem {
       'Skeleton',
       'Camera'
     );
-    for (const [transform, skeleton, camera] of pool) {
-      const torso = skeleton.bones.find((e) => e.id === 'right_hand');
-      if (!torso) continue;
+    pool.forEach(({ entity, components }) => {
+      const [transform, skeleton, camera] = components;
+      const torso = skeleton.bones.find(
+        (e: { id: string }) => e.id === 'right_hand'
+      );
+      if (!torso) return;
       const newPosition = transform.position
         .plus(torso.position)
         .minus(camera.position);
@@ -39,6 +41,6 @@ export class AimingSystem {
           skeleton.flip = false;
         }
       }
-    }
+    });
   }
 }

@@ -12,6 +12,7 @@ import { WalkBox } from 'src/components/walk-box';
 import { Hit } from 'src/components/hit';
 import { Enemy } from 'src/components/enemy';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { Player } from 'src/components/player';
 
 export class PhysicsSystem {
   GRAVITY: number = 1.2;
@@ -24,6 +25,7 @@ export class PhysicsSystem {
       const falling = ecs.getComponent<Falling>(entity, 'Falling');
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
       const hit = ecs.getComponent<Hit>(entity, 'Hit');
+      const player = ecs.getComponent<Player>(entity, 'Player');
       if (!skeleton) continue;
       if (!transform) continue;
       // if (foot) {
@@ -48,26 +50,9 @@ export class PhysicsSystem {
       //   foot.value = foot.startValue - maxPos;
       // }
 
-      const enemyPool = ecs.getPool<[Transform, HitBox, Enemy]>(
-        'Transform',
-        'HitBox',
-        'Enemy'
-      );
-
-      if (hitBox) {
-        for (const [enemyTransform, enemyhitBox, enemy] of enemyPool) {
-          const newHitbox = new HitBox(hitBox.width, hitBox.height);
-          newHitbox.position = hitBox.position.plus(
-            new Vec(transform.velocity.X, 0)
-          );
-          if (MathUtils.isColliding(newHitbox, enemyhitBox)) {
-            transform.velocity.X = 0;
-          }
-        }
-      }
-
       const pool = ecs.getPool<[HitBox, WalkBox]>('HitBox', 'WalkBox');
-      for (const [hitbox, walkBox] of pool) {
+      pool.forEach(({ entity, components }) => {
+        const [hitbox, walkBox] = components;
         const movedY = transform.position.plus(
           new Vec(0, transform.velocity.Y + this.GRAVITY)
         );
@@ -76,7 +61,7 @@ export class PhysicsSystem {
         } else {
           transform.velocity.Y = transform.velocity.Y + this.GRAVITY;
         }
-      }
+      });
     }
   }
 }

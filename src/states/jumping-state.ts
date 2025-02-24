@@ -7,7 +7,6 @@ import { KeysPressed } from '../systems/controller-system';
 import { FallingState } from './falling-state';
 import { StateMachine } from './state-machine';
 import { Jump } from 'src/components/jump';
-import { Attack } from 'src/components/attack';
 import { JumpAttackState } from './jump-attack-state';
 
 export class JumpingState extends StateMachine {

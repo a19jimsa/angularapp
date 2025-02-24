@@ -1,15 +1,10 @@
 import { Player } from 'src/components/player';
 import { Controlable } from '../components/controlable';
-import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
 import { MouseHandler } from 'src/app/mouse-handler';
-import { State, States } from 'src/components/state';
-import { Attack } from 'src/components/attack';
-import { Run } from 'src/components/run';
-import { Idle } from 'src/components/idle';
-import { Jump } from 'src/components/jump';
-import { state } from '@angular/animations';
+import { Damage } from 'src/components/damage';
+import { DamageState } from 'src/states/damage-state';
 
 export type KeysPressed = {
   left: boolean;
@@ -82,6 +77,7 @@ export class ControllerSystem {
     } else if (this.mouseHandler.isMouseUp) {
       this.keysPressed.attack = false;
     }
+
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');

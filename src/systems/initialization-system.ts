@@ -21,7 +21,8 @@ export class InitializationSystem {
       'Skeleton'
     );
 
-    for (const [foot, transform, skeleton] of pool) {
+    pool.forEach(({ entity, components }) => {
+      const [foot, transform, skeleton] = components;
       const root = skeleton.bones.find((e) => e.id === 'root');
       let max = 0;
       for (const bone of skeleton.bones) {
@@ -31,6 +32,6 @@ export class InitializationSystem {
       foot.startValue = max;
       foot.startPositionY = transform.position.Y;
       foot.value;
-    }
+    });
   }
 }

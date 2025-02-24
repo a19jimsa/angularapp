@@ -1,19 +1,18 @@
 import { Component } from './component';
-
-export type AiStates = 'Idle' | 'Patrol' | 'Chase' | 'Attack';
+import { States } from './state';
 
 export class Ai extends Component {
   override type: string = 'Ai';
-  state: AiStates;
+  state: States;
   detectionRadius: number;
   attackRadius: number;
   cooldown: number;
 
   constructor(detectionRadius: number, attackRadius: number) {
     super();
-    this.state = 'Attack';
+    this.state = States.Idle;
     this.detectionRadius = detectionRadius;
     this.attackRadius = attackRadius;
-    this.cooldown = 0;
+    this.cooldown = 2;
   }
 }

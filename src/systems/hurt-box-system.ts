@@ -11,7 +11,8 @@ export class HurtBoxSystem {
       'HurtBox',
       'Weapon'
     );
-    for (const [transform, hurtBox, weapon] of pool) {
+    pool.forEach(({ entity, components }) => {
+      const [transform, hurtBox, weapon] = components;
       const newPos = MathUtils.calculateParentPosition(
         transform.position,
         weapon.image.height - (weapon.pivot.Y + weapon.image.height),
@@ -21,6 +22,6 @@ export class HurtBoxSystem {
       hurtBox.height = weapon.image.height;
       hurtBox.position.X = newPos.X;
       hurtBox.position.Y = newPos.Y;
-    }
+    });
   }
 }

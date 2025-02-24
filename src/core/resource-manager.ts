@@ -1,6 +1,7 @@
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
 import { Loader } from 'src/app/loader';
-import { State } from 'src/components/state';
+import { Skeleton } from 'src/components/skeleton';
+import { State, States } from 'src/components/state';
 
 type Animations = {
   name: string;
@@ -34,8 +35,8 @@ export class ResourceManager {
     }
   }
 
-  public static getAnimation(state: State): any {
-    const keyframes = this.animations.get(state.resource)[state.state];
+  public static getAnimation(skeleton: Skeleton, state: States): any {
+    const keyframes = this.animations.get(skeleton.resource)[state];
     if (!keyframes) {
       console.log("Couldn't find animation");
       return [];

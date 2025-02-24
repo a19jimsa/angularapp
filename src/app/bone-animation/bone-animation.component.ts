@@ -28,13 +28,10 @@ export class BoneAnimationComponent {
     (async () => {
       await ResourceManager.loadAllAnimation();
       await Loader.loadAllAnimation();
-    })()
-      .then(() => {
-        this.scene.init();
-      })
-      .then(() => {
-        this.scene.gameLoop();
-        this.isLoading = false;
-      });
+    })().then(() => {
+      this.scene.init();
+      this.scene.gameLoop();
+      this.isLoading = false;
+    });
   }
 }

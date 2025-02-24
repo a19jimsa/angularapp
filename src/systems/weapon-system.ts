@@ -7,7 +7,8 @@ import { Entity } from 'src/app/entity';
 export class WeaponSystem {
   update(ecs: Ecs) {
     const pool = ecs.getPool<[Transform, Skeleton]>('Transform', 'Skeleton');
-    for (const [transform, skeleton] of pool) {
+    pool.forEach(({ entity, components }) => {
+      const [transform, skeleton] = components;
       if (skeleton.heldEntity) {
         this.updateWeaponPosition(
           transform,
@@ -24,7 +25,7 @@ export class WeaponSystem {
           skeleton
         );
       }
-    }
+    });
   }
 
   updateWeaponPosition(

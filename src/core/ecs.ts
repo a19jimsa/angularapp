@@ -10,21 +10,23 @@ export class Ecs {
     return Array.from(this.components.keys());
   }
 
-  getPool<T extends Component[]>(...types: string[]): Array<T> {
-    const pooledComponents: Array<T> = [];
+  getPool<T extends Component[]>(
+    ...types: string[]
+  ): { entity: Entity; components: T }[] {
+    const pool: { entity: Entity; components: T }[] = [];
 
-    this.components.forEach((components) => {
+    this.components.forEach((components, entity) => {
       const foundComponents = types.map((type) =>
         components.find((comp) => comp.type === type)
       ) as T;
 
       // Kontrollera att alla komponenter finns
       if (foundComponents.every((comp) => comp !== undefined)) {
-        pooledComponents.push(foundComponents);
+        pool.push({ entity, components: foundComponents });
       }
     });
 
-    return pooledComponents;
+    return pool;
   }
 
   createEntity(): Entity {
@@ -65,7 +67,7 @@ export class Ecs {
     }
   }
 
-  getComponent<T extends Component>(entity: Entity, name: string): T {
+  getComponent<T extends Component>(entity: Entity, name: string) {
     const components = this.components.get(entity);
     const component = components?.find((e) => e.type === name) as T;
     return component;
