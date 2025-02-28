@@ -7,8 +7,6 @@ type Animations = {
   name: string;
 };
 
-type AnimationsData = {};
-
 export class ResourceManager {
   private static animations: Map<string, any> = new Map();
 
@@ -35,7 +33,7 @@ export class ResourceManager {
     }
   }
 
-  public static getAnimation(skeleton: Skeleton, state: States): any {
+  public static getAnimation(skeleton: Skeleton, state: States): Keyframe[] {
     const keyframes = this.animations.get(skeleton.resource)[state];
     if (!keyframes) {
       console.log("Couldn't find animation");

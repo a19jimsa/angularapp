@@ -23,7 +23,6 @@ export class DamageAiSystem {
         ai.cooldown = 2;
       }
       transform.velocity.X = 0;
-      console.log('I am in damage system');
       ai.state = States.Damage;
     });
   }

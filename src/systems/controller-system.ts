@@ -5,6 +5,9 @@ import { Ecs } from '../core/ecs';
 import { MouseHandler } from 'src/app/mouse-handler';
 import { Damage } from 'src/components/damage';
 import { DamageState } from 'src/states/damage-state';
+import { States } from 'src/components/state';
+import { Life } from 'src/components/life';
+import { DeathState } from 'src/states/death-state';
 
 export type KeysPressed = {
   left: boolean;

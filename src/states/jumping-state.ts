@@ -8,6 +8,10 @@ import { FallingState } from './falling-state';
 import { StateMachine } from './state-machine';
 import { Jump } from 'src/components/jump';
 import { JumpAttackState } from './jump-attack-state';
+import { Life } from 'src/components/life';
+import { DeathState } from './death-state';
+import { Damage } from 'src/components/damage';
+import { DamageState } from './damage-state';
 
 export class JumpingState extends StateMachine {
   frameTime = 0;
@@ -31,6 +35,10 @@ export class JumpingState extends StateMachine {
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
+    const damage = ecs.getComponent<Damage>(entity, 'Damage');
+    if (damage) {
+      return new DamageState();
+    }
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (transform) {
       if (transform.velocity.Y >= 0) {

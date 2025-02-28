@@ -1,20 +1,19 @@
 import { StateMachine } from './state-machine';
 import { Entity } from 'src/app/entity';
-import { Dead } from 'src/components/dead';
 import { Skeleton } from 'src/components/skeleton';
+import { States } from 'src/components/state';
 import { Ecs } from 'src/core/ecs';
+import { ResourceManager } from 'src/core/resource-manager';
 import { KeysPressed } from 'src/systems/controller-system';
 
 export class DeathState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
-    ecs.addComponent<Dead>(entity, new Dead());
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton) return;
     skeleton.startTime = performance.now();
+    skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Dead);
   }
-  override exit(entity: Entity, ecs: Ecs): void {
-    ecs.removeComponent<Dead>(entity, 'Dead');
-  }
+  override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(
     entity: Entity,
     ecs: Ecs,
@@ -22,7 +21,5 @@ export class DeathState extends StateMachine {
   ): StateMachine | null {
     return null;
   }
-  override update(entity: Entity, ecs: Ecs): void {
-    
-  }
+  override update(entity: Entity, ecs: Ecs): void {}
 }

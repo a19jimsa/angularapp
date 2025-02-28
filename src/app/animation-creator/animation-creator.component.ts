@@ -362,6 +362,20 @@ export class AnimationCreatorComponent
     });
   }
 
+  sortKeyframesForLoop(keyframes: Keyframe[]): Keyframe[] {
+    keyframes.sort((a, b) => {
+      if (a.name < b.name) {
+        return 1; // Namnet "a" kommer före "b"
+      }
+      if (a.name > b.name) {
+        return -1; // Namnet "a" kommer efter "b"
+      }
+      // Om namnen är lika, jämför tid
+      return b.time - a.time;
+    });
+    return keyframes;
+  }
+
   openDialogfilterKeyframes() {
     const dialog = this.dialog.open(FilterDialogComponent, {
       height: '400px',
@@ -616,20 +630,39 @@ export class AnimationCreatorComponent
   }
 
   createLoopFrame() {
-    const tempKeyframe: Keyframe[] = new Array();
+    let boneNames: Set<string> = new Set();
     for (const keyframe of this.keyframes) {
-      if (keyframe.time === 0) {
-        const newKeyframe: Keyframe = {
-          time: this.loopedTime,
-          angle: keyframe.angle,
-          name: keyframe.name,
-          scale: keyframe.scale,
-          clip: keyframe.clip,
-        };
-        tempKeyframe.push(newKeyframe);
-      }
+      boneNames.add(keyframe.name);
     }
-    this.keyframes.push(...tempKeyframe);
+    for (const boneName of boneNames) {
+      //Create a copy of keyframes
+      let tempKeyframes: Keyframe[] = JSON.parse(
+        JSON.stringify(this.keyframes)
+      );
+      tempKeyframes = tempKeyframes.filter((e) => e.name === boneName);
+      const maxTime = tempKeyframes[tempKeyframes.length - 1].time;
+      tempKeyframes = this.sortKeyframesForLoop(tempKeyframes);
+      let currentTime = maxTime;
+      let numbers: number[] = [];
+      for (let i = 1; i < tempKeyframes.length; i++) {
+        const firstValue = tempKeyframes[i - 1].time;
+        const secondValue = tempKeyframes[i].time;
+        const diff = firstValue - secondValue;
+        console.log(diff);
+        currentTime += diff;
+        numbers.push(currentTime);
+      }
+      for (let i = 0; i < numbers.length; i++) {
+        let keyframe: Keyframe = tempKeyframes[i + 1];
+        keyframe.time = numbers[i];
+        keyframe.name = boneName;
+        keyframe.clip = new Vec(keyframe.clip.X, keyframe.clip.Y);
+        keyframe.scale = new Vec(keyframe.scale.X, keyframe.scale.Y);
+        this.keyframes.push(keyframe);
+      }
+      console.log(this.keyframes);
+    }
+
     this.sortKeyframes();
     this.filteredKeyframes = this.keyframes;
   }

@@ -45,7 +45,6 @@ export class Ecs {
       ?.find((e) => e.type === component.type);
     if (type) return;
     this.components.get(entity)?.push(component);
-    console.log('Added', component);
   }
 
   removeComponent<T extends Component>(entity: Entity, componentType: string) {

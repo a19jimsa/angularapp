@@ -18,8 +18,8 @@ export class HurtBoxSystem {
         weapon.image.height - (weapon.pivot.Y + weapon.image.height),
         weapon.rotation
       );
-      hurtBox.width = weapon.image.width;
-      hurtBox.height = weapon.image.height;
+      hurtBox.width = 10;
+      hurtBox.height = 10;
       hurtBox.position.X = newPos.X;
       hurtBox.position.Y = newPos.Y;
     });

@@ -7,6 +7,10 @@ import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
 import { AttackDuration } from 'src/components/attack-duration';
 import { OnGroundState } from './on-ground-state';
+import { Life } from 'src/components/life';
+import { DeathState } from './death-state';
+import { DamageState } from './damage-state';
+import { Damage } from 'src/components/damage';
 
 export class JumpAttackState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -34,6 +38,10 @@ export class JumpAttackState extends StateMachine {
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
+    const damage = ecs.getComponent<Damage>(entity, 'Damage');
+    if (damage) {
+      return new DamageState();
+    }
     const attackDuration = ecs.getComponent<AttackDuration>(
       entity,
       'AttackDuration'

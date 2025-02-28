@@ -112,7 +112,16 @@
               type="number"
             />
           </mat-form-field>
-          <mat-form-field class="w-100">
+          <mat-form-field class="w-50">
+            <mat-label>ScaleX</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.scale.X"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50">
             <mat-label>ScaleY</mat-label>
             <input
               matInput
@@ -452,7 +461,7 @@
             <input matSliderThumb [(ngModel)]="rotationSliderValue" #slider />
           </mat-slider>
           <mat-label>Sprite Rotation:</mat-label>
-          <mat-slider [step]="1" [max]="360" discrete="true">
+          <mat-slider [step]="1" [min]="-360" [max]="360" discrete="true">
             <input
               matSliderThumb
               [(ngModel)]="activeBone.globalSpriteRotation"

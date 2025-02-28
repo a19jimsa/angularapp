@@ -20,16 +20,9 @@ export class IdleAiSystem {
         target.player,
         'Transform'
       );
-      if (
-        transform.position.dist(targetTransform.position) < ai.detectionRadius
-      ) {
-        ecs.addComponent<Chase>(entity, new Chase());
-        ecs.removeComponent<Idle>(entity, 'Idle');
-        return;
-      }
+      console.log('I am in idle state');
       transform.velocity.X = 0;
       ai.state = States.Idle;
-      console.log('I am in idle system');
     });
   }
 }

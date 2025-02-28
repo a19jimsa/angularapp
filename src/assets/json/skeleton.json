@@ -469,5 +469,27 @@
     "scale": { "X": 1, "Y": 0.9977093200024288 },
     "minAngle": 0,
     "maxAngle": 0
+  },
+  {
+    "type": "Bone",
+    "id": "cape",
+    "pivot": { "X": 0, "Y": 0 },
+    "position": { "X": -60.57455262249285, "Y": -1.3344170474324426 },
+    "parentId": "torso",
+    "length": 0,
+    "rotation": 0,
+    "startX": 22,
+    "startY": 498,
+    "endX": 138,
+    "endY": 97,
+    "order": -10,
+    "offset": { "X": -60.57455262249285, "Y": -1.3344170474324426 },
+    "attachAt": 1,
+    "globalRotation": 2.1850000000000023,
+    "globalSpriteRotation": 180,
+    "hierarchyDepth": 2,
+    "scale": { "X": 1, "Y": 1 },
+    "minAngle": 0,
+    "maxAngle": 0
   }
 ]

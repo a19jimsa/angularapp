@@ -14,6 +14,8 @@ import { Ecs } from '../core/ecs';
 import { Sprite } from '../components/sprite';
 import { MouseHandler } from './mouse-handler';
 import { Projectile } from 'src/components/projectile';
+import { Enchant } from 'src/components/enchant';
+import { Particle } from 'src/effects/particle-system';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -451,5 +453,22 @@ export class Renderer {
       this.ctx.lineTo(mouseHandler.position.X, mouseHandler.position.Y);
       this.ctx.fill();
     });
+  }
+
+  renderParticles(particlePool: Particle[]) {
+    this.ctx.save();
+    for (const particle of particlePool) {
+      if (!particle.active) continue;
+      const life = particle.lifeRemaining / particle.lifetime;
+      this.ctx.globalAlpha = life;
+      this.ctx.fillStyle = 'red';
+      this.ctx.fillRect(
+        particle.position.X,
+        particle.position.Y,
+        20 * (particle.sizeEnd - particle.sizeBegin),
+        20 * (particle.sizeEnd - particle.sizeBegin)
+      );
+    }
+    this.ctx.restore();
   }
 }

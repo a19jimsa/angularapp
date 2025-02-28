@@ -9,6 +9,10 @@ import { Run } from 'src/components/run';
 import { JumpingState } from './jumping-state';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
+import { Life } from 'src/components/life';
+import { DeathState } from './death-state';
+import { Damage } from 'src/components/damage';
+import { DamageState } from './damage-state';
 
 export class RunningState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -24,6 +28,10 @@ export class RunningState extends StateMachine {
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
+    const damage = ecs.getComponent<Damage>(entity, 'Damage');
+    if (damage) {
+      return new DamageState();
+    }
     let speedX = 0;
     let speedY = 0;
     const transform = ecs.getComponent<Transform>(entity, 'Transform');

@@ -5,6 +5,10 @@ import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { StateMachine } from './state-machine';
 import { Bow } from 'src/components/bow';
+import { Life } from 'src/components/life';
+import { DeathState } from './death-state';
+import { DamageState } from './damage-state';
+import { Damage } from 'src/components/damage';
 
 export class LoadArrowState extends StateMachine {
   frameTime = 0;
@@ -22,6 +26,10 @@ export class LoadArrowState extends StateMachine {
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
+    const damage = ecs.getComponent<Damage>(entity, 'Damage');
+    if (damage) {
+      return new DamageState();
+    }
     if (input.up) {
       return null;
     }

@@ -41,6 +41,8 @@ import { IdleAiSystem } from 'src/systems/idle-ai-system';
 import { Idle } from 'src/components/idle';
 import { DamageAiSystem } from 'src/systems/damage-ai-system';
 import { AttackAiSystem } from 'src/systems/attack-ai-system';
+import { ParticleProp, ParticleSystem } from 'src/effects/particle-system';
+import { Life } from 'src/components/life';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -73,6 +75,8 @@ export class AnimationScene {
   idleSystem: IdleAiSystem;
   damageSystem: DamageAiSystem;
   attackAiSystem: AttackAiSystem;
+  particleSystem: ParticleSystem;
+  particle: ParticleProp;
   loopId = 0;
 
   constructor(
@@ -116,6 +120,16 @@ export class AnimationScene {
     this.idleSystem = new IdleAiSystem();
     this.damageSystem = new DamageAiSystem();
     this.attackAiSystem = new AttackAiSystem();
+    this.particleSystem = new ParticleSystem();
+    this.particle = {
+      position: new Vec(200, 200),
+      lifetime: 1,
+      velocity: new Vec(10, 10),
+      velocityVariation: new Vec(3, 0),
+      sizeBegin: 0.5,
+      sizeEnd: 0,
+      sizeVariation: 0.3,
+    };
   }
 
   init() {
@@ -213,9 +227,9 @@ export class AnimationScene {
 
     this.renderer.setCamera(this.ecs.getComponent<Camera>(player, 'Camera'));
 
-    this.ecs.addComponent<Ai>(enemy, new Ai(500, 150));
+    this.ecs.addComponent<Ai>(enemy, new Ai(1000, 500));
     this.ecs.addComponent<Idle>(enemy, new Idle());
-    this.ecs.addComponent<Ai>(draug, new Ai(500, 150));
+    this.ecs.addComponent<Ai>(draug, new Ai(1000, 500));
     this.ecs.addComponent<Idle>(draug, new Idle());
     this.ecs.addComponent<Target>(enemy, new Target(player));
     this.ecs.addComponent<Target>(draug, new Target(player));
@@ -227,7 +241,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, 120))
+      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, 180))
     );
 
     const bow = this.ecs.createEntity();
@@ -272,8 +286,13 @@ export class AnimationScene {
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
     this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
+    this.ecs.addComponent<Enemy>(sword2, new Enemy());
+    // this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
+    this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
+    this.ecs.addComponent<Life>(player, new Life(200));
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 100));
 
@@ -293,19 +312,14 @@ export class AnimationScene {
   }
 
   gameLoop() {
-    this.cameraSystem.update(
-      this.ecs,
-      this.canvasWidth,
-      this.canvasHeight,
-      this.width,
-      this.height
-    );
-    this.aiSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
-
-    this.hurtBoxSystem.update(this.ecs);
-    this.hitBoxSystem.update(this.ecs);
     this.physicsSystem.update(this.ecs);
+
+    this.movementSystem.update(this.ecs);
+    this.animationSystem.update(this.ecs);
+
+    this.aiSystem.update(this.ecs);
+
     this.idleSystem.update(this.ecs);
     this.patrolSystem.update(this.ecs);
     this.chaseSystem.update(this.ecs);
@@ -313,12 +327,23 @@ export class AnimationScene {
     this.attackAiSystem.update(this.ecs);
     this.stateSystem.update(this.ecs);
 
-    this.movementSystem.update(this.ecs);
-
-    this.animationSystem.update(this.ecs);
     this.aimingSystem.update(this.ecs);
     this.weaponSystem.update(this.ecs);
     this.attackSystem.update(this.ecs);
+
+    this.hurtBoxSystem.update(this.ecs);
+    this.hitBoxSystem.update(this.ecs);
+
+    this.cameraSystem.update(
+      this.ecs,
+      this.canvasWidth,
+      this.canvasHeight,
+      this.width,
+      this.height
+    );
+
+    this.particleSystem.emit(this.particle);
+    this.particleSystem.onUpdate();
 
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
@@ -331,7 +356,9 @@ export class AnimationScene {
     this.renderer.renderHitBox(this.ecs);
     this.renderer.renderCharacter(this.ecs);
 
-    this.renderer.drawProjectile(this.ecs);
+    this.renderer.renderParticles(this.particleSystem.particlePool);
+
+    //this.renderer.drawProjectile(this.ecs);
     //this.renderer.drawTriangle(this.ecs, this.mouseHandler);
 
     this.loopId = window.requestAnimationFrame(() => this.gameLoop());
