@@ -350,7 +350,7 @@ export class AnimationCreatorComponent
   }
 
   sortKeyframes() {
-    this.keyframes.sort((a, b) => {
+    return this.keyframes.sort((a, b) => {
       if (a.name < b.name) {
         return -1; // Namnet "a" kommer före "b"
       }
@@ -641,7 +641,8 @@ export class AnimationCreatorComponent
       );
       tempKeyframes = tempKeyframes.filter((e) => e.name === boneName);
       const maxTime = tempKeyframes[tempKeyframes.length - 1].time;
-      tempKeyframes = this.sortKeyframesForLoop(tempKeyframes);
+      //Sort array after got maxtime of last frame, basically startvalue of next frame + diff
+      tempKeyframes.reverse();
       let currentTime = maxTime;
       let numbers: number[] = [];
       for (let i = 1; i < tempKeyframes.length; i++) {
@@ -652,10 +653,10 @@ export class AnimationCreatorComponent
         currentTime += diff;
         numbers.push(currentTime);
       }
+      console.log(numbers);
       for (let i = 0; i < numbers.length; i++) {
         let keyframe: Keyframe = tempKeyframes[i + 1];
         keyframe.time = numbers[i];
-        keyframe.name = boneName;
         keyframe.clip = new Vec(keyframe.clip.X, keyframe.clip.Y);
         keyframe.scale = new Vec(keyframe.scale.X, keyframe.scale.Y);
         this.keyframes.push(keyframe);
