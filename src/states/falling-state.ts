@@ -5,8 +5,6 @@ import { Entity } from '../app/entity';
 import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { StateMachine } from './state-machine';
-import { Life } from 'src/components/life';
-import { DeathState } from './death-state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
 

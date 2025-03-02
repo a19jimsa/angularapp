@@ -7,25 +7,20 @@ import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
 import { AttackDuration } from 'src/components/attack-duration';
 import { OnGroundState } from './on-ground-state';
-import { Life } from 'src/components/life';
-import { DeathState } from './death-state';
 import { DamageState } from './damage-state';
 import { Damage } from 'src/components/damage';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class JumpAttackState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Jump Attack');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
-      skeleton.startTime = performance.now();
       skeleton.keyframes = ResourceManager.getAnimation(
         skeleton,
         States.JumpAttack
       );
-      ecs.addComponent<AttackDuration>(
-        entity,
-        new AttackDuration(skeleton.animationDuration)
-      );
+      MathUtils.createSnaphot(skeleton);
     }
   }
 

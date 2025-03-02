@@ -1,4 +1,3 @@
-import { Enemy } from '../components/enemy';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
@@ -8,24 +7,25 @@ import { FallingState } from './falling-state';
 import { StateMachine } from './state-machine';
 import { Jump } from 'src/components/jump';
 import { JumpAttackState } from './jump-attack-state';
-import { Life } from 'src/components/life';
-import { DeathState } from './death-state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
+import { MathUtils } from 'src/Utils/MathUtils';
+import { ResourceManager } from 'src/core/resource-manager';
+import { States } from 'src/components/state';
 
 export class JumpingState extends StateMachine {
   frameTime = 0;
   override enter(entity: Entity, ecs: Ecs): void {
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    console.log('Jumping');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    if (skeleton) {
-      skeleton.startTime = performance.now();
-    }
     if (transform) {
       transform.velocity.Y = -20;
     }
-    ecs.addComponent<Jump>(entity, new Jump());
-    console.log('Jumping');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton) {
+      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Jump);
+      MathUtils.createSnaphot(skeleton);
+    }
   }
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<Jump>(entity, 'Jump');

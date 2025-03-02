@@ -16,6 +16,7 @@ import { MouseHandler } from './mouse-handler';
 import { Projectile } from 'src/components/projectile';
 import { Enchant } from 'src/components/enchant';
 import { Particle } from 'src/effects/particle-system';
+import { WalkBox } from 'src/components/walk-box';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -402,14 +403,12 @@ export class Renderer {
     for (const entity of ecs.getEntities()) {
       const hurtBox = ecs.getComponent<HurtBox>(entity, 'HurtBox');
       if (hurtBox) {
-        this.ctx.save();
         this.ctx.fillRect(
           hurtBox.position.X - this.camera.position.X,
           hurtBox.position.Y - this.camera.position.Y,
           hurtBox.width,
           hurtBox.height
         );
-        this.ctx.restore();
       }
     }
   }
@@ -470,5 +469,18 @@ export class Renderer {
       );
     }
     this.ctx.restore();
+  }
+
+  renderWalkBox(ecs: Ecs) {
+    const pool = ecs.getPool<[Transform, WalkBox]>('Transform', 'WalkBox');
+    pool.forEach(({ entity, components }) => {
+      const [transform, walkbox] = components;
+      this.ctx.fillRect(
+        transform.position.X,
+        transform.position.Y,
+        this.canvas.nativeElement.width,
+        100
+      );
+    });
   }
 }

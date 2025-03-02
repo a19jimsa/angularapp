@@ -10,19 +10,20 @@ import { Skeleton } from 'src/components/skeleton';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
 import { Transform } from 'src/components/transform';
-import { DeathState } from './death-state';
-import { Life } from 'src/components/life';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class OnGroundState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('On Ground');
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    if (!skeleton) return;
-    skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Idle);
     transform.velocity.X = 0;
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton) {
+      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Idle);
+      MathUtils.createSnaphot(skeleton);
+    }
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(

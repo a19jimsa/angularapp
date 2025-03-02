@@ -630,7 +630,7 @@ export class AnimationCreatorComponent
   }
 
   createLoopFrame() {
-    let boneNames: Set<string> = new Set();
+    let boneNames: Set<string> = new Set<string>();
     for (const keyframe of this.keyframes) {
       boneNames.add(keyframe.name);
     }
@@ -657,8 +657,6 @@ export class AnimationCreatorComponent
       for (let i = 0; i < numbers.length; i++) {
         let keyframe: Keyframe = tempKeyframes[i + 1];
         keyframe.time = numbers[i];
-        keyframe.clip = new Vec(keyframe.clip.X, keyframe.clip.Y);
-        keyframe.scale = new Vec(keyframe.scale.X, keyframe.scale.Y);
         this.keyframes.push(keyframe);
       }
       console.log(this.keyframes);

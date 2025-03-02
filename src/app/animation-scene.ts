@@ -168,7 +168,6 @@ export class AnimationScene {
       walkBox,
       new Transform(new Vec(0, this.canvasHeight - 100), new Vec(0, 0), 0)
     );
-    this.ecs.addComponent<HitBox>(walkBox, new HitBox(this.canvasWidth, 1));
     this.ecs.addComponent<WalkBox>(walkBox, new WalkBox());
 
     this.ecs.addComponent<Transform>(
@@ -294,7 +293,7 @@ export class AnimationScene {
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Life>(player, new Life(200));
 
-    this.ecs.addComponent<HitBox>(player, new HitBox(50, 100));
+    this.ecs.addComponent<HitBox>(player, new HitBox(50, 50));
 
     playerSkeleton.heldOffhandEntity = null;
     //this.ecs.addComponent<Smear>(sword, new Smear());
@@ -355,6 +354,7 @@ export class AnimationScene {
     this.renderer.renderHurtBox(this.ecs);
     this.renderer.renderHitBox(this.ecs);
     this.renderer.renderCharacter(this.ecs);
+    //this.renderer.renderWalkBox(this.ecs);
 
     this.renderer.renderParticles(this.particleSystem.particlePool);
 

@@ -52,4 +52,21 @@ export class MathUtils {
       hitBox.position.Y < hurtBox.position.Y + hurtBox.height
     );
   }
+
+  static createSnaphot(skeleton: Skeleton) {
+    skeleton.snapShot = {};
+    skeleton.keyframes.forEach((keyframe) => {
+      if (skeleton.snapShot) {
+        if (skeleton.snapShot[keyframe.name]) return;
+        skeleton.snapShot[keyframe.name] = {
+          rotation: keyframe.angle,
+          scale: new Vec(keyframe.scale.X, keyframe.scale.Y),
+          clip: new Vec(keyframe.clip.X, keyframe.clip.Y),
+        };
+      }
+    });
+    console.log('Created snapshot');
+    skeleton.blend = true;
+    skeleton.startTime = performance.now();
+  }
 }

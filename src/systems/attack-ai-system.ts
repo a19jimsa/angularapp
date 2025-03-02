@@ -53,7 +53,6 @@ export class AttackAiSystem {
             'Weapon'
           );
           if (weapon) {
-            console.log('I am in attack state');
             const dist = transform.position.dist(playerTransform.position);
             if (dist >= weapon.image.height) {
               this.moveCloser(skeleton, transform, playerTransform);
@@ -61,7 +60,6 @@ export class AttackAiSystem {
             } else if (!attackCooldown) {
               ecs.addComponent<AttackDuration>(entity, new AttackDuration(30));
               ecs.addComponent<AttackCooldown>(entity, new AttackCooldown(60));
-              console.log('Added attack cooldown');
             }
           }
         }

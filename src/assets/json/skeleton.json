@@ -188,7 +188,7 @@
     "type": "Bone",
     "id": "root",
     "pivot": { "X": 0, "Y": 46 },
-    "position": { "X": 1.959434878635765e-15, "Y": -32 },
+    "position": { "X": 0, "Y": 0 },
     "parentId": null,
     "length": 32,
     "rotation": -90,

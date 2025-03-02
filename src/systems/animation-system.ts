@@ -4,12 +4,19 @@ import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
 
 export class AnimationSystem {
-  startTime = performance.now();
+  blendTime = 0;
+
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!skeleton) continue;
-      this.runAnimation(skeleton, skeleton.keyframes);
+      this.sortBonesByHierarchy(skeleton);
+      this.updateBonePositions(skeleton);
+      if (skeleton.blend) {
+        this.blendAnimations(skeleton);
+      } else {
+        this.runAnimation(skeleton, skeleton.keyframes);
+      }
     }
   }
 
@@ -20,34 +27,32 @@ export class AnimationSystem {
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.animationDuration = totalDuration;
-    this.sortBonesByHierarchy(skeleton);
-    this.updateBonePositions(skeleton);
     for (const bone of skeleton.bones) {
       for (let i = 0; i < keyframes.length - 1; i++) {
-        const keyFrame = keyframes[i];
-        if (loopedTime >= keyFrame.time && loopedTime < keyframes[i + 1].time) {
+        const keyframe = keyframes[i];
+        if (loopedTime >= keyframe.time && loopedTime < keyframes[i + 1].time) {
           const progress =
-            (loopedTime - keyFrame.time) /
-            (keyframes[i + 1].time - keyFrame.time);
+            (loopedTime - keyframe.time) /
+            (keyframes[i + 1].time - keyframe.time);
 
-          if (bone.id === keyFrame.name) {
+          if (bone.id === keyframe.name) {
             bone.rotation = MathUtils.interpolateKeyframe(
-              keyFrame.angle,
+              keyframe.angle,
               keyframes[i + 1].angle,
               progress
             );
             bone.scale.X = MathUtils.interpolateKeyframe(
-              keyFrame.scale.X,
+              keyframe.scale.X,
               keyframes[i + 1].scale.X,
               progress
             );
             bone.scale.Y = MathUtils.interpolateKeyframe(
-              keyFrame.scale.Y,
+              keyframe.scale.Y,
               keyframes[i + 1].scale.Y,
               progress
             );
-            bone.startX = keyFrame.clip.X;
-            bone.startY = keyFrame.clip.Y;
+            bone.startX = keyframe.clip.X;
+            bone.startY = keyframe.clip.Y;
           }
         }
       }
@@ -78,6 +83,39 @@ export class AnimationSystem {
       }
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
+    }
+  }
+
+  blendAnimations(skeleton: Skeleton) {
+    for (const bone of skeleton.bones) {
+      if (skeleton.snapShot) {
+        const keyframe = skeleton.snapShot[bone.id];
+        if (keyframe) {
+          bone.rotation = MathUtils.interpolateKeyframe(
+            bone.rotation,
+            keyframe.rotation,
+            0.1
+          );
+          bone.scale.X = MathUtils.interpolateKeyframe(
+            bone.scale.X,
+            keyframe.scale.X,
+            0.1
+          );
+          bone.scale.Y = MathUtils.interpolateKeyframe(
+            bone.scale.Y,
+            keyframe.scale.Y,
+            0.1
+          );
+          bone.startX = keyframe.clip.X;
+          bone.startY = keyframe.clip.Y;
+        }
+      }
+    }
+    this.blendTime++;
+    if (this.blendTime > 20) {
+      this.blendTime = 0;
+      skeleton.blend = false;
+      skeleton.startTime = performance.now();
     }
   }
 }

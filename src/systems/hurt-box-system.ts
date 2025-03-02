@@ -1,3 +1,4 @@
+import { Vec } from 'src/app/vec';
 import { HurtBox } from '../components/hurt-box';
 import { Transform } from '../components/transform';
 import { Weapon } from '../components/weapon';
@@ -13,9 +14,11 @@ export class HurtBoxSystem {
     );
     pool.forEach(({ entity, components }) => {
       const [transform, hurtBox, weapon] = components;
+      const newTransform = new Vec(transform.position.X, transform.position.Y);
       const newPos = MathUtils.calculateParentPosition(
-        transform.position,
-        weapon.image.height - (weapon.pivot.Y + weapon.image.height),
+        newTransform,
+        (weapon.image.height - (weapon.pivot.Y + weapon.image.height)) *
+          weapon.scale.Y,
         weapon.rotation
       );
       hurtBox.width = 10;

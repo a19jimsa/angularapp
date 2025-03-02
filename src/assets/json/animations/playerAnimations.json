@@ -548,21 +548,21 @@
     },
     {
       "time": 0,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 1,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 2,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
@@ -825,30 +825,65 @@
   "attacking": [
     {
       "time": 0,
-      "angle": -95,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 155, "Y": 23 }
+    },
+    {
+      "time": 0.2,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 155, "Y": 23 }
+    },
+    {
+      "time": 0.3,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 155, "Y": 23 }
+    },
+    {
+      "time": 0.5,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 155, "Y": 23 }
+    },
+    {
+      "time": 0,
+      "angle": -1,
       "name": "right_arm",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 15.015625, "Y": 151 }
     },
     {
       "time": 0.2,
-      "angle": -261,
+      "angle": -141,
+      "name": "right_arm",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 15.015625, "Y": 151 }
+    },
+    {
+      "time": 0.3,
+      "angle": -141,
       "name": "right_arm",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 15.015625, "Y": 151 }
     },
     {
       "time": 0.5,
-      "angle": -77,
+      "angle": -141,
       "name": "right_arm",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 15.015625, "Y": 151 }
     },
     {
       "time": 0,
-      "angle": 0,
+      "angle": -105,
       "name": "right_forearm",
-      "scale": { "X": 1, "Y": 1 },
+      "scale": { "X": 1, "Y": -1 },
       "clip": { "X": 86.015625, "Y": 152 }
     },
     {
@@ -859,8 +894,15 @@
       "clip": { "X": 86.015625, "Y": 152 }
     },
     {
+      "time": 0.3,
+      "angle": -33,
+      "name": "right_forearm",
+      "scale": { "X": 1, "Y": 1 },
+      "clip": { "X": 86.015625, "Y": 152 }
+    },
+    {
       "time": 0.5,
-      "angle": 0,
+      "angle": -33,
       "name": "right_forearm",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 86.015625, "Y": 152 }
@@ -869,22 +911,57 @@
       "time": 0,
       "angle": 0,
       "name": "right_hand",
-      "scale": { "X": 1, "Y": 0.9977093200024288 },
+      "scale": { "X": 0.5, "Y": -1 },
       "clip": { "X": 19.015625, "Y": 242 }
     },
     {
       "time": 0.2,
       "angle": 0,
       "name": "right_hand",
-      "scale": { "X": 1, "Y": 0.9977093200024288 },
+      "scale": { "X": 0.7, "Y": 1 },
+      "clip": { "X": 19.015625, "Y": 242 }
+    },
+    {
+      "time": 0.3,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "X": 0.6, "Y": 0.5 },
       "clip": { "X": 19.015625, "Y": 242 }
     },
     {
       "time": 0.5,
       "angle": 0,
       "name": "right_hand",
-      "scale": { "X": 1, "Y": 0.9977093200024288 },
+      "scale": { "X": 0.6, "Y": 0.5 },
       "clip": { "X": 19.015625, "Y": 242 }
+    },
+    {
+      "time": 0,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "X": 0.4, "Y": -1 },
+      "clip": { "X": 128, "Y": 292 }
+    },
+    {
+      "time": 0.2,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "X": 0.4, "Y": 1 },
+      "clip": { "X": 128, "Y": 292 }
+    },
+    {
+      "time": 0.3,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "X": 0.4, "Y": 0.4 },
+      "clip": { "X": 128, "Y": 292 }
+    },
+    {
+      "time": 0.5,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "X": 0.4, "Y": 0.4 },
+      "clip": { "X": 128, "Y": 292 }
     }
   ],
   "jump": [
@@ -1228,21 +1305,21 @@
 
     {
       "time": 0,
-      "angle": 270,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 0.5,
-      "angle": 270,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 1,
-      "angle": 270,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
@@ -1742,28 +1819,28 @@
     },
     {
       "time": 0,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 0.5,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 0.7,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 2,
-      "angle": 271.0720000000299,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
@@ -2327,14 +2404,14 @@
     },
     {
       "time": 1,
-      "angle": -180,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }
     },
     {
       "time": 5,
-      "angle": -180,
+      "angle": -90,
       "name": "root",
       "scale": { "X": 1, "Y": 1 },
       "clip": { "X": 414, "Y": 68 }

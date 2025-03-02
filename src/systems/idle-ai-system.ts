@@ -20,7 +20,6 @@ export class IdleAiSystem {
         target.player,
         'Transform'
       );
-      console.log('I am in idle state');
       transform.velocity.X = 0;
       ai.state = States.Idle;
     });

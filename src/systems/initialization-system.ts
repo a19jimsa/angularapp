@@ -3,6 +3,7 @@ import { Foot } from '../components/foot';
 import { Skeleton } from '../components/skeleton';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class InitializationSystem {
   update(ecs: Ecs) {
@@ -15,23 +16,17 @@ export class InitializationSystem {
       }
     }
 
-    const pool = ecs.getPool<[Foot, Transform, Skeleton]>(
-      'Foot',
-      'Transform',
-      'Skeleton'
-    );
+    const pool = ecs.getPool<[Transform, Skeleton]>('Transform', 'Skeleton');
 
     pool.forEach(({ entity, components }) => {
-      const [foot, transform, skeleton] = components;
+      const [transform, skeleton] = components;
       const root = skeleton.bones.find((e) => e.id === 'root');
-      let max = 0;
-      for (const bone of skeleton.bones) {
-        const target = bone.position.Y;
-        max = Math.max(max, target);
+      const foot = skeleton.bones.find((e) => e.id === 'right_foot');
+      if (foot && root) {
+        const dist = root.position.Y - foot.position.Y;
+        skeleton.lowestPoint = dist;
+        console.log('Längden mellan root och fott', skeleton.lowestPoint);
       }
-      foot.startValue = max;
-      foot.startPositionY = transform.position.Y;
-      foot.value;
     });
   }
 }

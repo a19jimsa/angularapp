@@ -53,7 +53,9 @@ export class WeaponSystem {
           (transform.position.X - weaponTransform.position.X);
 
         weapon.rotation = -weapon.rotation - 180;
-        weapon.scale.X = -1;
+        if (parent) {
+          weapon.scale = parent.scale;
+        }
       }
       weapon.flip = skeleton.flip;
     }
