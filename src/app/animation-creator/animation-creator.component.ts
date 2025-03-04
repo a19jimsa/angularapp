@@ -118,7 +118,7 @@ export class AnimationCreatorComponent
 
   ngAfterViewInit(): void {
     this.canvas.nativeElement.width = 800;
-    this.canvas.nativeElement.height = 600;
+    this.canvas.nativeElement.height = 480;
     this.canvasWidth = this.canvas.nativeElement.width;
     this.canvasHeight = this.canvas.nativeElement.height;
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
@@ -144,6 +144,7 @@ export class AnimationCreatorComponent
 
   animationLoop(): void {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.drawBackground();
     this.updateBonePositions();
     this.drawSpritesheet();
     this.drawGui();
@@ -155,6 +156,18 @@ export class AnimationCreatorComponent
     this.updateLength();
     this.updateRotation();
     this.id = requestAnimationFrame(() => this.animationLoop());
+  }
+
+  drawBackground() {
+    const gridSize = 50;
+    for (let y = 0; y < this.canvasHeight; y += gridSize) {
+      for (let x = 0; x < this.canvasWidth; x += gridSize) {
+        // Växla mellan två färger beroende på position
+        this.ctx.fillStyle =
+          (x / gridSize + y / gridSize) % 2 === 0 ? '#6c757d' : '#343a40';
+        this.ctx.fillRect(x, y, gridSize, gridSize);
+      }
+    }
   }
 
   changeState(name: string) {
@@ -171,11 +184,14 @@ export class AnimationCreatorComponent
     }
   }
 
+  setTime() {
+    this.loopedTime = this.keyframeSliderValue;
+    this.runAnimation();
+  }
+
   drawSpritesheet() {
     if (!this.showSpritesheet) return;
-    this.ctx.save();
     this.ctx.drawImage(this.spriteSheet, this.camera.X, this.camera.Y);
-    this.ctx.restore();
   }
 
   onFileSelected(event: any) {
@@ -334,10 +350,9 @@ export class AnimationCreatorComponent
   }
 
   createKeyframesOfBones() {
-    console.log(this.filteredBones);
     for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
-        time: this.loopedTime,
+        time: this.keyframeSliderValue,
         angle: bone.rotation,
         name: bone.id,
         scale: new Vec(bone.scale.X, bone.scale.Y),
@@ -432,7 +447,6 @@ export class AnimationCreatorComponent
   }
 
   drawGui() {
-    this.ctx.save();
     this.ctx.beginPath();
     this.ctx.strokeStyle = 'red';
     this.ctx.lineWidth = 1;
@@ -443,36 +457,15 @@ export class AnimationCreatorComponent
       this.mousePos.Y - this.mouseDown.Y
     );
     this.ctx.stroke();
-    const margin = 100;
-    this.ctx.fillRect(0, this.canvasHeight - margin, this.canvasWidth, margin);
-    this.ctx.beginPath();
-    this.ctx.moveTo(
-      MathUtils.interpolateKeyframe(
-        this.loopedTime,
-        this.canvasWidth,
-        this.loopedTime
-      ),
-      this.canvasHeight - margin
-    );
-    this.ctx.lineTo(
-      MathUtils.interpolateKeyframe(
-        this.loopedTime,
-        this.canvasWidth,
-        this.loopedTime
-      ),
-      this.canvasHeight
-    );
-    this.ctx.stroke();
-    this.ctx.restore();
   }
 
   togglePlay() {
-    this.startTime = performance.now();
     this.play = !this.play;
   }
 
   playAnimation() {
     if (this.play) {
+      this.keyframeSliderValue += 0.016;
       this.runAnimation();
     }
   }
@@ -831,7 +824,6 @@ export class AnimationCreatorComponent
     const mousePosY = this.mouseDown.Y - this.canvasHeight / 2;
     for (const bone of this.bones) {
       const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
-      console.log(distance);
       if (distance <= 5) {
         this.activateBone(bone.id);
         return true;
@@ -856,9 +848,7 @@ export class AnimationCreatorComponent
     this.activeBone = null;
     this.activeKeyframe = null;
     this.totalDuration = this.keyframes[this.keyframes.length - 1].time;
-    const speed = 1000 / this.animationSpeed;
-    const elapsedTime = (performance.now() - this.startTime) / speed;
-    this.keyframeSliderValue = elapsedTime;
+    const elapsedTime = this.keyframeSliderValue;
     this.loopedTime = elapsedTime % this.totalDuration;
     for (const bone of this.bones) {
       for (let i = 0; i < this.keyframes.length - 1; i++) {

@@ -116,6 +116,7 @@ export class AnimationSystem {
       this.blendTime = 0;
       skeleton.blend = false;
       skeleton.startTime = performance.now();
+      skeleton.snapShot = null;
     }
   }
 }

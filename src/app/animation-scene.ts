@@ -206,7 +206,7 @@ export class AnimationScene {
       'playerAnimations'
     );
     const enemySkeleton = new Skeleton(
-      'assets/sprites/94814.png',
+      'assets/sprites/104085.png',
       'playerAnimations'
     );
 
@@ -242,6 +242,7 @@ export class AnimationScene {
       newWeapon,
       new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, 180))
     );
+    this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     const bow = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -275,6 +276,8 @@ export class AnimationScene {
       sword,
       new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
     );
+    this.ecs.addComponent<Enemy>(sword, new Player());
+
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       sword2,
@@ -284,10 +287,12 @@ export class AnimationScene {
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
-    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
-    // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
-    // this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
+
+    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
+    this.ecs.addComponent<Enemy>(sword2, new Enemy());
+    this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
     this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));

@@ -78,6 +78,7 @@
         >
           <button mat-flat-button (click)="createKeyframesOfBones()">
             Add keyframes
+            <mat-icon>add</mat-icon>
           </button>
         </mat-card-actions>
         <mat-divider></mat-divider>
@@ -153,14 +154,11 @@
       </mat-card>
     </div>
     <div class="col-6 h-100">
-      <mat-card
-        appearance="outlined"
-        class="h-100 flex-column d-flex justify-content-around"
-      >
+      <mat-card appearance="outlined" class="h-100">
         <mat-card-header>
           <mat-card-title>Canvas</mat-card-title>
           @if (animation) {
-          {{ animation | json }}
+          {{ animation }}
 
           }
           <mat-card-subtitle>
@@ -178,14 +176,31 @@
             </mat-card-title-group>
           </mat-card-subtitle>
         </mat-card-header>
-        <mat-card-content>
+        <mat-card-content class="h-100">
           <div class="row">
             <div class="d-flex justify-content-center">
               <canvas #canvas class="border" style="overflow: scroll"></canvas>
             </div>
           </div>
+          <div class="w-100">
+            <label>KeyFrames</label>
+            <mat-slider
+              [step]="0.1"
+              [min]="0"
+              [max]="this.totalDuration"
+              discrete
+              class="w-100"
+            >
+              <input
+                matSliderThumb
+                [(ngModel)]="this.keyframeSliderValue"
+                #slider
+                (change)="setTime()"
+              />
+            </mat-slider>
+          </div>
         </mat-card-content>
-        <mat-card-actions class="justify-content-around">
+        <mat-card-actions>
           <label for="slider">AnimationSpeed</label>
           <mat-slider id="slider" [step]="1" [min]="1" [max]="3" discrete>
             <input matSliderThumb #slider [(ngModel)]="animationSpeed" />
@@ -199,12 +214,11 @@
             }
           </button>
           <label>KeyFrames</label>
-          <mat-slider [step]="0.1" [min]="0" [max]="20" discrete>
+          <mat-slider [step]="0.1" [min]="0" [max]="100" discrete>
             <input
               matSliderThumb
-              [(ngModel)]="this.loopedTime"
+              [(ngModel)]="this.keyframeSliderValue"
               #slider
-              (drag)="runAnimation()"
             />
           </mat-slider>
           <button mat-flat-button (click)="createLoopFrame()">
@@ -278,7 +292,9 @@
           class="justify-content-center sticky-bottom"
           style="margin-top: auto"
         >
-          <button mat-flat-button (click)="addBone()">Add bone</button>
+          <button mat-flat-button (click)="addBone()">
+            Add bone <mat-icon>add</mat-icon>
+          </button>
         </mat-card-actions>
         <mat-divider></mat-divider>
         <mat-card-header>

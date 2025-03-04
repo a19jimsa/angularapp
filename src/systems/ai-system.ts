@@ -61,21 +61,18 @@ export class AiSystem {
       }
 
       if (attackScore > chaseScore && attackScore > idleScore) {
-        console.log('AI väljer Attack');
         ecs.addComponent<Attack>(entity, new Attack());
         ecs.removeComponent<Chase>(entity, 'Chase');
         ecs.removeComponent<Idle>(entity, 'Idle');
         ai.cooldown = 100;
         return;
       } else if (chaseScore > attackScore && chaseScore > idleScore) {
-        console.log('AI väljer Chase');
         ecs.addComponent<Chase>(entity, new Chase());
         ecs.removeComponent<Attack>(entity, 'Attack');
         ecs.removeComponent<Idle>(entity, 'Idle');
         ai.cooldown = 50;
         return;
       } else {
-        console.log('Ai väljer idle');
         //Add new pathfinding
         ecs.addComponent<Idle>(entity, new Idle());
         ecs.removeComponent<Chase>(entity, 'Chase');

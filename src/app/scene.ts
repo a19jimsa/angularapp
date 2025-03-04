@@ -96,6 +96,11 @@ export class Scene {
   start() {
     this.renderer.clearScreen();
     this.renderer.drawBackground();
+
+    this.controlSystem.update(this.ecs, this.mouseHandler);
+    this.collisionSystem.update(this.ecs, this);
+    this.movementSystem.update(this.ecs);
+    this.rotationSystem.update(this.ecs);
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -103,10 +108,6 @@ export class Scene {
       this.width,
       this.height
     );
-    this.controlSystem.update(this.ecs, this.mouseHandler);
-    this.collisionSystem.update(this.ecs, this);
-    this.movementSystem.update(this.ecs);
-    this.rotationSystem.update(this.ecs);
     this.renderSystem.update(this.ecs, this.renderer);
     window.requestAnimationFrame(() => this.start());
   }

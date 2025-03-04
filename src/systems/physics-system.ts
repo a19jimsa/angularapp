@@ -18,15 +18,13 @@ export class PhysicsSystem {
       if (!foot || !root) continue;
       const dist = root.position.Y + foot.position.Y;
       const newDist = skeleton.lowestPoint - dist;
-      console.log(skeleton.lowestPoint - dist);
-
       const pool = ecs.getPool<[Transform, WalkBox]>('Transform', 'WalkBox');
       pool.forEach(({ entity, components }) => {
         const [walkTransform, walkBox] = components;
         const movedY = transform.position.plus(
           new Vec(0, transform.velocity.Y)
         );
-        if (movedY.Y >= walkTransform.position.Y - newDist) {
+        if (movedY.Y >= walkTransform.position.Y + newDist) {
           transform.velocity.Y = 0;
           transform.position.Y = walkTransform.position.Y + newDist;
         } else {

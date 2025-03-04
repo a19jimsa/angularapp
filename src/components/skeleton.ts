@@ -21,7 +21,7 @@ export class Skeleton extends Component {
   startTime: number = 0;
   heldEntity: Entity | null;
   heldOffhandEntity: Entity | null;
-  snapShot: Record<string, Snapshot> | undefined;
+  snapShot: Record<string, Snapshot> | null = null;
   rotation: number;
   resource: string;
   animationDuration: number = 0;

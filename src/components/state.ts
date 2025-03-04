@@ -4,6 +4,7 @@ export enum States {
   Idle = 'idle',
   Running = 'running',
   Attacking = 'attacking',
+    SmashAttack = 'smashattack',
   Flying = 'flying',
   Bow = 'bow',
   Jump = 'jump',

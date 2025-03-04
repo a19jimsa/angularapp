@@ -5,17 +5,20 @@ import { KeysPressed } from '../systems/controller-system';
 import { OnGroundState } from './on-ground-state';
 import { StateMachine } from './state-machine';
 import { Bow } from 'src/components/bow';
-import { Life } from 'src/components/life';
-import { DeathState } from './death-state';
 import { DamageState } from './damage-state';
 import { Damage } from 'src/components/damage';
+import { ResourceManager } from 'src/core/resource-manager';
+import { States } from 'src/components/state';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class LoadArrowState extends StateMachine {
   frameTime = 0;
   override enter(entity: Entity, ecs: Ecs): void {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (!skeleton) return;
-    skeleton.startTime = performance.now();
+    if (skeleton) {
+      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Bow);
+      MathUtils.createSnaphot(skeleton);
+    }
     ecs.addComponent<Bow>(entity, new Bow());
   }
   override exit(entity: Entity, ecs: Ecs): void {
