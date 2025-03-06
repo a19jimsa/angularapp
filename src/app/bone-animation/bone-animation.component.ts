@@ -27,7 +27,8 @@ export class BoneAnimationComponent {
     this.scene = new AnimationScene(this.canvas, 1280, 720, 2048 * 4, 720);
     (async () => {
       await ResourceManager.loadAllAnimation();
-      await Loader.loadAllAnimation();
+      await ResourceManager.loadAllEffects();
+      await Loader.loadAllBones();
     })().then(() => {
       this.scene.init();
       this.scene.gameLoop();

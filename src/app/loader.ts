@@ -1,13 +1,13 @@
+import { Bone } from 'src/components/bone';
+
 type Animations = {
   name: string;
 };
 
-type AnimationsData = {};
-
 export class Loader {
   private static animations: Map<string, any> = new Map();
 
-  public static async loadAllAnimation(): Promise<void> {
+  public static async loadAllBones(): Promise<void> {
     try {
       // Vänta på att bonelist.json laddas
       const res = await fetch('/assets/json/bonelist.json');
@@ -18,6 +18,7 @@ export class Loader {
         const response = await fetch(`/assets/json/${file.name}.json`);
         const data = await response.json();
         Loader.animations.set(file.name, data);
+        console.log(Loader.animations.get(file.name));
       });
 
       // Vänta på att alla fetch-anrop slutförs
@@ -28,10 +29,10 @@ export class Loader {
     }
   }
 
-  public static getBones(bones: string): any {
+  public static getBones(bones: string): Bone[] {
     const keyframes = this.animations.get(bones);
     if (!keyframes) {
-      console.log("Couldn't find animation");
+      console.log("Couldn't find bones " + bones);
       return [];
     }
     const newKeyframes = JSON.parse(JSON.stringify(keyframes));

@@ -1,7 +1,6 @@
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
-import { Loader } from 'src/app/loader';
 import { Skeleton } from 'src/components/skeleton';
-import { State, States } from 'src/components/state';
+import { States } from 'src/components/state';
 
 type Animations = {
   name: string;
@@ -9,6 +8,7 @@ type Animations = {
 
 export class ResourceManager {
   private static animations: Map<string, any> = new Map();
+  private static effects: Map<string, Keyframe[]> = new Map();
 
   public static async loadAllAnimation(): Promise<void> {
     try {
@@ -37,6 +37,27 @@ export class ResourceManager {
     const keyframes = this.animations.get(skeleton.resource)[state];
     if (!keyframes) {
       console.log("Couldn't find animation");
+      return [];
+    }
+    return keyframes;
+  }
+
+  public static async loadAllEffects(): Promise<void> {
+    try {
+      const res = await fetch('/assets/json/effects/effects.json');
+      const data = await res.json();
+      ResourceManager.effects = new Map<string, Keyframe[]>(
+        Object.entries(data)
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  public static getEffect(effect: string): Keyframe[] {
+    const keyframes = this.effects.get(effect);
+    if (!keyframes) {
+      console.log("Couldn't find effect " + effect);
       return [];
     }
     return keyframes;

@@ -43,6 +43,8 @@ import { DamageAiSystem } from 'src/systems/damage-ai-system';
 import { AttackAiSystem } from 'src/systems/attack-ai-system';
 import { ParticleProp, ParticleSystem } from 'src/effects/particle-system';
 import { Life } from 'src/components/life';
+import { EffectSystem } from 'src/systems/effect-system';
+import { Effect } from 'src/components/effect';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -77,6 +79,7 @@ export class AnimationScene {
   attackAiSystem: AttackAiSystem;
   particleSystem: ParticleSystem;
   particle: ParticleProp;
+  effectSystem: EffectSystem;
   loopId = 0;
 
   constructor(
@@ -121,6 +124,7 @@ export class AnimationScene {
     this.damageSystem = new DamageAiSystem();
     this.attackAiSystem = new AttackAiSystem();
     this.particleSystem = new ParticleSystem();
+    this.effectSystem = new EffectSystem();
     this.particle = {
       position: new Vec(200, 200),
       lifetime: 1,
@@ -287,8 +291,13 @@ export class AnimationScene {
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
     );
-    this.ecs.addComponent<Enemy>(sword2, new Enemy());
 
+    this.ecs.addComponent<Effect>(
+      sword2,
+      new Effect('assets/sprites/Btl_Hit01.png', new Vec(500, 500), 'hit')
+    );
+
+    this.ecs.addComponent<Enemy>(sword2, new Enemy());
     this.ecs.addComponent<HurtBox>(sword, new HurtBox());
     this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
@@ -338,6 +347,8 @@ export class AnimationScene {
     this.hurtBoxSystem.update(this.ecs);
     this.hitBoxSystem.update(this.ecs);
 
+    this.effectSystem.update(this.ecs);
+
     this.cameraSystem.update(
       this.ecs,
       this.canvasWidth,
@@ -359,6 +370,7 @@ export class AnimationScene {
     this.renderer.renderHurtBox(this.ecs);
     this.renderer.renderHitBox(this.ecs);
     this.renderer.renderCharacter(this.ecs);
+    this.renderer.renderEffects(this.ecs);
     //this.renderer.renderWalkBox(this.ecs);
 
     this.renderer.renderParticles(this.particleSystem.particlePool);

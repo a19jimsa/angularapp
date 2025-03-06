@@ -1,9 +1,10 @@
 export type Keyframe = {
-  time: number; // Tidpunkten för keyframen
-  name: string; // Namn på benet eller objektet som påverkas
-  angle: number; // Rotationsvinkel i grader eller motsvarande enhet
-  scale: Vec; // Skalan av ett ben för att kunna vinklas t ex en vinge som går upp och ned
-  clip: Vec; // Start X och Y för att byta bild vid en animation
+  position: Vec;
+  scale: Vec;
+  clip: Vec;
+  time: number;
+  name: string;
+  angle: number;
 };
 
 type BoneHierarchy = {
@@ -12,6 +13,15 @@ type BoneHierarchy = {
 };
 
 type ClipAnimation = {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
+type Effect = {
+  position: Vec;
+  scale: Vec;
   startX: number;
   startY: number;
   endX: number;
@@ -135,6 +145,11 @@ export class AnimationCreatorComponent
     }
     if (localStorage.getItem('frames') !== null) {
       this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
+      for (const keyframe of this.keyframes) {
+        if (!keyframe.position) {
+          keyframe.position = new Vec(0, 0);
+        }
+      }
     }
   }
 
@@ -262,7 +277,6 @@ export class AnimationCreatorComponent
 
   addBonesFromJSON() {
     for (const bone of this.bones) {
-      bone.offset = new Vec(bone.offset.X, bone.offset.Y);
       bone.position = new Vec(bone.position.X, bone.position.Y);
       bone.hierarchyDepth = 0;
       if (bone.scale) {
@@ -291,6 +305,11 @@ export class AnimationCreatorComponent
       try {
         const keyframeArray: Keyframe[] = JSON.parse(result);
         this.keyframes = [];
+        for (const keyframe of keyframeArray) {
+          if (!keyframe.position) {
+            keyframe.position = new Vec(0, 0);
+          }
+        }
         this.keyframes.push(...keyframeArray);
         this.sortKeyframes();
       } catch (e) {
@@ -336,13 +355,18 @@ export class AnimationCreatorComponent
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
-      this.ctx.moveTo(bone.offset.X, bone.offset.Y);
-      this.ctx.lineTo(bone.position.X, bone.position.Y);
+      this.ctx.moveTo(bone.position.X, bone.position.Y);
+      const newPos = MathUtils.calculateParentPosition(
+        bone.position,
+        bone.length,
+        bone.globalRotation - bone.globalSpriteRotation // I dunno why but it works
+      );
+      this.ctx.lineTo(newPos.X, newPos.Y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
       this.ctx.strokeStyle = 'red';
-      this.ctx.arc(bone.offset.X, bone.offset.Y, 5, 0, Math.PI * 2);
+      this.ctx.arc(bone.position.X, bone.position.Y, 5, 0, Math.PI * 2);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.restore();
@@ -352,6 +376,7 @@ export class AnimationCreatorComponent
   createKeyframesOfBones() {
     for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
+        position: bone.position,
         time: this.keyframeSliderValue,
         angle: bone.rotation,
         name: bone.id,
@@ -425,20 +450,20 @@ export class AnimationCreatorComponent
       this.ctx.save();
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.translate(bone.offset.X, bone.offset.Y);
+      this.ctx.translate(bone.position.X, bone.position.Y);
       this.ctx.rotate(
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
       );
       this.ctx.scale(bone.scale.X, bone.scale.Y);
-      this.ctx.translate(-bone.offset.X, -bone.offset.Y);
+      this.ctx.translate(-bone.position.X, -bone.position.Y);
       this.ctx.drawImage(
         this.spriteSheet,
         bone.startX,
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.offset.X - bone.pivot.X - bone.endX / 2,
-        bone.offset.Y - bone.pivot.Y,
+        bone.position.X - bone.pivot.X - bone.endX / 2,
+        bone.position.Y - bone.pivot.Y,
         bone.endX,
         bone.endY
       );
@@ -495,8 +520,8 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.offset.X,
-      this.canvasHeight / 2 + this.activeBone.offset.Y
+      this.canvasWidth / 2 + this.activeBone.position.X,
+      this.canvasHeight / 2 + this.activeBone.position.Y
     );
     this.ctx.lineWidth = 3;
 
@@ -561,38 +586,6 @@ export class AnimationCreatorComponent
 
     addEventListener('keydown', (event) => {
       console.log(event.key);
-      if (event.key == 'ArrowDown') {
-        if (this.activeBone) {
-          this.activeBone.offset.Y += 1;
-          return;
-        }
-        this.mouseDown.Y += 1;
-        this.mouseUp.Y += 1;
-      }
-      if (event.key == 'ArrowUp') {
-        if (this.activeBone) {
-          this.activeBone.offset.Y -= 1;
-          return;
-        }
-        this.mouseDown.Y -= 1;
-        this.mouseUp.Y -= 1;
-      }
-      if (event.key == 'ArrowRight') {
-        if (this.activeBone) {
-          this.activeBone.offset.X += 1;
-          return;
-        }
-        this.mouseDown.X += 1;
-        this.mouseUp.X += 1;
-      }
-      if (event.key == 'ArrowLeft') {
-        if (this.activeBone) {
-          this.activeBone.offset.X -= 1;
-          return;
-        }
-        this.mouseDown.X -= 1;
-        this.mouseUp.X -= 1;
-      }
     });
   }
 
@@ -661,8 +654,8 @@ export class AnimationCreatorComponent
 
   mouseClick() {
     if (this.activeBone) {
-      this.activeBone.offset.X = this.mousePos.X - this.canvasWidth / 2;
-      this.activeBone.offset.Y = this.mousePos.Y - this.canvasHeight / 2;
+      this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
+      this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
     }
   }
 
@@ -729,9 +722,9 @@ export class AnimationCreatorComponent
 
   mouseCollision() {
     if (!this.activeBone) return;
-    if (!this.activeBone.offset) return;
-    this.activeBone.offset.X = this.mousePos.X - this.canvasWidth / 2;
-    this.activeBone.offset.Y = this.mousePos.Y - this.canvasHeight / 2;
+    if (!this.activeBone.position) return;
+    this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
+    this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
   }
 
   interpolateKeyframe(startValue: number, endValue: number, progress: number) {
@@ -764,22 +757,15 @@ export class AnimationCreatorComponent
         const parent = this.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
-          bone.offset = MathUtils.calculateParentPosition(
-            parent.offset,
+          bone.position = MathUtils.calculateParentPosition(
+            parent.position,
             parent.length * bone.attachAt * parent.scale.Y,
             parentRotation
           );
         }
       }
-
       bone.globalRotation =
         bone.rotation + parentRotation + bone.globalSpriteRotation;
-
-      bone.position = MathUtils.calculateParentPosition(
-        bone.offset,
-        bone.length,
-        parentRotation + bone.rotation
-      );
     }
   }
 
@@ -823,7 +809,7 @@ export class AnimationCreatorComponent
     const mousePosX = this.mouseDown.X - this.canvasWidth / 2;
     const mousePosY = this.mouseDown.Y - this.canvasHeight / 2;
     for (const bone of this.bones) {
-      const distance = bone.offset.dist(new Vec(mousePosX, mousePosY));
+      const distance = bone.position.dist(new Vec(mousePosX, mousePosY));
       if (distance <= 5) {
         this.activateBone(bone.id);
         return true;
@@ -836,9 +822,9 @@ export class AnimationCreatorComponent
     const mouseX = this.mousePos.X - this.canvasWidth / 2;
     const mouseY = this.mousePos.Y - this.canvasHeight / 2;
     return (
-      mouseX > bone.offset.X - bone.endX / 2 &&
+      mouseX > bone.position.X - bone.endX / 2 &&
       mouseX < bone.endX &&
-      mouseY > bone.offset.Y &&
+      mouseY > bone.position.Y &&
       mouseY < bone.endY
     );
   }
@@ -862,6 +848,16 @@ export class AnimationCreatorComponent
             (this.keyframes[i + 1].time - keyFrame.time);
 
           if (bone.id === keyFrame.name) {
+            bone.position.X = this.interpolateKeyframe(
+              keyFrame.position.X,
+              this.keyframes[i + 1].position.X,
+              progress
+            );
+            bone.position.Y = this.interpolateKeyframe(
+              keyFrame.position.Y,
+              this.keyframes[i + 1].position.Y,
+              progress
+            );
             bone.rotation = this.interpolateKeyframe(
               keyFrame.angle,
               this.keyframes[i + 1].angle,

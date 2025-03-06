@@ -73,12 +73,15 @@
           }
         </mat-card-content>
         <mat-card-actions
-          class="justify-content-center sticky-bottom"
+          class="justify-content-around ticky-bottom"
           style="margin-top: auto"
         >
           <button mat-flat-button (click)="createKeyframesOfBones()">
             Add keyframes
             <mat-icon>add</mat-icon>
+          </button>
+          <button mat-flat-button (click)="createLoopFrame()">
+            Create loop
           </button>
         </mat-card-actions>
         <mat-divider></mat-divider>
@@ -94,6 +97,24 @@
           <mat-form-field class="w-100">
             <mat-label>Name</mat-label>
             <input matInput disabled [(ngModel)]="activeKeyframe.name" />
+          </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>PositionX</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.position.X"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>PositionY</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.position.Y"
+              type="number"
+            />
           </mat-form-field>
           <mat-form-field class="w-100">
             <mat-label>Time</mat-label>
@@ -158,7 +179,7 @@
         <mat-card-header>
           <mat-card-title>Canvas</mat-card-title>
           @if (animation) {
-          {{ animation }}
+          {{ animation | json }}
 
           }
           <mat-card-subtitle>
@@ -200,7 +221,7 @@
             </mat-slider>
           </div>
         </mat-card-content>
-        <mat-card-actions>
+        <mat-card-actions class="justify-content-between">
           <label for="slider">AnimationSpeed</label>
           <mat-slider id="slider" [step]="1" [min]="1" [max]="3" discrete>
             <input matSliderThumb #slider [(ngModel)]="animationSpeed" />
@@ -221,9 +242,6 @@
               #slider
             />
           </mat-slider>
-          <button mat-flat-button (click)="createLoopFrame()">
-            Create loop
-          </button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -247,7 +265,10 @@
               <button mat-menu-item (click)="exportBones()">
                 Export bones
               </button>
-              <button mat-menu-item (click)="clearBones()">Clear bones</button>
+              <button mat-menu-item (click)="clearBones()">
+                Clear bones
+                <mat-icon>delete</mat-icon>
+              </button>
             </mat-menu>
           </mat-card-title-group>
         </mat-card-header>
@@ -485,11 +506,11 @@
             />
           </mat-slider>
           <mat-label>ScaleX:</mat-label>
-          <mat-slider [step]="0.1" [min]="-1" [max]="1" discrete="true">
+          <mat-slider [step]="0.1" [min]="-20" [max]="20" discrete="true">
             <input matSliderThumb [(ngModel)]="activeBone.scale.X" #slider />
           </mat-slider>
           <mat-label>ScaleY:</mat-label>
-          <mat-slider [step]="0.1" [min]="-1" [max]="1" discrete="true">
+          <mat-slider [step]="0.1" [min]="-20" [max]="20" discrete="true">
             <input matSliderThumb [(ngModel)]="activeBone.scale.Y" #slider />
           </mat-slider>
           <button mat-button (click)="inactivateBone()">inactivate bone</button>

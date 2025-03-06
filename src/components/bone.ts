@@ -13,7 +13,6 @@ export class Bone extends Component {
   endX: number;
   endY: number;
   pivot: Vec;
-  offset: Vec;
   order: number;
   attachAt: number;
   scale: Vec;
@@ -49,7 +48,6 @@ export class Bone extends Component {
     this.endX = endX;
     this.endY = endY;
     this.order = order;
-    this.offset = offset;
     this.attachAt = 1;
     this.globalRotation = 0;
     this.globalSpriteRotation = 0;

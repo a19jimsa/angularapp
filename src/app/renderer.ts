@@ -17,6 +17,7 @@ import { Projectile } from 'src/components/projectile';
 import { Enchant } from 'src/components/enchant';
 import { Particle } from 'src/effects/particle-system';
 import { WalkBox } from 'src/components/walk-box';
+import { Effect } from 'src/components/effect';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -481,6 +482,33 @@ export class Renderer {
         this.canvas.nativeElement.width,
         100
       );
+    });
+  }
+
+  renderEffects(ecs: Ecs) {
+    const pool = ecs.getPool<[Effect]>('Effect');
+    pool.forEach(({ entity, components }) => {
+      const [effect] = components;
+      const screenX = effect.position.X - this.camera.position.X;
+      const screenY = effect.position.Y - this.camera.position.Y;
+      for (const sprite of effect.sprites) {
+        this.ctx.save();
+        this.ctx.translate(screenX, screenY);
+        this.ctx.scale(sprite.scaleX, sprite.scaleY);
+        this.ctx.translate(-screenX, -screenY);
+        this.ctx.drawImage(
+          effect.image,
+          sprite.startX,
+          sprite.startY,
+          sprite.endX,
+          sprite.endY,
+          screenX - sprite.pivot.X - sprite.endX / 2,
+          screenY - sprite.pivot.Y,
+          sprite.endX,
+          sprite.endY
+        );
+        this.ctx.restore();
+      }
     });
   }
 }
