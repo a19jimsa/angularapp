@@ -34,11 +34,15 @@ export class ResourceManager {
   }
 
   public static getAnimation(skeleton: Skeleton, state: States): Keyframe[] {
-    const keyframes = this.animations.get(skeleton.resource)[state];
+    const keyframes = this.animations.get(skeleton.resource)[
+      state
+    ] as Keyframe[];
     if (!keyframes) {
       console.log("Couldn't find animation");
       return [];
     }
+    skeleton.animationDuration = keyframes[keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
     return keyframes;
   }
 

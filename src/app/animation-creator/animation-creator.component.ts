@@ -1,10 +1,10 @@
 export type Keyframe = {
   position: Vec;
   scale: Vec;
-  clip: Vec;
   time: number;
   name: string;
   angle: number;
+  clip: ClipAnimation;
 };
 
 type BoneHierarchy = {
@@ -12,7 +12,7 @@ type BoneHierarchy = {
   children: BoneHierarchy[];
 };
 
-type ClipAnimation = {
+export type ClipAnimation = {
   startX: number;
   startY: number;
   endX: number;
@@ -185,19 +185,7 @@ export class AnimationCreatorComponent
     }
   }
 
-  changeState(name: string) {
-    switch (name) {
-      case 'walk':
-        this.addKeyframesFromJSON(new OnGroundState());
-        break;
-      case 'run':
-        this.addKeyframesFromJSON(new RunningState());
-        break;
-      case 'jump':
-        this.addKeyframesFromJSON(new JumpingState());
-        break;
-    }
-  }
+  changeState(name: string) {}
 
   setTime() {
     this.loopedTime = this.keyframeSliderValue;
@@ -321,12 +309,6 @@ export class AnimationCreatorComponent
     });
   }
 
-  addKeyframesFromJSON(state: StateMachine) {
-    this.keyframes = [];
-    this.keyframes.push(...state.keyframes);
-    this.sortKeyframes();
-  }
-
   exportKeyframes() {
     localStorage.setItem('frames', JSON.stringify(this.keyframes));
   }
@@ -376,12 +358,17 @@ export class AnimationCreatorComponent
   createKeyframesOfBones() {
     for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
-        position: bone.position,
+        position: new Vec(bone.position.X, bone.position.Y),
         time: this.keyframeSliderValue,
         angle: bone.rotation,
         name: bone.id,
         scale: new Vec(bone.scale.X, bone.scale.Y),
-        clip: new Vec(bone.startX, bone.startY),
+        clip: {
+          startX: bone.startX,
+          startY: bone.startY,
+          endX: bone.endX,
+          endY: bone.endY,
+        },
       };
       this.keyframes.push(keyframe);
     }
@@ -574,8 +561,8 @@ export class AnimationCreatorComponent
       this.mouseUp.Y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = false;
-      this.animation.startX = this.mouseDown.X;
-      this.animation.startY = this.mouseDown.Y;
+      this.animation.startX = this.mouseDown.X - this.camera.X;
+      this.animation.startY = this.mouseDown.Y - this.camera.Y;
       this.animation.endX = this.mouseUp.X - this.mouseDown.X;
       this.animation.endY = this.mouseUp.Y - this.mouseDown.Y;
     });
@@ -688,9 +675,8 @@ export class AnimationCreatorComponent
       this.mouseUp.X - this.mouseDown.X,
       this.mouseUp.Y - this.mouseDown.Y,
       0,
-      new Vec(0, 0),
       0,
-      0
+      180
     );
     let dialogRef = this.dialog.open(BoneDialogComponent, {
       width: '600px',
@@ -873,8 +859,10 @@ export class AnimationCreatorComponent
               this.keyframes[i + 1].scale.Y,
               progress
             );
-            bone.startX = keyFrame.clip.X;
-            bone.startY = keyFrame.clip.Y;
+            bone.startX = keyFrame.clip.startX;
+            bone.startY = keyFrame.clip.startY;
+            bone.endX = keyFrame.clip.endX;
+            bone.endY = keyFrame.clip.endY;
           }
         }
       }

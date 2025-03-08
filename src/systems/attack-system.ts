@@ -1,5 +1,6 @@
 import { Vec } from 'src/app/vec';
 import { Damage } from 'src/components/damage';
+import { Effect } from 'src/components/effect';
 import { Enemy } from 'src/components/enemy';
 import { HitBox } from 'src/components/hit-box';
 import { HurtBox } from 'src/components/hurt-box';
@@ -7,6 +8,7 @@ import { Knockback } from 'src/components/knockback';
 import { Life } from 'src/components/life';
 import { Player } from 'src/components/player';
 import { Ragdoll } from 'src/components/ragdoll';
+import { Transform } from 'src/components/transform';
 import { Weapon } from 'src/components/weapon';
 import { Ecs } from 'src/core/ecs';
 import { MathUtils } from 'src/Utils/MathUtils';
@@ -36,7 +38,19 @@ export class AttackSystem {
             otherEntity,
             new Knockback(new Vec(x * -5, y * -5))
           );
+          const transform = ecs.getComponent<Transform>(
+            otherEntity,
+            'Transform'
+          );
           ecs.addComponent<Ragdoll>(otherEntity, new Ragdoll(10));
+          ecs.addComponent<Effect>(
+            otherEntity,
+            new Effect(
+              'assets/sprites/Btl_Hit01.png',
+              transform.position,
+              'smash'
+            )
+          );
           life.currentHp -= 10;
         }
       }

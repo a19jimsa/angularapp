@@ -18,6 +18,7 @@ export class Loader {
         const response = await fetch(`/assets/json/${file.name}.json`);
         const data = await response.json();
         Loader.animations.set(file.name, data);
+        console.log(file.name);
         console.log(Loader.animations.get(file.name));
       });
 

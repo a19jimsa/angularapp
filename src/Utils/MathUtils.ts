@@ -61,7 +61,12 @@ export class MathUtils {
         skeleton.snapShot[keyframe.name] = {
           rotation: keyframe.angle,
           scale: new Vec(keyframe.scale.X, keyframe.scale.Y),
-          clip: new Vec(keyframe.clip.X, keyframe.clip.Y),
+          clip: {
+            startX: keyframe.clip.startX,
+            startY: keyframe.clip.startY,
+            endX: keyframe.clip.endX,
+            endY: keyframe.clip.endY,
+          },
         };
       }
     });

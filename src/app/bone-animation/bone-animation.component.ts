@@ -30,6 +30,7 @@ export class BoneAnimationComponent {
       await ResourceManager.loadAllEffects();
       await Loader.loadAllBones();
     })().then(() => {
+      Loader.getBones('lance');
       this.scene.init();
       this.scene.gameLoop();
       this.isLoading = false;

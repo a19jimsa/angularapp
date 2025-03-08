@@ -27,9 +27,11 @@ export class JumpingState extends StateMachine {
       MathUtils.createSnaphot(skeleton);
     }
   }
+  
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<Jump>(entity, 'Jump');
   }
+
   override handleInput(
     entity: Entity,
     ecs: Ecs,

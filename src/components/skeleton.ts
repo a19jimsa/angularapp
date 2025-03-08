@@ -1,13 +1,16 @@
 import { Bone } from './bone';
 import { Component } from './component';
 import { Entity } from '../app/entity';
-import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
+import {
+  ClipAnimation,
+  Keyframe,
+} from 'src/app/animation-creator/animation-creator.component';
 import { Vec } from 'src/app/vec';
 
 export type Snapshot = {
   rotation: number;
   scale: Vec;
-  clip: Vec;
+  clip: ClipAnimation;
 };
 
 export class Skeleton extends Component {
@@ -25,7 +28,9 @@ export class Skeleton extends Component {
   rotation: number;
   resource: string;
   animationDuration: number = 0;
+  elapsedTime: number = 0;
   lowestPoint = 0;
+  loop: boolean = false;
   constructor(imageSrc: string, resource: string) {
     super();
     this.image.src = imageSrc;

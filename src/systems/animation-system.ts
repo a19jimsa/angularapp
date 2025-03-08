@@ -26,7 +26,11 @@ export class AnimationSystem {
     const speed = 1000 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
-    skeleton.animationDuration = totalDuration;
+    skeleton.elapsedTime = elapsedTime;
+    if (elapsedTime >= skeleton.animationDuration) {
+      skeleton.startTime = performance.now();
+      return;
+    }
     for (const bone of skeleton.bones) {
       for (let i = 0; i < keyframes.length - 1; i++) {
         const keyframe = keyframes[i];
@@ -34,7 +38,6 @@ export class AnimationSystem {
           const progress =
             (loopedTime - keyframe.time) /
             (keyframes[i + 1].time - keyframe.time);
-
           if (bone.id === keyframe.name) {
             bone.rotation = MathUtils.interpolateKeyframe(
               keyframe.angle,
@@ -51,26 +54,22 @@ export class AnimationSystem {
               keyframes[i + 1].scale.Y,
               progress
             );
-            bone.startX = keyframe.clip.X;
-            bone.startY = keyframe.clip.Y;
+            // bone.startX = keyframe.clip.startX;
+            // bone.startY = keyframe.clip.startY;
+            // bone.endX = keyframe.clip.endX;
+            // bone.endY = keyframe.clip.endY;
           }
         }
       }
     }
   }
-
   sortBonesByHierarchy(skeleton: Skeleton): void {
     skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
   }
-
   updateBonePositions(skeleton: Skeleton): void {
     for (const bone of skeleton.bones) {
       let parentRotation = 0;
-      if (
-        bone.parentId !== null &&
-        bone.parentId !== undefined &&
-        bone.parentId !== ''
-      ) {
+      if (bone.parentId) {
         const parent = MathUtils.findBoneById(skeleton.bones, bone.parentId);
         if (parent) {
           parentRotation = MathUtils.calculateGlobalRotation(skeleton, parent);
@@ -106,8 +105,8 @@ export class AnimationSystem {
             keyframe.scale.Y,
             0.1
           );
-          bone.startX = keyframe.clip.X;
-          bone.startY = keyframe.clip.Y;
+          // bone.startX = keyframe.clip.startX;
+          // bone.startY = keyframe.clip.startY;
         }
       }
     }

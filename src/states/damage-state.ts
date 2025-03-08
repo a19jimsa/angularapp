@@ -11,8 +11,6 @@ import { Skeleton } from 'src/components/skeleton';
 import { Life } from 'src/components/life';
 import { DeathState } from './death-state';
 import { MathUtils } from 'src/Utils/MathUtils';
-import { Knockback } from 'src/components/knockback';
-import { Vec } from 'src/app/vec';
 
 export class DamageState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -23,15 +21,12 @@ export class DamageState extends StateMachine {
     if (!transform || !skeleton) return;
     skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Damage);
     MathUtils.createSnaphot(skeleton);
-    const knockback = ecs.getComponent<Knockback>(entity, 'Knockback');
-    if (knockback) {
-      transform.velocity = transform.velocity.plus(knockback.force);
-    }
   }
+
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<Damage>(entity, 'Damage');
-    ecs.removeComponent<Knockback>(entity, 'Knockback');
   }
+
   override handleInput(
     entity: Entity,
     ecs: Ecs,
@@ -47,6 +42,7 @@ export class DamageState extends StateMachine {
     }
     return null;
   }
+
   override update(entity: Entity, ecs: Ecs): void {
     const damage = ecs.getComponent<Damage>(entity, 'Damage');
     if (damage) {

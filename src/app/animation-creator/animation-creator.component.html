@@ -65,9 +65,9 @@
           <div
             class="d-flex justify-content-between flex-row align-items-center"
           >
-            <div (click)="changeKeyframe(keyframe)">
-              {{ keyframe | json }}
-            </div>
+            <button mat-button class="w-100" (click)="changeKeyframe(keyframe)">
+              {{ "Frame " + $index + " Name: " + keyframe.name }}
+            </button>
           </div>
 
           }
@@ -157,7 +157,7 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.clip.X"
+              [(ngModel)]="activeKeyframe.clip.startX"
               type="number"
             />
           </mat-form-field>
@@ -166,7 +166,25 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.clip.Y"
+              [(ngModel)]="activeKeyframe.clip.startY"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>ClipX</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.clip.endX"
+              type="number"
+            />
+          </mat-form-field>
+          <mat-form-field class="w-50">
+            <mat-label>ClipY</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.clip.endY"
               type="number"
             />
           </mat-form-field>
@@ -226,6 +244,9 @@
           <mat-slider id="slider" [step]="1" [min]="1" [max]="3" discrete>
             <input matSliderThumb #slider [(ngModel)]="animationSpeed" />
           </mat-slider>
+          <button mat-flat-button>
+            <mat-icon>fast_rewind</mat-icon>
+          </button>
           <button mat-flat-button (click)="togglePlay()">
             @if (play) {
             <i class="bi bi-stop-fill" style="font-size: 20px"></i>
@@ -234,13 +255,12 @@
             <i class="bi bi-play-fill" style="font-size: 20px"></i>
             }
           </button>
+          <button mat-flat-button>
+            <mat-icon>fast_forward</mat-icon>
+          </button>
           <label>KeyFrames</label>
           <mat-slider [step]="0.1" [min]="0" [max]="100" discrete>
-            <input
-              matSliderThumb
-              [(ngModel)]="this.keyframeSliderValue"
-              #slider
-            />
+            <input matSliderThumb [(ngModel)]="this.loopedTime" #slider />
           </mat-slider>
         </mat-card-actions>
       </mat-card>

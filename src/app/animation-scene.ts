@@ -297,9 +297,14 @@ export class AnimationScene {
       new Effect('assets/sprites/Btl_Hit01.png', new Vec(500, 500), 'hit')
     );
 
+    this.ecs.addComponent<Effect>(
+      sword,
+      new Effect('assets/sprites/Btl_Hit01.png', new Vec(1000, 500), 'lance')
+    );
+
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
-    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
-    this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
+    // this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
     this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
     this.ecs.addComponent<Enemy>(newWeapon, new Enemy());

@@ -32,7 +32,6 @@ export class Bone extends Component {
     endX: number,
     endY: number,
     order: number,
-    offset: Vec,
     minAngle: number,
     maxAngle: number
   ) {

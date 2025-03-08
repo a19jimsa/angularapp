@@ -3,7 +3,9 @@ import { Component } from './component';
 import { Loader } from 'src/app/loader';
 
 export type Sprite = {
+  rotation: number;
   name: string;
+  position: Vec;
   pivot: Vec;
   startX: number;
   startY: number;
@@ -19,14 +21,16 @@ export class Effect extends Component {
   position: Vec;
   sprites: Sprite[] = [];
   isAlive = true;
+  effectType: string;
 
-  constructor(image: string, position: Vec, effect: string) {
+  constructor(image: string, position: Vec, effectType: string) {
     super();
     this.image.src = image;
     this.position = position;
-    for (const bone of Loader.getBones(effect)) {
+    for (const bone of Loader.getBones(effectType)) {
       const sprite: Sprite = {
         name: bone.id,
+        position: new Vec(bone.position.X, bone.position.Y),
         pivot: new Vec(bone.pivot.X, bone.pivot.Y),
         startX: bone.startX,
         startY: bone.startY,
@@ -34,8 +38,10 @@ export class Effect extends Component {
         endY: bone.endY,
         scaleX: bone.scale.X,
         scaleY: bone.scale.Y,
+        rotation: bone.rotation,
       };
       this.sprites.push(sprite);
     }
+    this.effectType = effectType;
   }
 }

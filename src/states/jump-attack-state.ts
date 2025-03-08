@@ -6,10 +6,10 @@ import { StateMachine } from './state-machine';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
 import { AttackDuration } from 'src/components/attack-duration';
-import { OnGroundState } from './on-ground-state';
 import { DamageState } from './damage-state';
 import { Damage } from 'src/components/damage';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { OnGroundState } from './on-ground-state';
 
 export class JumpAttackState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -23,7 +23,6 @@ export class JumpAttackState extends StateMachine {
       MathUtils.createSnaphot(skeleton);
     }
   }
-
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
   }
@@ -37,15 +36,12 @@ export class JumpAttackState extends StateMachine {
     if (damage) {
       return new DamageState();
     }
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-    if (!attackDuration) return null;
-    if (attackDuration.cooldown <= 0) {
-      return new OnGroundState();
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton) {
+      if (skeleton.elapsedTime >= skeleton.animationDuration) {
+        return new OnGroundState();
+      }
     }
-
     return null;
   }
 

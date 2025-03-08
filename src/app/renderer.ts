@@ -14,7 +14,6 @@ import { Ecs } from '../core/ecs';
 import { Sprite } from '../components/sprite';
 import { MouseHandler } from './mouse-handler';
 import { Projectile } from 'src/components/projectile';
-import { Enchant } from 'src/components/enchant';
 import { Particle } from 'src/effects/particle-system';
 import { WalkBox } from 'src/components/walk-box';
 import { Effect } from 'src/components/effect';
@@ -493,9 +492,15 @@ export class Renderer {
       const screenY = effect.position.Y - this.camera.position.Y;
       for (const sprite of effect.sprites) {
         this.ctx.save();
-        this.ctx.translate(screenX, screenY);
+        this.ctx.translate(
+          screenX + sprite.position.X,
+          screenY + sprite.position.Y
+        );
         this.ctx.scale(sprite.scaleX, sprite.scaleY);
-        this.ctx.translate(-screenX, -screenY);
+        this.ctx.translate(
+          -screenX + sprite.position.X,
+          -screenY + sprite.position.Y
+        );
         this.ctx.drawImage(
           effect.image,
           sprite.startX,

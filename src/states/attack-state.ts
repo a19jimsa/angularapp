@@ -5,7 +5,6 @@ import { KeysPressed } from '../systems/controller-system';
 import { StateMachine } from './state-machine';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
-import { Attack } from 'src/components/attack';
 import { AttackDuration } from 'src/components/attack-duration';
 import { OnGroundState } from './on-ground-state';
 import { Damage } from 'src/components/damage';
@@ -22,18 +21,10 @@ export class AttackState extends StateMachine {
         skeleton,
         States.Attacking
       );
-      MathUtils.createSnaphot(skeleton);
-      ecs.addComponent<AttackDuration>(entity, new AttackDuration(0.5));
-      ecs.addComponent<Attack>(entity, new Attack());
-      ecs.addComponent<Combo>(entity, new Combo(1));
     }
   }
 
-  override exit(entity: Entity, ecs: Ecs): void {
-    ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
-    ecs.removeComponent<Attack>(entity, 'Attack');
-    ecs.removeComponent<Combo>(entity, 'Combo');
-  }
+  override exit(entity: Entity, ecs: Ecs): void {}
 
   override handleInput(
     entity: Entity,
@@ -45,36 +36,16 @@ export class AttackState extends StateMachine {
     if (damage) {
       return new DamageState();
     }
-    const combo = ecs.getComponent<Combo>(entity, 'Combo');
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-
-    if (attackDuration) {
-      if (attackDuration.cooldown <= 0) {
-        if (input.attack) {
-          this.executeAttack(entity, ecs);
-          return null;
-        }
-      } else {
-        return null;
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton) {
+      if (skeleton.elapsedTime >= skeleton.animationDuration) {
+        return new OnGroundState();
       }
     }
-    return new OnGroundState();
+    return null;
   }
 
-  override update(entity: Entity, ecs: Ecs): void {
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-    if (attackDuration) attackDuration.cooldown -= 0.016;
-    const combo = ecs.getComponent<Combo>(entity, 'Combo');
-    if (combo) {
-      combo.comboTimer -= 0.016;
-    }
-  }
+  override update(entity: Entity, ecs: Ecs): void {}
 
   executeAttack(entity: Entity, ecs: Ecs): void {
     const combo = ecs.getComponent<Combo>(entity, 'Combo');
@@ -84,7 +55,6 @@ export class AttackState extends StateMachine {
       'AttackDuration'
     );
     if (combo && skeleton && attackDuration) {
-      console.log(combo.comboCounter);
       switch (combo.comboCounter) {
         case 1:
           skeleton.keyframes = ResourceManager.getAnimation(
@@ -99,7 +69,6 @@ export class AttackState extends StateMachine {
           break;
         case 2:
           combo.comboTimer = 0;
-          ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
           break;
         default:
           break;

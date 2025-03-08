@@ -3,11 +3,6 @@ import { Controlable } from '../components/controlable';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
 import { MouseHandler } from 'src/app/mouse-handler';
-import { Damage } from 'src/components/damage';
-import { DamageState } from 'src/states/damage-state';
-import { States } from 'src/components/state';
-import { Life } from 'src/components/life';
-import { DeathState } from 'src/states/death-state';
 
 export type KeysPressed = {
   left: boolean;
@@ -80,7 +75,6 @@ export class ControllerSystem {
     } else if (this.mouseHandler.isMouseUp) {
       this.keysPressed.attack = false;
     }
-
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
