@@ -1,6 +1,7 @@
 import { Vec } from 'src/app/vec';
 import { Component } from './component';
 import { Loader } from 'src/app/loader';
+import { ResourceManager } from 'src/core/resource-manager';
 
 export type Sprite = {
   rotation: number;
@@ -22,6 +23,8 @@ export class Effect extends Component {
   sprites: Sprite[] = [];
   isAlive = true;
   effectType: string;
+  duration: number;
+  startTime: number = 0;
 
   constructor(image: string, position: Vec, effectType: string) {
     super();
@@ -30,18 +33,23 @@ export class Effect extends Component {
     for (const bone of Loader.getBones(effectType)) {
       const sprite: Sprite = {
         name: bone.id,
-        position: new Vec(bone.position.X, bone.position.Y),
-        pivot: new Vec(bone.pivot.X, bone.pivot.Y),
+        position: new Vec(bone.position.x, bone.position.y),
+        pivot: new Vec(bone.pivot.x, bone.pivot.y),
         startX: bone.startX,
         startY: bone.startY,
         endX: bone.endX,
         endY: bone.endY,
-        scaleX: bone.scale.X,
-        scaleY: bone.scale.Y,
+        scaleX: bone.scale.x,
+        scaleY: bone.scale.y,
         rotation: bone.rotation,
       };
       this.sprites.push(sprite);
     }
     this.effectType = effectType;
+    this.duration =
+      ResourceManager.getEffect(effectType)[
+        ResourceManager.getEffect(effectType).length - 1
+      ].time;
+    this.startTime = performance.now();
   }
 }

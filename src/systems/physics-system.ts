@@ -16,19 +16,19 @@ export class PhysicsSystem {
       const root = skeleton.bones.find((e) => e.id === 'root');
       const foot = skeleton.bones.find((e) => e.id === 'right_foot');
       if (!foot || !root) continue;
-      const dist = root.position.Y + foot.position.Y;
+      const dist = root.position.y + foot.position.y;
       const newDist = skeleton.lowestPoint - dist;
       const pool = ecs.getPool<[Transform, WalkBox]>('Transform', 'WalkBox');
       pool.forEach(({ entity, components }) => {
         const [walkTransform, walkBox] = components;
-        const movedY = transform.position.plus(
-          new Vec(0, transform.velocity.Y)
+        const movedy = transform.position.plus(
+          new Vec(0, transform.velocity.y)
         );
-        if (movedY.Y >= walkTransform.position.Y + newDist) {
-          transform.velocity.Y = 0;
-          transform.position.Y = walkTransform.position.Y + newDist;
+        if (movedy.y >= walkTransform.position.y + newDist) {
+          transform.velocity.y = 0;
+          transform.position.y = walkTransform.position.y + newDist;
         } else {
-          transform.velocity.Y = transform.velocity.Y + this.GRAVITY;
+          transform.velocity.y = transform.velocity.y + this.GRAVITY;
         }
       });
     }

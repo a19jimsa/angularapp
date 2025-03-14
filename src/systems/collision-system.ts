@@ -8,23 +8,23 @@ export class CollisionSystem {
       let entity = ecs.getEntities()[i];
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       if (transform !== undefined) {
-        if (transform.position.X > scene.width - transform.radius) {
-          transform.position.X = scene.width - transform.radius;
-          transform.velocity.X *= -1;
-          transform.velocity.X *= 0.5;
-        } else if (transform.position.X < 0 + transform.radius) {
-          transform.position.X = transform.radius;
-          transform.velocity.X *= -1;
-          transform.velocity.X *= 0.5;
+        if (transform.position.x > scene.width - transform.radius) {
+          transform.position.x = scene.width - transform.radius;
+          transform.velocity.x *= -1;
+          transform.velocity.x *= 0.5;
+        } else if (transform.position.x < 0 + transform.radius) {
+          transform.position.x = transform.radius;
+          transform.velocity.x *= -1;
+          transform.velocity.x *= 0.5;
         }
-        if (transform.position.Y > scene.height - transform.radius) {
-          transform.position.Y = scene.height - transform.radius;
-          transform.velocity.Y *= -1;
-          transform.velocity.Y *= 0.5;
-        } else if (transform.position.Y < 0 + transform.radius) {
-          transform.position.Y = transform.radius;
-          transform.velocity.Y *= -1;
-          transform.velocity.Y *= 0.5;
+        if (transform.position.y > scene.height - transform.radius) {
+          transform.position.y = scene.height - transform.radius;
+          transform.velocity.y *= -1;
+          transform.velocity.y *= 0.5;
+        } else if (transform.position.y < 0 + transform.radius) {
+          transform.position.y = transform.radius;
+          transform.velocity.y *= -1;
+          transform.velocity.y *= 0.5;
         }
       }
       for (let j = i + 1; j < ecs.getEntities().length; j++) {
@@ -37,13 +37,13 @@ export class CollisionSystem {
         //If they overlap
         if (d < transform.radius + otherTransform.radius) {
           if (overlap > 0) {
-            const dx = (transform.position.X - otherTransform.position.X) / d;
-            const dy = (transform.position.Y - otherTransform.position.Y) / d;
+            const dx = (transform.position.x - otherTransform.position.x) / d;
+            const dy = (transform.position.y - otherTransform.position.y) / d;
             //Move them apart in different directions
-            transform.position.X += (dx * overlap) / 2;
-            transform.position.Y += (dy * overlap) / 2;
-            otherTransform.position.X -= (dx * overlap) / 2;
-            otherTransform.position.Y -= (dy * overlap) / 2;
+            transform.position.x += (dx * overlap) / 2;
+            transform.position.y += (dy * overlap) / 2;
+            otherTransform.position.x -= (dx * overlap) / 2;
+            otherTransform.position.y -= (dy * overlap) / 2;
           }
           // Now calculate new velocity after collision
           const position1 = transform.position.minus(otherTransform.position);
@@ -68,13 +68,13 @@ export class CollisionSystem {
               (transform.mass + otherTransform.mass)) *
             (v2Dot / length);
 
-          transform.velocity.X = transform.velocity.X - scalar1 * position1.X;
-          transform.velocity.Y = transform.velocity.Y - scalar1 * position1.Y;
+          transform.velocity.x = transform.velocity.x - scalar1 * position1.x;
+          transform.velocity.y = transform.velocity.y - scalar1 * position1.y;
 
-          otherTransform.velocity.X =
-            otherTransform.velocity.X - scalar2 * position2.X;
-          otherTransform.velocity.Y =
-            otherTransform.velocity.Y - scalar2 * position2.Y;
+          otherTransform.velocity.x =
+            otherTransform.velocity.x - scalar2 * position2.x;
+          otherTransform.velocity.y =
+            otherTransform.velocity.y - scalar2 * position2.y;
 
           // let speedA = transform.velocity.mag();
           // let speedB = otherTransform.velocity.mag();

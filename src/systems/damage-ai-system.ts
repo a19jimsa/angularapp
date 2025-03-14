@@ -22,7 +22,7 @@ export class DamageAiSystem {
         ecs.removeComponent<Damage>(entity, 'Damage');
         ai.cooldown = 2;
       }
-      transform.velocity.X = 0;
+      transform.velocity.x = 0;
       ai.state = States.Damage;
     });
   }

@@ -19,15 +19,18 @@ export class JumpingState extends StateMachine {
     console.log('Jumping');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (transform) {
-      transform.velocity.Y = -20;
+      transform.velocity.y = -20;
     }
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Jump);
+      skeleton.keyframes = ResourceManager.getAnimation(
+        skeleton.resource,
+        States.Jump
+      );
       MathUtils.createSnaphot(skeleton);
     }
   }
-  
+
   override exit(entity: Entity, ecs: Ecs): void {
     ecs.removeComponent<Jump>(entity, 'Jump');
   }
@@ -43,7 +46,7 @@ export class JumpingState extends StateMachine {
     }
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (transform) {
-      if (transform.velocity.Y >= 0) {
+      if (transform.velocity.y >= 0) {
         return new FallingState();
       }
     }

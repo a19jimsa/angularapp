@@ -62,8 +62,8 @@ export class ParticleSystem {
     particle.rotation = Math.random() * 2 * Math.PI;
 
     particle.velocity = particleProps.velocity;
-    particle.velocity.X = particleProps.velocity.X;
-    particle.velocity.Y = particleProps.velocity.Y;
+    particle.velocity.x = particleProps.velocity.x;
+    particle.velocity.y = particleProps.velocity.y;
 
     particle.lifetime = particleProps.lifetime;
     particle.lifeRemaining = particleProps.lifetime;

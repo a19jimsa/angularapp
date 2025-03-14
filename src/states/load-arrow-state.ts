@@ -16,7 +16,10 @@ export class LoadArrowState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Bow);
+      skeleton.keyframes = ResourceManager.getAnimation(
+        skeleton.resource,
+        States.Bow
+      );
       MathUtils.createSnaphot(skeleton);
     }
     ecs.addComponent<Bow>(entity, new Bow());

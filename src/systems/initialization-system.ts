@@ -23,7 +23,7 @@ export class InitializationSystem {
       const root = skeleton.bones.find((e) => e.id === 'root');
       const foot = skeleton.bones.find((e) => e.id === 'right_foot');
       if (foot && root) {
-        const dist = root.position.Y - foot.position.Y;
+        const dist = root.position.y - foot.position.y;
         skeleton.lowestPoint = dist;
         console.log('Längden mellan root och fott', skeleton.lowestPoint);
       }

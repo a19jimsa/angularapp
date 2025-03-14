@@ -25,13 +25,13 @@ export class Particle {
     //If they overlap
     if (d < this.radius + other.radius) {
       if (overlap > 0) {
-        const dx = (this.position.X - other.position.X) / d;
-        const dy = (this.position.Y - other.position.Y) / d;
+        const dx = (this.position.x - other.position.x) / d;
+        const dy = (this.position.y - other.position.y) / d;
         //Move them apart in different directions
-        this.position.X += (dx * overlap) / 2;
-        this.position.Y += (dy * overlap) / 2;
-        other.position.X -= (dx * overlap) / 2;
-        other.position.Y -= (dy * overlap) / 2;
+        this.position.x += (dx * overlap) / 2;
+        this.position.y += (dy * overlap) / 2;
+        other.position.x -= (dx * overlap) / 2;
+        other.position.y -= (dy * overlap) / 2;
       }
       // Now calculate new velocity after collision
       const position1 = this.position.minus(other.position);
@@ -51,11 +51,11 @@ export class Particle {
         ((2 * this.mass) / this.mass / (this.mass + other.mass)) *
         (v2Dot / length);
 
-      this.velocity.X = this.velocity.X - scalar1 * position1.X;
-      this.velocity.Y = this.velocity.Y - scalar1 * position1.Y;
+      this.velocity.x = this.velocity.x - scalar1 * position1.x;
+      this.velocity.y = this.velocity.y - scalar1 * position1.y;
 
-      other.velocity.X = other.velocity.X - scalar2 * position2.X;
-      other.velocity.Y = other.velocity.Y - scalar2 * position2.Y;
+      other.velocity.x = other.velocity.x - scalar2 * position2.x;
+      other.velocity.y = other.velocity.y - scalar2 * position2.y;
 
       let speedA = this.velocity.mag();
       let speedB = other.velocity.mag();
@@ -66,36 +66,36 @@ export class Particle {
   }
 
   update(): void {
-    this.position.X += this.velocity.X;
-    this.position.Y += this.velocity.Y;
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
 
-    if (this.position.X > 500 - this.radius) {
-      this.position.X = 500 - this.radius;
-      this.velocity.X *= -1;
-    } else if (this.position.X < 0 + this.radius) {
-      this.position.X = this.radius;
-      this.velocity.X *= -1;
+    if (this.position.x > 500 - this.radius) {
+      this.position.x = 500 - this.radius;
+      this.velocity.x *= -1;
+    } else if (this.position.x < 0 + this.radius) {
+      this.position.x = this.radius;
+      this.velocity.x *= -1;
     }
-    if (this.position.Y > 500 - this.radius) {
-      this.position.Y = 500 - this.radius;
-      this.velocity.Y *= -1;
-    } else if (this.position.Y < 0 + this.radius) {
-      this.position.Y = this.radius;
-      this.velocity.Y *= -1;
+    if (this.position.y > 500 - this.radius) {
+      this.position.y = 500 - this.radius;
+      this.velocity.y *= -1;
+    } else if (this.position.y < 0 + this.radius) {
+      this.position.y = this.radius;
+      this.velocity.y *= -1;
     }
   }
 
   show(ctx: CanvasRenderingContext2D): void {
     // Beräkna slutpunkt för riktlinjen
     const lineLength = 50; // Längden på linjen som visar riktningen
-    const endX = this.position.X + this.velocity.X * lineLength;
-    const endY = this.position.Y + this.velocity.Y * lineLength;
+    const endX = this.position.x + this.velocity.x * lineLength;
+    const endY = this.position.y + this.velocity.y * lineLength;
     ctx.fillStyle = 'red';
     ctx.beginPath();
-    ctx.arc(this.position.X, this.position.Y, this.radius, 0, Math.PI * 2);
+    ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
     // ctx.beginPath();
-    // ctx.moveTo(this.position.X, this.position.Y);
+    // ctx.moveTo(this.position.x, this.position.y);
     // ctx.lineTo(endX, endY);
     // ctx.stroke();
   }

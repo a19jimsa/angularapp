@@ -16,10 +16,10 @@ export class DamageState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Damage');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    transform.velocity.X = 0;
+    transform.velocity.x = 0;
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!transform || !skeleton) return;
-    skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Damage);
+    skeleton.keyframes = ResourceManager.getAnimation(skeleton.resource, States.Damage);
     MathUtils.createSnaphot(skeleton);
   }
 

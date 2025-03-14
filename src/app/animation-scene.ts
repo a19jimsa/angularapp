@@ -276,6 +276,7 @@ export class AnimationScene {
       sword,
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
+
     this.ecs.addComponent<Weapon>(
       sword,
       new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
@@ -290,16 +291,6 @@ export class AnimationScene {
     this.ecs.addComponent<Weapon>(
       sword2,
       new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
-    );
-
-    this.ecs.addComponent<Effect>(
-      sword2,
-      new Effect('assets/sprites/Btl_Hit01.png', new Vec(500, 500), 'hit')
-    );
-
-    this.ecs.addComponent<Effect>(
-      sword,
-      new Effect('assets/sprites/Btl_Hit01.png', new Vec(1000, 500), 'lance')
     );
 
     this.ecs.addComponent<Enemy>(sword2, new Enemy());

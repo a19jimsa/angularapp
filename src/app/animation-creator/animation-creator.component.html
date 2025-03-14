@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="row mb-2 p-2" style="height: 760px">
-    <!-- <div class="col-1 h-100">
+    <div class="col-1 h-100">
       <mat-card class="h-100" appearance="raised">
         <mat-card-header style="align-items: center">
           <mat-card-title> States </mat-card-title>
@@ -8,30 +8,13 @@
         <mat-card-content
           class="h-100 d-flex flex-column justify-content-between align-items-center"
         >
-          <button
-            mat-fab
-            aria-label="Example icon button with a delete icon"
-            (click)="changeState('walk')"
-          >
-            <mat-icon>directions_walk</mat-icon>
-          </button>
-          <button
-            mat-fab
-            aria-label="Example icon button with a delete icon"
-            (click)="changeState('run')"
-          >
-            <mat-icon>directions_run</mat-icon>
-          </button>
-          <button mat-fab aria-label="Example icon button with a delete icon">
-            <mat-icon>logout</mat-icon>
-          </button>
-          <button mat-fab aria-label="Example icon button with a delete icon">
-            <mat-icon>login</mat-icon>
-          </button>
+          @for (item of this.animationStates; track $index) {
+          <button mat-button (click)="setKeyframesFromResource(item)">{{ item }}</button>
+          }
         </mat-card-content>
       </mat-card>
-    </div> -->
-    <div class="col-3 h-100">
+    </div>
+    <div class="col-2 h-100">
       <mat-card class="h-100" appearance="outlined">
         <mat-card-header>
           <mat-card-title-group style="align-items: center">
@@ -66,7 +49,7 @@
             class="d-flex justify-content-between flex-row align-items-center"
           >
             <button mat-button class="w-100" (click)="changeKeyframe(keyframe)">
-              {{ "Frame " + $index + " Name: " + keyframe.name }}
+              {{ " Bone: " + keyframe.name + ", Time: " + keyframe.time }}
             </button>
           </div>
 
@@ -103,7 +86,7 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.position.X"
+              [(ngModel)]="activeKeyframe.position.x"
               type="number"
             />
           </mat-form-field>
@@ -112,7 +95,7 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.position.Y"
+              [(ngModel)]="activeKeyframe.position.y"
               type="number"
             />
           </mat-form-field>
@@ -139,7 +122,7 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.scale.X"
+              [(ngModel)]="activeKeyframe.scale.x"
               type="number"
             />
           </mat-form-field>
@@ -148,7 +131,7 @@
             <input
               matInput
               [disabled]="activeKeyframe === null"
-              [(ngModel)]="activeKeyframe.scale.Y"
+              [(ngModel)]="activeKeyframe.scale.y"
               type="number"
             />
           </mat-form-field>
@@ -232,7 +215,7 @@
             >
               <input
                 matSliderThumb
-                [(ngModel)]="this.keyframeSliderValue"
+                [(ngModel)]="this.loopedTime"
                 #slider
                 (change)="setTime()"
               />
@@ -260,7 +243,11 @@
           </button>
           <label>KeyFrames</label>
           <mat-slider [step]="0.1" [min]="0" [max]="100" discrete>
-            <input matSliderThumb [(ngModel)]="this.loopedTime" #slider />
+            <input
+              matSliderThumb
+              [(ngModel)]="this.keyframeSliderValue"
+              #slider
+            />
           </mat-slider>
         </mat-card-actions>
       </mat-card>
@@ -358,7 +345,7 @@
             <input
               matInput
               [disabled]="activeBone === null"
-              [(ngModel)]="activeBone.position.X"
+              [(ngModel)]="activeBone.position.x"
               type="number"
             />
           </mat-form-field>
@@ -367,7 +354,7 @@
             <input
               matInput
               [disabled]="activeBone === null"
-              [(ngModel)]="activeBone.position.Y"
+              [(ngModel)]="activeBone.position.y"
               type="number"
             />
           </mat-form-field>
@@ -376,7 +363,7 @@
             <input
               matInput
               [disabled]="activeBone === null"
-              [(ngModel)]="activeBone.pivot.X"
+              [(ngModel)]="activeBone.pivot.x"
               type="number"
             />
           </mat-form-field>
@@ -385,7 +372,7 @@
             <input
               matInput
               [disabled]="activeBone === null"
-              [(ngModel)]="activeBone.pivot.Y"
+              [(ngModel)]="activeBone.pivot.y"
               type="number"
             />
           </mat-form-field>
@@ -527,11 +514,11 @@
           </mat-slider>
           <mat-label>ScaleX:</mat-label>
           <mat-slider [step]="0.1" [min]="-20" [max]="20" discrete="true">
-            <input matSliderThumb [(ngModel)]="activeBone.scale.X" #slider />
+            <input matSliderThumb [(ngModel)]="activeBone.scale.x" #slider />
           </mat-slider>
           <mat-label>ScaleY:</mat-label>
           <mat-slider [step]="0.1" [min]="-20" [max]="20" discrete="true">
-            <input matSliderThumb [(ngModel)]="activeBone.scale.Y" #slider />
+            <input matSliderThumb [(ngModel)]="activeBone.scale.y" #slider />
           </mat-slider>
           <button mat-button (click)="inactivateBone()">inactivate bone</button>
           }

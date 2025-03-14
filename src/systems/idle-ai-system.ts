@@ -20,7 +20,7 @@ export class IdleAiSystem {
         target.player,
         'Transform'
       );
-      transform.velocity.X = 0;
+      transform.velocity.x = 0;
       ai.state = States.Idle;
     });
   }

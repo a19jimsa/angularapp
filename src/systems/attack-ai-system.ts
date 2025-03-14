@@ -32,11 +32,11 @@ export class AttackAiSystem {
         'AttackCooldown'
       );
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      transform.velocity.X = 0;
+      transform.velocity.x = 0;
       //Do not do anything while attacking
       if (attackDuration) {
         ai.state = States.Attacking;
-        transform.velocity.X = 0;
+        transform.velocity.x = 0;
         attackDuration.cooldown--;
         if (attackDuration.cooldown <= 0) {
           ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
@@ -75,22 +75,22 @@ export class AttackAiSystem {
   }
 
   moveCloser(skeleton: Skeleton, ai: Transform, player: Transform) {
-    if (ai.position.X > player.position.X) {
+    if (ai.position.x > player.position.x) {
       skeleton.flip = true;
-      ai.velocity.X = -5;
+      ai.velocity.x = -5;
     } else {
       skeleton.flip = false;
-      ai.velocity.X = 5;
+      ai.velocity.x = 5;
     }
   }
 
   moveAway(skeleton: Skeleton, ai: Transform, player: Transform) {
-    if (ai.position.X < player.position.X) {
+    if (ai.position.x < player.position.x) {
       skeleton.flip = false;
-      ai.velocity.X = -5;
+      ai.velocity.x = -5;
     } else {
       skeleton.flip = true;
-      ai.velocity.X = 5;
+      ai.velocity.x = 5;
     }
   }
 }

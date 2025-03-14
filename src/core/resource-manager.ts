@@ -1,31 +1,35 @@
 import { Keyframe } from 'src/app/animation-creator/animation-creator.component';
-import { Skeleton } from 'src/components/skeleton';
-import { States } from 'src/components/state';
 
-type Animations = {
+type Filename = {
   name: string;
 };
 
+type Animation = {
+  [key: string]: Keyframe[];
+};
+
 export class ResourceManager {
-  private static animations: Map<string, any> = new Map();
-  private static effects: Map<string, Keyframe[]> = new Map();
+  private static animations: Map<string, Animation> = new Map();
+  private static effects: Map<string, any> = new Map();
+  private static filenames: string[] = Array();
 
-  public static async loadAllAnimation(): Promise<void> {
+  public static async loadAllAnimations(): Promise<void> {
     try {
-      // Vänta på att bonelist.json laddas
       const res = await fetch('/assets/json/list.json');
-      const files: Animations[] = await res.json();
+      const files: Filename[] = await res.json();
+      for (const file in files) {
+        this.filenames.push(file);
+      }
 
-      // Skapa en array av fetch-promises
-      const fetchPromises = files.map(async (file: Animations) => {
+      const fetchPromises = files.map(async (file) => {
         const response = await fetch(
           `/assets/json/animations/${file.name}.json`
         );
         const data = await response.json();
+        console.log(data);
         ResourceManager.animations.set(file.name, data);
       });
 
-      // Vänta på att alla fetch-anrop slutförs
       await Promise.all(fetchPromises);
       console.log('Alla animationer har laddats!');
     } catch (error) {
@@ -33,26 +37,28 @@ export class ResourceManager {
     }
   }
 
-  public static getAnimation(skeleton: Skeleton, state: States): Keyframe[] {
-    const keyframes = this.animations.get(skeleton.resource)[
-      state
-    ] as Keyframe[];
-    if (!keyframes) {
-      console.log("Couldn't find animation");
-      return [];
+  public static getAnimation(
+    resource: string,
+    animationName: string
+  ): Keyframe[] {
+    const animations = this.animations.get(resource);
+    if (!animations) return [];
+    return animations[animationName];
+  }
+
+  public static getAnimations(resource: string): Animation | null {
+    const animation = this.animations.get(resource);
+    if (animation) {
+      return animation;
     }
-    skeleton.animationDuration = keyframes[keyframes.length - 1].time;
-    skeleton.startTime = performance.now();
-    return keyframes;
+    return null;
   }
 
   public static async loadAllEffects(): Promise<void> {
     try {
       const res = await fetch('/assets/json/effects/effects.json');
       const data = await res.json();
-      ResourceManager.effects = new Map<string, Keyframe[]>(
-        Object.entries(data)
-      );
+      ResourceManager.effects = new Map<string, any>(Object.entries(data));
     } catch (error) {
       console.log(error);
     }
@@ -65,5 +71,9 @@ export class ResourceManager {
       return [];
     }
     return keyframes;
+  }
+
+  public static getFilenames() {
+    return this.filenames;
   }
 }

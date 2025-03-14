@@ -14,17 +14,17 @@ export class HurtBoxSystem {
     );
     pool.forEach(({ entity, components }) => {
       const [transform, hurtBox, weapon] = components;
-      const newTransform = new Vec(transform.position.X, transform.position.Y);
+      const newTransform = new Vec(transform.position.x, transform.position.y);
       const newPos = MathUtils.calculateParentPosition(
         newTransform,
-        (weapon.image.height - (weapon.pivot.Y + weapon.image.height)) *
-          weapon.scale.Y,
+        (weapon.image.height - (weapon.pivot.y + weapon.image.height)) *
+          weapon.scale.y,
         weapon.rotation
       );
       hurtBox.width = 10;
       hurtBox.height = 10;
-      hurtBox.position.X = newPos.X;
-      hurtBox.position.Y = newPos.Y;
+      hurtBox.position.x = newPos.x;
+      hurtBox.position.y = newPos.y;
     });
   }
 }

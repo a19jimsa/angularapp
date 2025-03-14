@@ -11,7 +11,10 @@ export class DeathState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!skeleton) return;
     skeleton.startTime = performance.now();
-    skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Dead);
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      States.Dead
+    );
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(

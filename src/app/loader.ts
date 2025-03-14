@@ -31,12 +31,12 @@ export class Loader {
   }
 
   public static getBones(bones: string): Bone[] {
-    const keyframes = this.animations.get(bones);
-    if (!keyframes) {
+    const bonesArray = this.animations.get(bones);
+    if (!bonesArray) {
       console.log("Couldn't find bones " + bones);
       return [];
     }
-    const newKeyframes = JSON.parse(JSON.stringify(keyframes));
-    return newKeyframes;
+    const parsedBones = JSON.parse(JSON.stringify(bonesArray)) as Bone[];
+    return parsedBones;
   }
 }

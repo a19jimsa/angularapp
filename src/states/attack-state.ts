@@ -11,6 +11,10 @@ import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Combo } from 'src/components/combo';
+import { Effect } from 'src/components/effect';
+import { Transform } from 'src/components/transform';
+import { Vec } from 'src/app/vec';
+import { Weapon } from 'src/components/weapon';
 
 export class AttackState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -18,9 +22,18 @@ export class AttackState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton,
+        skeleton.resource,
         States.Attacking
       );
+      MathUtils.createSnaphot(skeleton);
+
+      if (skeleton.heldEntity) {
+        const transform = ecs.getComponent<Transform>(
+          skeleton.heldEntity,
+          'Transform'
+        );
+        console.log(skeleton.heldEntity);
+      }
     }
   }
 
@@ -41,11 +54,36 @@ export class AttackState extends StateMachine {
       if (skeleton.elapsedTime >= skeleton.animationDuration) {
         return new OnGroundState();
       }
+      if (skeleton.elapsedTime >= 0.1) {
+        this.addEffectToWeapon(entity, ecs);
+      }
     }
     return null;
   }
 
   override update(entity: Entity, ecs: Ecs): void {}
+
+  addEffectToWeapon(entity: Entity, ecs: Ecs) {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton.heldEntity) {
+      const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
+      const transform = ecs.getComponent<Transform>(
+        skeleton.heldEntity,
+        'Transform'
+      );
+      ecs.addComponent<Effect>(
+        entity,
+        new Effect(
+          'assets/sprites/Btl_Hit01.png',
+          new Vec(
+            transform.position.x + weapon.image.height - 30,
+            transform.position.y
+          ),
+          'hit'
+        )
+      );
+    }
+  }
 
   executeAttack(entity: Entity, ecs: Ecs): void {
     const combo = ecs.getComponent<Combo>(entity, 'Combo');
@@ -58,7 +96,7 @@ export class AttackState extends StateMachine {
       switch (combo.comboCounter) {
         case 1:
           skeleton.keyframes = ResourceManager.getAnimation(
-            skeleton,
+            skeleton.resource,
             States.SmashAttack
           );
           combo.comboCounter++;

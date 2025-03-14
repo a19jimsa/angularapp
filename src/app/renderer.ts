@@ -128,8 +128,8 @@ export class Renderer {
       const [sprite, transform] = components;
       this.ctx.drawImage(
         sprite.image,
-        transform.position.X - this.camera.position.X,
-        transform.position.Y - this.camera.position.Y
+        transform.position.x - this.camera.position.x,
+        transform.position.y - this.camera.position.y
       );
     });
     this.ctx.restore();
@@ -138,75 +138,75 @@ export class Renderer {
   public drawBackground() {
     this.ctx.lineWidth = 1;
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
       200,
       'blue'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
       135,
       'white'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
       75,
       'red'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
       25,
       'white'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      2000 - this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      2000 - this.height / 2 - this.camera.position.y,
       200,
       'blue'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      2000 - this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      2000 - this.height / 2 - this.camera.position.y,
       135,
       'white'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      2000 - this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      2000 - this.height / 2 - this.camera.position.y,
       75,
       'red'
     );
     this.drawCircle(
-      this.width / 2 - this.camera.position.X,
-      2000 - this.height / 2 - this.camera.position.Y,
+      this.width / 2 - this.camera.position.x,
+      2000 - this.height / 2 - this.camera.position.y,
       25,
       'white'
     );
     this.drawLine(this.width / 2, 0, this.width / 2, 2000, 'red', 1);
     this.drawLine(
-      0 - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
-      this.width - this.camera.position.X,
-      this.height / 2 - this.camera.position.Y,
+      0 - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
+      this.width - this.camera.position.x,
+      this.height / 2 - this.camera.position.y,
       'red',
       1
     );
     this.drawLine(
-      0 - this.camera.position.X,
-      600 - this.camera.position.Y,
-      this.width - this.camera.position.X,
-      600 - this.camera.position.Y,
+      0 - this.camera.position.x,
+      600 - this.camera.position.y,
+      this.width - this.camera.position.x,
+      600 - this.camera.position.y,
       'red',
       10
     );
     this.drawLine(
-      0 - this.camera.position.X,
-      1400 - this.camera.position.Y,
-      this.width - this.camera.position.X,
-      1400 - this.camera.position.Y,
+      0 - this.camera.position.x,
+      1400 - this.camera.position.y,
+      this.width - this.camera.position.x,
+      1400 - this.camera.position.y,
       'red',
       10
     );
@@ -216,17 +216,17 @@ export class Renderer {
     this.ctx.strokeStyle = 'green';
     this.ctx.beginPath();
     this.ctx.moveTo(
-      position.X - this.camera.position.X,
-      position.Y - this.camera.position.Y
+      position.x - this.camera.position.x,
+      position.y - this.camera.position.y
     );
-    this.ctx.lineTo(drawTo.X, drawTo.Y);
+    this.ctx.lineTo(drawTo.x, drawTo.y);
     this.ctx.stroke();
   }
 
   public render(position: Vec, color: string, radius: number, angle: number) {
     this.drawCurlingStone(
-      position.X - this.camera.position.X,
-      position.Y - this.camera.position.Y,
+      position.x - this.camera.position.x,
+      position.y - this.camera.position.y,
       radius,
       color,
       angle
@@ -250,8 +250,8 @@ export class Renderer {
       for (let i = 0; i < skeleton.bones.length; i++) {
         this.ctx.save();
         this.ctx.translate(
-          transform.position.X - this.camera.position.X,
-          transform.position.Y - this.camera.position.Y
+          transform.position.x - this.camera.position.x,
+          transform.position.y - this.camera.position.y
         );
         if (skeleton.flip) {
           this.ctx.scale(-1, 1);
@@ -301,14 +301,14 @@ export class Renderer {
     transform: Transform,
     bone: Bone
   ) {
-    const screenX = bone.position.X;
-    const screenY = bone.position.Y;
+    const screenX = bone.position.x;
+    const screenY = bone.position.y;
     this.ctx.save();
     this.ctx.translate(screenX, screenY);
     this.ctx.rotate(
       MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
     );
-    this.ctx.scale(bone.scale.X, bone.scale.Y);
+    this.ctx.scale(bone.scale.x, bone.scale.y);
     this.ctx.translate(-screenX, -screenY);
     this.ctx.drawImage(
       image,
@@ -316,8 +316,8 @@ export class Renderer {
       bone.startY,
       bone.endX,
       bone.endY,
-      screenX - bone.pivot.X - bone.endX / 2,
-      screenY - bone.pivot.Y,
+      screenX - bone.pivot.x - bone.endX / 2,
+      screenY - bone.pivot.y,
       bone.endX,
       bone.endY
     );
@@ -331,14 +331,14 @@ export class Renderer {
   }
 
   drawDebug(characterPosition: Vec) {
-    this.ctx.fillRect(characterPosition.X, characterPosition.Y, 100, 100);
+    this.ctx.fillRect(characterPosition.x, characterPosition.y, 100, 100);
   }
 
   drawHitBox(hitBox: HitBox, transform: Transform) {
     this.ctx.fillStyle = 'red';
     this.ctx.fillRect(
-      transform.position.X,
-      transform.position.Y,
+      transform.position.x,
+      transform.position.y,
       hitBox.width,
       hitBox.height
     );
@@ -350,8 +350,8 @@ export class Renderer {
       if (hitBox) {
         this.ctx.fillStyle = 'red';
         this.ctx.fillRect(
-          hitBox.position.X - this.camera.position.X,
-          hitBox.position.Y - this.camera.position.Y,
+          hitBox.position.x - this.camera.position.x,
+          hitBox.position.y - this.camera.position.y,
           hitBox.width,
           hitBox.height
         );
@@ -360,17 +360,17 @@ export class Renderer {
   }
 
   drawCharacterWeapon(weapon: Weapon, transform: Transform) {
-    const screenX = transform.position.X - this.camera.position.X;
-    const screenY = transform.position.Y - this.camera.position.Y;
+    const screenX = transform.position.x - this.camera.position.x;
+    const screenY = transform.position.y - this.camera.position.y;
     this.ctx.save();
     this.ctx.translate(screenX, screenY);
     this.ctx.rotate(MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2);
-    this.ctx.scale(weapon.scale.X, weapon.scale.Y);
+    this.ctx.scale(weapon.scale.x, weapon.scale.y);
     this.ctx.translate(-screenX, -screenY);
     this.ctx.drawImage(
       weapon.image,
-      screenX - weapon.pivot.X - weapon.image.width / 2,
-      screenY - weapon.pivot.Y
+      screenX - weapon.pivot.x - weapon.image.width / 2,
+      screenY - weapon.pivot.y
     );
     this.ctx.restore();
   }
@@ -381,19 +381,19 @@ export class Renderer {
       const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
       const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
       if (!transform || !weapon || !projectile) continue;
-      const screenX = transform.position.X - this.camera.position.X;
-      const screenY = transform.position.Y - this.camera.position.Y;
+      const screenX = transform.position.x - this.camera.position.x;
+      const screenY = transform.position.y - this.camera.position.y;
       this.ctx.save();
       this.ctx.translate(screenX, screenY);
       this.ctx.rotate(
         MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2
       );
-      this.ctx.scale(weapon.scale.X, weapon.scale.Y);
+      this.ctx.scale(weapon.scale.x, weapon.scale.y);
       this.ctx.translate(-screenX, -screenY);
       this.ctx.drawImage(
         weapon.image,
-        screenX - weapon.pivot.X - weapon.image.width / 2,
-        screenY - weapon.pivot.Y
+        screenX - weapon.pivot.x - weapon.image.width / 2,
+        screenY - weapon.pivot.y
       );
       this.ctx.restore();
     }
@@ -404,8 +404,8 @@ export class Renderer {
       const hurtBox = ecs.getComponent<HurtBox>(entity, 'HurtBox');
       if (hurtBox) {
         this.ctx.fillRect(
-          hurtBox.position.X - this.camera.position.X,
-          hurtBox.position.Y - this.camera.position.Y,
+          hurtBox.position.x - this.camera.position.x,
+          hurtBox.position.y - this.camera.position.y,
           hurtBox.width,
           hurtBox.height
         );
@@ -416,15 +416,15 @@ export class Renderer {
   drawSmear(smear: Smear) {
     if (smear.positions.length === 0) return;
     this.ctx.beginPath();
-    this.ctx.moveTo(smear.positions[0].X, smear.positions[0].Y);
+    this.ctx.moveTo(smear.positions[0].x, smear.positions[0].y);
     for (let i = 0; i < smear.positions.length - 1; i++) {
       this.ctx.bezierCurveTo(
-        smear.positions[i].X,
-        smear.positions[i].Y,
-        smear.positions[i + 1].X,
-        smear.positions[i + 1].Y,
-        smear.positions[i + 1].X,
-        smear.positions[i + 1].Y
+        smear.positions[i].x,
+        smear.positions[i].y,
+        smear.positions[i + 1].x,
+        smear.positions[i + 1].y,
+        smear.positions[i + 1].x,
+        smear.positions[i + 1].y
       );
     }
     this.ctx.stroke();
@@ -444,12 +444,12 @@ export class Renderer {
         .plus(torso.position)
         .minus(camera.position);
       const hypotenuse = newPosition.dist(mouseHandler.position);
-      const adjacent = mouseHandler.position.X - newPosition.X;
+      const adjacent = mouseHandler.position.x - newPosition.x;
       const angleRadians = Math.acos(adjacent / hypotenuse);
       this.ctx.beginPath();
-      this.ctx.moveTo(newPosition.X, newPosition.Y);
-      this.ctx.lineTo(mouseHandler.position.X, newPosition.Y);
-      this.ctx.lineTo(mouseHandler.position.X, mouseHandler.position.Y);
+      this.ctx.moveTo(newPosition.x, newPosition.y);
+      this.ctx.lineTo(mouseHandler.position.x, newPosition.y);
+      this.ctx.lineTo(mouseHandler.position.x, mouseHandler.position.y);
       this.ctx.fill();
     });
   }
@@ -462,8 +462,8 @@ export class Renderer {
       this.ctx.globalAlpha = life;
       this.ctx.fillStyle = 'red';
       this.ctx.fillRect(
-        particle.position.X,
-        particle.position.Y,
+        particle.position.x,
+        particle.position.y,
         20 * (particle.sizeEnd - particle.sizeBegin),
         20 * (particle.sizeEnd - particle.sizeBegin)
       );
@@ -476,8 +476,8 @@ export class Renderer {
     pool.forEach(({ entity, components }) => {
       const [transform, walkbox] = components;
       this.ctx.fillRect(
-        transform.position.X,
-        transform.position.Y,
+        transform.position.x,
+        transform.position.y,
         this.canvas.nativeElement.width,
         100
       );
@@ -488,18 +488,19 @@ export class Renderer {
     const pool = ecs.getPool<[Effect]>('Effect');
     pool.forEach(({ entity, components }) => {
       const [effect] = components;
-      const screenX = effect.position.X - this.camera.position.X;
-      const screenY = effect.position.Y - this.camera.position.Y;
+      if (!effect.isAlive) return;
+      const screenX = effect.position.x - this.camera.position.x;
+      const screenY = effect.position.y - this.camera.position.y;
       for (const sprite of effect.sprites) {
         this.ctx.save();
         this.ctx.translate(
-          screenX + sprite.position.X,
-          screenY + sprite.position.Y
+          screenX + sprite.position.x,
+          screenY + sprite.position.y
         );
         this.ctx.scale(sprite.scaleX, sprite.scaleY);
         this.ctx.translate(
-          -screenX + sprite.position.X,
-          -screenY + sprite.position.Y
+          -screenX + sprite.position.x,
+          -screenY + sprite.position.y
         );
         this.ctx.drawImage(
           effect.image,
@@ -507,8 +508,8 @@ export class Renderer {
           sprite.startY,
           sprite.endX,
           sprite.endY,
-          screenX - sprite.pivot.X - sprite.endX / 2,
-          screenY - sprite.pivot.Y,
+          screenX - sprite.pivot.x - sprite.endX / 2,
+          screenY - sprite.pivot.y,
           sprite.endX,
           sprite.endY
         );

@@ -18,10 +18,13 @@ export class OnGroundState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('On Ground');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
-    transform.velocity.X = 0;
+    transform.velocity.x = 0;
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(skeleton, States.Idle);
+      skeleton.keyframes = ResourceManager.getAnimation(
+        skeleton.resource,
+        States.Idle
+      );
       MathUtils.createSnaphot(skeleton);
     }
   }

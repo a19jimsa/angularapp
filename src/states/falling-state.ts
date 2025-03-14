@@ -24,7 +24,7 @@ export class FallingState extends StateMachine {
     }
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!transform) return null;
-    if (transform.velocity.Y === 0) {
+    if (transform.velocity.y === 0) {
       return new OnGroundState();
     }
     return null;

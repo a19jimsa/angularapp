@@ -31,6 +31,7 @@ export class Skeleton extends Component {
   elapsedTime: number = 0;
   lowestPoint = 0;
   loop: boolean = false;
+  blendTime: number = 20;
   constructor(imageSrc: string, resource: string) {
     super();
     this.image.src = imageSrc;

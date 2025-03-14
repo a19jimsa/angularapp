@@ -18,7 +18,7 @@ export class RunningState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton,
+        skeleton.resource,
         States.Running
       );
       MathUtils.createSnaphot(skeleton);
@@ -44,12 +44,12 @@ export class RunningState extends StateMachine {
     if (input.left) {
       speedX -= 10;
     }
-    transform.velocity.X = speedX;
+    transform.velocity.x = speedX;
     if (input.jump && (input.left || input.right)) {
       return new JumpingState();
     }
     if (speedX !== 0) {
-      transform.velocity.X = speedX;
+      transform.velocity.x = speedX;
       return null;
     }
     return new OnGroundState();

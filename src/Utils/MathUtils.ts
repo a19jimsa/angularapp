@@ -18,6 +18,11 @@ export class MathUtils {
     return rotationRadians;
   }
 
+  static radiansToDegrees(radians: number) {
+    const rotationDegrees = radians * (Math.PI / 180);
+    return rotationDegrees;
+  }
+
   static findBoneById(bones: Bone[], parentId: string) {
     return bones.find((e) => e.id === parentId);
   }
@@ -27,8 +32,8 @@ export class MathUtils {
     length: number,
     rotation: number
   ) {
-    const x = position.X + length * Math.cos(this.degreesToRadians(rotation));
-    const y = position.Y + length * Math.sin(this.degreesToRadians(rotation));
+    const x = position.x + length * Math.cos(this.degreesToRadians(rotation));
+    const y = position.y + length * Math.sin(this.degreesToRadians(rotation));
     return new Vec(x, y);
   }
 
@@ -46,21 +51,23 @@ export class MathUtils {
 
   static isColliding(hitBox: HitBox, hurtBox: HurtBox): boolean {
     return (
-      hitBox.position.X + hitBox.width > hurtBox.position.X &&
-      hitBox.position.X < hurtBox.position.X + hurtBox.width &&
-      hitBox.position.Y + hitBox.height > hurtBox.position.Y &&
-      hitBox.position.Y < hurtBox.position.Y + hurtBox.height
+      hitBox.position.x + hitBox.width > hurtBox.position.x &&
+      hitBox.position.x < hurtBox.position.x + hurtBox.width &&
+      hitBox.position.y + hitBox.height > hurtBox.position.y &&
+      hitBox.position.y < hurtBox.position.y + hurtBox.height
     );
   }
 
   static createSnaphot(skeleton: Skeleton) {
+    skeleton.blend = true;
+    skeleton.elapsedTime = 0;
     skeleton.snapShot = {};
     skeleton.keyframes.forEach((keyframe) => {
       if (skeleton.snapShot) {
         if (skeleton.snapShot[keyframe.name]) return;
         skeleton.snapShot[keyframe.name] = {
           rotation: keyframe.angle,
-          scale: new Vec(keyframe.scale.X, keyframe.scale.Y),
+          scale: new Vec(keyframe.scale.x, keyframe.scale.y),
           clip: {
             startX: keyframe.clip.startX,
             startY: keyframe.clip.startY,
@@ -71,7 +78,5 @@ export class MathUtils {
       }
     });
     console.log('Created snapshot');
-    skeleton.blend = true;
-    skeleton.startTime = performance.now();
   }
 }

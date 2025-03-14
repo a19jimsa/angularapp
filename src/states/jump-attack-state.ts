@@ -17,7 +17,7 @@ export class JumpAttackState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton,
+        skeleton.resource,
         States.JumpAttack
       );
       MathUtils.createSnaphot(skeleton);

@@ -35,9 +35,9 @@ export class MouseHandler {
 
   handleMove(event: MouseEvent) {
     this.rect = this.canvas.nativeElement.getBoundingClientRect();
-    this.position.X =
+    this.position.x =
       event.x - this.rect.left - this.canvas.nativeElement.clientLeft;
-    this.position.Y =
+    this.position.y =
       event.y - this.rect.top - this.canvas.nativeElement.clientTop;
   }
 
@@ -49,14 +49,14 @@ export class MouseHandler {
   handleMouseUp(event: MouseEvent) {
     this.isMouseDown = false;
     this.isMouseUp = true;
-    this.isUpPosition.X = event.x - this.rect.left;
-    this.isUpPosition.Y = event.y - this.rect.top;
+    this.isUpPosition.x = event.x - this.rect.left;
+    this.isUpPosition.y = event.y - this.rect.top;
   }
 
   handleMouseDown(event: MouseEvent) {
     this.isMouseDown = true;
     this.isMouseUp = false;
-    this.isDownPosition.X = event.x - this.rect.left;
-    this.isDownPosition.Y = event.y - this.rect.top;
+    this.isDownPosition.x = event.x - this.rect.left;
+    this.isDownPosition.y = event.y - this.rect.top;
   }
 }

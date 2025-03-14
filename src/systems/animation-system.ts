@@ -4,8 +4,6 @@ import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
 
 export class AnimationSystem {
-  blendTime = 0;
-
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
@@ -44,14 +42,14 @@ export class AnimationSystem {
               keyframes[i + 1].angle,
               progress
             );
-            bone.scale.X = MathUtils.interpolateKeyframe(
-              keyframe.scale.X,
-              keyframes[i + 1].scale.X,
+            bone.scale.x = MathUtils.interpolateKeyframe(
+              keyframe.scale.x,
+              keyframes[i + 1].scale.x,
               progress
             );
-            bone.scale.Y = MathUtils.interpolateKeyframe(
-              keyframe.scale.Y,
-              keyframes[i + 1].scale.Y,
+            bone.scale.y = MathUtils.interpolateKeyframe(
+              keyframe.scale.y,
+              keyframes[i + 1].scale.y,
               progress
             );
             // bone.startX = keyframe.clip.startX;
@@ -63,9 +61,11 @@ export class AnimationSystem {
       }
     }
   }
+
   sortBonesByHierarchy(skeleton: Skeleton): void {
     skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
   }
+
   updateBonePositions(skeleton: Skeleton): void {
     for (const bone of skeleton.bones) {
       let parentRotation = 0;
@@ -75,7 +75,7 @@ export class AnimationSystem {
           parentRotation = MathUtils.calculateGlobalRotation(skeleton, parent);
           bone.position = MathUtils.calculateParentPosition(
             parent.position,
-            parent.length * bone.attachAt * parent.scale.Y,
+            parent.length * bone.attachAt * parent.scale.y,
             parentRotation
           );
         }
@@ -95,14 +95,14 @@ export class AnimationSystem {
             keyframe.rotation,
             0.1
           );
-          bone.scale.X = MathUtils.interpolateKeyframe(
-            bone.scale.X,
-            keyframe.scale.X,
+          bone.scale.x = MathUtils.interpolateKeyframe(
+            bone.scale.x,
+            keyframe.scale.x,
             0.1
           );
-          bone.scale.Y = MathUtils.interpolateKeyframe(
-            bone.scale.Y,
-            keyframe.scale.Y,
+          bone.scale.y = MathUtils.interpolateKeyframe(
+            bone.scale.y,
+            keyframe.scale.y,
             0.1
           );
           // bone.startX = keyframe.clip.startX;
@@ -110,9 +110,9 @@ export class AnimationSystem {
         }
       }
     }
-    this.blendTime++;
-    if (this.blendTime > 20) {
-      this.blendTime = 0;
+    skeleton.blendTime++;
+    if (skeleton.blendTime > 20) {
+      skeleton.blendTime = 0;
       skeleton.blend = false;
       skeleton.startTime = performance.now();
       skeleton.snapShot = null;

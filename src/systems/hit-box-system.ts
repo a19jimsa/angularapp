@@ -8,8 +8,8 @@ export class HitBoxSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
       if (!transform || !hitBox) continue;
-      hitBox.position.X = transform.position.X - hitBox.width / 2;
-      hitBox.position.Y = transform.position.Y - hitBox.height;
+      hitBox.position.x = transform.position.x - hitBox.width / 2;
+      hitBox.position.y = transform.position.y - hitBox.height;
     }
   }
 }

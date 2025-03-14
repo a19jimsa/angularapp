@@ -24,12 +24,12 @@ export class ChaseAISystem {
         target.player,
         'Transform'
       );
-      if (transform.position.X > playerTransform.position.X) {
+      if (transform.position.x > playerTransform.position.x) {
         skeleton.flip = false;
-        transform.velocity.X = 5;
+        transform.velocity.x = 5;
       } else {
         skeleton.flip = true;
-        transform.velocity.X = -5;
+        transform.velocity.x = -5;
       }
       ai.state = States.Running;
     });

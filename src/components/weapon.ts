@@ -16,7 +16,7 @@ export class Weapon extends Component {
     this.parentId = parentId;
     this.image.src = image;
     this.scale = new Vec(0, 0);
-    this.pivot = new Vec(offset.X, offset.Y);
+    this.pivot = new Vec(offset.x, offset.y);
     this.rotation = 0;
     this.order = 0;
     this.flip = false;

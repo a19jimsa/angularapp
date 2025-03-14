@@ -22,10 +22,10 @@ export type ClipAnimation = {
 type Effect = {
   position: Vec;
   scale: Vec;
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
+  startx: number;
+  starty: number;
+  endx: number;
+  endy: number;
 };
 
 import {
@@ -47,13 +47,10 @@ import { BoneDialogComponent } from '../bone-dialog/bone-dialog.component';
 import { ImportKeyframeDialogComponent } from '../import-keyframe-dialog/import-keyframe-dialog.component';
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
-import { OnGroundState } from '../../states/on-ground-state';
-import { JumpingState } from '../../states/jumping-state';
-import { RunningState } from '../../states/running-state';
-import { StateMachine } from '../../states/state-machine';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
 import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
+import { ResourceManager } from 'src/core/resource-manager';
 
 @Component({
   selector: 'app-animation-creator',
@@ -124,6 +121,8 @@ export class AnimationCreatorComponent
 
   changeBoneCommand!: ChangeBoneCommand;
 
+  animationStates: string[] = new Array();
+
   constructor() {}
 
   ngAfterViewInit(): void {
@@ -134,14 +133,28 @@ export class AnimationCreatorComponent
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
     this.spriteSheet.src = '../assets/sprites/88022.png';
     this.animationLoop();
+    (async () => {
+      await ResourceManager.loadAllAnimations();
+    })().then(() => {
+      console.log(ResourceManager.getAnimations('playerAnimations'));
+      const animation = ResourceManager.getAnimations('playerAnimations');
+      if (animation) {
+        console.log(Object.keys(animation));
+        this.animationStates.push(...Object.keys(animation));
+      }
+    });
     setTimeout(() => this.addEventHandlers(), 3000);
   }
 
   ngOnInit() {
     if (localStorage.getItem('bones') !== null) {
-      this.bones.push(...JSON.parse(localStorage.getItem('bones')!));
-      this.addBonesFromJSON();
-      this.createBoneHierarchy();
+      const bones = JSON.parse(localStorage.getItem('bones')!);
+      this.adjustBoneFromJSONImport(bones);
+      this.bones.push(...bones);
+      if (this.bones.length > 0) {
+        this.createBoneHierarchy();
+        this.sortBonesByHierarchy();
+      }
     }
     if (localStorage.getItem('frames') !== null) {
       this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
@@ -150,6 +163,7 @@ export class AnimationCreatorComponent
           keyframe.position = new Vec(0, 0);
         }
       }
+      this.filteredKeyframes = this.keyframes;
     }
   }
 
@@ -170,7 +184,14 @@ export class AnimationCreatorComponent
     this.playAnimation();
     this.updateLength();
     this.updateRotation();
+
     this.id = requestAnimationFrame(() => this.animationLoop());
+  }
+
+  setKeyframesFromResource(name: string) {
+    this.keyframes = ResourceManager.getAnimation('playerAnimations', name);
+    this.filteredKeyframes = this.keyframes;
+    console.log(this.keyframes);
   }
 
   drawBackground() {
@@ -188,13 +209,13 @@ export class AnimationCreatorComponent
   changeState(name: string) {}
 
   setTime() {
-    this.loopedTime = this.keyframeSliderValue;
+    this.keyframeSliderValue = this.loopedTime;
     this.runAnimation();
   }
 
   drawSpritesheet() {
     if (!this.showSpritesheet) return;
-    this.ctx.drawImage(this.spriteSheet, this.camera.X, this.camera.Y);
+    this.ctx.drawImage(this.spriteSheet, this.camera.x, this.camera.y);
   }
 
   onFileSelected(event: any) {
@@ -223,9 +244,14 @@ export class AnimationCreatorComponent
 
     dialogRef.afterClosed().subscribe((result) => {
       try {
-        const bones: Bone[] = JSON.parse(result);
+        this.bones = [];
+        const bones = JSON.parse(result);
+        this.adjustBoneFromJSONImport(bones);
         this.bones.push(...bones);
-        this.addBonesFromJSON();
+        if (this.bones.length > 0) {
+          this.createBoneHierarchy();
+          this.sortBonesByHierarchy();
+        }
       } catch (e) {
         const errorDialog = this.dialog.open(ErrorDialogComponent, {
           height: '400px',
@@ -263,26 +289,6 @@ export class AnimationCreatorComponent
     });
   }
 
-  addBonesFromJSON() {
-    for (const bone of this.bones) {
-      bone.position = new Vec(bone.position.X, bone.position.Y);
-      bone.hierarchyDepth = 0;
-      if (bone.scale) {
-        bone.scale = new Vec(bone.scale.X, bone.scale.Y);
-      } else {
-        bone.scale = new Vec(1, 1);
-      }
-      if (!bone.minAngle) {
-        bone.minAngle = 0;
-      }
-      if (!bone.maxAngle) {
-        bone.maxAngle = 0;
-      }
-    }
-    this.createBoneHierarchy();
-    this.sortBonesByHierarchy();
-  }
-
   importKeyframes() {
     let dialogRef = this.dialog.open(ImportKeyframeDialogComponent, {
       height: '400px',
@@ -315,11 +321,13 @@ export class AnimationCreatorComponent
 
   exportBones() {
     localStorage.setItem('bones', JSON.stringify(this.bones));
+    console.log('exportet bones');
+    console.log(localStorage.getItem('bones'));
   }
 
   calculateGlobalRotation(bone: Bone): number {
     if (bone.parentId !== null) {
-      const parent = this.findBoneById(this.bones, bone.parentId);
+      const parent = MathUtils.findBoneById(this.bones, bone.parentId);
       if (parent) {
         // Rekursivt addera förälderns globala rotation
         return this.calculateGlobalRotation(parent) + bone.rotation;
@@ -337,18 +345,18 @@ export class AnimationCreatorComponent
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
-      this.ctx.moveTo(bone.position.X, bone.position.Y);
+      this.ctx.moveTo(bone.position.x, bone.position.y);
       const newPos = MathUtils.calculateParentPosition(
         bone.position,
         bone.length,
         bone.globalRotation - bone.globalSpriteRotation // I dunno why but it works
       );
-      this.ctx.lineTo(newPos.X, newPos.Y);
+      this.ctx.lineTo(newPos.x, newPos.y);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.beginPath();
       this.ctx.strokeStyle = 'red';
-      this.ctx.arc(bone.position.X, bone.position.Y, 5, 0, Math.PI * 2);
+      this.ctx.arc(bone.position.x, bone.position.y, 10, 0, Math.PI * 2);
       this.ctx.stroke();
       this.ctx.closePath();
       this.ctx.restore();
@@ -358,11 +366,11 @@ export class AnimationCreatorComponent
   createKeyframesOfBones() {
     for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
-        position: new Vec(bone.position.X, bone.position.Y),
+        position: new Vec(bone.position.x, bone.position.y),
         time: this.keyframeSliderValue,
         angle: bone.rotation,
         name: bone.id,
-        scale: new Vec(bone.scale.X, bone.scale.Y),
+        scale: new Vec(bone.scale.x, bone.scale.y),
         clip: {
           startX: bone.startX,
           startY: bone.startY,
@@ -437,20 +445,20 @@ export class AnimationCreatorComponent
       this.ctx.save();
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.translate(bone.position.X, bone.position.Y);
+      this.ctx.translate(bone.position.x, bone.position.y);
       this.ctx.rotate(
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
       );
-      this.ctx.scale(bone.scale.X, bone.scale.Y);
-      this.ctx.translate(-bone.position.X, -bone.position.Y);
+      this.ctx.scale(bone.scale.x, bone.scale.y);
+      this.ctx.translate(-bone.position.x, -bone.position.y);
       this.ctx.drawImage(
         this.spriteSheet,
         bone.startX,
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.position.X - bone.pivot.X - bone.endX / 2,
-        bone.position.Y - bone.pivot.Y,
+        bone.position.x - bone.pivot.x - bone.endX / 2,
+        bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY
       );
@@ -463,10 +471,10 @@ export class AnimationCreatorComponent
     this.ctx.strokeStyle = 'red';
     this.ctx.lineWidth = 1;
     this.ctx.rect(
-      this.mouseDown.X,
-      this.mouseDown.Y,
-      this.mousePos.X - this.mouseDown.X,
-      this.mousePos.Y - this.mouseDown.Y
+      this.mouseDown.x,
+      this.mouseDown.y,
+      this.mousePos.x - this.mouseDown.x,
+      this.mousePos.y - this.mouseDown.y
     );
     this.ctx.stroke();
   }
@@ -507,8 +515,8 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.position.X,
-      this.canvasHeight / 2 + this.activeBone.position.Y
+      this.canvasWidth / 2 + this.activeBone.position.x,
+      this.canvasHeight / 2 + this.activeBone.position.y
     );
     this.ctx.lineWidth = 3;
 
@@ -543,32 +551,32 @@ export class AnimationCreatorComponent
     });
     this.canvas.nativeElement.addEventListener('mousemove', (event) => {
       if (!this.isMouseDown) return;
-      this.mousePos.X =
+      this.mousePos.x =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mousePos.Y =
+      this.mousePos.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
     });
     this.canvas.nativeElement.addEventListener('mousedown', (event) => {
-      this.mouseDown.X =
+      this.mouseDown.x =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mouseDown.Y =
+      this.mouseDown.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = true;
     });
     this.canvas.nativeElement.addEventListener('mouseup', (event) => {
-      this.mouseUp.X =
+      this.mouseUp.x =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mouseUp.Y =
+      this.mouseUp.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = false;
-      this.animation.startX = this.mouseDown.X - this.camera.X;
-      this.animation.startY = this.mouseDown.Y - this.camera.Y;
-      this.animation.endX = this.mouseUp.X - this.mouseDown.X;
-      this.animation.endY = this.mouseUp.Y - this.mouseDown.Y;
+      this.animation.startX = this.mouseDown.x - this.camera.x;
+      this.animation.startY = this.mouseDown.y - this.camera.y;
+      this.animation.endX = this.mouseUp.x - this.mouseDown.x;
+      this.animation.endY = this.mouseUp.y - this.mouseDown.y;
     });
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      this.camera.Y += event.deltaY / 10;
+      this.camera.y += event.deltaY / 10;
     });
 
     addEventListener('keydown', (event) => {
@@ -641,8 +649,8 @@ export class AnimationCreatorComponent
 
   mouseClick() {
     if (this.activeBone) {
-      this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
-      this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
+      this.activeBone.position.x = this.mousePos.x - this.canvasWidth / 2;
+      this.activeBone.position.y = this.mousePos.y - this.canvasHeight / 2;
     }
   }
 
@@ -654,10 +662,10 @@ export class AnimationCreatorComponent
     this.ctx.scale(5, 5);
     this.ctx.beginPath();
     this.ctx.fillText(
-      'Pos X: ' +
-        this.mouseUp.X.toString() +
-        ' Pos Y: ' +
-        this.mouseUp.Y.toString(),
+      'Pos x: ' +
+        this.mouseUp.x.toString() +
+        ' Pos y: ' +
+        this.mouseUp.y.toString(),
       0,
       0
     );
@@ -670,10 +678,10 @@ export class AnimationCreatorComponent
       null,
       new Vec(0, 0),
       0,
-      this.mouseDown.X - this.camera.X,
-      this.mouseDown.Y - this.camera.Y,
-      this.mouseUp.X - this.mouseDown.X,
-      this.mouseUp.Y - this.mouseDown.Y,
+      this.mouseDown.x - this.camera.x,
+      this.mouseDown.y - this.camera.y,
+      this.mouseUp.x - this.mouseDown.x,
+      this.mouseUp.y - this.mouseDown.y,
       0,
       0,
       180
@@ -694,12 +702,12 @@ export class AnimationCreatorComponent
   }
 
   activateBone(boneId: string) {
-    const bone = this.findBoneById(this.bones, boneId);
+    const bone = MathUtils.findBoneById(this.bones, boneId);
     if (!bone) return;
     this.activeBone = bone;
     this.rotationSliderValue = bone.rotation;
     this.lengthSliderValue = bone.length;
-    this.scaleSliderValue = bone.scale.Y;
+    this.scaleSliderValue = bone.scale.y;
   }
 
   inactivateBone() {
@@ -709,16 +717,8 @@ export class AnimationCreatorComponent
   mouseCollision() {
     if (!this.activeBone) return;
     if (!this.activeBone.position) return;
-    this.activeBone.position.X = this.mousePos.X - this.canvasWidth / 2;
-    this.activeBone.position.Y = this.mousePos.Y - this.canvasHeight / 2;
-  }
-
-  interpolateKeyframe(startValue: number, endValue: number, progress: number) {
-    return startValue + (endValue - startValue) * progress;
-  }
-
-  findBoneById(bones: Bone[], parentId: string) {
-    return bones.find((e) => e.id === parentId);
+    this.activeBone.position.x = this.mousePos.x - this.canvasWidth / 2;
+    this.activeBone.position.y = this.mousePos.y - this.canvasHeight / 2;
   }
 
   calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
@@ -740,12 +740,12 @@ export class AnimationCreatorComponent
     for (const bone of this.bones) {
       let parentRotation = 0;
       if (bone.parentId) {
-        const parent = this.findBoneById(this.bones, bone.parentId);
+        const parent = MathUtils.findBoneById(this.bones, bone.parentId);
         if (parent) {
           parentRotation = this.calculateGlobalRotation(parent);
           bone.position = MathUtils.calculateParentPosition(
             parent.position,
-            parent.length * bone.attachAt * parent.scale.Y,
+            parent.length * bone.attachAt * parent.scale.y,
             parentRotation
           );
         }
@@ -767,6 +767,9 @@ export class AnimationCreatorComponent
 
   changeKeyframe(keyframe: Keyframe) {
     this.activeKeyframe = keyframe;
+    if (!keyframe.position) {
+      this.activeKeyframe.position = new Vec(0, 0);
+    }
   }
 
   updateKeyframe() {}
@@ -777,6 +780,13 @@ export class AnimationCreatorComponent
       height: '400px',
       data: this.bones[index],
     });
+  }
+
+  adjustBoneFromJSONImport(bones: Bone[]) {
+    for (const bone of bones) {
+      bone.position = new Vec(bone.position.x, bone.position.y);
+      bone.pivot = new Vec(bone.pivot.x, bone.pivot.y);
+    }
   }
 
   removeKeyframe(id: number) {
@@ -792,11 +802,12 @@ export class AnimationCreatorComponent
   }
 
   isMouseOverJoint(): boolean {
-    const mousePosX = this.mouseDown.X - this.canvasWidth / 2;
-    const mousePosY = this.mouseDown.Y - this.canvasHeight / 2;
+    const mousePosx = this.mouseDown.x - this.canvasWidth / 2;
+    const mousePosy = this.mouseDown.y - this.canvasHeight / 2;
     for (const bone of this.bones) {
-      const distance = bone.position.dist(new Vec(mousePosX, mousePosY));
-      if (distance <= 5) {
+      console.log(bone);
+      const distance = bone.position.dist(new Vec(mousePosx, mousePosy));
+      if (distance <= 10) {
         this.activateBone(bone.id);
         return true;
       }
@@ -805,13 +816,13 @@ export class AnimationCreatorComponent
   }
 
   isMouseOverSprite(bone: Bone): boolean {
-    const mouseX = this.mousePos.X - this.canvasWidth / 2;
-    const mouseY = this.mousePos.Y - this.canvasHeight / 2;
+    const mousex = this.mousePos.x - this.canvasWidth / 2;
+    const mousey = this.mousePos.y - this.canvasHeight / 2;
     return (
-      mouseX > bone.position.X - bone.endX / 2 &&
-      mouseX < bone.endX &&
-      mouseY > bone.position.Y &&
-      mouseY < bone.endY
+      mousex > bone.position.x - bone.endX / 2 &&
+      mousex < bone.endX &&
+      mousey > bone.position.y &&
+      mousey < bone.endY
     );
   }
 
@@ -834,29 +845,32 @@ export class AnimationCreatorComponent
             (this.keyframes[i + 1].time - keyFrame.time);
 
           if (bone.id === keyFrame.name) {
-            bone.position.X = this.interpolateKeyframe(
-              keyFrame.position.X,
-              this.keyframes[i + 1].position.X,
-              progress
-            );
-            bone.position.Y = this.interpolateKeyframe(
-              keyFrame.position.Y,
-              this.keyframes[i + 1].position.Y,
-              progress
-            );
-            bone.rotation = this.interpolateKeyframe(
+            if (keyFrame.position) {
+              bone.position.x = MathUtils.interpolateKeyframe(
+                keyFrame.position.x,
+                this.keyframes[i + 1].position.x,
+                progress
+              );
+              bone.position.y = MathUtils.interpolateKeyframe(
+                keyFrame.position.y,
+                this.keyframes[i + 1].position.y,
+                progress
+              );
+            }
+
+            bone.rotation = MathUtils.interpolateKeyframe(
               keyFrame.angle,
               this.keyframes[i + 1].angle,
               progress
             );
-            bone.scale.X = this.interpolateKeyframe(
-              keyFrame.scale.X,
-              this.keyframes[i + 1].scale.X,
+            bone.scale.x = MathUtils.interpolateKeyframe(
+              keyFrame.scale.x,
+              this.keyframes[i + 1].scale.x,
               progress
             );
-            bone.scale.Y = this.interpolateKeyframe(
-              keyFrame.scale.Y,
-              this.keyframes[i + 1].scale.Y,
+            bone.scale.y = MathUtils.interpolateKeyframe(
+              keyFrame.scale.y,
+              this.keyframes[i + 1].scale.y,
               progress
             );
             bone.startX = keyFrame.clip.startX;

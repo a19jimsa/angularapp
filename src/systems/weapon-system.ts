@@ -37,20 +37,20 @@ export class WeaponSystem {
     if (entity) {
       const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
       const weaponTransform = ecs.getComponent<Transform>(entity, 'Transform');
-      if (!weapon && !weaponTransform) return;
+      if (!weapon || !weaponTransform) return;
       const parent = skeleton.bones.find((e) => e.id === weapon.parentId);
       if (parent) {
-        weaponTransform.position.X = transform.position.X + parent.position.X;
-        weaponTransform.position.Y = transform.position.Y + parent.position.Y;
+        weaponTransform.position.x = transform.position.x + parent.position.x;
+        weaponTransform.position.y = transform.position.y + parent.position.y;
         weapon.rotation =
           parent.globalRotation + parent.globalSpriteRotation - 180;
         weapon.order = parent.order - 1;
         weapon.scale = parent.scale;
       }
       if (skeleton.flip) {
-        weaponTransform.position.X =
-          transform.position.X +
-          (transform.position.X - weaponTransform.position.X);
+        weaponTransform.position.x =
+          transform.position.x +
+          (transform.position.x - weaponTransform.position.x);
 
         weapon.rotation = -weapon.rotation - 180;
         if (parent) {
