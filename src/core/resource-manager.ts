@@ -4,7 +4,7 @@ type Filename = {
   name: string;
 };
 
-type Animation = {
+export type Animation = {
   [key: string]: Keyframe[];
 };
 
@@ -46,12 +46,12 @@ export class ResourceManager {
     return animations[animationName];
   }
 
-  public static getAnimations(resource: string): Animation | null {
-    const animation = this.animations.get(resource);
-    if (animation) {
-      return animation;
-    }
-    return null;
+  public static getAnimations(): Map<string, Animation> {
+    return this.animations;
+  }
+
+  public static getAllAnimationsFromFile(filename: string) {
+    return this.animations.get(filename);
   }
 
   public static async loadAllEffects(): Promise<void> {
@@ -75,5 +75,25 @@ export class ResourceManager {
 
   public static getFilenames() {
     return this.filenames;
+  }
+
+  public static saveJsonFile(
+    data: Keyframe[],
+    filename: string,
+    state: string
+  ) {
+    const newAnimation: Animation = { state: data };
+    this.animations.set(filename, newAnimation);
+    const blob = new Blob([JSON.stringify(this.animations.get(filename))], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url); // Städa upp
   }
 }

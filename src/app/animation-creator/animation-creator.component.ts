@@ -1,3 +1,10 @@
+export type ClipAnimation = {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
 export type Keyframe = {
   position: Vec;
   scale: Vec;
@@ -10,22 +17,6 @@ export type Keyframe = {
 type BoneHierarchy = {
   boneId: string;
   children: BoneHierarchy[];
-};
-
-export type ClipAnimation = {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-};
-
-type Effect = {
-  position: Vec;
-  scale: Vec;
-  startx: number;
-  starty: number;
-  endx: number;
-  endy: number;
 };
 
 import {
@@ -50,7 +41,7 @@ import { PromtDialogComponent } from '../promt-dialog/promt-dialog.component';
 import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-dialog.component';
 import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
-import { ResourceManager } from 'src/core/resource-manager';
+import { Animation, ResourceManager } from 'src/core/resource-manager';
 
 @Component({
   selector: 'app-animation-creator',
@@ -86,6 +77,7 @@ export class AnimationCreatorComponent
   rotationSliderValue: number = 0;
   keyframeSliderValue: number = 0;
   scaleSliderValue: number = 0;
+
   mouseUp: Vec = new Vec(0, 0);
   mouseDown: Vec = new Vec(0, 0);
   mousePos: Vec = new Vec(0, 0);
@@ -102,6 +94,8 @@ export class AnimationCreatorComponent
   readonly dialog = inject(MatDialog);
 
   activeKeyframeIndex: number = -1;
+
+  activeState: string = '';
 
   keyframeForm = new FormGroup({
     time: new FormControl(0),
@@ -121,9 +115,11 @@ export class AnimationCreatorComponent
 
   changeBoneCommand!: ChangeBoneCommand;
 
+  //For creating files and get all animation keys
+  activeFilename: string = '';
   animationStates: string[] = new Array();
-
-  constructor() {}
+  animationFiles: string[] = new Array();
+  activeAnimations: Animation | undefined;
 
   ngAfterViewInit(): void {
     this.canvas.nativeElement.width = 800;
@@ -133,16 +129,6 @@ export class AnimationCreatorComponent
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
     this.spriteSheet.src = '../assets/sprites/88022.png';
     this.animationLoop();
-    (async () => {
-      await ResourceManager.loadAllAnimations();
-    })().then(() => {
-      console.log(ResourceManager.getAnimations('playerAnimations'));
-      const animation = ResourceManager.getAnimations('playerAnimations');
-      if (animation) {
-        console.log(Object.keys(animation));
-        this.animationStates.push(...Object.keys(animation));
-      }
-    });
     setTimeout(() => this.addEventHandlers(), 3000);
   }
 
@@ -156,6 +142,7 @@ export class AnimationCreatorComponent
         this.sortBonesByHierarchy();
       }
     }
+
     if (localStorage.getItem('frames') !== null) {
       this.keyframes.push(...JSON.parse(localStorage.getItem('frames')!));
       for (const keyframe of this.keyframes) {
@@ -165,6 +152,20 @@ export class AnimationCreatorComponent
       }
       this.filteredKeyframes = this.keyframes;
     }
+
+    (async () => {
+      await ResourceManager.loadAllAnimations();
+      await ResourceManager.loadAllEffects();
+    })().then(() => {
+      console.log(ResourceManager.getAnimations());
+      const animation = ResourceManager.getAnimations();
+      console.log(Object.keys(animation));
+      this.animationStates.push(...Object.keys(animation));
+
+      for (const key of ResourceManager.getAnimations().keys()) {
+        this.animationFiles.push(key);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -189,7 +190,8 @@ export class AnimationCreatorComponent
   }
 
   setKeyframesFromResource(name: string) {
-    this.keyframes = ResourceManager.getAnimation('playerAnimations', name);
+    this.activeState = name;
+    this.keyframes = ResourceManager.getAnimation(this.activeFilename, name);
     this.filteredKeyframes = this.keyframes;
     console.log(this.keyframes);
   }
@@ -207,6 +209,32 @@ export class AnimationCreatorComponent
   }
 
   changeState(name: string) {}
+
+  changeAnimationFile(filename: string) {
+    this.activeFilename = filename;
+    this.activeAnimations = ResourceManager.getAllAnimationsFromFile(filename);
+    if (this.activeAnimations) {
+      this.animationStates = Object.keys(this.activeAnimations);
+    }
+  }
+
+  createNewState() {
+    const animations = ResourceManager.getAllAnimationsFromFile(
+      this.activeFilename
+    );
+    if (!animations) return;
+    animations['attacking'] = new Array();
+    this.animationStates = Object.keys(animations);
+  }
+
+  saveNewFile() {
+    ResourceManager.saveJsonFile(
+      this.keyframes,
+      'playerAnimations',
+      this.activeState
+    );
+    console.log('Saved new JSON');
+  }
 
   setTime() {
     this.keyframeSliderValue = this.loopedTime;
