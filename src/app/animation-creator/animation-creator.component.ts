@@ -157,11 +157,8 @@ export class AnimationCreatorComponent
 
     (async () => {
       await ResourceManager.loadAllAnimations();
-      await ResourceManager.loadAllEffects();
     })().then(() => {
-      console.log(ResourceManager.getAnimations());
       const animation = ResourceManager.getAnimations();
-      console.log(Object.keys(animation));
       this.animationStates.push(...Object.keys(animation));
 
       for (const key of ResourceManager.getAnimations().keys()) {

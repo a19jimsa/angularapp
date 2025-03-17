@@ -26,7 +26,7 @@ export class AnimationSystem {
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;
-    if (elapsedTime > skeleton.animationDuration) {
+    if (elapsedTime >= skeleton.animationDuration) {
       return;
     }
     for (const bone of skeleton.bones) {

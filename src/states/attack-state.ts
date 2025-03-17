@@ -56,27 +56,14 @@ export class AttackState extends StateMachine {
             skeleton.resource,
             States.Attacking
           );
-          if (skeleton.heldEntity) {
-            const transform = ecs.getComponent<Transform>(
-              skeleton.heldEntity,
-              'Transform'
-            );
-            ecs.addComponent<Effect>(
-              entity,
-              new Effect(
-                'assets/sprites/Btl_Hit01.png',
-                transform.position,
-                'lance'
-              )
-            );
-          }
+          this.comboStep++;
         } else {
           skeleton.keyframes = ResourceManager.getAnimation(
             skeleton.resource,
-            'thrust'
+            'load-spell'
           );
+          this.spellAttack(entity, ecs);
         }
-        this.comboStep++;
 
         this.restartAnimation(skeleton);
         return null;
@@ -86,6 +73,24 @@ export class AttackState extends StateMachine {
   }
 
   override update(entity: Entity, ecs: Ecs): void {}
+
+  spellAttack(entity: Entity, ecs: Ecs) {
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return;
+    ecs.addComponent<Effect>(
+      entity,
+      new Effect(
+        'assets/sprites/Blt_Mag01.png',
+        transform.position,
+        'load-spell'
+      )
+    );
+    const effect = ecs.getComponent<Effect>(entity, 'Effect');
+    if (!effect) return;
+    skeleton.animationDuration = effect.duration;
+    this.restartAnimation(skeleton);
+  }
 
   restartAnimation(skeleton: Skeleton) {
     skeleton.animationDuration =

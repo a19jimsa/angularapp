@@ -10,7 +10,6 @@ import { ResourceManager } from 'src/core/resource-manager';
 import { Skeleton } from 'src/components/skeleton';
 import { Life } from 'src/components/life';
 import { DeathState } from './death-state';
-import { MathUtils } from 'src/Utils/MathUtils';
 
 export class DamageState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -19,8 +18,14 @@ export class DamageState extends StateMachine {
     transform.velocity.x = 0;
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (!transform || !skeleton) return;
-    skeleton.keyframes = ResourceManager.getAnimation(skeleton.resource, States.Damage);
-    MathUtils.createSnaphot(skeleton);
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      States.Damage
+    );
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
+    skeleton.elapsedTime = 0;
   }
 
   override exit(entity: Entity, ecs: Ecs): void {
@@ -33,11 +38,13 @@ export class DamageState extends StateMachine {
     input: KeysPressed
   ): StateMachine | null {
     const life = ecs.getComponent<Life>(entity, 'Life');
+    if (!life) return null;
     if (life.currentHp <= 0) {
       return new DeathState();
     }
-    const damage = ecs.getComponent<Damage>(entity, 'Damage');
-    if (damage.timer <= 0) {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return null;
+    if (skeleton.elapsedTime > skeleton.animationDuration) {
       return new OnGroundState();
     }
     return null;

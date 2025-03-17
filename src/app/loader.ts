@@ -15,7 +15,7 @@ export class Loader {
 
       // Skapa en array av fetch-promises
       const fetchPromises = files.map(async (file: Animations) => {
-        const response = await fetch(`/assets/json/${file.name}.json`);
+        const response = await fetch(`/assets/json/bones/${file.name}.json`);
         const data = await response.json();
         Loader.animations.set(file.name, data);
         console.log(file.name);

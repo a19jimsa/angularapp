@@ -44,7 +44,6 @@ import { AttackAiSystem } from 'src/systems/attack-ai-system';
 import { ParticleProp, ParticleSystem } from 'src/effects/particle-system';
 import { Life } from 'src/components/life';
 import { EffectSystem } from 'src/systems/effect-system';
-import { Effect } from 'src/components/effect';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -170,7 +169,7 @@ export class AnimationScene {
     const walkBox = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       walkBox,
-      new Transform(new Vec(0, this.canvasHeight - 100), new Vec(0, 0), 0)
+      new Transform(new Vec(0, this.canvasHeight - 200), new Vec(0, 0), 0)
     );
     this.ecs.addComponent<WalkBox>(walkBox, new WalkBox());
 
@@ -271,6 +270,16 @@ export class AnimationScene {
       new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 120))
     );
 
+    const book = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      book,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
+    this.ecs.addComponent<Weapon>(
+      book,
+      new Weapon('left_hand', 'assets/sprites/wep_mg000.png', new Vec(0, 20))
+    );
+
     const sword = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       sword,
@@ -281,7 +290,7 @@ export class AnimationScene {
       sword,
       new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
     );
-    this.ecs.addComponent<Enemy>(sword, new Player());
+    this.ecs.addComponent<Enemy>(sword, new Enemy());
 
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -307,7 +316,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 50));
 
-    playerSkeleton.heldOffhandEntity = null;
+    playerSkeleton.heldOffhandEntity = book;
     //this.ecs.addComponent<Smear>(sword, new Smear());
     playerSkeleton.heldEntity = sword;
     draugSkeleton.heldEntity = sword2;

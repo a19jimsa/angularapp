@@ -48,7 +48,7 @@ export class OnGroundState extends StateMachine {
     } else if (input.jump) {
       return new JumpingState();
     } else if (input.up) {
-      return new LoadArrowState();
+      return new DamageState();
     } else if (input.roll) {
       return new RollState();
     }

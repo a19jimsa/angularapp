@@ -46,10 +46,9 @@ export class Effect extends Component {
       this.sprites.push(sprite);
     }
     this.effectType = effectType;
-    this.duration =
-      ResourceManager.getEffect(effectType)[
-        ResourceManager.getEffect(effectType).length - 1
-      ].time;
+    this.duration = ResourceManager.getEffect('effects', effectType)[
+      ResourceManager.getEffect('effects', effectType).length - 1
+    ].time;
     this.startTime = performance.now();
   }
 }

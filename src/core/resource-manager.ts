@@ -10,7 +10,7 @@ export type Animation = {
 
 export class ResourceManager {
   private static animations: Map<string, Animation> = new Map();
-  private static effects: Map<string, any> = new Map();
+  private static effects: Map<string, Animation> = new Map();
   private static filenames: string[] = Array();
 
   public static async loadAllAnimations(): Promise<void> {
@@ -46,31 +46,22 @@ export class ResourceManager {
     return animations[animationName];
   }
 
+  public static getEffect(effect: string, effectName: string): Keyframe[] {
+    const animations = this.animations.get(effect);
+    if (!animations) return [];
+    return animations[effectName];
+  }
+
+  public static getEffects(): Map<string, Animation> {
+    return this.effects;
+  }
+
   public static getAnimations(): Map<string, Animation> {
     return this.animations;
   }
 
   public static getAllAnimationsFromFile(filename: string) {
     return this.animations.get(filename);
-  }
-
-  public static async loadAllEffects(): Promise<void> {
-    try {
-      const res = await fetch('/assets/json/effects/effects.json');
-      const data = await res.json();
-      ResourceManager.effects = new Map<string, any>(Object.entries(data));
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  public static getEffect(effect: string): Keyframe[] {
-    const keyframes = this.effects.get(effect);
-    if (!keyframes) {
-      console.log("Couldn't find effect " + effect);
-      return [];
-    }
-    return keyframes;
   }
 
   public static getFilenames() {

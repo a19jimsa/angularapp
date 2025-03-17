@@ -490,30 +490,37 @@ export class Renderer {
     pool.forEach(({ entity, components }) => {
       const [effect] = components;
       if (!effect.isAlive) return;
-      const screenX = effect.position.x - this.camera.position.x;
-      const screenY = effect.position.y - this.camera.position.y;
       for (const sprite of effect.sprites) {
+        const screenX = effect.position.x - this.camera.position.x;
+        const screenY = effect.position.y - this.camera.position.y;
+
         this.ctx.save();
+
+        // Flytta till sprite-positionen på skärmen
         this.ctx.translate(
           screenX + sprite.position.x,
           screenY + sprite.position.y
         );
+
+        // Rotera kring pivotpunkten
+        this.ctx.rotate(MathUtils.degreesToRadians(sprite.rotation));
+
+        // Skala objektet
         this.ctx.scale(sprite.scaleX, sprite.scaleY);
-        this.ctx.translate(
-          -screenX + sprite.position.x,
-          -screenY + sprite.position.y
-        );
+
+        // Rita bilden justerat efter pivotpunkten
         this.ctx.drawImage(
           effect.image,
           sprite.startX,
           sprite.startY,
           sprite.endX,
-          sprite.endY,
-          screenX - sprite.pivot.x - sprite.endX / 2,
-          screenY - sprite.pivot.y,
+          sprite.endY, // Källa (sprite sheet)
+          -sprite.pivot.x - sprite.endX / 2,
+          -sprite.pivot.y, // Målposition
           sprite.endX,
-          sprite.endY
+          sprite.endY // Storlek
         );
+
         this.ctx.restore();
       }
     });
@@ -524,12 +531,7 @@ export class Renderer {
     pool.forEach(({ entity, components }) => {
       const [transform, life] = components;
       const width = life.currentHp % 1000;
-      this.ctx.fillRect(
-        20,
-        20,
-        width,
-        10
-      );
+      this.ctx.fillRect(20, 20, width, 10);
     });
   }
 }
