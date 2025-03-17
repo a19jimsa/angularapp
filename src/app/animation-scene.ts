@@ -294,7 +294,7 @@ export class AnimationScene {
     );
 
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
-    // this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
     // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
     this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
@@ -302,6 +302,8 @@ export class AnimationScene {
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Life>(player, new Life(200));
+    // this.ecs.addComponent<Life>(draug, new Life(200));
+    // this.ecs.addComponent<Life>(enemy, new Life(200));
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 50));
 
@@ -367,6 +369,7 @@ export class AnimationScene {
     this.renderer.renderHitBox(this.ecs);
     this.renderer.renderCharacter(this.ecs);
     this.renderer.renderEffects(this.ecs);
+    this.renderer.renderLifebar(this.ecs);
     //this.renderer.renderWalkBox(this.ecs);
 
     this.renderer.renderParticles(this.particleSystem.particlePool);

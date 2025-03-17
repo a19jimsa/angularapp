@@ -77,14 +77,8 @@ export class ResourceManager {
     return this.filenames;
   }
 
-  public static saveJsonFile(
-    data: Keyframe[],
-    filename: string,
-    state: string
-  ) {
-    const newAnimation: Animation = { state: data };
-    this.animations.set(filename, newAnimation);
-    const blob = new Blob([JSON.stringify(this.animations.get(filename))], {
+  public static saveJSONFile(data: Animation, filename: string) {
+    const blob = new Blob([JSON.stringify(data)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);

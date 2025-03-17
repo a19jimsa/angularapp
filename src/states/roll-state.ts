@@ -1,43 +1,43 @@
-import { Skeleton } from '../components/skeleton';
-import { Ecs } from '../core/ecs';
-import { Entity } from '../app/entity';
-import { KeysPressed } from '../systems/controller-system';
+import { Entity } from 'src/app/entity';
+import { Ecs } from 'src/core/ecs';
+import { KeysPressed } from 'src/systems/controller-system';
 import { StateMachine } from './state-machine';
-import { ResourceManager } from 'src/core/resource-manager';
+import { Skeleton } from 'src/components/skeleton';
 import { States } from 'src/components/state';
-import { AttackDuration } from 'src/components/attack-duration';
-import { DamageState } from './damage-state';
-import { Damage } from 'src/components/damage';
+import { Transform } from 'src/components/transform';
+import { ResourceManager } from 'src/core/resource-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { OnGroundState } from './on-ground-state';
 
-export class JumpAttackState extends StateMachine {
+export class RollState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
-    console.log('Jump Attack');
+    console.log('Rolling');
+
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.keyframes = ResourceManager.getAnimation(
         skeleton.resource,
-        States.JumpAttack
+        'roll'
       );
       MathUtils.createSnaphot(skeleton);
       skeleton.animationDuration =
         skeleton.keyframes[skeleton.keyframes.length - 1].time;
     }
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    transform.velocity.x = 5;
   }
   override exit(entity: Entity, ecs: Ecs): void {
-    ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return;
+    const root = MathUtils.findBoneById(skeleton.bones, 'root');
+    if (!root) return;
+    root.rotation = -90;
   }
-
   override handleInput(
     entity: Entity,
     ecs: Ecs,
     input: KeysPressed
   ): StateMachine | null {
-    const damage = ecs.getComponent<Damage>(entity, 'Damage');
-    if (damage) {
-      return new DamageState();
-    }
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       if (skeleton.elapsedTime >= skeleton.animationDuration) {
@@ -46,13 +46,5 @@ export class JumpAttackState extends StateMachine {
     }
     return null;
   }
-
-  override update(entity: Entity, ecs: Ecs): void {
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-    if (!attackDuration) return;
-    attackDuration.cooldown -= 0.016;
-  }
+  override update(entity: Entity, ecs: Ecs): void {}
 }

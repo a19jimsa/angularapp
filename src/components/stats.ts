@@ -2,9 +2,32 @@ import { Component } from './component';
 
 export class Stats extends Component {
   override type: string = 'Stats';
-  damage: number;
-  constructor(damage: number) {
+  strength: number;
+  magic: number;
+  stamina: number;
+  critical: number;
+  stagger: number;
+  poise: number;
+  defense: number;
+  speed: number;
+  constructor(
+    strength: number,
+    magic: number,
+    stamina: number,
+    critical: number,
+    stagger: number,
+    poise: number,
+    defense: number,
+    speed: number
+  ) {
     super();
-    this.damage = damage;
+    this.strength = strength;
+    this.magic = magic;
+    this.stamina = stamina;
+    this.critical = critical;
+    this.stagger = stagger;
+    this.poise = poise;
+    this.defense = defense;
+    this.speed = speed;
   }
 }

@@ -4,6 +4,7 @@ import { Transform } from '../components/transform';
 import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
 import { MathUtils } from '../Utils/MathUtils';
+import { HitBox } from 'src/components/hit-box';
 
 export class HurtBoxSystem {
   update(ecs: Ecs) {
@@ -25,6 +26,15 @@ export class HurtBoxSystem {
       hurtBox.height = 10;
       hurtBox.position.x = newPos.x;
       hurtBox.position.y = newPos.y;
+      for (const otherEntity of ecs.getEntities()) {
+        if (entity === otherEntity) continue;
+        const hitBox = ecs.getComponent<HitBox>(otherEntity, 'HitBox');
+        if (!hitBox) continue;
+        if (MathUtils.isColliding(hitBox, hurtBox)) {
+          //TODO calculate damage to target
+          continue;
+        }
+      }
     });
   }
 }

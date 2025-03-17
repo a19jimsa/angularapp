@@ -5,7 +5,6 @@ import { KeysPressed } from '../systems/controller-system';
 import { StateMachine } from './state-machine';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
-import { AttackDuration } from 'src/components/attack-duration';
 import { OnGroundState } from './on-ground-state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
@@ -17,23 +16,22 @@ import { Vec } from 'src/app/vec';
 import { Weapon } from 'src/components/weapon';
 
 export class AttackState extends StateMachine {
+  comboTimer: number = 0;
+  comboStep: number = 1;
+  attackTimer: number = 0;
+
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Attack state');
+    this.comboTimer = 0;
+    this.attackTimer = 0;
+    this.comboStep = 1;
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       skeleton.keyframes = ResourceManager.getAnimation(
         skeleton.resource,
         States.Attacking
       );
-      MathUtils.createSnaphot(skeleton);
-
-      if (skeleton.heldEntity) {
-        const transform = ecs.getComponent<Transform>(
-          skeleton.heldEntity,
-          'Transform'
-        );
-        console.log(skeleton.heldEntity);
-      }
+      this.restartAnimation(skeleton);
     }
   }
 
@@ -52,16 +50,49 @@ export class AttackState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       if (skeleton.elapsedTime >= skeleton.animationDuration) {
-        return new OnGroundState();
-      }
-      if (skeleton.elapsedTime >= 0.1) {
-        this.addEffectToWeapon(entity, ecs);
+        if (!input.attack) return new OnGroundState();
+        if (this.comboStep % 2 === 0) {
+          skeleton.keyframes = ResourceManager.getAnimation(
+            skeleton.resource,
+            States.Attacking
+          );
+          if (skeleton.heldEntity) {
+            const transform = ecs.getComponent<Transform>(
+              skeleton.heldEntity,
+              'Transform'
+            );
+            ecs.addComponent<Effect>(
+              entity,
+              new Effect(
+                'assets/sprites/Btl_Hit01.png',
+                transform.position,
+                'lance'
+              )
+            );
+          }
+        } else {
+          skeleton.keyframes = ResourceManager.getAnimation(
+            skeleton.resource,
+            'thrust'
+          );
+        }
+        this.comboStep++;
+
+        this.restartAnimation(skeleton);
+        return null;
       }
     }
     return null;
   }
 
   override update(entity: Entity, ecs: Ecs): void {}
+
+  restartAnimation(skeleton: Skeleton) {
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
+    skeleton.elapsedTime = 0;
+  }
 
   addEffectToWeapon(entity: Entity, ecs: Ecs) {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
@@ -88,11 +119,8 @@ export class AttackState extends StateMachine {
   executeAttack(entity: Entity, ecs: Ecs): void {
     const combo = ecs.getComponent<Combo>(entity, 'Combo');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-    if (combo && skeleton && attackDuration) {
+
+    if (combo && skeleton) {
       switch (combo.comboCounter) {
         case 1:
           skeleton.keyframes = ResourceManager.getAnimation(
@@ -102,7 +130,6 @@ export class AttackState extends StateMachine {
           combo.comboCounter++;
           combo.comboTimer = 3;
           MathUtils.createSnaphot(skeleton);
-          attackDuration.cooldown = 0.5;
           console.log('Smash attack!');
           break;
         case 2:

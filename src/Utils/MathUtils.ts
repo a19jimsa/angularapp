@@ -62,6 +62,8 @@ export class MathUtils {
     skeleton.blend = true;
     skeleton.elapsedTime = 0;
     skeleton.snapShot = {};
+    skeleton.startTime = performance.now();
+    if (!skeleton.keyframes) return;
     skeleton.keyframes.forEach((keyframe) => {
       if (skeleton.snapShot) {
         if (skeleton.snapShot[keyframe.name]) return;

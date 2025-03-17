@@ -13,6 +13,7 @@ import { Transform } from 'src/components/transform';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { RollState } from './roll-state';
 
 export class OnGroundState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
@@ -26,6 +27,8 @@ export class OnGroundState extends StateMachine {
         States.Idle
       );
       MathUtils.createSnaphot(skeleton);
+      skeleton.animationDuration =
+        skeleton.keyframes[skeleton.keyframes.length - 1].time;
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {}
@@ -46,6 +49,13 @@ export class OnGroundState extends StateMachine {
       return new JumpingState();
     } else if (input.up) {
       return new LoadArrowState();
+    } else if (input.roll) {
+      return new RollState();
+    }
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return null;
+    if (skeleton.elapsedTime >= skeleton.animationDuration) {
+      skeleton.startTime = performance.now();
     }
     return null;
   }

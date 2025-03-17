@@ -13,7 +13,7 @@ export class DeathState extends StateMachine {
     skeleton.startTime = performance.now();
     skeleton.keyframes = ResourceManager.getAnimation(
       skeleton.resource,
-      States.Dead
+      States.Death
     );
   }
   override exit(entity: Entity, ecs: Ecs): void {}

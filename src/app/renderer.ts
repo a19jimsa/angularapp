@@ -17,6 +17,7 @@ import { Projectile } from 'src/components/projectile';
 import { Particle } from 'src/effects/particle-system';
 import { WalkBox } from 'src/components/walk-box';
 import { Effect } from 'src/components/effect';
+import { Life } from 'src/components/life';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -515,6 +516,20 @@ export class Renderer {
         );
         this.ctx.restore();
       }
+    });
+  }
+
+  renderLifebar(ecs: Ecs) {
+    const pool = ecs.getPool<[Transform, Life]>('Transform', 'Life');
+    pool.forEach(({ entity, components }) => {
+      const [transform, life] = components;
+      const width = life.currentHp % 1000;
+      this.ctx.fillRect(
+        20,
+        20,
+        width,
+        10
+      );
     });
   }
 }

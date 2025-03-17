@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-import-bones-dialog',
+  selector: 'app-input-dialog',
   imports: [
     MatButtonModule,
     MatDialogActions,
@@ -22,9 +22,9 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     FormsModule,
   ],
-  templateUrl: './import-bones-dialog.component.html',
-  styleUrl: './import-bones-dialog.component.css',
+  templateUrl: './input-dialog.component.html',
+  styleUrl: './input-dialog.component.css',
 })
-export class ImportBonesDialogComponent {
-  bonesJson: string = '';
+export class InputDialogComponent {
+  stateName: string = '';
 }

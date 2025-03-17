@@ -19,14 +19,14 @@ export class AnimationSystem {
   }
 
   runAnimation(skeleton: Skeleton, keyframes: Keyframe[]) {
+    if (!keyframes) return;
     if (keyframes.length === 0) return;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 1000 / 1;
+    const speed = 500 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;
-    if (elapsedTime >= skeleton.animationDuration) {
-      skeleton.startTime = performance.now();
+    if (elapsedTime > skeleton.animationDuration) {
       return;
     }
     for (const bone of skeleton.bones) {
@@ -37,6 +37,18 @@ export class AnimationSystem {
             (loopedTime - keyframe.time) /
             (keyframes[i + 1].time - keyframe.time);
           if (bone.id === keyframe.name) {
+            if (keyframe.position && keyframe.name === 'root') {
+              bone.position.x = MathUtils.interpolateKeyframe(
+                keyframe.position.x,
+                keyframes[i + 1].position.x,
+                progress
+              );
+              bone.position.y = MathUtils.interpolateKeyframe(
+                keyframe.position.y,
+                keyframes[i + 1].position.y,
+                progress
+              );
+            }
             bone.rotation = MathUtils.interpolateKeyframe(
               keyframe.angle,
               keyframes[i + 1].angle,
@@ -52,10 +64,10 @@ export class AnimationSystem {
               keyframes[i + 1].scale.y,
               progress
             );
-            // bone.startX = keyframe.clip.startX;
-            // bone.startY = keyframe.clip.startY;
-            // bone.endX = keyframe.clip.endX;
-            // bone.endY = keyframe.clip.endY;
+            bone.startX = keyframe.clip.startX;
+            bone.startY = keyframe.clip.startY;
+            bone.endX = keyframe.clip.endX;
+            bone.endY = keyframe.clip.endY;
           }
         }
       }

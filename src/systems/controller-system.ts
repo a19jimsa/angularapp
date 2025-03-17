@@ -11,6 +11,7 @@ export type KeysPressed = {
   down: boolean;
   jump: boolean;
   attack: boolean;
+  roll: boolean;
 };
 
 export class ControllerSystem {
@@ -22,6 +23,7 @@ export class ControllerSystem {
     down: false,
     jump: false,
     attack: false,
+    roll: false,
   };
 
   constructor(private mouseHandler: MouseHandler) {
@@ -45,6 +47,9 @@ export class ControllerSystem {
       if (event.code === 'Enter') {
         this.keysPressed.attack = true;
       }
+      if (event.code === 'KeyR') {
+        this.keysPressed.roll = true;
+      }
     });
 
     window.addEventListener('keyup', (event) => {
@@ -65,6 +70,9 @@ export class ControllerSystem {
       }
       if (event.code === 'Enter') {
         this.keysPressed.attack = false;
+      }
+      if (event.code === 'KeyR') {
+        this.keysPressed.roll = false;
       }
     });
   }

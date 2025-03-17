@@ -21,8 +21,15 @@
             {{ item }}
           </button>
           }
-          <button mat-button (click)="createNewState()">Create new state</button>
+          <button mat-fab (click)="createNewState()">
+            <mat-icon>add</mat-icon>
+          </button>
         </mat-card-content>
+        <mat-card-actions>
+          <button mat-fab (click)="saveNewFile()">
+            <mat-icon>save_as</mat-icon>
+          </button>
+        </mat-card-actions>
       </mat-card>
     </div>
     <div class="col-2 h-100">
@@ -82,7 +89,7 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title
-              >Keyframes form - {{ activeKeyframe?.name }}</mat-card-title
+              >Keyframe - {{ activeKeyframe?.name }}</mat-card-title
             >
           </mat-card-title-group>
         </mat-card-header>
@@ -252,8 +259,8 @@
           <button mat-flat-button>
             <mat-icon>fast_forward</mat-icon>
           </button>
-          <label>KeyFrames</label>
-          <mat-slider [step]="0.1" [min]="0" [max]="100" discrete>
+          <label>Timer</label>
+          <mat-slider [step]="0.1" [min]="0" [max]="5" discrete>
             <input
               matSliderThumb
               [(ngModel)]="this.keyframeSliderValue"

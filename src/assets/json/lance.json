@@ -2,8 +2,8 @@
   {
     "type": "Bone",
     "id": "root",
-    "position": { "X": 0, "Y": 0 },
-    "pivot": { "X": 0, "Y": 0 },
+    "position": { "x": 0, "y": 0 },
+    "pivot": { "x": 0, "y": 0 },
     "parentId": null,
     "length": 105,
     "rotation": 0,
@@ -16,7 +16,7 @@
     "globalRotation": 90,
     "globalSpriteRotation": 90,
     "hierarchyDepth": 0,
-    "scale": { "X": 1, "Y": 1 },
+    "scale": { "x": 1, "y": 1 },
     "minAngle": 0,
     "maxAngle": 180
   }

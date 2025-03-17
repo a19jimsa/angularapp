@@ -2,8 +2,8 @@
   {
     "type": "Bone",
     "id": "effect1",
-    "pivot": { "X": 0, "Y": 70 },
-    "position": { "X": 0, "Y": 0 },
+    "pivot": { "x": 0, "y": 70 },
+    "position": { "x": 0, "y": 0 },
     "parentId": null,
     "length": 0,
     "rotation": 0,
@@ -16,15 +16,15 @@
     "globalRotation": 90,
     "globalSpriteRotation": 90,
     "hierarchyDepth": 0,
-    "scale": { "X": 0, "Y": 0 },
+    "scale": { "x": 0, "y": 0 },
     "minAngle": 0,
     "maxAngle": 180
   },
   {
     "type": "Bone",
     "id": "effect2",
-    "pivot": { "X": 0, "Y": 125 },
-    "position": { "X": 0, "Y": 0 },
+    "pivot": { "x": 0, "y": 125 },
+    "position": { "x": 0, "y": 0 },
     "parentId": null,
     "length": 0,
     "rotation": 0,
@@ -37,7 +37,7 @@
     "globalRotation": 90,
     "globalSpriteRotation": 90,
     "hierarchyDepth": 0,
-    "scale": { "X": 1, "Y": 1 },
+    "scale": { "x": 1, "y": 1 },
     "minAngle": 0,
     "maxAngle": 180
   }

@@ -13,11 +13,12 @@ export class PhysicsSystem {
       const hitBox = ecs.getComponent<HitBox>(entity, 'HitBox');
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!hitBox || !skeleton) continue;
-      const root = skeleton.bones.find((e) => e.id === 'root');
-      const foot = skeleton.bones.find((e) => e.id === 'right_foot');
-      if (!foot || !root) continue;
-      const dist = root.position.y + foot.position.y;
-      const newDist = skeleton.lowestPoint - dist;
+      // const root = skeleton.bones.find((e) => e.id === 'root');
+      // const foot = skeleton.bones.find((e) => e.id === 'right_foot');
+      // if (!foot || !root) continue;
+      // const dist = root.position.y + foot.position.y;
+      // const newDist = skeleton.lowestPoint - dist;
+      const newDist = 0;
       const pool = ecs.getPool<[Transform, WalkBox]>('Transform', 'WalkBox');
       pool.forEach(({ entity, components }) => {
         const [walkTransform, walkBox] = components;

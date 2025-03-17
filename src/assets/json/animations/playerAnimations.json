@@ -1,7 +1,7 @@
 {
   "idle": [
     {
-      "position": { "x": 4.102566777143634e-15, "y": -67 },
+      "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
       "time": 0,
       "angle": 2.185,
       "name": "head",
@@ -9,87 +9,87 @@
       "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
-      "position": { "x": 4.102566777143634e-15, "y": -67 },
-      "time": 0.5,
+      "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
+      "time": 1,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 283, "startY": 407, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
+      "time": 1.2,
       "angle": 2.185,
       "name": "head",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
-      "position": { "x": 4.102566777143634e-15, "y": -67 },
-      "time": 1,
+      "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
+      "time": 2,
       "angle": 2.185,
       "name": "head",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
-      "position": { "x": 15.5884572681199, "y": -58 },
-      "time": 0,  
-      "angle": 27,
+      "position": { "x": 15.01019014754271, "y": -58.45173324632267 },
+      "time": 0,
+      "angle": 10,
       "name": "left_arm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
     },
     {
-      "position": { "x": 15.5884572681199, "y": -58 },
-      "time": 0.5,
-      "angle": -3,
-      "name": "left_arm",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
-    },
-    {
-      "position": { "x": 15.5884572681199, "y": -58 },
+      "position": { "x": 15.01019014754271, "y": -58.45173324632267 },
       "time": 1,
-      "angle": 27,
+      "angle": 34,
       "name": "left_arm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
     },
     {
-      "position": { "x": 14.907807397215059, "y": 8.016283358018402 },
+      "position": { "x": 15.01019014754271, "y": -58.45173324632267 },
+      "time": 2,
+      "angle": 10,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 22.287982815061966, "y": 6.038771314806301 },
+      "time": 0,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 22.287982815061966, "y": 6.038771314806301 },
+      "time": 1,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 22.287982815061966, "y": 6.038771314806301 },
+      "time": 2,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 32.90616499157659, "y": -40.9950988518666 },
       "time": 0,
       "angle": 0,
-      "name": "left_foot",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
-    },
-    {
-      "position": { "x": 14.907807397215059, "y": 8.016283358018402 },
-      "time": 0.5,
-      "angle": 0,
-      "name": "left_foot",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
-    },
-    {
-      "position": { "x": 14.907807397215059, "y": 8.016283358018402 },
-      "time": 1,
-      "angle": 0,
-      "name": "left_foot",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
-    },
-    {
-      "position": { "x": 33.01690638860077, "y": -31.162541825746434 },
-      "time": 0,
-      "angle": 0,
       "name": "left_forearm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
     },
     {
-      "position": { "x": 44.10066604214767, "y": -43.472304008334504 },
-      "time": 0.5,
-      "angle": 0,
-      "name": "left_forearm",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
-    },
-    {
-      "position": { "x": 33.01690638860077, "y": -31.162541825746434 },
+      "position": { "x": 24.2587238033935, "y": -35.225355456908424 },
       "time": 1,
       "angle": 0,
       "name": "left_forearm",
@@ -97,7 +97,15 @@
       "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
     },
     {
-      "position": { "x": 42.82040901887126, "y": -16.066471602728804 },
+      "position": { "x": 32.90616499157659, "y": -40.9950988518666 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 45.79126687928098, "y": -28.42632208785823 },
       "time": 0,
       "angle": 0,
       "name": "left_hand",
@@ -105,16 +113,16 @@
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
-      "position": { "x": 60.1387834775383, "y": -35.30047501302266 },
-      "time": 0.5,
+      "position": { "x": 30.91766803560607, "y": -18.50236344853017 },
+      "time": 1,
       "angle": 0,
       "name": "left_hand",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
-      "position": { "x": 42.82040901887126, "y": -16.066471602728804 },
-      "time": 1,
+      "position": { "x": 45.79126687928098, "y": -28.42632208785823 },
+      "time": 2,
       "angle": 0,
       "name": "left_hand",
       "scale": { "x": 1, "y": 1 },
@@ -123,15 +131,7 @@
     {
       "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
       "time": 0,
-      "angle": 115,
-      "name": "left_leg",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
-    },
-    {
-      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
-      "time": 0.5,
-      "angle": 115,
+      "angle": 95,
       "name": "left_leg",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
@@ -139,109 +139,93 @@
     {
       "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
       "time": 1,
-      "angle": 115,
+      "angle": 95,
       "name": "left_leg",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
     },
     {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 2,
+      "angle": 95,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -16.303764067886966, "y": -57.791224810362884 },
       "time": 0,
-      "angle": 60,
-      "name": "left_pelvis",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 618.015625, "startY": 243, "endX": 7, "endY": 12 }
-    },
-    {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
-      "time": 0.5,
-      "angle": 60,
-      "name": "left_pelvis",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 618.015625, "startY": 243, "endX": 7, "endY": 12 }
-    },
-    {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
-      "time": 1,
-      "angle": 60,
-      "name": "left_pelvis",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 618.015625, "startY": 243, "endX": 7, "endY": 12 }
-    },
-    {
-      "position": { "x": -18.18653347947321, "y": -56.5 },
-      "time": 0,
-      "angle": -36,
-      "name": "right_arm",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
-    },
-    {
-      "position": { "x": -18.18653347947321, "y": -56.5 },
-      "time": 0.5,
       "angle": -18,
       "name": "right_arm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
     },
     {
-      "position": { "x": -18.18653347947321, "y": -56.5 },
+      "position": { "x": -16.303764067886966, "y": -57.791224810362884 },
       "time": 1,
-      "angle": -36,
+      "angle": -57,
       "name": "right_arm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
     },
     {
-      "position": { "x": -13.974568521558899, "y": 8.12113032590307 },
+      "position": { "x": -16.303764067886966, "y": -57.791224810362884 },
+      "time": 2,
+      "angle": -18,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -15.286360502378194, "y": 7.643677091335746 },
       "time": 0,
       "angle": 0,
       "name": "right_foot",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
     },
     {
-      "position": { "x": -13.974568521558899, "y": 8.12113032590307 },
-      "time": 0.5,
-      "angle": 0,
-      "name": "right_foot",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
-    },
-    {
-      "position": { "x": -13.974568521558899, "y": 8.12113032590307 },
+      "position": { "x": -15.286360502378194, "y": 7.643677091335746 },
       "time": 1,
       "angle": 0,
       "name": "right_foot",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
     },
     {
-      "position": { "x": -27.94821291329241, "y": -34.57490901657758 },
+      "position": { "x": -15.286360502378194, "y": 7.643677091335746 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -33.6515024354097, "y": -41.20641327896526 },
       "time": 0,
-      "angle": -4.997999998480097,
+      "angle": 0,
       "name": "right_forearm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
     },
     {
-      "position": { "x": -34.24566803208582, "y": -38.66452418854254 },
-      "time": 0.5,
-      "angle": -4.997999998480097,
-      "name": "right_forearm",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
-    },
-    {
-      "position": { "x": -27.94821291329241, "y": -34.57490901657758 },
+      "position": { "x": -19.34832880219239, "y": -33.985120013932544 },
       "time": 1,
-      "angle": -4.997999998480097,
+      "angle": 0,
       "name": "right_forearm",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
     },
     {
-      "position": { "x": -35.1114384136783, "y": -13.773750384649851 },
+      "position": { "x": -33.6515024354097, "y": -41.20641327896526 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -49.5535959389722, "y": -26.0036693751841 },
       "time": 0,
       "angle": 0,
       "name": "right_hand",
@@ -249,15 +233,7 @@
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
-      "position": { "x": -47.486211841874244, "y": -21.09500513931774 },
-      "time": 0.5,
-      "angle": 0,
-      "name": "right_hand",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
-    },
-    {
-      "position": { "x": -35.1114384136783, "y": -13.773750384649851 },
+      "position": { "x": -22.139179808639028, "y": -12.162857283871396 },
       "time": 1,
       "angle": 0,
       "name": "right_hand",
@@ -265,52 +241,350 @@
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
+      "position": { "x": -49.5535959389722, "y": -26.0036693751841 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
       "time": 0,
-      "angle": -60,
-      "name": "right_pelvis",
+      "angle": -98,
+      "name": "right_leg",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 587.015625, "startY": 164, "endX": 0, "endY": 0 }
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
     },
     {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
-      "time": 0.5,
-      "angle": -60,
-      "name": "right_pelvis",
-      "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 587.015625, "startY": 164, "endX": 0, "endY": 0 }
-    },
-    {
-      "position": { "x": 3.9188697572715305e-16, "y": -6.4 },
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
       "time": 1,
-      "angle": -60,
-      "name": "right_pelvis",
+      "angle": -98,
+      "name": "right_leg",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 587.015625, "startY": 164, "endX": 0, "endY": 0 }
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 2,
+      "angle": -98,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 1,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 2,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 1,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 2,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    }
+  ],
+  "attacking": [
+    {
+      "position": { "x": 4.102566777143634e-15, "y": -67 },
+      "time": 0,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 7.152578096225233, "y": -66.2613576289294 },
+      "time": 1.1,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 13.11123076955692, "y": -64.45143490983756 },
+      "time": 2,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 8.66025403784439, "y": -62 },
+      "time": 0,
+      "angle": -180,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 14.608268675277813, "y": -59.597073872258576 },
+      "time": 1.1,
+      "angle": -47.07199999999901,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 19.267845522813502, "y": -56.57132737377034 },
+      "time": 2,
+      "angle": 68,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 27.131708469870446, "y": 2.952977748617517 },
+      "time": 0,
+      "angle": 14,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 31.36041524326981, "y": -1.7945531273437627 },
+      "time": 1.1,
+      "angle": 33.83200000000015,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 33.79178971995155, "y": -6.7375006019425525 },
+      "time": 2,
+      "angle": 51,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": -12.990381056766578, "y": -74.5 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 39.50219069874208, "y": -61.89764908069679 },
+      "time": 1.1,
+      "angle": -105,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 6.7678455228135075, "y": -34.92069227915937 },
+      "time": 2,
+      "angle": -105,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -28.578838324886476, "y": -83.5 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 33.263242280735355, "y": -78.781828736145 },
+      "time": 1.1,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 24.15451039601674, "y": -30.261949467313997 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0,
+      "angle": 80,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 1.1,
+      "angle": 63.38399999999987,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 2,
+      "angle": 49,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
     },
     {
       "position": { "x": 4.102566777143634e-15, "y": -67 },
       "time": 0,
-      "angle": -120,
-      "name": "right_shoulder",
+      "angle": 120,
+      "name": "left_shoulder",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+      "clip": { "startX": 345, "startY": 238, "endX": 36, "endY": 41 }
     },
     {
-      "position": { "x": 4.102566777143634e-15, "y": -67 },
-      "time": 0.5,
-      "angle": -120,
-      "name": "right_shoulder",
+      "position": { "x": 7.152578096225233, "y": -66.2613576289294 },
+      "time": 1.1,
+      "angle": 120,
+      "name": "left_shoulder",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+      "clip": { "startX": 345, "startY": 238, "endX": 36, "endY": 41 }
     },
     {
-      "position": { "x": 4.102566777143634e-15, "y": -67 },
-      "time": 1,
-      "angle": -120,
-      "name": "right_shoulder",
+      "position": { "x": 13.11123076955692, "y": -64.45143490983756 },
+      "time": 2,
+      "angle": 120,
+      "name": "left_shoulder",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+      "clip": { "startX": 345, "startY": 238, "endX": 36, "endY": 41 }
+    },
+    {
+      "position": { "x": -18.18653347947321, "y": -56.5 },
+      "time": 0,
+      "angle": -212,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -12.795918977520323, "y": -59.699538940580496 },
+      "time": 1.1,
+      "angle": -166.43999999999966,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -7.6843986740160535, "y": -61.528799789676185 },
+      "time": 2,
+      "angle": -127,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -19.830529097100914, "y": 5.072710200945858 },
+      "time": 0,
+      "angle": 18,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -19.830529097100914, "y": 5.072710200945858 },
+      "time": 1.1,
+      "angle": 31.4000000000001,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -19.830529097100914, "y": 5.072710200945858 },
+      "time": 2,
+      "angle": 43,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -6.919215972611827, "y": -77.69074222861424 },
+      "time": 0,
+      "angle": -105,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 11.125153215635216, "y": -61.64435387517989 },
+      "time": 1.1,
+      "angle": -48.71999999999958,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 9.286164074461082, "y": -44.55823704119904 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -28.355357397887, "y": -82.63966542417928 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 24.251962731590332, "y": -79.29900968977537 },
+      "time": 1.1,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 24.842513260565124, "y": -29.001887855094992 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
       "position": { "x": 1.959434878635765e-15, "y": -32 },
@@ -322,8 +596,314 @@
     },
     {
       "position": { "x": 1.959434878635765e-15, "y": -32 },
-      "time": 0.5,
+      "time": 1.1,
+      "angle": 11.792000000000089,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 2,
+      "angle": 22,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    }
+  ],
+  "running": [
+    {
+      "position": { "x": 0.5238584669500347, "y": -66.99607938479116 },
+      "time": 0,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 0.5238584669500347, "y": -66.99607938479116 },
+      "time": 1,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 0.5238584669500347, "y": -66.99607938479116 },
+      "time": 2,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 13.400528986926187, "y": -59.30248748503607 },
+      "time": 0,
+      "angle": 180,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 13.400528986926187, "y": -59.30248748503607 },
+      "time": 1,
+      "angle": -24,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 13.400528986926187, "y": -59.30248748503607 },
+      "time": 2,
+      "angle": 180,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 32.232014613833286, "y": -3.234188354580583 },
+      "time": 0,
       "angle": 0,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 3.0025900624965534, "y": 5.702143532144095 },
+      "time": 1,
+      "angle": 87,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 32.232014613833286, "y": -3.234188354580583 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": -8.060588546367399, "y": -72.12514065129454 },
+      "time": 0,
+      "angle": -105,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 38.22167832956978, "y": -56.31743383222115 },
+      "time": 1,
+      "angle": -105,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -8.060588546367399, "y": -72.12514065129454 },
+      "time": 2,
+      "angle": -105,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -12.979042400153574, "y": -54.81015258637876 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 35.67226938589949, "y": -74.13597793767303 },
+      "time": 1,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -12.979042400153574, "y": -54.81015258637876 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0,
+      "angle": 59,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 1,
+      "angle": 180,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 2,
+      "angle": 59,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -17.8177953411866, "y": -56.7694604135736 },
+      "time": 0,
+      "angle": -124,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -17.8177953411866, "y": -56.7694604135736 },
+      "time": 1,
+      "angle": 31,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -17.8177953411866, "y": -56.7694604135736 },
+      "time": 2,
+      "angle": -124,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -21.43419583530993, "y": 3.7270740323834044 },
+      "time": 0,
+      "angle": 81,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 9.349117379982296, "y": -0.5992385017989079 },
+      "time": 1,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -21.43419583530993, "y": 3.7270740323834044 },
+      "time": 2,
+      "angle": 81,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 3.5933749614085357, "y": -45.92686910552974 },
+      "time": 0,
+      "angle": -100.90690909090893,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -41.80518280736675, "y": -57.54743377259278 },
+      "time": 1,
+      "angle": -100.90690909090893,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 3.5933749614085357, "y": -45.92686910552974 },
+      "time": 2,
+      "angle": -100.90690909090893,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 9.639194659428355, "y": -67.079837317557 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -38.34492562227845, "y": -35.82126015151894 },
+      "time": 1,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 9.639194659428355, "y": -67.079837317557 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 1,
+      "angle": -200,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 1,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 2,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0,
+      "angle": 0.8576000000000357,
       "name": "torso",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
@@ -331,6 +911,1244 @@
     {
       "position": { "x": 1.959434878635765e-15, "y": -32 },
       "time": 1,
+      "angle": 0.8576000000000357,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 2,
+      "angle": 0.8576000000000357,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    }
+  ],
+  "death": [
+    {
+      "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
+      "time": 0,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 283, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": -66.3400642294062, "y": 9.040226988380663 },
+      "time": 1,
+      "angle": -4,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 283, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": -66.3400642294062, "y": 9.040226988380663 },
+      "time": 2,
+      "angle": -4,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 283, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": -66.3400642294062, "y": 9.040226988380663 },
+      "time": 2.1,
+      "angle": -4,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 283, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 15.01019014754271, "y": -58.45173324632267 },
+      "time": 0,
+      "angle": 31.599999999999998,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": -60.1702122435349, "y": -4.632114671790065 },
+      "time": 1,
+      "angle": 44,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": -60.1702122435349, "y": -4.632114671790065 },
+      "time": 2,
+      "angle": -20,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": -60.1702122435349, "y": -4.632114671790065 },
+      "time": 2.1,
+      "angle": 65,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 22.287982815061966, "y": 6.038771314806301 },
+      "time": 0,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 6.001825341139909, "y": -11.913960732087071 },
+      "time": 1,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 6.001825341139909, "y": -11.913960732087071 },
+      "time": 2,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 6.001825341139909, "y": -11.913960732087071 },
+      "time": 2.1,
+      "angle": 31,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 25.223231021733973, "y": -35.6330173292931 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -36.943834454120655, "y": -13.880648327640854 },
+      "time": 1,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -58.30096536310918, "y": -29.56213505084348 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -35.172142518360474, "y": -4.942775282936081 },
+      "time": 2.1,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 32.57662045115168, "y": -19.20354186903181 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -20.2208424457424, "y": -20.53959255985342 },
+      "time": 1,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -56.955107609202656, "y": -47.51174972376194 },
+      "time": 2,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -17.173532316234883, "y": -5.1664509229612126 },
+      "time": 2.1,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0,
+      "angle": 95,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -15.944583764576223, "y": -10.379318309716314 },
+      "time": 1,
+      "angle": 126,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -15.944583764576223, "y": -10.379318309716314 },
+      "time": 2,
+      "angle": 126,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -15.944583764576223, "y": -10.379318309716314 },
+      "time": 2.1,
+      "angle": 126,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -16.303764067886966, "y": -57.791224810362884 },
+      "time": 0,
+      "angle": -53.099999999999994,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -54.08212732981667, "y": 26.09141413079634 },
+      "time": 1,
+      "angle": -53.099999999999994,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -54.08212732981667, "y": 26.09141413079634 },
+      "time": 2,
+      "angle": -53.099999999999994,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -54.08212732981667, "y": 26.09141413079634 },
+      "time": 2.1,
+      "angle": -53.099999999999994,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -15.286360502378194, "y": 7.643677091335746 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 10.182001105466954, "y": 13.726815740496727 },
+      "time": 1,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 10.182001105466954, "y": 13.726815740496727 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 10.182001105466954, "y": 13.726815740496727 },
+      "time": 2.1,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -20.960457576537383, "y": -34.24732527000438 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -30.087286184600494, "y": 26.589006751160365 },
+      "time": 1,
+      "angle": -14,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -30.087286184600494, "y": 26.589006751160365 },
+      "time": 2,
+      "angle": -14,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -30.087286184600494, "y": 26.589006751160365 },
+      "time": 2.1,
+      "angle": -14,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -25.229093292800265, "y": -12.66541735800909 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -8.635021682590061, "y": 21.710446744787262 },
+      "time": 1,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -8.635021682590061, "y": 21.710446744787262 },
+      "time": 2,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -8.635021682590061, "y": 21.710446744787262 },
+      "time": 2.1,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 0,
+      "angle": -98,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -9.380950909209156, "y": 9.56858192414153 },
+      "time": 1,
+      "angle": -98,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -9.380950909209156, "y": 9.56858192414153 },
+      "time": 2,
+      "angle": -98,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -9.380950909209156, "y": 9.56858192414153 },
+      "time": 2.1,
+      "angle": -98,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 1,
+      "angle": -190,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 2,
+      "angle": -190,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 2.1,
+      "angle": -190,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": -31.513848096390657, "y": 5.556741685341775 },
+      "time": 1,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": -31.513848096390657, "y": 5.556741685341775 },
+      "time": 2,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": -31.513848096390657, "y": 5.556741685341775 },
+      "time": 2.1,
+      "angle": 4.28799999997846,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    }
+  ],
+  "thrust": [
+    {
+      "position": { "x": 15.575361726078755, "y": -63.34339016605895 },
+      "time": 0,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 15.575361726078755, "y": -63.34339016605895 },
+      "time": 0.5,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 14.791639160924483, "y": -63.720772546282745 },
+      "time": 0.8,
+      "angle": 2.185,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 23.871000838148056, "y": -50.846095589939445 },
+      "time": 0,
+      "angle": 88,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 23.871000838148056, "y": -50.846095589939445 },
+      "time": 0.5,
+      "angle": -65,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 23.395285706190172, "y": -51.433491881947866 },
+      "time": 0.8,
+      "angle": -53.98400000000052,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 27.131708469870446, "y": 2.952977748617517 },
+      "time": 0,
+      "angle": 14,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 27.131708469870446, "y": 2.952977748617517 },
+      "time": 0.5,
+      "angle": 14,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 34.3368870348385, "y": -8.577718296807308 },
+      "time": 0.8,
+      "angle": 48,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 3.53738761799384, "y": -36.30153738375216 },
+      "time": 0,
+      "angle": -33.180000000000824,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": -0.36799999999998434 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 48.591474126146196, "y": -54.5741246157613 },
+      "time": 0.5,
+      "angle": -33.180000000000824,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": -0.36799999999998434 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 48.391355269692376, "y": -50.99020148439933 },
+      "time": 0.8,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": -0.36799999999998434 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 5.937530670433546, "y": -42.47540888612583 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 43.65005199874666, "y": -50.16280697146922 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 41.76839667814711, "y": -51.107655708133784 },
+      "time": 0.8,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0,
+      "angle": 80,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0.5,
+      "angle": 80,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.99038105676658, "y": -13.899999999999999 },
+      "time": 0.8,
+      "angle": 44,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 0.604567588547134, "y": -62.40780324243891 },
+      "time": 0,
+      "angle": 45,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": 0.604567588547134, "y": -62.40780324243891 },
+      "time": 0.5,
+      "angle": -153,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -0.1512813104517008, "y": -62.41343640506788 },
+      "time": 0.8,
+      "angle": -168,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -23.55444370619439, "y": 1.413229506513158 },
+      "time": 0,
+      "angle": 18,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -23.55444370619439, "y": 1.413229506513158 },
+      "time": 0.5,
+      "angle": 18,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -24.374980085160786, "y": 0.28385806941493463 },
+      "time": 0.8,
+      "angle": 18,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -3.325173266209375, "y": -38.73171537272408 },
+      "time": 0,
+      "angle": -97,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 0 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 22.62668410666824, "y": -52.86702842787078 },
+      "time": 0.5,
+      "angle": -22,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 23.669826328940026, "y": -59.48857216334432 },
+      "time": 0.8,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 0.9280000000000035 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -3.325173266209375, "y": -38.73171537272408 },
+      "time": 0,
+      "angle": -90,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 44.619889801590375, "y": -52.32030796836267 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 43.933648560849335, "y": -57.00048764838481 },
+      "time": 0.8,
+      "angle": -6.479999999999691,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 0,
+      "angle": -68,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 0.5,
+      "angle": -68,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.899999999999999 },
+      "time": 0.8,
+      "angle": -64,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 15.575361726078755, "y": -63.34339016605895 },
+      "time": 0,
+      "angle": -120,
+      "name": "right_shoulder",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+    },
+    {
+      "position": { "x": 15.575361726078755, "y": -63.34339016605895 },
+      "time": 0.5,
+      "angle": -120,
+      "name": "right_shoulder",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+    },
+    {
+      "position": { "x": 14.791639160924483, "y": -63.720772546282745 },
+      "time": 0.8,
+      "angle": -120,
+      "name": "right_shoulder",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 258.015625, "startY": 228, "endX": 59, "endY": 55 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0.5,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0.8,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": -3.325173266209375, "y": -38.73171537272408 },
+      "time": 0,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 121.015625, "startY": 293, "endX": 60, "endY": 166 }
+    },
+    {
+      "position": { "x": 44.619889801590375, "y": -52.32030796836267 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 121.015625, "startY": 293, "endX": 60, "endY": 166 }
+    },
+    {
+      "position": { "x": 43.933648560849335, "y": -57.00048764838481 },
+      "time": 0.8,
+      "angle": 0,
+      "name": "sword",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 121.015625, "startY": 293, "endX": 60, "endY": 166 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0,
+      "angle": -25,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0.5,
+      "angle": 26.423999999991544,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 1.959434878635765e-15, "y": -32 },
+      "time": 0.8,
+      "angle": 25,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    }
+  ],
+  "roll": [
+    {
+      "position": { "x": -3.4090634870007577, "y": -89.23914563232914 },
+      "time": 0,
+      "angle": 0,
+      "name": "cape",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 22, "startY": 498, "endX": 138, "endY": 97 }
+    },
+    {
+      "position": { "x": 60.840577536408404, "y": -44.40088654123126 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "cape",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 22, "startY": 498, "endX": 138, "endY": 97 }
+    },
+    {
+      "position": { "x": -56.63221385988952, "y": 19.7448222374456 },
+      "time": 1,
+      "angle": 0,
+      "name": "cape",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 22, "startY": 498, "endX": 138, "endY": 97 }
+    },
+    {
+      "position": { "x": -1.2307700331430898e-14, "y": -67 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "cape",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 22, "startY": 498, "endX": 138, "endY": 97 }
+    },
+    {
+      "position": { "x": -3.4090634870007577, "y": -89.23914563232914 },
+      "time": 0,
+      "angle": 0,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 60.840577536408404, "y": -44.40088654123126 },
+      "time": 0.5,
+      "angle": 45,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": -56.63221385988952, "y": 19.7448222374456 },
+      "time": 1,
+      "angle": 45,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": -1.2307700331430898e-14, "y": -67 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 27, "startY": 23, "endX": 83, "endY": 73 }
+    },
+    {
+      "position": { "x": 8.352840152018889, "y": -79.93013801677654 },
+      "time": 0,
+      "angle": -75,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 54.0307200403152, "y": -31.03578867840574 },
+      "time": 0.5,
+      "angle": -75,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": -47.81543507550242, "y": 7.6095673218213875 },
+      "time": 1,
+      "angle": -75,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 12.990381056766573, "y": -59.500000000000014 },
+      "time": 1.5,
+      "angle": 24,
+      "name": "left_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 152.015625, "startY": 149, "endX": 22, "endY": 44 }
+    },
+    {
+      "position": { "x": 2.916500589445034, "y": -19.421024806763043 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": -3.0353927293797227, "y": -19.50334962745542 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 2.1674168344644933, "y": -4.757623952769279 },
+      "time": 1,
+      "angle": 58,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 31.011726031124397, "y": -1.2813184002769944 },
+      "time": 1.5,
+      "angle": 58,
+      "name": "left_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 467.015625, "startY": 145, "endX": 28, "endY": 48 }
+    },
+    {
+      "position": { "x": 28.412866054390232, "y": -94.8497680656816 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 72.60934067725006, "y": -14.307523519434284 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": -63.54844485174835, "y": -11.819081714602891 },
+      "time": 1,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 27.685012364078425, "y": -39.27457514062634 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "left_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 212.015625, "startY": 154, "endX": 25, "endY": 30 }
+    },
+    {
+      "position": { "x": 42.8560847040976, "y": -105.59190170089325 },
+      "time": 0,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 85.98594753584315, "y": -2.2631726049748355 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -74.87621189064542, "y": -25.80770902082837 },
+      "time": 1,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 38.26514690534296, "y": -24.712269241877298 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "left_hand",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 8.83273664313213, "y": -40.61060127626929 },
+      "time": 0,
+      "angle": 151,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 18.880890628638678, "y": -21.42077596790391 },
+      "time": 0.5,
+      "angle": 151,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -18.98034047617852, "y": 1.3063978752047167 },
+      "time": 1,
+      "angle": 151,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": 12.990381056766575, "y": -13.900000000000007 },
+      "time": 1.5,
+      "angle": 65,
+      "name": "left_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.015625, "startY": 146, "endX": 27, "endY": 51 }
+    },
+    {
+      "position": { "x": -17.351852385601937, "y": -83.70754209184979 },
+      "time": 0,
+      "angle": -188,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": 52.670992011182996, "y": -56.980945060412616 },
+      "time": 0.5,
+      "angle": -188,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -50.53116421375252, "y": 33.44800410208461 },
+      "time": 1,
+      "angle": -188,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -12.990381056766592, "y": -59.5 },
+      "time": 1.5,
+      "angle": -1,
+      "name": "right_arm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 15.015625, "startY": 151, "endX": 32, "endY": 40 }
+    },
+    {
+      "position": { "x": -23.530122266080184, "y": -17.10464320634115 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -14.508687195261261, "y": -43.44396361875346 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 17.99799907025069, "y": 16.553925738822215 },
+      "time": 1,
+      "angle": 75,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": -24.452653448239367, "y": 0.16783098490085102 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "right_foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
+    },
+    {
+      "position": { "x": 3.507744762364485, "y": -95.57671252724884 },
+      "time": 0,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 68.41640870695517, "y": -38.867915135066085 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -63.24922655534944, "y": 13.094849794330386 },
+      "time": 1,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": -33.56239627361729, "y": -47.139086202158694 },
+      "time": 1.5,
+      "angle": 0,
+      "name": "right_forearm",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 86.015625, "startY": 152, "endX": 23, "endY": 35 }
+    },
+    {
+      "position": { "x": 22.629042148000373, "y": -106.45678542636465 },
+      "time": 0,
+      "angle": 88,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": -1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": 82.84970734474632, "y": -22.264304370165096 },
+      "time": 0.5,
+      "angle": 88,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": -1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -74.90745036847994, "y": -5.562208321110987 },
+      "time": 1,
+      "angle": 88,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": -1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -52.42007688906376, "y": -35.8082485541375 },
+      "time": 1.5,
+      "angle": 88,
+      "name": "right_hand",
+      "scale": { "x": 1, "y": -1 },
+      "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
+    },
+    {
+      "position": { "x": -10.408941686193089, "y": -32.1988348107297 },
+      "time": 0,
+      "angle": -63.600000000116836,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 4.236952594590784, "y": -36.472522672355375 },
+      "time": 0.5,
+      "angle": -63.600000000116836,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -1.7334441618953584, "y": 13.287406494030009 },
+      "time": 1,
+      "angle": -63.600000000116836,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": -7.794228634059948, "y": -10.900000000000002 },
+      "time": 1.5,
+      "angle": -63.600000000116836,
+      "name": "right_leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 274.015625, "startY": 150, "endX": 30, "endY": 47 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 0,
+      "angle": -90,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": -100 },
+      "time": 0.5,
+      "angle": -36,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": -50 },
+      "time": 1,
+      "angle": 133,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": 0, "y": 0 },
+      "time": 1.5,
+      "angle": 270,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414, "startY": 68, "endX": 57, "endY": 51 }
+    },
+    {
+      "position": { "x": -8.497795759357695, "y": -54.61105293492126 },
+      "time": 0,
+      "angle": 23.759999999369086,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": 25.88854381999832, "y": -42.569128072728226 },
+      "time": 0.5,
+      "angle": 33,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": -21.823947521999948, "y": 23.40331845181346 },
+      "time": 1,
+      "angle": 53,
+      "name": "torso",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
+    },
+    {
+      "position": { "x": -5.878304635907295e-15, "y": -32 },
+      "time": 1.5,
       "angle": 0,
       "name": "torso",
       "scale": { "x": 1, "y": 1 },

@@ -42,6 +42,7 @@ import { FilterBonesDialogComponent } from '../filter-bones-dialog/filter-bones-
 import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
 import { Animation, ResourceManager } from 'src/core/resource-manager';
+import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 
 @Component({
   selector: 'app-animation-creator',
@@ -70,6 +71,7 @@ export class AnimationCreatorComponent
 
   loopedTime: number = 0;
   totalDuration: number = 0;
+  elapsedTime: number = 0;
 
   camera: Vec = new Vec(0, 0);
 
@@ -219,25 +221,35 @@ export class AnimationCreatorComponent
   }
 
   createNewState() {
-    const animations = ResourceManager.getAllAnimationsFromFile(
-      this.activeFilename
-    );
-    if (!animations) return;
-    animations['attacking'] = new Array();
-    this.animationStates = Object.keys(animations);
+    let stateName = '';
+    const dialogRef = this.dialog.open(InputDialogComponent, {
+      height: '400px',
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result !== '') {
+        stateName = result;
+        const animations = ResourceManager.getAllAnimationsFromFile(
+          this.activeFilename
+        );
+        if (!animations) return;
+        animations[stateName] = new Array();
+        this.animationStates = Object.keys(animations);
+        console.log(this.animationStates);
+      }
+    });
   }
 
   saveNewFile() {
-    ResourceManager.saveJsonFile(
-      this.keyframes,
-      'playerAnimations',
-      this.activeState
-    );
+    if (!this.activeAnimations) return;
+    console.log(this.activeAnimations);
+    ResourceManager.saveJSONFile(this.activeAnimations, this.activeFilename);
     console.log('Saved new JSON');
   }
 
   setTime() {
-    this.keyframeSliderValue = this.loopedTime;
+    this.elapsedTime = this.loopedTime;
     this.runAnimation();
   }
 
@@ -265,7 +277,7 @@ export class AnimationCreatorComponent
   }
 
   importBones() {
-    let dialogRef = this.dialog.open(ImportBonesDialogComponent, {
+    const dialogRef = this.dialog.open(ImportBonesDialogComponent, {
       height: '400px',
       width: '600px',
     });
@@ -311,6 +323,9 @@ export class AnimationCreatorComponent
     });
     dialogRef.afterClosed().subscribe((e: string) => {
       if (e === 'yes') {
+        if (this.activeAnimations) {
+          this.activeAnimations[this.activeState] = [];
+        }
         this.keyframes = [];
         this.filteredKeyframes = [];
       }
@@ -513,7 +528,7 @@ export class AnimationCreatorComponent
 
   playAnimation() {
     if (this.play) {
-      this.keyframeSliderValue += 0.016;
+      this.elapsedTime += 0.016 * this.animationSpeed;
       this.runAnimation();
     }
   }
@@ -859,8 +874,7 @@ export class AnimationCreatorComponent
     this.activeBone = null;
     this.activeKeyframe = null;
     this.totalDuration = this.keyframes[this.keyframes.length - 1].time;
-    const elapsedTime = this.keyframeSliderValue;
-    this.loopedTime = elapsedTime % this.totalDuration;
+    this.loopedTime = this.elapsedTime % this.totalDuration;
     for (const bone of this.bones) {
       for (let i = 0; i < this.keyframes.length - 1; i++) {
         const keyFrame = this.keyframes[i];

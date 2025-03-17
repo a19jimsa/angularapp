@@ -1,5 +1,4 @@
 import { Effect } from 'src/components/effect';
-
 import { Ecs } from 'src/core/ecs';
 import { ResourceManager } from 'src/core/resource-manager';
 import { MathUtils } from 'src/Utils/MathUtils';

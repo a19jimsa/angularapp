@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>State name</h2>
+<mat-dialog-content>
+  <mat-form-field class="h-100 w-100 p-1">
+    <mat-label>State name</mat-label>
+    <input matInput [(ngModel)]="stateName" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>No</button>
+  <button
+    mat-button
+    mat-dialog-close
+    cdkFocusInitial
+    [mat-dialog-close]="stateName"
+  >
+    Ok
+  </button>
+</mat-dialog-actions>
