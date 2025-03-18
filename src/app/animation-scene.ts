@@ -27,7 +27,6 @@ import { InitializationSystem } from '../systems/initialization-system';
 import { HurtBoxSystem } from '../systems/hurt-box-system';
 import { Sprite } from '../components/sprite';
 import { HitBox } from '../components/hit-box';
-import { HurtBox } from '../components/hurt-box';
 import { WalkBox } from 'src/components/walk-box';
 import { Enemy } from 'src/components/enemy';
 import { AimingSystem } from 'src/systems/aiming-system';
@@ -44,6 +43,8 @@ import { AttackAiSystem } from 'src/systems/attack-ai-system';
 import { ParticleProp, ParticleSystem } from 'src/effects/particle-system';
 import { Life } from 'src/components/life';
 import { EffectSystem } from 'src/systems/effect-system';
+import { Inventory } from 'src/components/inventory';
+import { InventorySystem } from 'src/systems/inventory-system';
 
 export class AnimationScene {
   canvas: ElementRef<HTMLCanvasElement>;
@@ -79,6 +80,7 @@ export class AnimationScene {
   particleSystem: ParticleSystem;
   particle: ParticleProp;
   effectSystem: EffectSystem;
+  inventorySystem: InventorySystem;
   loopId = 0;
 
   constructor(
@@ -124,6 +126,7 @@ export class AnimationScene {
     this.attackAiSystem = new AttackAiSystem();
     this.particleSystem = new ParticleSystem();
     this.effectSystem = new EffectSystem();
+    this.inventorySystem = new InventorySystem();
     this.particle = {
       position: new Vec(200, 200),
       lifetime: 1,
@@ -243,7 +246,11 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon('right_hand', 'assets/sprites/wep_lc003.png', new Vec(0, 180))
+      new Weapon('right_hand', new Vec(0, 180))
+    );
+    this.ecs.addComponent<Sprite>(
+      newWeapon,
+      new Sprite('assets/sprites/wep_sw046.png')
     );
     this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
@@ -253,10 +260,7 @@ export class AnimationScene {
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
 
-    this.ecs.addComponent<Weapon>(
-      bow,
-      new Weapon('left_hand', 'assets/sprites/wep_bw026.png', new Vec(20, 0))
-    );
+    this.ecs.addComponent<Weapon>(bow, new Weapon('left_hand', new Vec(20, 0)));
 
     const arrow = this.ecs.createEntity();
 
@@ -267,7 +271,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Weapon>(
       arrow,
-      new Weapon('right_hand', 'assets/sprites/wep_ar000.png', new Vec(0, 120))
+      new Weapon('right_hand', new Vec(0, 120))
     );
 
     const book = this.ecs.createEntity();
@@ -277,7 +281,11 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       book,
-      new Weapon('left_hand', 'assets/sprites/wep_mg000.png', new Vec(0, 20))
+      new Weapon('left_hand', new Vec(0, 20))
+    );
+    this.ecs.addComponent<Sprite>(
+      book,
+      new Sprite('assets/sprites/wep_dg000.png')
     );
 
     const sword = this.ecs.createEntity();
@@ -288,9 +296,13 @@ export class AnimationScene {
 
     this.ecs.addComponent<Weapon>(
       sword,
-      new Weapon('right_hand', 'assets/sprites/wep_sw008.png', new Vec(0, 120))
+      new Weapon('right_hand', new Vec(0, 120))
     );
     this.ecs.addComponent<Enemy>(sword, new Enemy());
+    this.ecs.addComponent<Sprite>(
+      sword,
+      new Sprite('assets/sprites/wep_ax039.png')
+    );
 
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
@@ -299,14 +311,18 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword2,
-      new Weapon('right_hand', 'assets/sprites/wep_sw046.png', new Vec(0, 120))
+      new Weapon('right_hand', new Vec(0, 120))
+    );
+    this.ecs.addComponent<Sprite>(
+      sword2,
+      new Sprite('assets/sprites/wep_sw008.png')
     );
 
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
-    this.ecs.addComponent<HurtBox>(sword, new HurtBox());
+    //this.ecs.addComponent<HurtBox>(sword, new HurtBox());
     // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
     this.ecs.addComponent<Enemy>(sword2, new Enemy());
-    this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
+    //this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
     this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
@@ -316,18 +332,25 @@ export class AnimationScene {
 
     this.ecs.addComponent<HitBox>(player, new HitBox(50, 50));
 
-    playerSkeleton.heldOffhandEntity = book;
+    playerSkeleton.heldOffhandEntity = null;
     //this.ecs.addComponent<Smear>(sword, new Smear());
-    playerSkeleton.heldEntity = sword;
-    draugSkeleton.heldEntity = sword2;
-    enemySkeleton.heldEntity = newWeapon;
+    playerSkeleton.heldEntity = null;
+    draugSkeleton.heldEntity = null;
+    enemySkeleton.heldEntity = null;
 
     this.ecs.addComponent<Enemy>(enemy, new Enemy());
     this.ecs.addComponent<HitBox>(enemy, new HitBox(100, 100));
     this.ecs.addComponent<Enemy>(draug, new Enemy());
     this.ecs.addComponent<HitBox>(draug, new HitBox(100, 100));
 
-    this.initializationSystem.update(this.ecs);
+    this.ecs.addComponent<Inventory>(player, new Inventory());
+    const inventory = this.ecs.getComponent<Inventory>(player, 'Inventory');
+    inventory.items.set(sword, this.ecs.getComponents(sword));
+    inventory.items.set(book, this.ecs.getComponents(book));
+    inventory.items.set(sword2, this.ecs.getComponents(sword2));
+    inventory.items.set(newWeapon, this.ecs.getComponents(newWeapon));
+
+    this.initializationSystem.update(this.ecs)
     console.log(this.ecs);
   }
 
@@ -353,8 +376,8 @@ export class AnimationScene {
 
     this.hurtBoxSystem.update(this.ecs);
     this.hitBoxSystem.update(this.ecs);
-
     this.effectSystem.update(this.ecs);
+    this.inventorySystem.update(this.ecs, this.mouseHandler);
 
     this.cameraSystem.update(
       this.ecs,
@@ -382,6 +405,7 @@ export class AnimationScene {
     //this.renderer.renderWalkBox(this.ecs);
 
     this.renderer.renderParticles(this.particleSystem.particlePool);
+    this.renderer.renderInventory(this.ecs);
 
     //this.renderer.drawProjectile(this.ecs);
     //this.renderer.drawTriangle(this.ecs, this.mouseHandler);

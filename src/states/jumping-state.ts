@@ -27,7 +27,6 @@ export class JumpingState extends StateMachine {
         skeleton.resource,
         States.Jump
       );
-      MathUtils.createSnaphot(skeleton);
     }
   }
 

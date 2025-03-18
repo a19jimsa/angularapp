@@ -22,17 +22,7 @@ export class AttackState extends StateMachine {
 
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Attack state');
-    this.comboTimer = 0;
-    this.attackTimer = 0;
-    this.comboStep = 1;
-    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton.resource,
-        States.Attacking
-      );
-      this.restartAnimation(skeleton);
-    }
+    this.spellAttack(entity, ecs);
   }
 
   override exit(entity: Entity, ecs: Ecs): void {}
@@ -50,23 +40,7 @@ export class AttackState extends StateMachine {
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
     if (skeleton) {
       if (skeleton.elapsedTime >= skeleton.animationDuration) {
-        if (!input.attack) return new OnGroundState();
-        if (this.comboStep % 2 === 0) {
-          skeleton.keyframes = ResourceManager.getAnimation(
-            skeleton.resource,
-            States.Attacking
-          );
-          this.comboStep++;
-        } else {
-          skeleton.keyframes = ResourceManager.getAnimation(
-            skeleton.resource,
-            'load-spell'
-          );
-          this.spellAttack(entity, ecs);
-        }
-
-        this.restartAnimation(skeleton);
-        return null;
+        return new OnGroundState();
       }
     }
     return null;
@@ -82,7 +56,7 @@ export class AttackState extends StateMachine {
       entity,
       new Effect(
         'assets/sprites/Blt_Mag01.png',
-        transform.position,
+        new Vec(transform.position.x, transform.position.y),
         'load-spell'
       )
     );
@@ -93,6 +67,8 @@ export class AttackState extends StateMachine {
   }
 
   restartAnimation(skeleton: Skeleton) {
+    if (!skeleton) return;
+    console.log(skeleton);
     skeleton.animationDuration =
       skeleton.keyframes[skeleton.keyframes.length - 1].time;
     skeleton.startTime = performance.now();
@@ -106,17 +82,6 @@ export class AttackState extends StateMachine {
       const transform = ecs.getComponent<Transform>(
         skeleton.heldEntity,
         'Transform'
-      );
-      ecs.addComponent<Effect>(
-        entity,
-        new Effect(
-          'assets/sprites/Btl_Hit01.png',
-          new Vec(
-            transform.position.x + weapon.image.height - 30,
-            transform.position.y
-          ),
-          'hit'
-        )
       );
     }
   }
@@ -134,7 +99,6 @@ export class AttackState extends StateMachine {
           );
           combo.comboCounter++;
           combo.comboTimer = 3;
-          MathUtils.createSnaphot(skeleton);
           console.log('Smash attack!');
           break;
         case 2:

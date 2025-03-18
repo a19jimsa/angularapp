@@ -18,6 +18,9 @@ import { Particle } from 'src/effects/particle-system';
 import { WalkBox } from 'src/components/walk-box';
 import { Effect } from 'src/components/effect';
 import { Life } from 'src/components/life';
+import { Entity } from './entity';
+import { Player } from 'src/components/player';
+import { Inventory } from 'src/components/inventory';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -122,7 +125,11 @@ export class Renderer {
   }
 
   public drawSprites(ecs: Ecs) {
-    const pool = ecs.getPool<[Sprite, Transform]>('Sprite', 'Transform');
+    const pool = ecs.getPool<[Sprite, Transform, WalkBox]>(
+      'Sprite',
+      'Transform',
+      'Walkbox'
+    );
     this.ctx.save();
 
     pool.forEach(({ entity, components }) => {
@@ -264,7 +271,6 @@ export class Renderer {
         if (entity) {
           const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
           const smear = ecs.getComponent<Smear>(entity, 'Smear');
-          const hitbox = ecs.getComponent<HitBox>(entity, 'HitBox');
           const transform = ecs.getComponent<Transform>(entity, 'Transform');
           if (
             weapon &&
@@ -272,7 +278,7 @@ export class Renderer {
             skeleton.bones[i].order === weapon.order &&
             draw
           ) {
-            this.drawCharacterWeapon(weapon, transform);
+            this.drawCharacterWeapon(entity, ecs);
 
             draw = false;
           }
@@ -289,7 +295,7 @@ export class Renderer {
             skeleton.bones[i].order === weapon.order &&
             drawOffhand
           ) {
-            this.drawCharacterWeapon(weapon, transform);
+            this.drawCharacterWeapon(offEntity, ecs);
             drawOffhand = false;
           }
         }
@@ -360,7 +366,11 @@ export class Renderer {
     }
   }
 
-  drawCharacterWeapon(weapon: Weapon, transform: Transform) {
+  drawCharacterWeapon(entity: Entity, ecs: Ecs) {
+    const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
+    const sprite = ecs.getComponent<Sprite>(entity, 'Sprite');
+    const transform = ecs.getComponent<Transform>(entity, 'Transform');
+    if (!weapon || !sprite) return;
     const screenX = transform.position.x - this.camera.position.x;
     const screenY = transform.position.y - this.camera.position.y;
     this.ctx.save();
@@ -369,8 +379,8 @@ export class Renderer {
     this.ctx.scale(weapon.scale.x, weapon.scale.y);
     this.ctx.translate(-screenX, -screenY);
     this.ctx.drawImage(
-      weapon.image,
-      screenX - weapon.pivot.x - weapon.image.width / 2,
+      sprite.image,
+      screenX - weapon.pivot.x - sprite.image.width / 2,
       screenY - weapon.pivot.y
     );
     this.ctx.restore();
@@ -381,7 +391,8 @@ export class Renderer {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const weapon = ecs.getComponent<Weapon>(entity, 'Weapon');
       const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
-      if (!transform || !weapon || !projectile) continue;
+      const sprite = ecs.getComponent<Sprite>(entity, 'Sprite');
+      if (!transform || !weapon || !projectile || !sprite) continue;
       const screenX = transform.position.x - this.camera.position.x;
       const screenY = transform.position.y - this.camera.position.y;
       this.ctx.save();
@@ -392,8 +403,8 @@ export class Renderer {
       this.ctx.scale(weapon.scale.x, weapon.scale.y);
       this.ctx.translate(-screenX, -screenY);
       this.ctx.drawImage(
-        weapon.image,
-        screenX - weapon.pivot.x - weapon.image.width / 2,
+        sprite.image,
+        screenX - weapon.pivot.x - sprite.image.width / 2,
         screenY - weapon.pivot.y
       );
       this.ctx.restore();
@@ -532,6 +543,32 @@ export class Renderer {
       const [transform, life] = components;
       const width = life.currentHp % 1000;
       this.ctx.fillRect(20, 20, width, 10);
+    });
+  }
+
+  renderInventory(ecs: Ecs) {
+    const pool = ecs.getPool<[Inventory, Player]>('Inventory', 'Player');
+    let x = 0;
+    let y = 0;
+    pool.forEach(({ entity, components }) => {
+      const [inventory, player] = components;
+      if (!inventory.show) return;
+      const margin = 100;
+      this.ctx.fillStyle = 'grey';
+      this.ctx.fillRect(
+        margin,
+        margin,
+        this.width - margin * 2,
+        this.height - margin * 2
+      );
+
+      for (const item of inventory.items) {
+        const component = item[1].find((e) => e.type === 'Sprite');
+        if (component instanceof Sprite) {
+          this.ctx.drawImage(component.image, x + margin, y + margin);
+          x += component.image.width;
+        }
+      }
     });
   }
 }

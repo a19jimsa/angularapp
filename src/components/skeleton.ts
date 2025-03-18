@@ -25,6 +25,7 @@ export class Skeleton extends Component {
   heldEntity: Entity | null;
   heldOffhandEntity: Entity | null;
   snapShot: Record<string, Snapshot> | null = null;
+  takeSnapshot = false;
   rotation: number;
   resource: string;
   animationDuration: number = 0;

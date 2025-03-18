@@ -24,9 +24,8 @@ export class RunningState extends StateMachine {
         skeleton.resource,
         States.Running
       );
-      MathUtils.createSnaphot(skeleton);
-      skeleton.animationDuration =
-        skeleton.keyframes[skeleton.keyframes.length - 1].time;
+      skeleton.takeSnapshot = true;
+      skeleton.blend = true;
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {}

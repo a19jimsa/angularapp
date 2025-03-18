@@ -20,7 +20,6 @@ export class LoadArrowState extends StateMachine {
         skeleton.resource,
         States.Bow
       );
-      MathUtils.createSnaphot(skeleton);
     }
     ecs.addComponent<Bow>(entity, new Bow());
   }

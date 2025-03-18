@@ -7,6 +7,7 @@ import { Skeleton } from 'src/components/skeleton';
 import { Weapon } from 'src/components/weapon';
 import { Chase } from 'src/components/chase';
 import { Idle } from 'src/components/idle';
+import { Sprite } from 'src/components/sprite';
 
 export class AiSystem {
   update(ecs: Ecs) {
@@ -36,9 +37,9 @@ export class AiSystem {
       const dist = playerTransform.position.dist(transform.position);
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (skeleton.heldEntity) {
-        const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
-        if (weapon) {
-          if (weapon.image.height <= dist) {
+        const sprite = ecs.getComponent<Sprite>(skeleton.heldEntity, 'Sprite');
+        if (sprite) {
+          if (sprite.image.height <= dist) {
             attackScore++;
           }
         }

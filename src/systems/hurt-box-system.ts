@@ -5,20 +5,22 @@ import { Weapon } from '../components/weapon';
 import { Ecs } from '../core/ecs';
 import { MathUtils } from '../Utils/MathUtils';
 import { HitBox } from 'src/components/hit-box';
+import { Sprite } from 'src/components/sprite';
 
 export class HurtBoxSystem {
   update(ecs: Ecs) {
-    const pool = ecs.getPool<[Transform, HurtBox, Weapon]>(
+    const pool = ecs.getPool<[Transform, HurtBox, Weapon, Sprite]>(
       'Transform',
       'HurtBox',
-      'Weapon'
+      'Weapon',
+      'Sprite'
     );
     pool.forEach(({ entity, components }) => {
-      const [transform, hurtBox, weapon] = components;
+      const [transform, hurtBox, weapon, sprite] = components;
       const newTransform = new Vec(transform.position.x, transform.position.y);
       const newPos = MathUtils.calculateParentPosition(
         newTransform,
-        (weapon.image.height - (weapon.pivot.y + weapon.image.height)) *
+        (sprite.image.height - (weapon.pivot.y + sprite.image.height)) *
           weapon.scale.y,
         weapon.rotation
       );

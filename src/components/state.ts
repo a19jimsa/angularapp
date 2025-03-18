@@ -8,7 +8,7 @@ export enum States {
   Flying = 'flying',
   Bow = 'bow',
   Jump = 'jump',
-  JumpAttack = 'jumpattack',
+  JumpAttack = 'jump-attack',
   Damage = 'damage',
   Death = 'death',
   No = 'noState',

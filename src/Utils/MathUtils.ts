@@ -57,28 +57,4 @@ export class MathUtils {
       hitBox.position.y < hurtBox.position.y + hurtBox.height
     );
   }
-
-  static createSnaphot(skeleton: Skeleton) {
-    skeleton.blend = true;
-    skeleton.elapsedTime = 0;
-    skeleton.snapShot = {};
-    skeleton.startTime = performance.now();
-    if (!skeleton.keyframes) return;
-    skeleton.keyframes.forEach((keyframe) => {
-      if (skeleton.snapShot) {
-        if (skeleton.snapShot[keyframe.name]) return;
-        skeleton.snapShot[keyframe.name] = {
-          rotation: keyframe.angle,
-          scale: new Vec(keyframe.scale.x, keyframe.scale.y),
-          clip: {
-            startX: keyframe.clip.startX,
-            startY: keyframe.clip.startY,
-            endX: keyframe.clip.endX,
-            endY: keyframe.clip.endY,
-          },
-        };
-      }
-    });
-    console.log('Created snapshot');
-  }
 }

@@ -5,10 +5,8 @@ import { KeysPressed } from '../systems/controller-system';
 import { StateMachine } from './state-machine';
 import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
-import { AttackDuration } from 'src/components/attack-duration';
 import { DamageState } from './damage-state';
 import { Damage } from 'src/components/damage';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { OnGroundState } from './on-ground-state';
 
 export class JumpAttackState extends StateMachine {
@@ -20,13 +18,11 @@ export class JumpAttackState extends StateMachine {
         skeleton.resource,
         States.JumpAttack
       );
-      MathUtils.createSnaphot(skeleton);
       skeleton.animationDuration =
         skeleton.keyframes[skeleton.keyframes.length - 1].time;
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {
-    ecs.removeComponent<AttackDuration>(entity, 'AttackDuration');
   }
 
   override handleInput(
@@ -47,12 +43,5 @@ export class JumpAttackState extends StateMachine {
     return null;
   }
 
-  override update(entity: Entity, ecs: Ecs): void {
-    const attackDuration = ecs.getComponent<AttackDuration>(
-      entity,
-      'AttackDuration'
-    );
-    if (!attackDuration) return;
-    attackDuration.cooldown -= 0.016;
-  }
+  override update(entity: Entity, ecs: Ecs): void {}
 }

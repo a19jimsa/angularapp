@@ -20,7 +20,6 @@ export class StateSystem {
   }
 
   changeAnimation(skeleton: Skeleton, state: States) {
-    MathUtils.createSnaphot(skeleton);
     skeleton.keyframes = ResourceManager.getAnimation(skeleton.resource, state);
   }
 }

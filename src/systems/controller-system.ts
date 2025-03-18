@@ -3,6 +3,7 @@ import { Controlable } from '../components/controlable';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
 import { MouseHandler } from 'src/app/mouse-handler';
+import { Inventory } from 'src/components/inventory';
 
 export type KeysPressed = {
   left: boolean;
@@ -12,6 +13,7 @@ export type KeysPressed = {
   jump: boolean;
   attack: boolean;
   roll: boolean;
+  inventory: boolean;
 };
 
 export class ControllerSystem {
@@ -24,6 +26,7 @@ export class ControllerSystem {
     jump: false,
     attack: false,
     roll: false,
+    inventory: false,
   };
 
   constructor(private mouseHandler: MouseHandler) {
@@ -49,6 +52,9 @@ export class ControllerSystem {
       }
       if (event.code === 'KeyR') {
         this.keysPressed.roll = true;
+      }
+      if (event.code === 'KeyI') {
+        this.keysPressed.inventory = true;
       }
     });
 
@@ -95,6 +101,12 @@ export class ControllerSystem {
           player.state.enter(entity, ecs);
         }
         player.state.update(entity, ecs);
+      }
+      const inventory = ecs.getComponent<Inventory>(entity, 'Inventory');
+      if (inventory) {
+        if (this.keysPressed.inventory) {
+          inventory.show = true;
+        }
       }
     }
   }

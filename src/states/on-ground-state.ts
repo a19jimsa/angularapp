@@ -12,7 +12,6 @@ import { States } from 'src/components/state';
 import { Transform } from 'src/components/transform';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { RollState } from './roll-state';
 
 export class OnGroundState extends StateMachine {
@@ -26,9 +25,8 @@ export class OnGroundState extends StateMachine {
         skeleton.resource,
         States.Idle
       );
-      MathUtils.createSnaphot(skeleton);
-      skeleton.animationDuration =
-        skeleton.keyframes[skeleton.keyframes.length - 1].time;
+      skeleton.takeSnapshot = true;
+      skeleton.blend = true;
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {}

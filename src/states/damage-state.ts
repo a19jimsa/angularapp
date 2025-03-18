@@ -17,15 +17,13 @@ export class DamageState extends StateMachine {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     transform.velocity.x = 0;
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (!transform || !skeleton) return;
+    if (!skeleton) return;
     skeleton.keyframes = ResourceManager.getAnimation(
       skeleton.resource,
       States.Damage
     );
-    skeleton.animationDuration =
-      skeleton.keyframes[skeleton.keyframes.length - 1].time;
-    skeleton.startTime = performance.now();
-    skeleton.elapsedTime = 0;
+    skeleton.takeSnapshot = true;
+    skeleton.blend = true;
   }
 
   override exit(entity: Entity, ecs: Ecs): void {

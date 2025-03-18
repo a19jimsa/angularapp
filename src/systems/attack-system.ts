@@ -38,19 +38,6 @@ export class AttackSystem {
             otherEntity,
             new Knockback(new Vec(x * -5, y * -5))
           );
-          const transform = ecs.getComponent<Transform>(
-            otherEntity,
-            'Transform'
-          );
-          ecs.addComponent<Ragdoll>(otherEntity, new Ragdoll(10));
-          ecs.addComponent<Effect>(
-            otherEntity,
-            new Effect(
-              'assets/sprites/Btl_Hit01.png',
-              transform.position,
-              'smash'
-            )
-          );
           life.currentHp -= 10;
         }
       }

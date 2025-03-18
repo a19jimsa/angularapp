@@ -2,6 +2,7 @@ import { Keyframe } from 'src/app/animation-creator/animation-creator.component'
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
+import { Vec } from 'src/app/vec';
 
 export class AnimationSystem {
   update(ecs: Ecs) {
@@ -22,7 +23,7 @@ export class AnimationSystem {
     if (!keyframes) return;
     if (keyframes.length === 0) return;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 500 / 1;
+    const speed = 1000 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;
@@ -98,6 +99,11 @@ export class AnimationSystem {
   }
 
   blendAnimations(skeleton: Skeleton) {
+    if (skeleton.takeSnapshot) {
+      this.createSnaphot(skeleton);
+      skeleton.takeSnapshot = false;
+    }
+
     for (const bone of skeleton.bones) {
       if (skeleton.snapShot) {
         const keyframe = skeleton.snapShot[bone.id];
@@ -117,8 +123,8 @@ export class AnimationSystem {
             keyframe.scale.y,
             0.1
           );
-          // bone.startX = keyframe.clip.startX;
-          // bone.startY = keyframe.clip.startY;
+          bone.startX = keyframe.clip.startX;
+          bone.startY = keyframe.clip.startY;
         }
       }
     }
@@ -127,7 +133,33 @@ export class AnimationSystem {
       skeleton.blendTime = 0;
       skeleton.blend = false;
       skeleton.startTime = performance.now();
+      skeleton.animationDuration =
+        skeleton.keyframes[skeleton.keyframes.length - 1].time;
       skeleton.snapShot = null;
     }
+  }
+
+  createSnaphot(skeleton: Skeleton) {
+    skeleton.blend = true;
+    skeleton.elapsedTime = 0;
+    skeleton.snapShot = {};
+    skeleton.startTime = performance.now();
+    if (!skeleton.keyframes) return;
+    skeleton.keyframes.forEach((keyframe) => {
+      if (skeleton.snapShot) {
+        if (skeleton.snapShot[keyframe.name]) return;
+        skeleton.snapShot[keyframe.name] = {
+          rotation: keyframe.angle,
+          scale: new Vec(keyframe.scale.x, keyframe.scale.y),
+          clip: {
+            startX: keyframe.clip.startX,
+            startY: keyframe.clip.startY,
+            endX: keyframe.clip.endX,
+            endY: keyframe.clip.endY,
+          },
+        };
+      }
+    });
+    console.log('Created snapshot');
   }
 }

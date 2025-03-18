@@ -72,6 +72,12 @@ export class Ecs {
     return component;
   }
 
+  getComponents(entity: Entity) {
+    const components = this.components.get(entity);
+    if (!components) return [];
+    return components;
+  }
+
   removeEntity(entity: Entity) {
     // Ta bort entiteten och dess komponenter från komponentkartan
     if (this.components.has(entity)) {

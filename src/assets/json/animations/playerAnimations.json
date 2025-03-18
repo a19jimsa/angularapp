@@ -2031,7 +2031,7 @@
       "time": 0,
       "angle": 88,
       "name": "right_hand",
-      "scale": { "x": 1, "y": -1 },
+      "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
@@ -2039,7 +2039,7 @@
       "time": 0.5,
       "angle": 88,
       "name": "right_hand",
-      "scale": { "x": 1, "y": -1 },
+      "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
@@ -2047,7 +2047,7 @@
       "time": 1,
       "angle": 88,
       "name": "right_hand",
-      "scale": { "x": 1, "y": -1 },
+      "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
@@ -2055,7 +2055,7 @@
       "time": 1.5,
       "angle": 88,
       "name": "right_hand",
-      "scale": { "x": 1, "y": -1 },
+      "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
     },
     {
@@ -2390,5 +2390,6 @@
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
     }
-  ]
+  ],
+  "jump-attack": []
 }
