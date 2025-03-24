@@ -1,39 +1,43 @@
 import { Bone } from 'src/components/bone';
 
-type Animations = {
+type Bones = {
   name: string;
 };
 
 export class Loader {
-  private static animations: Map<string, any> = new Map();
+  private static bones: Map<string, any> = new Map();
 
   public static async loadAllBones(): Promise<void> {
     try {
       // Vänta på att bonelist.json laddas
       const res = await fetch('/assets/json/bonelist.json');
-      const files: Animations[] = await res.json();
+      const files: Bones[] = await res.json();
 
       // Skapa en array av fetch-promises
-      const fetchPromises = files.map(async (file: Animations) => {
+      const fetchPromises = files.map(async (file: Bones) => {
         const response = await fetch(`/assets/json/bones/${file.name}.json`);
         const data = await response.json();
-        Loader.animations.set(file.name, data);
+        Loader.bones.set(file.name, data);
         console.log(file.name);
-        console.log(Loader.animations.get(file.name));
+        console.log(Loader.bones.get(file.name));
       });
 
       // Vänta på att alla fetch-anrop slutförs
       await Promise.all(fetchPromises);
-      console.log('Alla animationer har laddats!');
+      console.log('Alla skelett har laddats!');
     } catch (error) {
-      console.error('Fel vid laddning av animationer:', error);
+      console.error('Fel vid laddning av skelett:', error);
     }
   }
 
+  public static getBonesFiles() {
+    return this.bones;
+  }
+
   public static getBones(bones: string): Bone[] {
-    const bonesArray = this.animations.get(bones);
+    const bonesArray = this.bones.get(bones);
     if (!bonesArray) {
-      console.log("Couldn't find bones " + bones);
+      console.log("Couldn't find skeleton " + bones);
       return [];
     }
     const parsedBones = JSON.parse(JSON.stringify(bonesArray)) as Bone[];

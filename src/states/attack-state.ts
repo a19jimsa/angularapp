@@ -13,7 +13,7 @@ import { Combo } from 'src/components/combo';
 import { Effect } from 'src/components/effect';
 import { Transform } from 'src/components/transform';
 import { Vec } from 'src/app/vec';
-import { Weapon } from 'src/components/weapon';
+import { Weapon, WeaponType } from 'src/components/weapon';
 
 export class AttackState extends StateMachine {
   comboTimer: number = 0;
@@ -22,7 +22,7 @@ export class AttackState extends StateMachine {
 
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Attack state');
-    this.spellAttack(entity, ecs);
+    this.attack(entity, ecs);
   }
 
   override exit(entity: Entity, ecs: Ecs): void {}
@@ -42,11 +42,44 @@ export class AttackState extends StateMachine {
       if (skeleton.elapsedTime >= skeleton.animationDuration) {
         return new OnGroundState();
       }
+      if (input.attack) {
+        this.attack(entity, ecs);
+        this.restartAnimation(skeleton);
+      }
     }
     return null;
   }
 
   override update(entity: Entity, ecs: Ecs): void {}
+
+  attack(entity: Entity, ecs: Ecs) {
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (skeleton && skeleton.heldEntity) {
+      const weapon = ecs.getComponent<Weapon>(skeleton.heldEntity, 'Weapon');
+      if (weapon) {
+        switch (weapon.weaponType) {
+          case WeaponType.Sword:
+            skeleton.keyframes = ResourceManager.getAnimation(
+              skeleton.resource,
+              'slash'
+            );
+            break;
+          case WeaponType.Dagger:
+            skeleton.keyframes = ResourceManager.getAnimation(
+              skeleton.resource,
+              'thrust'
+            );
+            break;
+          case WeaponType.Schyte:
+            skeleton.keyframes = ResourceManager.getAnimation(
+              skeleton.resource,
+              'slash'
+            );
+            break;
+        }
+      }
+    }
+  }
 
   spellAttack(entity: Entity, ecs: Ecs) {
     const transform = ecs.getComponent<Transform>(entity, 'Transform');

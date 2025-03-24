@@ -25,8 +25,6 @@ export class OnGroundState extends StateMachine {
         skeleton.resource,
         States.Idle
       );
-      skeleton.takeSnapshot = true;
-      skeleton.blend = true;
     }
   }
   override exit(entity: Entity, ecs: Ecs): void {}

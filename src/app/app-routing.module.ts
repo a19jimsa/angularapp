@@ -18,6 +18,7 @@ import { CurlingComponent } from './curling/curling.component';
 import { BoneAnimationComponent } from './bone-animation/bone-animation.component';
 import { AnimationCreatorComponent } from './animation-creator/animation-creator.component';
 import { CommonModule } from '@angular/common';
+import { MapEditorComponent } from './map-editor/map-editor.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -37,6 +38,7 @@ const routes: Routes = [
   { path: 'curling', component: CurlingComponent },
   { path: 'animation', component: BoneAnimationComponent },
   { path: 'creator', component: AnimationCreatorComponent },
+  { path: 'editor', component: MapEditorComponent },
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true }), CommonModule],

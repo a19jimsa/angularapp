@@ -21,7 +21,7 @@ import { ProjectileSystem } from '../systems/projectile-system';
 import { WeaponSystem } from '../systems/weapon-system';
 import { Loader } from './loader';
 import { PhysicsSystem } from '../systems/physics-system';
-import { Weapon } from '../components/weapon';
+import { Weapon, WeaponType } from '../components/weapon';
 import { Foot } from '../components/foot';
 import { InitializationSystem } from '../systems/initialization-system';
 import { HurtBoxSystem } from '../systems/hurt-box-system';
@@ -246,7 +246,7 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon('right_hand', new Vec(0, 180))
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword)
     );
     this.ecs.addComponent<Sprite>(
       newWeapon,
@@ -260,7 +260,10 @@ export class AnimationScene {
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
 
-    this.ecs.addComponent<Weapon>(bow, new Weapon('left_hand', new Vec(20, 0)));
+    this.ecs.addComponent<Weapon>(
+      bow,
+      new Weapon('left_hand', new Vec(20, 0), WeaponType.Bow)
+    );
 
     const arrow = this.ecs.createEntity();
 
@@ -271,7 +274,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Weapon>(
       arrow,
-      new Weapon('right_hand', new Vec(0, 120))
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Projectile)
     );
 
     const book = this.ecs.createEntity();
@@ -281,26 +284,25 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       book,
-      new Weapon('left_hand', new Vec(0, 20))
+      new Weapon('right_hand', new Vec(0, 70), WeaponType.Dagger)
     );
     this.ecs.addComponent<Sprite>(
       book,
       new Sprite('assets/sprites/wep_dg000.png')
     );
 
-    const sword = this.ecs.createEntity();
+    const schyte = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
-      sword,
+      schyte,
       new Transform(new Vec(0, 0), new Vec(0, 0), 0)
     );
 
     this.ecs.addComponent<Weapon>(
-      sword,
-      new Weapon('right_hand', new Vec(0, 120))
+      schyte,
+      new Weapon('right_hand', new Vec(-45, 140), WeaponType.Schyte)
     );
-    this.ecs.addComponent<Enemy>(sword, new Enemy());
     this.ecs.addComponent<Sprite>(
-      sword,
+      schyte,
       new Sprite('assets/sprites/wep_ax039.png')
     );
 
@@ -311,19 +313,19 @@ export class AnimationScene {
     );
     this.ecs.addComponent<Weapon>(
       sword2,
-      new Weapon('right_hand', new Vec(0, 120))
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword)
     );
     this.ecs.addComponent<Sprite>(
       sword2,
       new Sprite('assets/sprites/wep_sw008.png')
     );
 
-    this.ecs.addComponent<Enemy>(sword2, new Enemy());
+    //this.ecs.addComponent<Enemy>(sword2, new Enemy());
     //this.ecs.addComponent<HurtBox>(sword, new HurtBox());
     // this.ecs.addComponent<HurtBox>(sword2, new HurtBox());
-    this.ecs.addComponent<Enemy>(sword2, new Enemy());
+    //this.ecs.addComponent<Enemy>(sword2, new Enemy());
     //this.ecs.addComponent<HurtBox>(newWeapon, new HurtBox());
-    this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
+    //this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     this.ecs.addComponent<Foot>(player, new Foot('right_foot'));
     this.ecs.addComponent<Life>(player, new Life(200));
@@ -345,12 +347,12 @@ export class AnimationScene {
 
     this.ecs.addComponent<Inventory>(player, new Inventory());
     const inventory = this.ecs.getComponent<Inventory>(player, 'Inventory');
-    inventory.items.set(sword, this.ecs.getComponents(sword));
+    inventory.items.set(schyte, this.ecs.getComponents(schyte));
     inventory.items.set(book, this.ecs.getComponents(book));
     inventory.items.set(sword2, this.ecs.getComponents(sword2));
     inventory.items.set(newWeapon, this.ecs.getComponents(newWeapon));
 
-    this.initializationSystem.update(this.ecs)
+    this.initializationSystem.update(this.ecs);
     console.log(this.ecs);
   }
 

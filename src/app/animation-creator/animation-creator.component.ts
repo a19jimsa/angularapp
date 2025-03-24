@@ -43,6 +43,7 @@ import { MathUtils } from '../../Utils/MathUtils';
 import { ChangeBoneCommand } from 'src/commands/change-bone-command';
 import { Animation, ResourceManager } from 'src/core/resource-manager';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
+import { Loader } from '../loader';
 
 @Component({
   selector: 'app-animation-creator',
@@ -107,8 +108,8 @@ export class AnimationCreatorComponent
 
   dataSource: BoneHierarchy[] = new Array();
 
+  //Looks very c#iie
   childrenAccessor = (bone: BoneHierarchy) => bone.children ?? [];
-
   hasChild = (_: number, bone: BoneHierarchy) =>
     !!bone.children && bone.children.length > 0;
 
@@ -122,6 +123,9 @@ export class AnimationCreatorComponent
   animationStates: string[] = new Array();
   animationFiles: string[] = new Array();
   activeAnimations: Animation | undefined;
+
+  skeletonBones: string[] = new Array();
+  skeletonFiles: string[] = new Array();
 
   ngAfterViewInit(): void {
     this.canvas.nativeElement.width = 800;
@@ -163,6 +167,15 @@ export class AnimationCreatorComponent
 
       for (const key of ResourceManager.getAnimations().keys()) {
         this.animationFiles.push(key);
+      }
+    });
+
+    (async () => {
+      await Loader.loadAllBones();
+    })().then(() => {
+      const skeleton = Loader.getBonesFiles();
+      for (const key of skeleton.keys()) {
+        this.skeletonFiles.push(key);
       }
     });
   }
@@ -215,6 +228,13 @@ export class AnimationCreatorComponent
     if (this.activeAnimations) {
       this.animationStates = Object.keys(this.activeAnimations);
     }
+  }
+
+  changeSkeleton(filename: string) {
+    this.bones = Loader.getBones(filename);
+    this.filteredBones = this.bones;
+    this.createBoneHierarchy();
+    this.sortBonesByHierarchy();
   }
 
   createNewState() {

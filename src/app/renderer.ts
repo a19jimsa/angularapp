@@ -21,6 +21,7 @@ import { Life } from 'src/components/life';
 import { Entity } from './entity';
 import { Player } from 'src/components/player';
 import { Inventory } from 'src/components/inventory';
+import { Item } from 'src/components/item';
 
 export class Renderer {
   private canvas: ElementRef<HTMLCanvasElement>;
@@ -547,11 +548,15 @@ export class Renderer {
   }
 
   renderInventory(ecs: Ecs) {
-    const pool = ecs.getPool<[Inventory, Player]>('Inventory', 'Player');
+    const pool = ecs.getPool<[Inventory, Player, Skeleton]>(
+      'Inventory',
+      'Player',
+      'Skeleton'
+    );
     let x = 0;
     let y = 0;
     pool.forEach(({ entity, components }) => {
-      const [inventory, player] = components;
+      const [inventory, player, skeleton] = components;
       if (!inventory.show) return;
       const margin = 100;
       this.ctx.fillStyle = 'grey';
@@ -562,11 +567,60 @@ export class Renderer {
         this.height - margin * 2
       );
 
+      if (skeleton) {
+        for (const bone of skeleton.bones) {
+          const screenX = 1000 + bone.position.x;
+          const screenY = this.height / 2 + bone.position.y;
+          this.ctx.save();
+          this.ctx.translate(screenX, screenY);
+          this.ctx.rotate(
+            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
+          );
+          this.ctx.scale(bone.scale.x, bone.scale.y);
+          this.ctx.translate(-screenX, -screenY);
+          this.ctx.drawImage(
+            skeleton.image,
+            bone.startX,
+            bone.startY,
+            bone.endX,
+            bone.endY,
+            screenX - bone.pivot.x - bone.endX / 2,
+            screenY - bone.pivot.y,
+            bone.endX,
+            bone.endY
+          );
+          this.ctx.restore();
+        }
+      }
+
       for (const item of inventory.items) {
-        const component = item[1].find((e) => e.type === 'Sprite');
-        if (component instanceof Sprite) {
-          this.ctx.drawImage(component.image, x + margin, y + margin);
-          x += component.image.width;
+        const sprite = item[1].find((e) => e.type === 'Sprite');
+        const isOver = item[1].find((e) => e.type === 'Item');
+        if (sprite instanceof Sprite && isOver instanceof Item) {
+          if (isOver.isOver) {
+            this.ctx.strokeRect(
+              isOver.position.x,
+              isOver.position.y,
+              sprite.clip.endX,
+              sprite.clip.endY
+            );
+          }
+
+          this.ctx.stroke();
+          this.ctx.drawImage(
+            sprite.image,
+            isOver.position.x,
+            isOver.position.y
+          );
+          if (skeleton && skeleton.heldEntity === item[1]) {
+            this.ctx.fillRect(
+              isOver.position.x,
+              isOver.position.y,
+              sprite.clip.endX,
+              sprite.clip.endY
+            );
+            this.ctx.fill();
+          }
         }
       }
     });

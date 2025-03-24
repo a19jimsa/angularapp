@@ -23,7 +23,7 @@ export class AnimationSystem {
     if (!keyframes) return;
     if (keyframes.length === 0) return;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 1000 / 1;
+    const speed = 500 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;

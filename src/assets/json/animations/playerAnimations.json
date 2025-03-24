@@ -227,7 +227,7 @@
     {
       "position": { "x": 0, "y": 0 },
       "time": 0,
-      "angle": 0,
+      "angle": 45,
       "name": "right_hand",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
@@ -235,7 +235,7 @@
     {
       "position": { "x": 0, "y": 0 },
       "time": 1,
-      "angle": 0,
+      "angle": 45,
       "name": "right_hand",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
@@ -243,7 +243,7 @@
     {
       "position": { "x": 0, "y": 0 },
       "time": 2,
-      "angle": 0,
+      "angle": 45,
       "name": "right_hand",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 19.015625, "startY": 242, "endX": 27, "endY": 25 }
@@ -321,7 +321,7 @@
       "clip": { "startX": 414.015625, "startY": 2, "endX": 56, "endY": 60 }
     }
   ],
-  "attacking": [
+  "slash": [
     {
       "position": { "x": 0, "y": 0 },
       "time": 0,
@@ -618,7 +618,7 @@
       "angle": 2.185,
       "name": "head",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+      "clip": { "startX": 28, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
       "position": { "x": 0.5238584669500347, "y": -66.99607938479116 },
@@ -626,7 +626,7 @@
       "angle": 2.185,
       "name": "head",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+      "clip": { "startX": 28, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
       "position": { "x": 0.5238584669500347, "y": -66.99607938479116 },
@@ -634,7 +634,7 @@
       "angle": 2.185,
       "name": "head",
       "scale": { "x": 1, "y": 1 },
-      "clip": { "startX": 154, "startY": 23, "endX": 83, "endY": 73 }
+      "clip": { "startX": 28, "startY": 23, "endX": 83, "endY": 73 }
     },
     {
       "position": { "x": 13.400528986926187, "y": -59.30248748503607 },
@@ -783,7 +783,7 @@
     {
       "position": { "x": -21.43419583530993, "y": 3.7270740323834044 },
       "time": 0,
-      "angle": 81,
+      "angle": 50,
       "name": "right_foot",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }
@@ -799,7 +799,7 @@
     {
       "position": { "x": -21.43419583530993, "y": 3.7270740323834044 },
       "time": 2,
-      "angle": 81,
+      "angle": 50,
       "name": "right_foot",
       "scale": { "x": 1, "y": 1 },
       "clip": { "startX": 470, "startY": 148, "endX": 23, "endY": 43 }

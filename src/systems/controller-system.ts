@@ -18,6 +18,9 @@ export type KeysPressed = {
 
 export class ControllerSystem {
   timer: number = 0;
+  isPressed = new Set<any>();
+  wasPressed = new Set<any>();
+
   keysPressed: KeysPressed = {
     left: false,
     right: false,
@@ -54,7 +57,8 @@ export class ControllerSystem {
         this.keysPressed.roll = true;
       }
       if (event.code === 'KeyI') {
-        this.keysPressed.inventory = true;
+        console.log(this.isPressed);
+        this.isPressed.add(event.code);
       }
     });
 
@@ -80,6 +84,10 @@ export class ControllerSystem {
       if (event.code === 'KeyR') {
         this.keysPressed.roll = false;
       }
+      if (event.code === 'KeyI') {
+        this.isPressed.delete(event.code);
+        this.wasPressed.delete(event.code);
+      }
     });
   }
 
@@ -89,6 +97,7 @@ export class ControllerSystem {
     } else if (this.mouseHandler.isMouseUp) {
       this.keysPressed.attack = false;
     }
+
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
@@ -104,8 +113,10 @@ export class ControllerSystem {
       }
       const inventory = ecs.getComponent<Inventory>(entity, 'Inventory');
       if (inventory) {
-        if (this.keysPressed.inventory) {
-          inventory.show = true;
+        if (this.isPressed.has('KeyI') && !this.wasPressed.has('KeyI')) {
+          console.log(this.keysPressed.inventory);
+          inventory.show = !inventory.show;
+          this.wasPressed.add('KeyI');
         }
       }
     }

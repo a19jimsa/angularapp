@@ -87,4 +87,9 @@ export class Ecs {
     this.entities.delete(entity);
     console.log('Removed enity: ' + entity);
   }
+
+  moveEntityToECS(entity: Entity, components: Component[]) {
+    this.components.set(entity, components);
+    return entity;
+  }
 }
