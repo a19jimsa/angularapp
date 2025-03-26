@@ -53,7 +53,7 @@ export class WebglParticlesComponent implements AfterViewInit, OnDestroy {
     void main() {
       gl_Position = vec4(a_position, 1.0);
       v_color = a_color;
-      gl_PointSize = 3.0;
+      gl_PointSize = 2.0;
     }
   `;
 

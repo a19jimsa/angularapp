@@ -1,1 +1,124 @@
-<canvas #canvas style="width: 800px; height: 600px" class="border"></canvas>
+<div class="container-fluid border" style="height: 800px">
+  <div class="row p-2">
+    <div class="col-3">
+      <mat-card class="h-100">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Scene</mat-card-title>
+            <mat-card-subtitle>Add to scene</mat-card-subtitle>
+            <button mat-raised-button>
+              Add Object<mat-icon>add</mat-icon>
+            </button>
+          </mat-card-title-group>
+        </mat-card-header>
+      </mat-card>
+    </div>
+    <div class="col-6">
+      <canvas #canvas class="border w-100"></canvas>
+    </div>
+    <div class="col-3">
+      <mat-card class="h-100">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Something</mat-card-title>
+            <mat-card-subtitle>Something Something</mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-accordion class="example-headers-align" multi>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Transform </mat-panel-title>
+                <mat-panel-description>
+                  Type your name and age
+                  <mat-icon>account_circle</mat-icon>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div class="row">
+                <div class="col-3">Position</div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>X</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Y</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Z</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-3">Rotation</div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>X</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Y</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Z</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-3">Scale</div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>X</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Y</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-3">
+                  <mat-form-field class="w-100">
+                    <mat-label>Z</mat-label>
+                    <input matInput type="number" />
+                  </mat-form-field>
+                </div>
+              </div>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Mesh </mat-panel-title>
+                <mat-panel-description>
+                  Type the country name
+                  <mat-icon>map</mat-icon>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Mesh Renderer </mat-panel-title>
+                <mat-panel-description>
+                  Inform the date you wish to travel
+                  <mat-icon>date_range</mat-icon>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix';
+
 export class Shader {
   gl: WebGL2RenderingContext;
   vertexShader: WebGLShader;
@@ -17,7 +19,7 @@ export class Shader {
     this.program = this.createProgram()!;
   }
 
-  createShader(type: GLenum, source: string) {
+  private createShader(type: GLenum, source: string) {
     const shader = this.gl.createShader(type)!;
     this.gl.shaderSource(shader, source);
     this.gl.compileShader(shader);
@@ -29,7 +31,7 @@ export class Shader {
     return shader;
   }
 
-  createProgram() {
+  private createProgram() {
     const program = this.gl.createProgram()!; // IF not program then error gets it
     this.gl.attachShader(program, this.vertexShader);
     this.gl.attachShader(program, this.fragmentShader);
@@ -48,5 +50,11 @@ export class Shader {
 
   getUniformLocation(name: string) {
     return this.gl.getUniformLocation(this.program, name);
+  }
+
+  uploadUniformMat4(name: string, matrix: mat4) {
+    const location = this.gl.getUniformLocation(this.program, name);
+    if (!location) return;
+    this.gl.uniformMatrix4fv(location, false, matrix);
   }
 }
