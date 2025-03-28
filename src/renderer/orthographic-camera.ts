@@ -48,6 +48,7 @@ export class OrtographicCamera {
   }
 
   setPosition(x: number, y: number) {
-    this.position = vec3.fromValues(x, y, 3);
+    this.position[0] += x;
+    this.position[1] += y;
   }
 }
