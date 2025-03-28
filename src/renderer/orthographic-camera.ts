@@ -1,28 +1,32 @@
-import { vec3, mat4, mat3 } from 'gl-matrix';
+import { vec3, mat4, mat3, vec4 } from 'gl-matrix';
 
 export class OrtographicCamera {
-  projectionMatrix: mat4;
-  viewMatrix: mat4;
-  viewProjectionMatrix: mat4;
-  position: vec3;
-  rotation: number;
+  private projectionMatrix: mat4 = mat4.create();
+  private viewMatrix: mat4 = mat4.create();
+  private viewProjectionMatrix: mat4 = mat4.create();
+  private position: vec3;
+  private rotation!: number;
 
-  constructor(left: number, right: number, top: number, bottom: number) {
-    this.viewProjectionMatrix = mat4.create();
-    mat4.identity(this.viewProjectionMatrix);
-    this.projectionMatrix = mat4.create();
-    mat4.identity(this.projectionMatrix);
-    this.viewMatrix = mat4.create();
-    mat4.identity(this.viewMatrix);
+  constructor(left: number, right: number, bottom: number, top: number) {
+    this.position = vec3.fromValues(0, 0, 0);
+    mat4.ortho(this.projectionMatrix, left, right, bottom, top, -1, 1);
     mat4.multiply(
       this.viewProjectionMatrix,
       this.projectionMatrix,
       this.viewMatrix
     );
-    mat4.ortho(this.projectionMatrix, left, right, bottom, top, -1.0, 1.0);
-    this.position = vec3.fromValues(0, 0, 0);
-    this.rotation = 0;
-    this.recalculateViewMatrix();
+  }
+
+  recalculateViewMatrix() {
+    const transform = mat4.create();
+    mat4.translate(transform, transform, this.position);
+    this.viewMatrix = mat4.invert(transform, transform);
+    //This is the correct order
+    mat4.multiply(
+      this.viewProjectionMatrix,
+      this.projectionMatrix,
+      this.viewMatrix
+    );
   }
 
   getProjectionMatrix() {
@@ -33,7 +37,7 @@ export class OrtographicCamera {
     return this.viewMatrix;
   }
 
-  getProjectionViewMatrix() {
+  getViewProjectionMatrix() {
     return this.viewProjectionMatrix;
   }
   getPosition() {
@@ -44,25 +48,6 @@ export class OrtographicCamera {
   }
 
   setPosition(x: number, y: number) {
-    this.position = vec3.fromValues(x, y, 0);
-    this.recalculateViewMatrix();
-  }
-
-  recalculateViewMatrix() {
-    // Beräkna vy-matrisen med mat4.lookAt
-    // mat4.lookAt tar en vy-matris, kamerans position, målpositionen och en uppåtriktning
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      vec3.fromValues(-0.5, 0, 0.5),
-      vec3.fromValues(-0.5, 0, 0.5)
-    );
-
-    // Beräkna vy-projektion-matrisen genom att multiplicera projektion-matrisen och vy-matrisen
-    mat4.multiply(
-      this.viewProjectionMatrix,
-      this.projectionMatrix,
-      this.viewMatrix
-    );
+    this.position = vec3.fromValues(x, y, 3);
   }
 }

@@ -5,21 +5,20 @@ export interface Buffer {
 }
 
 export class VertexBuffer implements Buffer {
+  vertices: Float32Array;
   buffer: WebGLBuffer | null;
-  static gl: WebGL2RenderingContext;
-  constructor(vertices: Float32Array) {
-    const gl = VertexBuffer.gl;
+  gl: WebGL2RenderingContext;
+  constructor(gl: WebGL2RenderingContext, vertices: Float32Array) {
+    this.gl = gl;
+    this.vertices = vertices;
     this.buffer = gl.createBuffer();
-    this.bind();
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-    this.unbind();
   }
 
   bind(): void {
-    VertexBuffer.gl.bindBuffer(VertexBuffer.gl.ARRAY_BUFFER, this.buffer);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
   }
   unbind(): void {
-    VertexBuffer.gl.bindBuffer(VertexBuffer.gl.ARRAY_BUFFER, null);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
   setData(): void {
     throw new Error('Method not implemented.');
@@ -29,29 +28,25 @@ export class VertexBuffer implements Buffer {
     gl: WebGL2RenderingContext,
     vertices: Float32Array
   ): VertexBuffer {
-    VertexBuffer.gl = gl;
-    return new VertexBuffer(vertices);
+    return new VertexBuffer(gl, vertices);
   }
 }
 
 export class IndexBuffer {
   buffer: WebGLBuffer | null;
-  static gl: WebGL2RenderingContext;
   indices: Uint16Array;
-  constructor(indices: Uint16Array) {
+  gl: WebGL2RenderingContext;
+  constructor(gl: WebGL2RenderingContext, indices: Uint16Array) {
     this.indices = indices;
-    const gl = IndexBuffer.gl;
+    this.gl = gl;
     this.buffer = gl.createBuffer();
-    this.bind();
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-    this.unbind();
   }
 
   bind(): void {
-    IndexBuffer.gl.bindBuffer(IndexBuffer.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
   }
   unbind(): void {
-    IndexBuffer.gl.bindBuffer(IndexBuffer.gl.ELEMENT_ARRAY_BUFFER, null);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
   }
   setData(): void {
     throw new Error('Method not implemented.');
@@ -62,7 +57,6 @@ export class IndexBuffer {
   }
 
   static create(gl: WebGL2RenderingContext, indices: Uint16Array): IndexBuffer {
-    IndexBuffer.gl = gl;
-    return new IndexBuffer(indices);
+    return new IndexBuffer(gl, indices);
   }
 }
