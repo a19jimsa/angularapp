@@ -1,14 +1,15 @@
 import { vec3, mat4, mat3, vec4 } from 'gl-matrix';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class OrtographicCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
   private position: vec3;
-  private rotation!: number;
+  private rotation: number = 0;
 
   constructor(left: number, right: number, bottom: number, top: number) {
-    this.position = vec3.fromValues(0, 0, 0);
+    this.position = vec3.fromValues(0, 0, 1);
     mat4.ortho(this.projectionMatrix, left, right, bottom, top, -1, 1);
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -19,8 +20,8 @@ export class OrtographicCamera {
 
   recalculateViewMatrix() {
     const transform = mat4.create();
-    mat4.translate(transform, transform, this.position);
-    this.viewMatrix = mat4.invert(transform, transform);
+    this.viewMatrix = mat4.translate(transform, transform, this.position);
+    mat4.invert(this.viewMatrix, this.viewMatrix);
     //This is the correct order
     mat4.multiply(
       this.viewProjectionMatrix,
