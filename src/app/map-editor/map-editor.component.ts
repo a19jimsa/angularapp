@@ -17,6 +17,7 @@ import { Shader } from 'src/renderer/shader';
 import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 import { Texture } from 'src/renderer/texture';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { vec3 } from 'gl-matrix';
 
 @Component({
   selector: 'app-map-editor',
@@ -44,6 +45,7 @@ export class MapEditorComponent implements AfterViewInit {
   shader!: Shader;
   vao!: VertexArrayBuffer;
   texture!: Texture;
+  texture2!: Texture;
 
   vsSource = `
   attribute vec4 aPosition;
@@ -55,7 +57,7 @@ export class MapEditorComponent implements AfterViewInit {
   varying vec2 vTexCoord;
 
   void main(void) {
-    float displacementScale = 30.0;
+    float displacementScale = 10.0;
     float displacement = texture2D(uTexture, aTexCoord).r * displacementScale;
     vec4 displacedPosition = aPosition + vec4(0, displacement, 0, 0);
     gl_Position = u_viewProjection * displacedPosition;
@@ -64,12 +66,12 @@ export class MapEditorComponent implements AfterViewInit {
 `;
 
   // Fragment shader program
-
   fsSource = `
     precision highp float;
+    
+    uniform sampler2D uTexture;
 
     varying vec2 vTexCoord;
-    uniform sampler2D uTexture;
 
     void main(){
       float displacementScale = 10.0;
@@ -80,11 +82,9 @@ export class MapEditorComponent implements AfterViewInit {
       vec3 lightDir = normalize(vec3(1, -3, 2));
       float light = dot(lightDir, normal);
       vec3 color = vec3(0.3, 1, 0.1);
-    
-      gl_FragColor = vec4(color * (light * 0.5 + 0.5), 1.0);
-    
+      gl_FragColor = vec4(data * (light * 0.5 + 0.5), 1);
     }
-`;
+  `;
 
   constructor() {
     this.camera = new PerspectiveCamera();
@@ -93,7 +93,6 @@ export class MapEditorComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.gl = this.canvas.nativeElement.getContext('webgl2')!;
     if (!this.gl) throw Error('Webgl2 not supported');
-    console.log(this.gl);
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
     this.gl.canvas.width = 800;
@@ -101,6 +100,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.shader = new Shader(this.gl, this.vsSource, this.fsSource);
     this.renderer = new Renderer(this.gl);
     this.texture = new Texture(this.gl);
+    this.texture2 = new Texture(this.gl);
     if (!this.renderer) return;
     this.addEventListeners();
     this.init();
@@ -112,27 +112,29 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
+          this.camera.rotateX(1);
           break;
         case 'KeyS':
+          this.camera.rotateX(-1);
           break;
         case 'KeyA':
-          this.camera.updatePosition(1, 0, 0);
+          this.camera.rotateY(10);
           break;
         case 'KeyD':
-          this.camera.updatePosition(0, 0, -1);
+          this.camera.rotateY(-10);
           break;
         case 'ArrowUp':
-          this.camera.rotate(0.1);
+          this.camera.updatePosition(0, 0, 1);
           break;
         case 'ArrowDown':
-          this.camera.rotate(-0.1);
+          this.camera.updatePosition(0, 0, -1);
           break;
       }
       this.loop();
     });
   }
 
-  init() {
+  async init() {
     const gl = this.gl;
     const gridSize = 10; // 10x10 rutnät = 100 trianglar
     const vertices = [];
@@ -143,16 +145,15 @@ export class MapEditorComponent implements AfterViewInit {
         let posX = (x / 96) * 96 - 96 / 2;
         let posY = 0;
         let posZ = (y / 64) * 64 - 64 / 2;
-
         vertices.push(posX, posY, posZ, x / 96, y / 64);
       }
     }
 
     for (let y = 0; y < 64; y++) {
       for (let x = 0; x < 96; x++) {
-        let topLeft = y * (64 + 1) + x;
+        let topLeft = y * (96 + 1) + x; // Räkna radvis
         let topRight = topLeft + 1;
-        let bottomLeft = topLeft + (96 + 1);
+        let bottomLeft = topLeft + (96 + 1); // Räkna nästa rad
         let bottomRight = bottomLeft + 1;
 
         // För varje fyrkant skapar vi två trianglar
@@ -192,19 +193,89 @@ export class MapEditorComponent implements AfterViewInit {
     );
     gl.enableVertexAttribArray(texAttrib);
 
-    this.texture.loadTexture('assets/textures/map.jpg');
-    this.shader.use();
-    setTimeout(() => {
-      this.loop();
-    }, 1000);
+    const image = await this.texture.loadTexture(
+      'assets/textures/heightmap-96x64.png',
+      0
+    );
+
+    // get image data
+    const ctx = document.createElement('canvas').getContext('2d')!;
+    ctx.canvas.width = image.width;
+    ctx.canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
+    const imgData = ctx.getImageData(0, 0, image.width, image.height);
+
+    // generate normals from height data
+    const displacementScale = 10;
+    const data = new Uint8Array(imgData.data.length);
+    for (let z = 0; z < imgData.height; ++z) {
+      for (let x = 0; x < imgData.width; ++x) {
+        const off = (z * image.width + x) * 4;
+        const h0 = imgData.data[off];
+        const h1 = imgData.data[off + 4] || 0; // being lazy at edge
+        const h2 = imgData.data[off + imgData.width * 4] || 0; // being lazy at edge
+        const p0 = vec3.fromValues(x, (h0 * displacementScale) / 255, z);
+        const p1 = vec3.fromValues(x + 1, (h1 * displacementScale) / 255, z);
+        const p2 = vec3.fromValues(x, (h2 * displacementScale) / 255, z + 1);
+        const v0 = vec3.normalize(p1, vec3.subtract(p1, p1, p0));
+        const v1 = vec3.normalize(p2, vec3.subtract(p2, p2, p0));
+        const normal = vec3.normalize(v0, vec3.cross(v0, v0, v1));
+        data[off + 0] = (normal[0] * 0.5 + 0.5) * 255;
+        data[off + 1] = (normal[1] * 0.5 + 0.5) * 255;
+        data[off + 2] = (normal[2] * 0.5 + 0.5) * 255;
+        data[off + 3] = h0;
+      }
+    }
+    console.log(image);
+    const texture = gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0, // Level (mipmap nivå)
+      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
+      image.width, // Bredd
+      image.height, // Höjd
+      0, // Border (ska alltid vara 0)
+      gl.RGBA, // Format
+      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
+      data // Data från Uint8Array
+    );
+
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.LINEAR
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MAG_FILTER,
+      this.gl.LINEAR
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_S,
+      this.gl.CLAMP_TO_EDGE
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_T,
+      this.gl.CLAMP_TO_EDGE
+    );
+
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.LINEAR_MIPMAP_LINEAR
+    );
+
+    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    this.loop();
   }
 
   loop() {
     const gl = this.gl;
-
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.CULL_FACE);
+
     gl.clearColor(0.1, 0.1, 0.1, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
 
@@ -219,10 +290,10 @@ export class MapEditorComponent implements AfterViewInit {
       false,
       this.camera.getViewProjectionMatrix()
     );
+
+    // Använd texturen i en shader
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture.getTexture());
-    const location = this.shader.getUniformLocation('uTexture');
-    gl.uniform1i(location, 0);
+    gl.uniform1i(gl.getUniformLocation(this.shader.program, 'uTexture'), 0);
 
     this.vao.bind();
     gl.drawElements(
