@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
@@ -44,8 +43,11 @@ export class MapEditorComponent implements AfterViewInit {
   camera!: PerspectiveCamera;
   shader!: Shader;
   vao!: VertexArrayBuffer;
-  texture!: Texture;
+  texture1!: Texture;
   texture2!: Texture;
+  texture3!: Texture;
+  texture4!: Texture;
+  texture5!: Texture;
 
   vsSource = `
   attribute vec4 aPosition;
@@ -57,8 +59,8 @@ export class MapEditorComponent implements AfterViewInit {
   varying vec2 vTexCoord;
 
   void main(void) {
-    float displacementScale = 10.0;
-    float displacement = texture2D(uTexture, aTexCoord).r * displacementScale;
+    float displacementScale = 1.0;
+    float displacement = texture2D(uTexture, aTexCoord).a * displacementScale;
     vec4 displacedPosition = aPosition + vec4(0, displacement, 0, 0);
     gl_Position = u_viewProjection * displacedPosition;
     vTexCoord = aTexCoord;
@@ -69,20 +71,26 @@ export class MapEditorComponent implements AfterViewInit {
   fsSource = `
     precision highp float;
     
-    uniform sampler2D uTexture;
+    uniform sampler2D uSplatMap;
+    uniform sampler2D uGround;
+    uniform sampler2D uGrass;
+    uniform sampler2D uMountain;
 
     varying vec2 vTexCoord;
 
     void main(){
-      float displacementScale = 10.0;
-    
-      vec3 data = texture2D(uTexture, vTexCoord).rgb;
-      vec3 normal = data * 2. - 1.;
-    
-      vec3 lightDir = normalize(vec3(1, -3, 2));
-      float light = dot(lightDir, normal);
-      vec3 color = vec3(0.3, 1, 0.1);
-      gl_FragColor = vec4(data * (light * 0.5 + 0.5), 1);
+
+      vec4 splatColor = texture2D(uSplatMap, vTexCoord);
+      
+      vec4 grass = texture2D(uGrass, vTexCoord);
+      vec4 rock = texture2D(uMountain, vTexCoord);
+      vec4 path = texture2D(uGround, vTexCoord);
+
+      vec4 finalColor = splatColor.r * path + 
+                        splatColor.g * grass + 
+                        splatColor.b * rock;
+
+      gl_FragColor = finalColor;
     }
   `;
 
@@ -99,8 +107,11 @@ export class MapEditorComponent implements AfterViewInit {
     this.gl.canvas.height = 600;
     this.shader = new Shader(this.gl, this.vsSource, this.fsSource);
     this.renderer = new Renderer(this.gl);
-    this.texture = new Texture(this.gl);
+    this.texture1 = new Texture(this.gl);
     this.texture2 = new Texture(this.gl);
+    this.texture3 = new Texture(this.gl);
+    this.texture4 = new Texture(this.gl);
+    this.texture5 = new Texture(this.gl);
     if (!this.renderer) return;
     this.addEventListeners();
     this.init();
@@ -118,10 +129,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.camera.rotateX(-1);
           break;
         case 'KeyA':
-          this.camera.rotateY(10);
+          this.camera.rotateY(1);
           break;
         case 'KeyD':
-          this.camera.rotateY(-10);
+          this.camera.rotateY(-1);
           break;
         case 'ArrowUp':
           this.camera.updatePosition(0, 0, 1);
@@ -136,7 +147,6 @@ export class MapEditorComponent implements AfterViewInit {
 
   async init() {
     const gl = this.gl;
-    const gridSize = 10; // 10x10 rutnät = 100 trianglar
     const vertices = [];
     const indices = [];
 
@@ -193,89 +203,85 @@ export class MapEditorComponent implements AfterViewInit {
     );
     gl.enableVertexAttribArray(texAttrib);
 
-    const image = await this.texture.loadTexture(
-      'assets/textures/heightmap-96x64.png',
-      0
+    const image1 = await this.texture1.loadTexture(
+      'assets/textures/heightmap-96x64.png'
+    );
+
+    const image2 = await this.texture2.loadTexture(
+      'assets/textures/dirt_04.png'
+    );
+
+    const image3 = await this.texture3.loadTexture(
+      'assets/textures/grass_01.png'
+    );
+
+    const image4 = await this.texture4.loadTexture(
+      'assets/textures/mountain.png'
+    );
+
+    const image5 = await this.texture5.loadTexture(
+      'assets/textures/splatmap.png'
     );
 
     // get image data
     const ctx = document.createElement('canvas').getContext('2d')!;
-    ctx.canvas.width = image.width;
-    ctx.canvas.height = image.height;
-    ctx.drawImage(image, 0, 0);
-    const imgData = ctx.getImageData(0, 0, image.width, image.height);
+    ctx.canvas.width = image1.width;
+    ctx.canvas.height = image1.height;
+    ctx.drawImage(image1, 0, 0);
+    const imgData = ctx.getImageData(0, 0, image1.width, image1.height);
 
     // generate normals from height data
     const displacementScale = 10;
     const data = new Uint8Array(imgData.data.length);
-    for (let z = 0; z < imgData.height; ++z) {
-      for (let x = 0; x < imgData.width; ++x) {
-        const off = (z * image.width + x) * 4;
-        const h0 = imgData.data[off];
-        const h1 = imgData.data[off + 4] || 0; // being lazy at edge
-        const h2 = imgData.data[off + imgData.width * 4] || 0; // being lazy at edge
+    const v0 = vec3.fromValues(0, 0, 0);
+    const v1 = vec3.fromValues(0, 0, 0);
+    const normal = vec3.fromValues(0, 0, 0);
+    for (let z = 0; z < imgData.height - 1; ++z) {
+      for (let x = 0; x < imgData.width - 1; ++x) {
+        const off = (z * imgData.width + x) * 4;
+
+        // Get height values for current, right, and down pixels
+        const h0 = imgData.data[off]; // Current height
+        const h1 = imgData.data[off + 4]; // Right pixel height
+        const h2 = imgData.data[off + imgData.width * 4]; // Down pixel height
+
+        // Create 3D points for the triangle
         const p0 = vec3.fromValues(x, (h0 * displacementScale) / 255, z);
         const p1 = vec3.fromValues(x + 1, (h1 * displacementScale) / 255, z);
         const p2 = vec3.fromValues(x, (h2 * displacementScale) / 255, z + 1);
-        const v0 = vec3.normalize(p1, vec3.subtract(p1, p1, p0));
-        const v1 = vec3.normalize(p2, vec3.subtract(p2, p2, p0));
-        const normal = vec3.normalize(v0, vec3.cross(v0, v0, v1));
-        data[off + 0] = (normal[0] * 0.5 + 0.5) * 255;
+
+        // Calculate the two vectors for the triangle
+        vec3.subtract(v0, p1, p0); // Vector from p0 to p1
+        vec3.subtract(v1, p2, p0); // Vector from p0 to p2
+
+        // Calculate the normal using cross product
+        vec3.cross(normal, v0, v1);
+        vec3.normalize(normal, normal); // Normalize the normal
+
+        // Write the normal to the data array (converting it to RGB)
+        data[off] = (normal[0] * 0.5 + 0.5) * 255;
         data[off + 1] = (normal[1] * 0.5 + 0.5) * 255;
         data[off + 2] = (normal[2] * 0.5 + 0.5) * 255;
+
+        // Retain the original height value in the alpha channel
         data[off + 3] = h0;
       }
     }
-    console.log(image);
-    const texture = gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0, // Level (mipmap nivå)
-      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-      image.width, // Bredd
-      image.height, // Höjd
-      0, // Border (ska alltid vara 0)
-      gl.RGBA, // Format
-      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-      data // Data från Uint8Array
-    );
 
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MIN_FILTER,
-      this.gl.LINEAR
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MAG_FILTER,
-      this.gl.LINEAR
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_S,
-      this.gl.CLAMP_TO_EDGE
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_T,
-      this.gl.CLAMP_TO_EDGE
-    );
+    this.texture1.createNormalMap(data, image1);
+    this.texture2.createAndBindTexture(image2, 1);
+    this.texture3.createAndBindTexture(image3, 2);
+    this.texture4.createAndBindTexture(image4, 3);
+    this.texture5.createAndBindTexture(image5, 4);
 
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MIN_FILTER,
-      this.gl.LINEAR_MIPMAP_LINEAR
-    );
-
-    this.gl.generateMipmap(this.gl.TEXTURE_2D);
     this.loop();
   }
 
   loop() {
     const gl = this.gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
     gl.clearColor(0.1, 0.1, 0.1, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
 
@@ -292,8 +298,22 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     // Använd texturen i en shader
-    gl.activeTexture(gl.TEXTURE0);
-    gl.uniform1i(gl.getUniformLocation(this.shader.program, 'uTexture'), 0);
+    gl.uniform1i(
+      gl.getUniformLocation(this.shader.program, 'uGround'),
+      this.texture2.getSlot()
+    );
+    gl.uniform1i(
+      gl.getUniformLocation(this.shader.program, 'uGrass'),
+      this.texture3.getSlot()
+    );
+    gl.uniform1i(
+      gl.getUniformLocation(this.shader.program, 'uMountain'),
+      this.texture4.getSlot()
+    );
+    gl.uniform1i(
+      gl.getUniformLocation(this.shader.program, 'uSplatMap'),
+      this.texture5.getSlot()
+    );
 
     this.vao.bind();
     gl.drawElements(
