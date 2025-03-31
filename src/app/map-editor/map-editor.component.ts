@@ -59,11 +59,11 @@ export class MapEditorComponent implements AfterViewInit {
   varying vec2 vTexCoord;
 
   void main(void) {
-    float displacementScale = 1.0;
+    float displacementScale = -10.0;
     float displacement = texture2D(uTexture, aTexCoord).a * displacementScale;
     vec4 displacedPosition = aPosition + vec4(0, displacement, 0, 0);
     gl_Position = u_viewProjection * displacedPosition;
-    vTexCoord = aTexCoord;
+    vTexCoord = aTexCoord * 5.0;
   }
 `;
 
@@ -80,7 +80,7 @@ export class MapEditorComponent implements AfterViewInit {
 
     void main(){
 
-      vec4 splatColor = texture2D(uSplatMap, vTexCoord);
+      vec4 splatColor = texture2D(uSplatMap, vTexCoord / 5.0);
       
       vec4 grass = texture2D(uGrass, vTexCoord);
       vec4 rock = texture2D(uMountain, vTexCoord);
@@ -129,10 +129,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.camera.rotateX(-1);
           break;
         case 'KeyA':
-          this.camera.rotateY(1);
+          this.camera.updatePosition(1,0,0);
           break;
         case 'KeyD':
-          this.camera.rotateY(-1);
+          this.camera.updatePosition(-1,0,0);
           break;
         case 'ArrowUp':
           this.camera.updatePosition(0, 0, 1);
@@ -204,7 +204,7 @@ export class MapEditorComponent implements AfterViewInit {
     gl.enableVertexAttribArray(texAttrib);
 
     const image1 = await this.texture1.loadTexture(
-      'assets/textures/heightmap-96x64.png'
+      'assets/textures/newheightmap.png'
     );
 
     const image2 = await this.texture2.loadTexture(
@@ -212,12 +212,10 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const image3 = await this.texture3.loadTexture(
-      'assets/textures/grass_01.png'
+      'assets/textures/grass03.png'
     );
 
-    const image4 = await this.texture4.loadTexture(
-      'assets/textures/mountain.png'
-    );
+    const image4 = await this.texture4.loadTexture('assets/textures/water.png');
 
     const image5 = await this.texture5.loadTexture(
       'assets/textures/splatmap.png'
@@ -299,11 +297,15 @@ export class MapEditorComponent implements AfterViewInit {
 
     // Använd texturen i en shader
     gl.uniform1i(
-      gl.getUniformLocation(this.shader.program, 'uGround'),
-      this.texture2.getSlot()
+      gl.getUniformLocation(this.shader.program, 'uTexture'),
+      this.texture1.getSlot()
     );
     gl.uniform1i(
       gl.getUniformLocation(this.shader.program, 'uGrass'),
+      this.texture2.getSlot()
+    );
+    gl.uniform1i(
+      gl.getUniformLocation(this.shader.program, 'uGround'),
       this.texture3.getSlot()
     );
     gl.uniform1i(
