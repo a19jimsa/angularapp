@@ -1,3 +1,5 @@
+import { Shader } from './shader';
+
 export class Texture {
   private gl: WebGL2RenderingContext;
   private texture: WebGLTexture | null;
@@ -57,7 +59,7 @@ export class Texture {
   createNormalMap(data: Uint8Array, image: HTMLImageElement) {
     const gl = this.gl;
     const texture = gl.createTexture();
-    console.log(texture);
+
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     gl.texImage2D(
@@ -95,6 +97,13 @@ export class Texture {
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
 
     this.texture = texture;
+  }
+
+  setUniform(shader: Shader, name: string) {
+    this.gl.uniform1i(
+      this.gl.getUniformLocation(shader.program, name),
+      this.getSlot()
+    );
   }
 
   getSlot() {

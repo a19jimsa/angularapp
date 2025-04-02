@@ -59,7 +59,7 @@ export class MapEditorComponent implements AfterViewInit {
   varying vec2 vTexCoord;
 
   void main(void) {
-    float displacementScale = -10.0;
+    float displacementScale = 10.0;
     float displacement = texture2D(uTexture, aTexCoord).a * displacementScale;
     vec4 displacedPosition = aPosition + vec4(0, displacement, 0, 0);
     gl_Position = u_viewProjection * displacedPosition;
@@ -72,23 +72,31 @@ export class MapEditorComponent implements AfterViewInit {
     precision highp float;
     
     uniform sampler2D uSplatMap;
-    uniform sampler2D uGround;
-    uniform sampler2D uGrass;
-    uniform sampler2D uMountain;
+    uniform sampler2D uTextureMap;
 
     varying vec2 vTexCoord;
 
     void main(){
 
       vec4 splatColor = texture2D(uSplatMap, vTexCoord / 5.0);
-      
-      vec4 grass = texture2D(uGrass, vTexCoord);
-      vec4 rock = texture2D(uMountain, vTexCoord);
-      vec4 path = texture2D(uGround, vTexCoord);
 
-      vec4 finalColor = splatColor.r * path + 
+      vec2 uv_dirt = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(0.0 / 4.5, 0.0);
+      vec2 uv_sand = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(1.0 / 4.5, 0.0);
+      vec2 uv_grass = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(2.0 / 4.5, 0.0);
+      vec2 uv_plants = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(3.0 / 4.5, 0.0);
+      vec2 uv_mountain = fract(vTexCoord) * vec2(0.5 / 4.5, 0.5) + vec2(4.0 / 4.5, 0.0);
+
+
+      
+      vec4 grass = texture2D(uTextureMap, uv_grass);
+      vec4 dirt = texture2D(uTextureMap, uv_dirt);
+      vec4 sand = texture2D(uTextureMap, uv_sand);
+      vec4 mountain = texture2D(uTextureMap, uv_mountain);
+      vec4 plant = texture2D(uTextureMap, uv_plants);
+
+      vec4 finalColor = splatColor.r * dirt + 
                         splatColor.g * grass + 
-                        splatColor.b * rock;
+                        splatColor.b * mountain;
 
       gl_FragColor = finalColor;
     }
@@ -129,10 +137,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.camera.rotateX(-1);
           break;
         case 'KeyA':
-          this.camera.updatePosition(1,0,0);
+          this.camera.updatePosition(1, 0, 0);
           break;
         case 'KeyD':
-          this.camera.updatePosition(-1,0,0);
+          this.camera.updatePosition(-1, 0, 0);
           break;
         case 'ArrowUp':
           this.camera.updatePosition(0, 0, 1);
@@ -149,21 +157,23 @@ export class MapEditorComponent implements AfterViewInit {
     const gl = this.gl;
     const vertices = [];
     const indices = [];
+    const width = 50;
+    const height = 50;
 
-    for (let y = 0; y <= 64; y++) {
-      for (let x = 0; x <= 96; x++) {
-        let posX = (x / 96) * 96 - 96 / 2;
+    for (let y = 0; y <= height; y++) {
+      for (let x = 0; x <= width; x++) {
+        let posX = (x / width) * width - width / 2;
         let posY = 0;
-        let posZ = (y / 64) * 64 - 64 / 2;
-        vertices.push(posX, posY, posZ, x / 96, y / 64);
+        let posZ = (y / height) * height - height / 2;
+        vertices.push(posX, posY, posZ, x / width, y / height);
       }
     }
 
-    for (let y = 0; y < 64; y++) {
-      for (let x = 0; x < 96; x++) {
-        let topLeft = y * (96 + 1) + x; // Räkna radvis
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let topLeft = y * (width + 1) + x; // Räkna radvis
         let topRight = topLeft + 1;
-        let bottomLeft = topLeft + (96 + 1); // Räkna nästa rad
+        let bottomLeft = topLeft + (width + 1); // Räkna nästa rad
         let bottomRight = bottomLeft + 1;
 
         // För varje fyrkant skapar vi två trianglar
@@ -204,18 +214,18 @@ export class MapEditorComponent implements AfterViewInit {
     gl.enableVertexAttribArray(texAttrib);
 
     const image1 = await this.texture1.loadTexture(
-      'assets/textures/newheightmap.png'
+      'assets/textures/heightmap.jpg'
     );
 
     const image2 = await this.texture2.loadTexture(
-      'assets/textures/dirt_04.png'
+      'assets/textures/texture_map.png'
     );
 
-    const image3 = await this.texture3.loadTexture(
-      'assets/textures/grass03.png'
-    );
+    const image3 = await this.texture3.loadTexture('assets/textures/grass.jpg');
 
-    const image4 = await this.texture4.loadTexture('assets/textures/water.png');
+    const image4 = await this.texture4.loadTexture(
+      'assets/textures/mountain.png'
+    );
 
     const image5 = await this.texture5.loadTexture(
       'assets/textures/splatmap.png'
@@ -301,7 +311,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture1.getSlot()
     );
     gl.uniform1i(
-      gl.getUniformLocation(this.shader.program, 'uGrass'),
+      gl.getUniformLocation(this.shader.program, 'uTextureMap'),
       this.texture2.getSlot()
     );
     gl.uniform1i(
