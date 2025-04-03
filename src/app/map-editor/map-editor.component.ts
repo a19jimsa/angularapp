@@ -16,7 +16,8 @@ import { Shader } from 'src/renderer/shader';
 import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 import { Texture } from 'src/renderer/texture';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
-import { vec3 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
+import { Vec } from '../vec';
 
 @Component({
   selector: 'app-map-editor',
@@ -48,6 +49,7 @@ export class MapEditorComponent implements AfterViewInit {
   texture3!: Texture;
   texture4!: Texture;
   texture5!: Texture;
+  mousePos = vec3.create();
 
   vsSource = `
   attribute vec4 aPosition;
@@ -55,15 +57,16 @@ export class MapEditorComponent implements AfterViewInit {
 
   uniform sampler2D uTexture;
   uniform mat4 u_viewProjection;
+  uniform mat4 u_modelMatrix;
 
   varying vec2 vTexCoord;
 
   void main(void) {
-    float displacementScale = 10.0;
+    float displacementScale = 1.0;
     float displacement = texture2D(uTexture, aTexCoord).a * displacementScale;
     vec4 displacedPosition = aPosition + vec4(0, displacement, 0, 0);
-    gl_Position = u_viewProjection * displacedPosition;
-    vTexCoord = aTexCoord * 5.0;
+    gl_Position = u_viewProjection * u_modelMatrix * displacedPosition;
+    vTexCoord = aTexCoord * 10.0;
   }
 `;
 
@@ -71,6 +74,7 @@ export class MapEditorComponent implements AfterViewInit {
   fsSource = `
     precision highp float;
     
+    uniform sampler2D uTexture;
     uniform sampler2D uSplatMap;
     uniform sampler2D uTextureMap;
 
@@ -78,27 +82,46 @@ export class MapEditorComponent implements AfterViewInit {
 
     void main(){
 
-      vec4 splatColor = texture2D(uSplatMap, vTexCoord / 5.0);
-
-      vec2 uv_dirt = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(0.0 / 4.5, 0.0);
-      vec2 uv_sand = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(1.0 / 4.5, 0.0);
-      vec2 uv_grass = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(2.0 / 4.5, 0.0);
-      vec2 uv_plants = fract(vTexCoord) * vec2(1.0 / 4.5, 1.0) + vec2(3.0 / 4.5, 0.0);
-      vec2 uv_mountain = fract(vTexCoord) * vec2(0.5 / 4.5, 0.5) + vec2(4.0 / 4.5, 0.0);
-
-
+      // should make this a uniform so it's shared
+      float displacementScale = 10.0;
       
+      vec3 data = texture2D(uTexture, vTexCoord / 20.0).rgb;
+      vec3 normal = data * 2. - 1.;
+      
+      // just hard code lightDir and color
+      // to make it easy
+      vec3 lightDir = normalize(vec3(1, -3, 2));
+      float light = dot(lightDir, normal);
+
+      vec4 splatColor = texture2D(uSplatMap, vTexCoord / 10.0);
+
+      vec2 uv_dirt = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(0.0 / 5.0, 0.0 / 2.0);
+      vec2 uv_sand = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(1.0 / 5.0, 0.0 / 2.0);
+      vec2 uv_grass = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(2.0 / 5.0, 0.0 / 2.0);
+      vec2 uv_plants = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(3.0 / 5.0, 0.0 / 2.0);
+      vec2 uv_snow = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(4.0 / 5.0, 0.0 / 2.0);
+
+      vec2 uv_ground1 = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(0.0 / 5.0, 1.0 / 2.0);
+      vec2 uv_ground2 = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(1.0 / 5.0, 1.0 / 2.0);
+      vec2 uv_ground3 = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(2.0 / 5.0, 1.0 / 2.0);
+      vec2 uv_ground4 = fract(vTexCoord) * vec2(1.0 / 5.0, 1.0 / 2.0) + vec2(3.0 / 5.0, 1.0 / 2.0);
+
       vec4 grass = texture2D(uTextureMap, uv_grass);
       vec4 dirt = texture2D(uTextureMap, uv_dirt);
       vec4 sand = texture2D(uTextureMap, uv_sand);
-      vec4 mountain = texture2D(uTextureMap, uv_mountain);
+      vec4 snow = texture2D(uTextureMap, uv_snow);
       vec4 plant = texture2D(uTextureMap, uv_plants);
 
-      vec4 finalColor = splatColor.r * dirt + 
-                        splatColor.g * grass + 
-                        splatColor.b * mountain;
+      vec4 ground1 = texture2D(uTextureMap, uv_ground1);
+      vec4 ground2 = texture2D(uTextureMap, uv_ground2);
+      vec4 ground3 = texture2D(uTextureMap, uv_ground3);
+      vec4 ground4 = texture2D(uTextureMap, uv_ground4);
 
-      gl_FragColor = finalColor;
+      vec4 finalColor = splatColor.r * grass + 
+                        splatColor.g * ground4 + 
+                        splatColor.b * plant;
+
+      gl_FragColor = finalColor * light;
     }
   `;
 
@@ -151,19 +174,50 @@ export class MapEditorComponent implements AfterViewInit {
       }
       this.loop();
     });
+
+    this.canvas.nativeElement.addEventListener('mousemove', (e) => {
+      const rect = this.canvas.nativeElement.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const clipX = (x / rect.width) * 2 - 1;
+      const clipY = (y / rect.height) * -2 + 1;
+      const invMat = mat4.invert(
+        mat4.create(),
+        this.camera.getViewProjectionMatrix()
+      );
+
+      const start = vec3.transformMat4(
+        vec3.fromValues(0, 0, 0),
+        vec3.fromValues(clipX, clipY, -1),
+        invMat
+      );
+      const end = vec3.transformMat4(
+        vec3.fromValues(0, 0, 0),
+        vec3.fromValues(clipX, clipY, 1),
+        mat4.invert(mat4.create(), this.camera.getViewProjectionMatrix())
+      );
+
+      const rayDir = vec3.normalize(
+        vec3.create(),
+        vec3.subtract(vec3.create(), end, start)
+      );
+      this.mousePos = rayDir;
+      this.loop();
+    });
   }
 
   async init() {
     const gl = this.gl;
     const vertices = [];
     const indices = [];
-    const width = 50;
-    const height = 50;
+    const width = 100;
+    const height = 100;
 
     for (let y = 0; y <= height; y++) {
       for (let x = 0; x <= width; x++) {
         let posX = (x / width) * width - width / 2;
-        let posY = 0;
+        let posY = 5;
         let posZ = (y / height) * height - height / 2;
         vertices.push(posX, posY, posZ, x / width, y / height);
       }
@@ -181,6 +235,7 @@ export class MapEditorComponent implements AfterViewInit {
         indices.push(topRight, bottomLeft, bottomRight);
       }
     }
+
     console.log('Vertices:', vertices);
     console.log('Indices:', indices);
 
@@ -214,7 +269,7 @@ export class MapEditorComponent implements AfterViewInit {
     gl.enableVertexAttribArray(texAttrib);
 
     const image1 = await this.texture1.loadTexture(
-      'assets/textures/heightmap.jpg'
+      'assets/textures/heightmap.png'
     );
 
     const image2 = await this.texture2.loadTexture(
@@ -228,7 +283,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const image5 = await this.texture5.loadTexture(
-      'assets/textures/splatmap.png'
+      'assets/textures/splatmap.jpg'
     );
 
     // get image data
@@ -315,7 +370,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture2.getSlot()
     );
     gl.uniform1i(
-      gl.getUniformLocation(this.shader.program, 'uGround'),
+      gl.getUniformLocation(this.shader.program, 'uDisplacementMap'),
       this.texture3.getSlot()
     );
     gl.uniform1i(
@@ -327,6 +382,18 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture5.getSlot()
     );
 
+    const modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [
+      this.mousePos[0],
+      this.mousePos[1],
+      this.mousePos[2] - 5,
+    ]); // Flytta bakåt lite
+    const modelMatrixLoc = gl.getUniformLocation(
+      this.shader.program,
+      'u_modelMatrix'
+    );
+    gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
+
     this.vao.bind();
     gl.drawElements(
       gl.TRIANGLES,
@@ -335,5 +402,9 @@ export class MapEditorComponent implements AfterViewInit {
       0
     );
     this.vao.unbind();
+  }
+
+  getVertexPosition(vertices: number[]) {
+    vertices;
   }
 }
