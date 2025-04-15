@@ -1,1 +1,4 @@
-
+canvas {
+  display: flex;
+  justify-self: center;
+}

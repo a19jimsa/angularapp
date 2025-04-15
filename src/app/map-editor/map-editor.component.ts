@@ -31,7 +31,7 @@ import { FormsModule } from '@angular/forms';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -43,7 +43,7 @@ export class MapEditorComponent implements AfterViewInit {
   gl!: WebGL2RenderingContext;
   width: number = 0;
   height: number = 0;
-  renderer!: Renderer; 
+  renderer!: Renderer;
   camera!: PerspectiveCamera;
   shader!: Shader;
   vao!: VertexArrayBuffer;
@@ -54,7 +54,7 @@ export class MapEditorComponent implements AfterViewInit {
   texture5!: Texture;
   mousePos = vec3.create();
   activeVertexId: number = 0;
-  activeVertexPosition: vec3 = vec3.fromValues(0,0,0);
+  activeVertexPosition: vec3 = vec3.fromValues(0, 0, 0);
   mesh = new Mesh();
 
   vsSource = `
@@ -143,7 +143,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.gl.canvas.width = 800;
     this.gl.canvas.height = 600;
     this.shader = new Shader(this.gl);
-    this.renderer = new Renderer(this.gl,this.camera, this.shader);
+    this.renderer = new Renderer(this.gl, this.camera, this.shader);
     this.texture1 = new Texture(this.gl);
     this.texture2 = new Texture(this.gl);
     this.texture3 = new Texture(this.gl);
@@ -177,12 +177,12 @@ export class MapEditorComponent implements AfterViewInit {
         case 'ArrowDown':
           this.camera.updatePosition(0, -0.1, 0);
           break;
-          case 'ArrowRight':
-            this.camera.updatePosition(0.1, 0, 0);
-            break;
-          case 'ArrowLeft':
-            this.camera.updatePosition(-0.1, 0, 0);
-            break;
+        case 'ArrowRight':
+          this.camera.updatePosition(0.1, 0, 0);
+          break;
+        case 'ArrowLeft':
+          this.camera.updatePosition(-0.1, 0, 0);
+          break;
       }
     });
 
@@ -218,15 +218,22 @@ export class MapEditorComponent implements AfterViewInit {
 
   async init() {
     const gl = this.gl;
-    await this.shader.initShaders("image_vertex.txt", "image_fragment.txt");
+    await this.shader.initShaders('image_vertex.txt', 'image_fragment.txt');
     const image1 = await this.texture1.loadTexture(
       'assets/textures/texture_map.png'
     );
 
     this.texture1.createAndBindTexture(image1, 0);
     this.shader.use();
-    const location = this.gl.getUniformLocation(this.shader.program, "u_matrix");
-    this.gl.uniformMatrix4fv(location, false, this.camera.getViewProjectionMatrix());
+    const location = this.gl.getUniformLocation(
+      this.shader.program,
+      'u_matrix'
+    );
+    this.gl.uniformMatrix4fv(
+      location,
+      false,
+      this.camera.getViewProjectionMatrix()
+    );
     // mesh.addSquares(image1.width, image1.height, 20, 20, 100, 100, 0, 0, 100, 100);
     // mesh.addSquares(image1.width, image1.height, 100, 100, 100, 100, 50, 50, 100, 100);
     // mesh.addSquares(image1.width, image1.height, 150, 150, 100, 100, 100, 100, 100, 100);
@@ -237,16 +244,41 @@ export class MapEditorComponent implements AfterViewInit {
     //mesh.addCube(300, 20, 0, 150, 150, 10);
     this.mesh.addPlane(50, 50, 50);
     this.mesh.recalculateNormals(50, 50, 50);
-    this.vao = new VertexArrayBuffer(gl, new Float32Array(this.mesh.vertices), new Uint16Array(this.mesh.indices));
-    const positionLoc = gl.getAttribLocation(this.shader.program, "a_position");
-    gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 5 * Float32Array.BYTES_PER_ELEMENT, 0);
+    this.vao = new VertexArrayBuffer(
+      gl,
+      new Float32Array(this.mesh.vertices),
+      new Uint16Array(this.mesh.indices)
+    );
+    const positionLoc = gl.getAttribLocation(this.shader.program, 'a_position');
+    gl.vertexAttribPointer(
+      positionLoc,
+      3,
+      gl.FLOAT,
+      false,
+      5 * Float32Array.BYTES_PER_ELEMENT,
+      0
+    );
     gl.enableVertexAttribArray(positionLoc);
-    const texLocation = gl.getAttribLocation(this.shader.program, "a_texcoord");
-    gl.vertexAttribPointer(texLocation, 2, gl.FLOAT, false, 5 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+    const texLocation = gl.getAttribLocation(this.shader.program, 'a_texcoord');
+    gl.vertexAttribPointer(
+      texLocation,
+      2,
+      gl.FLOAT,
+      false,
+      5 * Float32Array.BYTES_PER_ELEMENT,
+      3 * Float32Array.BYTES_PER_ELEMENT
+    );
     gl.enableVertexAttribArray(texLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.mesh.normals), gl.DYNAMIC_DRAW);
-    const normalLocation = gl.getAttribLocation(this.shader.program, "a_normal");
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(this.mesh.normals),
+      gl.DYNAMIC_DRAW
+    );
+    const normalLocation = gl.getAttribLocation(
+      this.shader.program,
+      'a_normal'
+    );
     gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(normalLocation);
 
@@ -395,39 +427,57 @@ export class MapEditorComponent implements AfterViewInit {
     this.loop();
   }
 
-  getVertexPosition(){
-    this.activeVertexPosition[0] = this.vao.vertexBuffer.vertices[this.activeVertexId];
-    this.activeVertexPosition[1] = this.vao.vertexBuffer.vertices[this.activeVertexId + 1];
-    this.activeVertexPosition[2] = this.vao.vertexBuffer.vertices[this.activeVertexId + 2];
+  getVertexPosition() {
+    this.activeVertexPosition[0] =
+      this.vao.vertexBuffer.vertices[this.activeVertexId];
+    this.activeVertexPosition[1] =
+      this.vao.vertexBuffer.vertices[this.activeVertexId + 1];
+    this.activeVertexPosition[2] =
+      this.vao.vertexBuffer.vertices[this.activeVertexId + 2];
   }
 
-  updateVertexValues(){
-    this.vao.vertexBuffer.vertices[this.activeVertexId] = this.activeVertexPosition[0];
-    this.vao.vertexBuffer.vertices[this.activeVertexId + 1] = this.activeVertexPosition[1];
-    this.vao.vertexBuffer.vertices[this.activeVertexId + 2] = this.activeVertexPosition[2];
+  updateVertexValues() {
+    this.vao.vertexBuffer.vertices[this.activeVertexId] =
+      this.activeVertexPosition[0];
+    this.vao.vertexBuffer.vertices[this.activeVertexId + 1] =
+      this.activeVertexPosition[1];
+    this.vao.vertexBuffer.vertices[this.activeVertexId + 2] =
+      this.activeVertexPosition[2];
     this.mesh.vertices = [];
     this.mesh.vertices.push(...this.vao.vertexBuffer.vertices);
   }
 
-  loop(){
+  loop() {
     //console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
     requestAnimationFrame(() => this.loop());
   }
 
-  update(){
+  update() {
     const gl = this.gl;
     const modelViewMarix = mat4.create();
     //mat4.rotate(modelViewMarix, modelViewMarix, 1, [0,0,1]);
-    const location = this.shader.getUniformLocation("u_viewmodel");
+    const location = this.shader.getUniformLocation('u_viewmodel');
     gl.uniformMatrix4fv(location, false, modelViewMarix);
-    const viewlocation = this.gl.getUniformLocation(this.shader.program, "u_matrix");
-    this.gl.uniformMatrix4fv(viewlocation, false, this.camera.getViewProjectionMatrix());
+    
+    const viewlocation = this.gl.getUniformLocation(
+      this.shader.program,
+      'u_matrix'
+    );
+    this.gl.uniformMatrix4fv(
+      viewlocation,
+      false,
+      this.camera.getViewProjectionMatrix()
+    );
     // Bind the position buffer again
     const normals = this.mesh.recalculateNormals(10, 10, 10);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.vertexBuffer.buffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.vao.vertexBuffer.vertices));
+    gl.bufferSubData(
+      gl.ARRAY_BUFFER,
+      0,
+      new Float32Array(this.vao.vertexBuffer.vertices)
+    );
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
     console.log(normals);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(normals));
