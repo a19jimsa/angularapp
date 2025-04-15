@@ -1,4 +1,4 @@
-import { IndexBuffer, VertexBuffer } from './buffer';
+import { IndexBuffer, NormalBuffer, VertexBuffer } from './buffer';
 
 //VAO
 export class VertexArrayBuffer {
@@ -6,6 +6,7 @@ export class VertexArrayBuffer {
   vao: WebGLVertexArrayObject | null;
   vertexBuffer: VertexBuffer;
   indexBuffer: IndexBuffer;
+  normalBuffer: NormalBuffer;
 
   constructor(
     gl: WebGL2RenderingContext,
@@ -14,14 +15,25 @@ export class VertexArrayBuffer {
   ) {
     this.gl = gl;
     this.vao = gl.createVertexArray();
-    gl.bindVertexArray(this.vao);
+    this.bind();
     this.vertexBuffer = VertexBuffer.create(gl, vertices);
+    this.vertexBuffer.buffer = gl.createBuffer();
+    if(!this.vertexBuffer.buffer){
+      console.error("Error vertex");
+    }
+    console.log(indices);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
     this.indexBuffer = IndexBuffer.create(gl, indices);
+    this.indexBuffer.buffer = gl.createBuffer();
+    if(!this.indexBuffer.buffer){
+      console.error("Error indices");
+    }
+    this.indexBuffer.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+    this.normalBuffer = NormalBuffer.create(gl, new Float32Array(new Array()));
   }
 
   bind() {

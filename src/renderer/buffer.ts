@@ -59,4 +59,30 @@ export class IndexBuffer {
   static create(gl: WebGL2RenderingContext, indices: Uint16Array): IndexBuffer {
     return new IndexBuffer(gl, indices);
   }
+
+}
+
+export class NormalBuffer implements Buffer{
+  gl: WebGL2RenderingContext;
+  normals: Float32Array;
+  buffer: WebGLBuffer | null;
+  constructor(gl: WebGL2RenderingContext, normals: Float32Array){
+    this.gl = gl;
+    this.normals = normals;
+    this.buffer = gl.createBuffer();
+  }
+
+  bind(): void {
+    throw new Error("Method not implemented.");
+  }
+  unbind(): void {
+    throw new Error("Method not implemented.");
+  }
+  setData(): void {
+    throw new Error("Method not implemented.");
+  }
+  
+  static create(gl: WebGL2RenderingContext, normals: Float32Array): NormalBuffer {
+    return new NormalBuffer(gl, normals);
+  }
 }

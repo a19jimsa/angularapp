@@ -1,4 +1,5 @@
 import { Bone } from 'src/components/bone';
+import { Vec } from './vec';
 
 type Bones = {
   name: string;
@@ -18,8 +19,6 @@ export class Loader {
         const response = await fetch(`/assets/json/bones/${file.name}.json`);
         const data = await response.json();
         Loader.bones.set(file.name, data);
-        console.log(file.name);
-        console.log(Loader.bones.get(file.name));
       });
 
       // Vänta på att alla fetch-anrop slutförs
@@ -41,6 +40,12 @@ export class Loader {
       return [];
     }
     const parsedBones = JSON.parse(JSON.stringify(bonesArray)) as Bone[];
+    console.log(parsedBones);
+    for (const bone of parsedBones) {
+      bone.position = new Vec(bone.position.x, bone.position.y);
+      bone.pivot = new Vec(bone.pivot.x, bone.pivot.y);
+      bone.scale = new Vec(bone.scale.x, bone.scale.y);
+    }
     return parsedBones;
   }
 }

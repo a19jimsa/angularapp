@@ -1,6 +1,6 @@
 <div class="container-fluid border">
   <div class="row p-2">
-    <div class="col-2">
+    <div class="col-1">
       <mat-card class="h-100">
         <mat-card-header>
           <mat-card-title-group>
@@ -19,7 +19,7 @@
         class="border"
       ></canvas>
     </div>
-    <div class="col-3">
+    <div class="col-4">
       <mat-card class="h-100">
         <mat-card-header>
           <mat-card-title-group>
@@ -28,6 +28,11 @@
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
+          <mat-form-field class="w-100">
+            <mat-label>Vertex position</mat-label>
+            <input matInput step="5" min="0" type="number" (change)="getVertexPosition()" [(ngModel)]="this.activeVertexId" />
+          </mat-form-field>
+          <button mat-button (click)="updateVertexValues()">Submit</button>
           <mat-accordion class="example-headers-align" multi>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
@@ -38,23 +43,23 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <div class="col-3">Position</div>
-                <div class="col-3">
+                
+                <div class="col-4">
                   <mat-form-field class="w-100">
                     <mat-label>X</mat-label>
-                    <input matInput type="number" />
+                    <input matInput type="number" [(ngModel)]="activeVertexPosition[0]"/>
                   </mat-form-field>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                   <mat-form-field class="w-100">
                     <mat-label>Y</mat-label>
-                    <input matInput type="number" />
+                    <input matInput type="number" [(ngModel)]="activeVertexPosition[1]"/>
                   </mat-form-field>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                   <mat-form-field class="w-100">
                     <mat-label>Z</mat-label>
-                    <input matInput type="number" />
+                    <input matInput type="number" [(ngModel)]="activeVertexPosition[2]" />
                   </mat-form-field>
                 </div>
               </div>

@@ -5,6 +5,7 @@ export class Texture {
   private gl: WebGL2RenderingContext;
   private texture: WebGLTexture | null;
   private slot: number = 0;
+  private image!: HTMLImageElement;
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
     this.texture = this.gl.createTexture();
@@ -12,7 +13,6 @@ export class Texture {
 
   async loadTexture(path: string): Promise<HTMLImageElement> {
     // Load texture
-
     return new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = (_) => resolve(image);
@@ -55,12 +55,12 @@ export class Texture {
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
 
     this.texture = texture;
+    this.image = image;
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement) {
     const gl = this.gl;
     const texture = gl.createTexture();
-
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
     gl.texImage2D(
@@ -102,7 +102,7 @@ export class Texture {
 
   setUniform(shader: Shader, name: string) {
     this.gl.uniform1i(
-      this.gl.getUniformLocation(shader.program, name),
+      this.gl.getUniformLocation(shader.program!, name),
       this.getSlot()
     );
   }
@@ -113,6 +113,10 @@ export class Texture {
 
   getTexture() {
     return this.texture;
+  }
+
+  getImage(){
+    return this.image;
   }
 
   bind(gl: WebGL2RenderingContext) {
