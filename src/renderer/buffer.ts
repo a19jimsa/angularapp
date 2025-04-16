@@ -59,7 +59,6 @@ export class IndexBuffer {
   static create(gl: WebGL2RenderingContext, indices: Uint16Array): IndexBuffer {
     return new IndexBuffer(gl, indices);
   }
-
 }
 
 export class NormalBuffer implements Buffer{

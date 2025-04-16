@@ -44,7 +44,7 @@ export class MapEditorComponent implements AfterViewInit {
   width: number = 0;
   height: number = 0;
   renderer!: Renderer;
-  camera!: PerspectiveCamera;
+  camera!: OrtographicCamera;
   shader!: Shader;
   vao!: VertexArrayBuffer;
   texture1!: Texture;
@@ -132,7 +132,7 @@ export class MapEditorComponent implements AfterViewInit {
   `;
 
   constructor() {
-    this.camera = new PerspectiveCamera(800, 600);
+    this.camera = new OrtographicCamera(0, 800, 600, 0);
   }
 
   async ngAfterViewInit() {
@@ -160,28 +160,28 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
-          this.camera.rotateX(1);
+          //this.camera.rotateX(1);
           break;
         case 'KeyS':
-          this.camera.rotateX(-1);
+          //this.camera.rotateX(-1);
           break;
         case 'KeyA':
-          this.camera.rotateZ(-1);
+          //this.camera.rotateZ(-1);
           break;
         case 'KeyD':
-          this.camera.rotateZ(1);
+          //this.camera.rotateZ(1);
           break;
         case 'ArrowUp':
-          this.camera.updatePosition(0, 0.1, 0);
+          //this.camera.updatePosition(0, 0.1, 0);
           break;
         case 'ArrowDown':
-          this.camera.updatePosition(0, -0.1, 0);
+          //this.camera.updatePosition(0, -0.1, 0);
           break;
         case 'ArrowRight':
-          this.camera.updatePosition(0.1, 0, 0);
+          //this.camera.updatePosition(0.1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.camera.updatePosition(-0.1, 0, 0);
+          //this.camera.updatePosition(-0.1, 0, 0);
           break;
       }
     });
@@ -218,7 +218,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   async init() {
     const gl = this.gl;
-    await this.shader.initShaders('image_vertex.txt', 'image_fragment.txt');
+    await this.shader.initShaders('imageVS.txt', 'imageFS.txt');
     const image1 = await this.texture1.loadTexture(
       'assets/textures/texture_map.png'
     );
@@ -234,16 +234,93 @@ export class MapEditorComponent implements AfterViewInit {
       false,
       this.camera.getViewProjectionMatrix()
     );
-    // mesh.addSquares(image1.width, image1.height, 20, 20, 100, 100, 0, 0, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 100, 100, 100, 100, 50, 50, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 150, 150, 100, 100, 100, 100, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 250, 250, 100, 100, 150, 150, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 350, 50, 100, 100, 200, 200, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 350, 150, 100, 100, 250, 250, 100, 100);
-    // mesh.addSquares(image1.width, image1.height, 350, 150, 100, 100, 350, 350, 100, 100);
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      20,
+      20,
+      100,
+      100,
+      0,
+      0,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      100,
+      100,
+      100,
+      100,
+      50,
+      50,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      150,
+      150,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      250,
+      250,
+      100,
+      100,
+      150,
+      150,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      350,
+      50,
+      100,
+      100,
+      200,
+      200,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      350,
+      150,
+      100,
+      100,
+      250,
+      250,
+      100,
+      100
+    );
+    this.mesh.addSquares(
+      image1.width,
+      image1.height,
+      350,
+      150,
+      100,
+      100,
+      350,
+      350,
+      100,
+      100
+    );
     //mesh.addCube(300, 20, 0, 150, 150, 10);
-    this.mesh.addPlane(50, 50, 50);
-    this.mesh.recalculateNormals(50, 50, 50);
+    //this.mesh.addPlane(50, 50, 50);
+    //this.mesh.recalculateNormals(50, 50, 50);
     this.vao = new VertexArrayBuffer(
       gl,
       new Float32Array(this.mesh.vertices),
@@ -269,18 +346,18 @@ export class MapEditorComponent implements AfterViewInit {
       3 * Float32Array.BYTES_PER_ELEMENT
     );
     gl.enableVertexAttribArray(texLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(this.mesh.normals),
-      gl.DYNAMIC_DRAW
-    );
-    const normalLocation = gl.getAttribLocation(
-      this.shader.program,
-      'a_normal'
-    );
-    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(normalLocation);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
+    // gl.bufferData(
+    //   gl.ARRAY_BUFFER,
+    //   new Float32Array(this.mesh.normals),
+    //   gl.DYNAMIC_DRAW
+    // );
+    // const normalLocation = gl.getAttribLocation(
+    //   this.shader.program,
+    //   'a_normal'
+    // );
+    // gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+    // gl.enableVertexAttribArray(normalLocation);
 
     // const shader = new Shader(gl);
     // shader.initShaders("basic_vertex.txt", "basic_fragment.txt");
@@ -455,32 +532,17 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   update() {
-    const gl = this.gl;
-    const modelViewMarix = mat4.create();
-    //mat4.rotate(modelViewMarix, modelViewMarix, 1, [0,0,1]);
-    const location = this.shader.getUniformLocation('u_viewmodel');
-    gl.uniformMatrix4fv(location, false, modelViewMarix);
-    
-    const viewlocation = this.gl.getUniformLocation(
-      this.shader.program,
-      'u_matrix'
-    );
-    this.gl.uniformMatrix4fv(
-      viewlocation,
-      false,
-      this.camera.getViewProjectionMatrix()
-    );
-    // Bind the position buffer again
-    const normals = this.mesh.recalculateNormals(10, 10, 10);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.vertexBuffer.buffer);
-    gl.bufferSubData(
-      gl.ARRAY_BUFFER,
-      0,
-      new Float32Array(this.vao.vertexBuffer.vertices)
-    );
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
-    console.log(normals);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(normals));
+    // const gl = this.gl;
+    // // Bind the position buffer again
+    // const normals = this.mesh.recalculateNormals(10, 10, 10);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.vertexBuffer.buffer);
+    // gl.bufferSubData(
+    //   gl.ARRAY_BUFFER,
+    //   0,
+    //   new Float32Array(this.vao.vertexBuffer.vertices)
+    // );
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
+    // gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(normals));
   }
 
   draw() {
@@ -493,6 +555,10 @@ export class MapEditorComponent implements AfterViewInit {
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     //this.renderer.drawImage(this.texture1, 30, 0, 100, 100, 20, 20, 100, 100);
+    //this.renderer.translate(0.1, 0, 0);
+    this.renderer.translate(50, 50, 0);
+    this.renderer.rotateZ(1);
+    this.renderer.translate(-50, -50, 0);
     this.renderer.drawBatch(this.texture1, this.vao);
     // const cameraLocation = gl.getUniformLocation(
     //   this.shader.program,
