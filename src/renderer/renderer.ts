@@ -134,7 +134,6 @@ export class Renderer {
       false,
       this.camera.getViewProjectionMatrix()
     );
-    console.log(vao.indexBuffer.getCount());
     this.gl.drawElements(
       gl.TRIANGLES,
       vao.indexBuffer.getCount(),

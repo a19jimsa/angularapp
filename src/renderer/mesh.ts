@@ -1,4 +1,6 @@
-import { vec2, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3 } from 'gl-matrix';
+import { Vec } from 'src/app/vec';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export type Vertex = {
   position: vec3;
@@ -12,6 +14,8 @@ export class Mesh {
   addSquares(
     width: number,
     height: number,
+    rotation: number,
+    pivot: Vec,
     sx: number,
     sy: number,
     sw: number,
@@ -21,6 +25,8 @@ export class Mesh {
     dw: number,
     dh: number
   ) {
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
     const texWidth = width;
     const texHeight = height;
 
@@ -35,31 +41,40 @@ export class Mesh {
     const x1 = dx + dw;
     const y1 = dy + dh;
 
+    const pivotX = dx + pivot.x + dh / 2;
+    const pivotY = dy + pivot.y;
+
     const vertices = [
-      x0,
-      y0,
+      // top-left
+      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
+      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
       0,
       u0,
       v0,
-      x1,
-      y0,
+
+      // top-right
+      (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
+      (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
       0,
       u1,
       v0,
-      x1,
-      y1,
+
+      // bottom-right
+      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
+      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
       0,
       u1,
       v1,
-      x0,
-      y1,
+
+      // bottom-left
+      (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
+      (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
       0,
       u0,
       v1,
     ];
 
     this.vertices.push(...vertices);
-
     let multiplier = 0;
     if (this.indices.length !== 0) {
       multiplier = this.indices.length / 6;
@@ -235,5 +250,11 @@ export class Mesh {
       this.normals[i + 2] = normal[2] * -1;
     }
     return this.normals;
+  }
+
+  clear() {
+    this.vertices = [];
+    this.normals = [];
+    this.indices = [];
   }
 }

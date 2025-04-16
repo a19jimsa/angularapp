@@ -42,12 +42,12 @@ export class Texture {
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MIN_FILTER,
-      this.gl.NEAREST
+      this.gl.LINEAR
     );
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MAG_FILTER,
-      this.gl.NEAREST
+      this.gl.LINEAR
     );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -115,7 +115,7 @@ export class Texture {
     return this.texture;
   }
 
-  getImage(){
+  getImage() {
     return this.image;
   }
 

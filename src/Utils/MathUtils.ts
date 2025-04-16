@@ -1,6 +1,5 @@
 import { HitBox } from 'src/components/hit-box';
 import { Bone } from '../components/bone';
-import { Skeleton } from '../components/skeleton';
 import { Vec } from '../app/vec';
 import { HurtBox } from 'src/components/hurt-box';
 
@@ -37,12 +36,12 @@ export class MathUtils {
     return new Vec(x, y);
   }
 
-  static calculateGlobalRotation(skeleton: Skeleton, bone: Bone): number {
+  static calculateGlobalRotation(bones: Bone[], bone: Bone): number {
     if (bone.parentId !== null) {
-      const parent = this.findBoneById(skeleton.bones, bone.parentId);
+      const parent = this.findBoneById(bones, bone.parentId);
       if (parent) {
         // Rekursivt addera förälderns globala rotation
-        return this.calculateGlobalRotation(skeleton, parent) + bone.rotation;
+        return this.calculateGlobalRotation(bones, parent) + bone.rotation;
       }
     }
     // Om det inte finns någon förälder (root), returnera bara benets egen rotation

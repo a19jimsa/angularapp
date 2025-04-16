@@ -3,6 +3,7 @@ import { MathUtils } from 'src/Utils/MathUtils';
 import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
 import { Vec } from 'src/app/vec';
+import { Bone } from 'src/components/bone';
 
 export class AnimationSystem {
   update(ecs: Ecs) {
@@ -10,7 +11,7 @@ export class AnimationSystem {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!skeleton) continue;
       this.sortBonesByHierarchy(skeleton);
-      this.updateBonePositions(skeleton);
+      this.updateBonePositions(skeleton.bones);
       if (skeleton.blend) {
         this.blendAnimations(skeleton);
       } else {
@@ -79,13 +80,13 @@ export class AnimationSystem {
     skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
   }
 
-  updateBonePositions(skeleton: Skeleton): void {
-    for (const bone of skeleton.bones) {
+  updateBonePositions(bones: Bone[]): void {
+    for (const bone of bones) {
       let parentRotation = 0;
       if (bone.parentId) {
-        const parent = MathUtils.findBoneById(skeleton.bones, bone.parentId);
+        const parent = MathUtils.findBoneById(bones, bone.parentId);
         if (parent) {
-          parentRotation = MathUtils.calculateGlobalRotation(skeleton, parent);
+          parentRotation = MathUtils.calculateGlobalRotation(bones, parent);
           bone.position = MathUtils.calculateParentPosition(
             parent.position,
             parent.length * bone.attachAt * parent.scale.y,

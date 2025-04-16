@@ -15,11 +15,13 @@ import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 import { Texture } from 'src/renderer/texture';
-import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { mat4, vec3 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
-import { Mesh, Vertex } from 'src/renderer/mesh';
+import { Mesh } from 'src/renderer/mesh';
 import { FormsModule } from '@angular/forms';
+import { Loader } from '../loader';
+import { Bone } from 'src/components/bone';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 @Component({
   selector: 'app-map-editor',
@@ -56,7 +58,8 @@ export class MapEditorComponent implements AfterViewInit {
   activeVertexId: number = 0;
   activeVertexPosition: vec3 = vec3.fromValues(0, 0, 0);
   mesh = new Mesh();
-
+  bones: Bone[] = new Array();
+  angle = 0;
   vsSource = `
   attribute vec4 aPosition;
   attribute vec2 aTexCoord;
@@ -151,7 +154,12 @@ export class MapEditorComponent implements AfterViewInit {
     this.texture5 = new Texture(this.gl);
     if (!this.renderer) return;
     this.addEventListeners();
-    await this.init();
+    await Loader.loadAllBones().then(async (e) => {
+      this.bones = Loader.getBones('skeleton');
+      this.init().then((e) => {});
+    });
+
+    console.log(this.bones);
   }
 
   addEventListeners() {
@@ -219,9 +227,7 @@ export class MapEditorComponent implements AfterViewInit {
   async init() {
     const gl = this.gl;
     await this.shader.initShaders('imageVS.txt', 'imageFS.txt');
-    const image1 = await this.texture1.loadTexture(
-      'assets/textures/texture_map.png'
-    );
+    const image1 = await this.texture1.loadTexture('/assets/sprites/94814.png');
 
     this.texture1.createAndBindTexture(image1, 0);
     this.shader.use();
@@ -234,90 +240,24 @@ export class MapEditorComponent implements AfterViewInit {
       false,
       this.camera.getViewProjectionMatrix()
     );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      20,
-      20,
-      100,
-      100,
-      0,
-      0,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      100,
-      100,
-      100,
-      100,
-      50,
-      50,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      150,
-      150,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      250,
-      250,
-      100,
-      100,
-      150,
-      150,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      350,
-      50,
-      100,
-      100,
-      200,
-      200,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      350,
-      150,
-      100,
-      100,
-      250,
-      250,
-      100,
-      100
-    );
-    this.mesh.addSquares(
-      image1.width,
-      image1.height,
-      350,
-      150,
-      100,
-      100,
-      350,
-      350,
-      100,
-      100
-    );
+    for (let i = 0; i < this.bones.length; i++) {
+      const bone = this.bones[i];
+      this.mesh.addSquares(
+        image1.width,
+        image1.height,
+        bone.rotation,
+        bone.pivot,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        bone.position.x,
+        bone.position.y,
+        bone.endX,
+        bone.endY
+      );
+    }
+    console.log(this.mesh);
     //mesh.addCube(300, 20, 0, 150, 150, 10);
     //this.mesh.addPlane(50, 50, 50);
     //this.mesh.recalculateNormals(50, 50, 50);
@@ -543,6 +483,49 @@ export class MapEditorComponent implements AfterViewInit {
     // );
     // gl.bindBuffer(gl.ARRAY_BUFFER, this.vao.normalBuffer.buffer);
     // gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(normals));
+    this.mesh.clear();
+    this.updateBonePositions(this.bones);
+    this.angle++;
+    for (let i = 0; i < this.bones.length; i++) {
+      const bone = this.bones[i];
+      this.mesh.addSquares(
+        this.texture1.getImage().width,
+        this.texture1.getImage().height,
+        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+        bone.pivot,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        200 + bone.position.x - bone.pivot.x - bone.endX / 2,
+        200 + bone.position.y - bone.pivot.y,
+        bone.endX,
+        bone.endY
+      );
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vao.vertexBuffer.buffer);
+      this.gl.bufferSubData(
+        this.gl.ARRAY_BUFFER,
+        0,
+        new Float32Array(this.mesh.vertices)
+      );
+    }
+  }
+
+  updateBonePositions(bones: Bone[]): void {
+    for (const bone of bones) {
+      let parentRotation = 0;
+      if (bone.parentId) {
+        const parent = MathUtils.findBoneById(bones, bone.parentId);
+        if (parent) {
+          parentRotation = MathUtils.calculateGlobalRotation(bones, parent);
+          bone.position = MathUtils.calculateParentPosition(
+            parent.position,
+            parent.length * bone.attachAt * parent.scale.y,
+            parentRotation
+          );
+        }
+      }
+    }
   }
 
   draw() {
@@ -550,15 +533,18 @@ export class MapEditorComponent implements AfterViewInit {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
+    gl.depthMask(false);
     gl.cullFace(gl.FRONT);
     gl.frontFace(gl.CCW);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     //this.renderer.drawImage(this.texture1, 30, 0, 100, 100, 20, 20, 100, 100);
     //this.renderer.translate(0.1, 0, 0);
-    this.renderer.translate(50, 50, 0);
-    this.renderer.rotateZ(1);
-    this.renderer.translate(-50, -50, 0);
+
+    //this.renderer.rotateZ(1);
+    // this.renderer.translate(-50, -50, 0);
     this.renderer.drawBatch(this.texture1, this.vao);
     // const cameraLocation = gl.getUniformLocation(
     //   this.shader.program,
