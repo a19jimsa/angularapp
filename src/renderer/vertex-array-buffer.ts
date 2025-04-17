@@ -16,18 +16,19 @@ export class VertexArrayBuffer {
     this.gl = gl;
     this.vao = gl.createVertexArray();
     this.bind();
+    console.log(vertices);
     this.vertexBuffer = VertexBuffer.create(gl, vertices);
     this.vertexBuffer.buffer = gl.createBuffer();
-    if(!this.vertexBuffer.buffer){
-      console.error("Error vertex");
+    if (!this.vertexBuffer.buffer) {
+      console.error('Error vertex');
     }
     console.log(indices);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
     this.indexBuffer = IndexBuffer.create(gl, indices);
     this.indexBuffer.buffer = gl.createBuffer();
-    if(!this.indexBuffer.buffer){
-      console.error("Error indices");
+    if (!this.indexBuffer.buffer) {
+      console.error('Error indices');
     }
     this.indexBuffer.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);

@@ -1,14 +1,12 @@
-import { vec2 } from 'gl-matrix';
 import { Shader } from './shader';
 
 export class Texture {
   private gl: WebGL2RenderingContext;
-  private texture: WebGLTexture | null;
+  private texture: WebGLTexture[] = new Array();
+  private images = new Array();
   private slot: number = 0;
-  private image!: HTMLImageElement;
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
-    this.texture = this.gl.createTexture();
   }
 
   async loadTexture(path: string): Promise<HTMLImageElement> {
@@ -53,15 +51,15 @@ export class Texture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
-
-    this.texture = texture;
-    this.image = image;
+    this.texture.push(texture!);
+    this.images.push(image);
   }
 
-  createNormalMap(data: Uint8Array, image: HTMLImageElement) {
+  createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {
     const gl = this.gl;
     const texture = gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -96,27 +94,23 @@ export class Texture {
       this.gl.CLAMP_TO_EDGE
     );
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
-
-    this.texture = texture;
+    this.texture.push(texture!);
   }
 
-  setUniform(shader: Shader, name: string) {
-    this.gl.uniform1i(
-      this.gl.getUniformLocation(shader.program!, name),
-      this.getSlot()
-    );
+  setUniform(shader: Shader, name: string, slot: number) {
+    this.gl.uniform1i(this.gl.getUniformLocation(shader.program!, name), slot);
   }
 
   getSlot() {
     return this.slot;
   }
 
-  getTexture() {
-    return this.texture;
+  getTexture(slot: number) {
+    return this.texture[slot];
   }
 
-  getImage() {
-    return this.image;
+  getImage(slot: number) {
+    return this.images[slot];
   }
 
   bind(gl: WebGL2RenderingContext) {

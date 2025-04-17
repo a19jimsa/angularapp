@@ -26,6 +26,7 @@ export class NavbarComponent {
     { path: '/curling', label: 'Curling' },
     { path: '/animation', label: 'Game Engine' },
     { path: '/creator', label: 'Animation Creator' },
+    { path: '/editor', label: 'Map Editor' },
   ];
 
   protected readonly isMobile = signal(true);

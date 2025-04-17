@@ -4,11 +4,13 @@ import { Skeleton } from 'src/components/skeleton';
 import { Ecs } from 'src/core/ecs';
 import { Vec } from 'src/app/vec';
 import { Bone } from 'src/components/bone';
+import { Animation } from 'src/components/animation';
 
 export class AnimationSystem {
   update(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const animation = ecs.getComponent<Animation>(entity, 'Animation');
       if (!skeleton) continue;
       this.sortBonesByHierarchy(skeleton);
       this.updateBonePositions(skeleton.bones);
