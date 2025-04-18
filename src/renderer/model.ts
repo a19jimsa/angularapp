@@ -2,9 +2,9 @@ import { vec3 } from 'gl-matrix';
 import { Vec } from 'src/app/vec';
 
 export class Model {
-  vertices = new Array();
-  indices = new Array();
-  normals = new Array();
+  vertices: number[] = new Array();
+  indices: number[] = new Array();
+  normals: number[] = new Array();
   constructor() {}
 
   addSquares(
@@ -96,77 +96,61 @@ export class Model {
     height: number,
     depth: number
   ) {
-    const w = width / 2;
-    const h = height / 2;
-    const d = depth / 2;
+    const positions: number[] = [
+      // Front face
+      -1.0, -1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0,
+      0.0, -1.0, 1.0, 1.0, 0.0, 0.0,
+      // Back face
+      -1.0, -1.0, -1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, -1.0,
+      0.0, 0.0, 1.0, -1.0, -1.0, 0.0, 0.0,
 
-    const positions = [
-      x - w,
-      y - h,
-      z + d,
-      x + w,
-      y - h,
-      z + d,
-      x + w,
-      y + h,
-      z + d,
-      x - w,
-      y + h,
-      z + d,
+      // Top face
+      -1.0, 1.0, -1.0, 0.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0,
+      0.0, 1.0, 1.0, -1.0, 0.0, 0.0,
 
-      x - w,
-      y - h,
-      z - d,
-      x + w,
-      y - h,
-      z - d,
-      x + w,
-      y + h,
-      z - d,
-      x - w,
-      y + h,
-      z - d,
-    ];
-    this.vertices.push(...positions);
+      // Bottom face
+      -1.0, -1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 1.0,
+      0.0, 0.0, -1.0, -1.0, 1.0, 0.0, 0.0,
+
+      // Right face
+      1.0, -1.0, -1.0, 0.0, 0.0, 1.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0,
+      0.0, 1.0, -1.0, 1.0, 0.0, 0.0,
+
+      // Left face
+      -1.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 1.0,
+      0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0,
+    ] as number[];
+
+    console.log(positions.length);
+
+    for (let i = 0; i < positions.length; i += 5) {
+      positions[i] = positions[i] + x;
+      positions[i + 1] = positions[i + 1] + y;
+      positions[i + 2] = positions[i + 2] + z;
+    }
+
+    for (let i = 0; i < positions.length; i += 20) {
+      positions[i + 3] = 0.0;
+      positions[i + 4] = 0.0;
+      positions[i + 8] = 1.0;
+      positions[i + 9] = 0.0;
+      positions[i + 13] = 1.0;
+      positions[i + 14] = 1.0;
+      positions[i + 18] = 0.0;
+      positions[i + 19] = 1.0;
+    }
+
+    // prettier-ignore
     const indices = [
-      0,
-      1,
-      2,
-      0,
-      2,
-      3, // front
-      1,
-      5,
-      6,
-      1,
-      6,
-      2, // back
-      5,
-      4,
-      7,
-      5,
-      7,
-      6, // top
-      4,
-      0,
-      3,
-      4,
-      3,
-      7, // bottom
-      3,
-      2,
-      6,
-      3,
-      6,
-      7, // right
-      4,
-      5,
-      1,
-      4,
-      1,
-      0, // left
+      0,  2,  1,      0,  3,  2,    // front
+      4,  6,  5,      4,  7,  6,    // back
+      8,  10,  9,     8,  11, 10,   // top
+      12, 14, 13,     12, 15, 14,   // bottom
+      16, 18, 17,     16, 19, 18,   // right
+      20, 22, 21,     20, 23, 22,   // left
     ];
-    this.indices.push(...indices);
+    this.vertices = positions;
+    this.indices = indices;
   }
 
   addPlane(quads: number, width: number, height: number) {
@@ -177,7 +161,7 @@ export class Model {
         if (z > quads / 8) {
           this.vertices.push(u * width, 0, v * height);
         } else {
-          const random = Math.random() * 5 + 1;
+          const random = Math.random() * 2 + 1;
           this.vertices.push(u * width, random, v * height);
         }
         this.vertices.push(u, v);
