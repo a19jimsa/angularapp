@@ -19,14 +19,16 @@ export class RunningState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Running');
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton.resource,
-        States.Running
-      );
-      skeleton.takeSnapshot = true;
-      skeleton.blend = true;
-    }
+    if (!skeleton) return;
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      States.Running
+    );
+    skeleton.takeSnapshot = true;
+    skeleton.blend = true;
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
   }
   override exit(entity: Entity, ecs: Ecs): void {}
   override handleInput(

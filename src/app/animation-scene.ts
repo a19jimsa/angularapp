@@ -365,7 +365,6 @@ export class AnimationScene {
 
     this.aiSystem.update(this.ecs);
 
-    this.idleSystem.update(this.ecs);
     this.patrolSystem.update(this.ecs);
     this.chaseSystem.update(this.ecs);
     this.damageSystem.update(this.ecs);

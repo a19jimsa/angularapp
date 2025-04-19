@@ -20,10 +20,10 @@ export class JumpAttackState extends StateMachine {
       );
       skeleton.animationDuration =
         skeleton.keyframes[skeleton.keyframes.length - 1].time;
+      skeleton.startTime = performance.now();
     }
   }
-  override exit(entity: Entity, ecs: Ecs): void {
-  }
+  override exit(entity: Entity, ecs: Ecs): void {}
 
   override handleInput(
     entity: Entity,

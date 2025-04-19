@@ -57,7 +57,6 @@ export class AiSystem {
         chaseScore++;
       }
       if (dist > ai.detectionRadius) {
-        console.log(dist);
         idleScore++;
       }
 

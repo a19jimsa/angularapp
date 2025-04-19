@@ -16,7 +16,8 @@ export class AnimationSystem {
       this.updateBonePositions(skeleton.bones);
       if (skeleton.blend) {
         this.blendAnimations(skeleton);
-      } else {
+      }
+      if (!skeleton.blend) {
         this.runAnimation(skeleton, skeleton.keyframes);
       }
     }
@@ -31,6 +32,7 @@ export class AnimationSystem {
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;
     if (elapsedTime >= skeleton.animationDuration) {
+      skeleton.startTime = performance.now();
       return;
     }
     for (const bone of skeleton.bones) {
@@ -106,47 +108,46 @@ export class AnimationSystem {
       this.createSnaphot(skeleton);
       skeleton.takeSnapshot = false;
     }
-
+    const elapsedTime = (performance.now() - skeleton.startTime) / 500;
+    const loopedTime = elapsedTime % skeleton.animationDuration;
     for (const bone of skeleton.bones) {
       if (skeleton.snapShot) {
         const keyframe = skeleton.snapShot[bone.id];
+        const progress = loopedTime / skeleton.animationDuration;
         if (keyframe) {
           bone.rotation = MathUtils.interpolateKeyframe(
             bone.rotation,
             keyframe.rotation,
-            0.1
+            progress
           );
           bone.scale.x = MathUtils.interpolateKeyframe(
             bone.scale.x,
             keyframe.scale.x,
-            0.1
+            progress
           );
           bone.scale.y = MathUtils.interpolateKeyframe(
             bone.scale.y,
             keyframe.scale.y,
-            0.1
+            progress
           );
           bone.startX = keyframe.clip.startX;
           bone.startY = keyframe.clip.startY;
         }
       }
     }
-    skeleton.blendTime++;
     if (skeleton.blendTime > 20) {
       skeleton.blendTime = 0;
       skeleton.blend = false;
-      skeleton.startTime = performance.now();
-      skeleton.animationDuration =
-        skeleton.keyframes[skeleton.keyframes.length - 1].time;
       skeleton.snapShot = null;
+      skeleton.elapsedTime = elapsedTime;
+      skeleton.startTime = performance.now();
     }
+    skeleton.blendTime++;
   }
 
   createSnaphot(skeleton: Skeleton) {
     skeleton.blend = true;
-    skeleton.elapsedTime = 0;
     skeleton.snapShot = {};
-    skeleton.startTime = performance.now();
     if (!skeleton.keyframes) return;
     skeleton.keyframes.forEach((keyframe) => {
       if (skeleton.snapShot) {

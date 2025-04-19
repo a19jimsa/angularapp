@@ -8,7 +8,6 @@ import { States } from 'src/components/state';
 import { OnGroundState } from './on-ground-state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { Combo } from 'src/components/combo';
 import { Effect } from 'src/components/effect';
 import { Transform } from 'src/components/transform';
@@ -22,7 +21,17 @@ export class AttackState extends StateMachine {
 
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Attack state');
-    this.attack(entity, ecs);
+    const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+    if (!skeleton) return;
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      'slash'
+    );
+    skeleton.takeSnapshot = true;
+    skeleton.blend = true;
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
   }
 
   override exit(entity: Entity, ecs: Ecs): void {}
@@ -46,6 +55,9 @@ export class AttackState extends StateMachine {
         this.attack(entity, ecs);
         this.restartAnimation(skeleton);
       }
+    }
+    if (input.attack) {
+      return null;
     }
     return null;
   }

@@ -24,6 +24,9 @@ export class DamageState extends StateMachine {
     );
     skeleton.takeSnapshot = true;
     skeleton.blend = true;
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
   }
 
   override exit(entity: Entity, ecs: Ecs): void {

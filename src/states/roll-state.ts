@@ -9,21 +9,22 @@ import { MathUtils } from 'src/Utils/MathUtils';
 import { OnGroundState } from './on-ground-state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
+import { States } from 'src/components/state';
 
 export class RollState extends StateMachine {
   override enter(entity: Entity, ecs: Ecs): void {
     console.log('Rolling');
-
     const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-    if (skeleton) {
-      skeleton.keyframes = ResourceManager.getAnimation(
-        skeleton.resource,
-        'roll'
-      );
-      skeleton.animationDuration =
-        skeleton.keyframes[skeleton.keyframes.length - 1].time;
-      skeleton.blend = true;
-    }
+    if (!skeleton) return;
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      'roll'
+    );
+    skeleton.takeSnapshot = true;
+    skeleton.blend = true;
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     transform.velocity.x = 5;
   }

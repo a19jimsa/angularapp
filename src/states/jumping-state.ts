@@ -27,6 +27,7 @@ export class JumpingState extends StateMachine {
         skeleton.resource,
         States.Jump
       );
+      skeleton.startTime = performance.now();
     }
   }
 

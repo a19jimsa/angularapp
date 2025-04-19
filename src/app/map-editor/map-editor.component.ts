@@ -87,7 +87,7 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateX(1);
+          this.perspectiveCamera.rotateX(180);
           break;
         case 'KeyS':
           this.perspectiveCamera.rotateX(-1);
@@ -99,16 +99,16 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.rotateZ(1);
           break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 0.1, 0);
+          this.perspectiveCamera.updatePosition(0, 1, 0);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -0.1, 0);
+          this.perspectiveCamera.updatePosition(0, -1, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(0.1, 0, 0);
+          this.perspectiveCamera.updatePosition(1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-0.1, 0, 0);
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
       }
     });
@@ -153,7 +153,7 @@ export class MapEditorComponent implements AfterViewInit {
     const shader2 = new Shader(gl);
     await shader2.initShaders('image_vertex.txt', 'image_fragment.txt');
     const shader3 = new Shader(gl);
-    await shader3.initShaders('cube_vertex.txt', 'cube_fragment.txt');
+    await shader3.initShaders('image_vertex.txt', 'image_fragment.txt');
     const image1 = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
     );
@@ -193,8 +193,8 @@ export class MapEditorComponent implements AfterViewInit {
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
-      this.texture1.getTexture(1),
-      shader2
+      this.texture1.getTexture(0),
+      shader
     );
 
     const cubeModel = new Model();
@@ -256,8 +256,8 @@ export class MapEditorComponent implements AfterViewInit {
         bone.startY,
         bone.endX,
         bone.endY,
-        200 + bone.position.x - bone.pivot.x - bone.endX / 2,
-        500 + bone.position.y - bone.pivot.y,
+        bone.position.x - bone.pivot.x - bone.endX / 2,
+        bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY
       );
@@ -304,8 +304,8 @@ export class MapEditorComponent implements AfterViewInit {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
-    this.backgroundMesh.draw(this.perspectiveCamera);
+    this.backgroundMesh.draw(this.orthoCamera);
     this.mesh?.draw(this.orthoCamera);
-    this.cubeMesh.draw(this.perspectiveCamera);
+    this.cubeMesh.draw(this.orthoCamera);
   }
 }

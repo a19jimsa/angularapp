@@ -3,7 +3,8 @@ import { Component } from './component';
 export enum States {
   Idle = 'idle',
   Running = 'running',
-  Attacking = 'attacking',
+  Slash = 'attacking',
+  Thrust = 'thrust',
   SmashAttack = 'smashattack',
   Flying = 'flying',
   Bow = 'bow',
