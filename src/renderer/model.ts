@@ -158,12 +158,7 @@ export class Model {
       let v = z / quads;
       for (let x = 0; x < quads; x++) {
         let u = x / quads;
-        if (z > quads / 8) {
-          this.vertices.push(u * width, 0, v * height);
-        } else {
-          const random = Math.random() * 2 + 1;
-          this.vertices.push(u * width, random, v * height);
-        }
+        this.vertices.push(u * width, 0, v * height);
         this.vertices.push(u, v);
       }
     }

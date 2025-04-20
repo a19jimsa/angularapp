@@ -27,7 +27,7 @@ export class AnimationSystem {
     if (!keyframes) return;
     if (keyframes.length === 0) return;
     const totalDuration = keyframes[keyframes.length - 1].time;
-    const speed = 500 / 1;
+    const speed = 2000 / 1;
     const elapsedTime = (performance.now() - skeleton.startTime) / speed;
     const loopedTime = elapsedTime % totalDuration;
     skeleton.elapsedTime = elapsedTime;
@@ -113,36 +113,34 @@ export class AnimationSystem {
     for (const bone of skeleton.bones) {
       if (skeleton.snapShot) {
         const keyframe = skeleton.snapShot[bone.id];
-        const progress = loopedTime / skeleton.animationDuration;
         if (keyframe) {
           bone.rotation = MathUtils.interpolateKeyframe(
             bone.rotation,
             keyframe.rotation,
-            progress
+            loopedTime
           );
           bone.scale.x = MathUtils.interpolateKeyframe(
             bone.scale.x,
             keyframe.scale.x,
-            progress
+            loopedTime
           );
           bone.scale.y = MathUtils.interpolateKeyframe(
             bone.scale.y,
             keyframe.scale.y,
-            progress
+            loopedTime
           );
           bone.startX = keyframe.clip.startX;
           bone.startY = keyframe.clip.startY;
         }
       }
     }
-    if (skeleton.blendTime > 20) {
+    if (elapsedTime >= skeleton.animationDuration) {
       skeleton.blendTime = 0;
       skeleton.blend = false;
       skeleton.snapShot = null;
       skeleton.elapsedTime = elapsedTime;
       skeleton.startTime = performance.now();
     }
-    skeleton.blendTime++;
   }
 
   createSnaphot(skeleton: Skeleton) {

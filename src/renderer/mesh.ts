@@ -55,6 +55,12 @@ export class Mesh {
     gl.enableVertexAttribArray(texLocation);
   }
 
+  translate(x: number, y: number, z: number) {
+    const model = mat4.create();
+    mat4.translate(model, model, vec3.fromValues(x, y, z));
+    this.shader.uploadUniformMat4('u_model', model);
+  }
+
   draw(camera: PerspectiveCamera | OrtographicCamera) {
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);

@@ -23,6 +23,9 @@ import { Bone } from 'src/components/bone';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Model } from 'src/renderer/model';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { Ecs } from 'src/core/ecs';
+import { Entity } from '../entity';
+import { Terrain } from 'src/components/terrain';
 
 @Component({
   selector: 'app-map-editor',
@@ -58,6 +61,7 @@ export class MapEditorComponent implements AfterViewInit {
   backgroundMesh!: Mesh;
   cubeMesh!: Mesh;
   angle = 0;
+  scene: any[] = new Array();
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 800, 600, 0);
@@ -87,7 +91,7 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateX(180);
+          this.perspectiveCamera.rotateX(1);
           break;
         case 'KeyS':
           this.perspectiveCamera.rotateX(-1);
@@ -119,30 +123,20 @@ export class MapEditorComponent implements AfterViewInit {
       const y = e.clientY - rect.top;
       const clipX = (x / rect.width) * 2 - 1;
       const clipY = (y / rect.height) * -2 + 1;
-      const invMat = mat4.invert(
-        mat4.create(),
-        this.perspectiveCamera.getViewProjectionMatrix()
-      );
+      const invMat = mat4.create();
+      mat4.invert(invMat, this.perspectiveCamera.getViewProjectionMatrix());
 
-      const start = vec3.transformMat4(
-        vec3.fromValues(0, 0, 0),
-        vec3.fromValues(clipX, clipY, -1),
-        invMat
-      );
-      const end = vec3.transformMat4(
-        vec3.fromValues(0, 0, 0),
+      const start = vec3.fromValues(0, 0, 0);
+      vec3.transformMat4(start, vec3.fromValues(clipX, clipY, -1), invMat);
+      const end = vec3.fromValues(0, 0, 0);
+      vec3.transformMat4(
+        end,
         vec3.fromValues(clipX, clipY, 1),
         mat4.invert(
           mat4.create(),
           this.perspectiveCamera.getViewProjectionMatrix()
         )
       );
-
-      const rayDir = vec3.normalize(
-        vec3.create(),
-        vec3.subtract(vec3.create(), end, start)
-      );
-      this.mousePos = rayDir;
     });
   }
 
@@ -150,10 +144,10 @@ export class MapEditorComponent implements AfterViewInit {
     const gl = this.gl;
     const shader = new Shader(gl);
     await shader.initShaders('imageVS.txt', 'imageFS.txt');
+    const shader1 = new Shader(gl);
+    await shader1.initShaders('image_vertex.txt', 'image_fragment.txt');
     const shader2 = new Shader(gl);
     await shader2.initShaders('image_vertex.txt', 'image_fragment.txt');
-    const shader3 = new Shader(gl);
-    await shader3.initShaders('image_vertex.txt', 'image_fragment.txt');
     const image1 = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
     );
@@ -193,7 +187,7 @@ export class MapEditorComponent implements AfterViewInit {
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
-      this.texture1.getTexture(0),
+      this.texture1.getTexture(1),
       shader
     );
 
@@ -205,9 +199,53 @@ export class MapEditorComponent implements AfterViewInit {
       new Float32Array(cubeModel.vertices),
       new Uint16Array(cubeModel.indices),
       this.texture1.getTexture(1),
-      shader3
+      shader2
     );
     console.log(this.cubeMesh);
+
+    const ecs = new Ecs();
+    const entity = ecs.createEntity();
+    const terrain = new Terrain();
+    for (let i = 0; i < terrain.heightMap.length; i += 4) {
+      const value = 1;
+      terrain.heightMap[i] = Math.floor(Math.random() * 50);
+      terrain.heightMap[i + 1] = 0;
+      terrain.heightMap[i + 2] = 0;
+      terrain.heightMap[i + 3] = 255;
+    }
+
+    console.log(terrain.heightMap);
+
+    const width = 256;
+    const height = 256;
+    const expectedSize = width * height * 4; // RGB-format = 3 kanaler per pixel
+
+    // Kontrollera storleken på arrayen innan du skickar den till WebGL
+    console.log(terrain.heightMap.length, expectedSize); // Bör visa samma värde för båda
+
+    const heightTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + 2);
+    gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+    shader.use();
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0, // Level (mipmap nivå)
+      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
+      256, // Bredd
+      256, // Höjd
+      0, // Border (ska alltid vara 0)
+      gl.RGBA, // Format
+      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
+      terrain.heightMap // Data från Uint8Array
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+    shader.use();
+    this.texture1.setUniform(shader, 'u_heightmap', 2);
 
     this.loop();
   }
@@ -256,8 +294,8 @@ export class MapEditorComponent implements AfterViewInit {
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.position.x - bone.pivot.x - bone.endX / 2,
-        bone.position.y - bone.pivot.y,
+        200 + bone.position.x - bone.pivot.x - bone.endX / 2,
+        200 + bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY
       );
@@ -273,6 +311,12 @@ export class MapEditorComponent implements AfterViewInit {
         new Float32Array(model.vertices)
       );
     }
+    this.cubeMesh.translate(
+      this.mousePos[0],
+      this.mousePos[1],
+      this.mousePos[2]
+    );
+    this.backgroundMesh.translate(0, 0, 0);
   }
 
   updateBonePositions(bones: Bone[]): void {
@@ -304,8 +348,8 @@ export class MapEditorComponent implements AfterViewInit {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
-    this.backgroundMesh.draw(this.orthoCamera);
+    this.backgroundMesh.draw(this.perspectiveCamera);
     this.mesh?.draw(this.orthoCamera);
-    this.cubeMesh.draw(this.orthoCamera);
+    this.cubeMesh.draw(this.perspectiveCamera);
   }
 }

@@ -66,10 +66,12 @@ export class Shader {
   }
 
   getUniformLocation(name: string) {
+    this.use();
     return this.gl.getUniformLocation(this.program!, name);
   }
 
   uploadUniformMat4(name: string, matrix: mat4) {
+    this.use();
     const location = this.gl.getUniformLocation(this.program!, name);
     if (!location) return;
     this.gl.uniformMatrix4fv(location, false, matrix);
