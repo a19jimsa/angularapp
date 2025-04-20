@@ -55,6 +55,29 @@ export class Texture {
     this.images.push(image);
   }
 
+  createHeightMap(data: Uint8Array, slot: number) {
+    const gl = this.gl;
+    const heightTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0, // Level (mipmap nivå)
+      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
+      64, // Bredd
+      64, // Höjd
+      0, // Border (ska alltid vara 0)
+      gl.RGBA, // Format
+      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
+      data // Data från Uint8Array
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  }
+
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {
     const gl = this.gl;
     const texture = gl.createTexture();
@@ -98,6 +121,7 @@ export class Texture {
   }
 
   setUniform(shader: Shader, name: string, slot: number) {
+    shader.use();
     this.gl.uniform1i(this.gl.getUniformLocation(shader.program!, name), slot);
   }
 

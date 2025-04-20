@@ -206,45 +206,33 @@ export class MapEditorComponent implements AfterViewInit {
     const ecs = new Ecs();
     const entity = ecs.createEntity();
     const terrain = new Terrain();
-    for (let i = 0; i < terrain.heightMap.length; i += 4) {
-      const value = 1;
-      terrain.heightMap[i] = Math.floor(Math.random() * 50);
-      terrain.heightMap[i + 1] = 0;
-      terrain.heightMap[i + 2] = 0;
-      terrain.heightMap[i + 3] = 255;
+    let hardness = 255;
+    const radius = 10;
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        const distSq = dx * dx + dy * dy;
+        if (distSq <= radius * radius) {
+          const nx = 30 + dx;
+          const ny = 30 + dy;
+          const distance = Math.sqrt(distSq); // euklidiskt avstånd
+          const falloff = 1 - distance / radius;
+          const index = (ny * 64 + nx) * 4;
+          console.log(index);
+          terrain.heightMap[index] = 50 * falloff;
+        }
+      }
     }
 
     console.log(terrain.heightMap);
 
-    const width = 256;
-    const height = 256;
+    const width = 64;
+    const height = 64;
     const expectedSize = width * height * 4; // RGB-format = 3 kanaler per pixel
 
     // Kontrollera storleken på arrayen innan du skickar den till WebGL
     console.log(terrain.heightMap.length, expectedSize); // Bör visa samma värde för båda
 
-    const heightTexture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + 2);
-    gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-    shader.use();
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0, // Level (mipmap nivå)
-      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-      256, // Bredd
-      256, // Höjd
-      0, // Border (ska alltid vara 0)
-      gl.RGBA, // Format
-      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-      terrain.heightMap // Data från Uint8Array
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-    shader.use();
+    this.texture1.createHeightMap(terrain.heightMap, 2);
     this.texture1.setUniform(shader, 'u_heightmap', 2);
 
     this.loop();

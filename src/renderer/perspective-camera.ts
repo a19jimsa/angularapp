@@ -18,7 +18,7 @@ export class PerspectiveCamera {
     );
     mat4.lookAt(
       this.viewMatrix,
-      vec3.fromValues(0, 0, 150),
+      vec3.fromValues(0, 0, 60),
       vec3.fromValues(0, 0, 0),
       vec3.fromValues(0, 1, 0)
     );
