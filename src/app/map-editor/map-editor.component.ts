@@ -14,7 +14,7 @@ import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { Texture } from 'src/renderer/texture';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { Mesh } from 'src/renderer/mesh';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,7 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Ecs } from 'src/core/ecs';
 import { Entity } from '../entity';
 import { Terrain } from 'src/components/terrain';
+import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 
 @Component({
   selector: 'app-map-editor',
@@ -60,6 +61,7 @@ export class MapEditorComponent implements AfterViewInit {
   mesh: Mesh | null = null;
   backgroundMesh!: Mesh;
   cubeMesh!: Mesh;
+  debugMesh!: Mesh;
   angle = 0;
   scene: any[] = new Array();
 
@@ -69,7 +71,7 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    this.gl = this.canvas.nativeElement.getContext('webgl2')!;
+    this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
@@ -82,7 +84,6 @@ export class MapEditorComponent implements AfterViewInit {
     await Loader.loadAllBones();
     this.bones = Loader.getBones('skeleton');
     await this.init();
-    console.log(this.bones);
   }
 
   addEventListeners() {
@@ -119,25 +120,80 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.canvas.nativeElement.addEventListener('mousemove', (e) => {
       const rect = this.canvas.nativeElement.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = e.x - rect.left - this.canvas.nativeElement.clientLeft;
+      const y = e.y - rect.top - this.canvas.nativeElement.clientTop;
       const clipX = (x / rect.width) * 2 - 1;
       const clipY = (y / rect.height) * -2 + 1;
-      const invMat = mat4.create();
-      mat4.invert(invMat, this.perspectiveCamera.getViewProjectionMatrix());
-
-      const start = vec3.fromValues(0, 0, 0);
-      vec3.transformMat4(start, vec3.fromValues(clipX, clipY, -1), invMat);
-      const end = vec3.fromValues(0, 0, 0);
-      vec3.transformMat4(
-        end,
-        vec3.fromValues(clipX, clipY, 1),
-        mat4.invert(
-          mat4.create(),
-          this.perspectiveCamera.getViewProjectionMatrix()
-        )
+      const normalizedPos = vec2.fromValues(clipX, clipY);
+      const clipCoords = vec4.fromValues(
+        normalizedPos[0],
+        normalizedPos[1],
+        -1,
+        1
       );
+      const invertedProjectionMatrix = mat4.create();
+      mat4.invert(
+        invertedProjectionMatrix,
+        this.perspectiveCamera.getProjectionMatrix()
+      );
+      const eyeCoords = vec4.fromValues(0, 0, 0, 0);
+      vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
+      const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
+      const invertedView = mat4.create();
+      mat4.invert(invertedView, this.perspectiveCamera.getViewMatrix());
+      const rayWorld = vec4.fromValues(0, 0, 0, 0);
+      vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
+      const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
+      vec3.normalize(mouseRay, mouseRay);
+      this.mousePos[0] = mouseRay[0];
+      this.mousePos[1] = mouseRay[1];
+      this.mousePos[2] = mouseRay[2];
     });
+
+    this.canvas.nativeElement.addEventListener('click', (e) => {
+      this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
+    });
+  }
+
+  pickVertex(vertices: Float32Array) {
+    const epsilon = 5;
+    const maxDistance = 100;
+    const step = 0.01;
+
+    const viewMatrix = this.perspectiveCamera.getViewMatrix();
+    const invertedView = mat4.create();
+    mat4.invert(invertedView, viewMatrix);
+
+    const rayOrigin = vec3.fromValues(
+      invertedView[12],
+      invertedView[13],
+      invertedView[14]
+    );
+
+    for (let t = 0; t < maxDistance; t += step) {
+      const pos = vec3.create();
+      vec3.scaleAndAdd(pos, rayOrigin, this.mousePos, t); // pos = origin + dir * t
+      console.log(pos);
+
+      for (let i = 0; i < vertices.length; i += 5) {
+        const vx = vertices[i];
+        const vy = vertices[i + 1];
+        const vz = vertices[i + 2];
+        // Beräkna distans från rayens aktuella punkt till vertexen
+        const dx = vx - pos[0];
+        const dy = vy - pos[1];
+        const dz = vz - pos[2];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
+        if (dist < epsilon) {
+          alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
+          return; // Om du vill stoppa när du hittar första träffen
+        }
+      }
+    }
+
+    return null;
   }
 
   async init() {
@@ -148,6 +204,8 @@ export class MapEditorComponent implements AfterViewInit {
     await shader1.initShaders('image_vertex.txt', 'image_fragment.txt');
     const shader2 = new Shader(gl);
     await shader2.initShaders('image_vertex.txt', 'image_fragment.txt');
+    const shader3 = new Shader(gl);
+    await shader3.initShaders('basic_vertex.txt', 'basic_fragment.txt');
     const image1 = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
     );
@@ -182,7 +240,7 @@ export class MapEditorComponent implements AfterViewInit {
       shader
     );
     const backgroundModel = new Model();
-    backgroundModel.addPlane(50, 50, 50);
+    backgroundModel.addPlane(1, 20, 20);
     this.backgroundMesh = new Mesh(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -191,9 +249,10 @@ export class MapEditorComponent implements AfterViewInit {
       shader
     );
 
+    console.log(backgroundModel.vertices);
+
     const cubeModel = new Model();
-    cubeModel.addCube(5, 0, 0, 10, 10, 10);
-    console.log(cubeModel);
+    cubeModel.addCube(10, 10, 10, 10, 10, 10);
     this.cubeMesh = new Mesh(
       gl,
       new Float32Array(cubeModel.vertices),
@@ -201,7 +260,6 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture1.getTexture(1),
       shader2
     );
-    console.log(this.cubeMesh);
 
     const ecs = new Ecs();
     const entity = ecs.createEntity();
@@ -217,13 +275,27 @@ export class MapEditorComponent implements AfterViewInit {
           const distance = Math.sqrt(distSq); // euklidiskt avstånd
           const falloff = 1 - distance / radius;
           const index = (ny * 64 + nx) * 4;
-          console.log(index);
           terrain.heightMap[index] = 50 * falloff;
         }
       }
     }
-
-    console.log(terrain.heightMap);
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        const distSq = dx * dx + dy * dy;
+        if (distSq <= radius * radius) {
+          const nx = 45 + dx;
+          const ny = 45 + dy;
+          const distance = Math.sqrt(distSq); // euklidiskt avstånd
+          const falloff = 1 - distance / radius;
+          const index = (ny * 64 + nx) * 4;
+          if (distance > 5) {
+            terrain.heightMap[index] = 50 * falloff;
+          } else {
+            terrain.heightMap[index] = 50;
+          }
+        }
+      }
+    }
 
     const width = 64;
     const height = 64;
@@ -235,6 +307,13 @@ export class MapEditorComponent implements AfterViewInit {
     this.texture1.createHeightMap(terrain.heightMap, 2);
     this.texture1.setUniform(shader, 'u_heightmap', 2);
 
+    this.debugMesh = new Mesh(
+      gl,
+      new Float32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+      new Uint16Array([0, 1]),
+      this.texture1.getTexture(0),
+      shader3
+    );
     this.loop();
   }
 
@@ -299,12 +378,6 @@ export class MapEditorComponent implements AfterViewInit {
         new Float32Array(model.vertices)
       );
     }
-    this.cubeMesh.translate(
-      this.mousePos[0],
-      this.mousePos[1],
-      this.mousePos[2]
-    );
-    this.backgroundMesh.translate(0, 0, 0);
   }
 
   updateBonePositions(bones: Bone[]): void {
@@ -328,6 +401,7 @@ export class MapEditorComponent implements AfterViewInit {
     const gl = this.gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
     gl.enable(gl.CULL_FACE);
     gl.depthMask(false);
     gl.cullFace(gl.FRONT);
@@ -337,7 +411,8 @@ export class MapEditorComponent implements AfterViewInit {
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     this.backgroundMesh.draw(this.perspectiveCamera);
-    this.mesh?.draw(this.orthoCamera);
-    this.cubeMesh.draw(this.perspectiveCamera);
+    //this.mesh?.draw(this.orthoCamera);
+    //this.cubeMesh.draw(this.perspectiveCamera);
+    this.debugMesh.drawLine(this.perspectiveCamera, this.mousePos);
   }
 }

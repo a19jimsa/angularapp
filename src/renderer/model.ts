@@ -121,25 +121,6 @@ export class Model {
       0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0,
     ] as number[];
 
-    console.log(positions.length);
-
-    for (let i = 0; i < positions.length; i += 5) {
-      positions[i] = positions[i] + x;
-      positions[i + 1] = positions[i + 1] + y;
-      positions[i + 2] = positions[i + 2] + z;
-    }
-
-    for (let i = 0; i < positions.length; i += 20) {
-      positions[i + 3] = 0.0;
-      positions[i + 4] = 0.0;
-      positions[i + 8] = 1.0;
-      positions[i + 9] = 0.0;
-      positions[i + 13] = 1.0;
-      positions[i + 14] = 1.0;
-      positions[i + 18] = 0.0;
-      positions[i + 19] = 1.0;
-    }
-
     // prettier-ignore
     const indices = [
       0,  2,  1,      0,  3,  2,    // front
@@ -154,20 +135,33 @@ export class Model {
   }
 
   addPlane(quads: number, width: number, height: number) {
-    for (let z = 0; z < quads; z++) {
-      let v = z / quads;
-      for (let x = 0; x < quads; x++) {
-        let u = x / quads;
-        this.vertices.push(u * width, 0, v * height);
-        this.vertices.push(u, v);
+    this.vertices = [];
+    this.indices = [];
+
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+
+    // Vertices
+    for (let z = 0; z <= quads; z++) {
+      const v = z / quads;
+      const posZ = v * height - halfHeight;
+
+      for (let x = 0; x <= quads; x++) {
+        const u = x / quads;
+        const posX = u * width - halfWidth;
+
+        // Position (x, y, z) + UV (u, v)
+        this.vertices.push(-posX, 0, -posZ); // y = 0 (flat plane)
+        this.vertices.push(u, v); // UV
       }
     }
-    for (let z = 0; z < quads - 1; z++) {
-      for (let x = 0; x < quads - 1; x++) {
-        const i = z * quads + x;
-        // Två trianglar per kvadrat
-        this.indices.push(i, i + 1, i + quads);
-        this.indices.push(i + 1, i + quads + 1, i + quads);
+
+    // Indices
+    for (let z = 0; z < quads; z++) {
+      for (let x = 0; x < quads; x++) {
+        const i = z * (quads + 1) + x;
+        this.indices.push(i, i + 1, i + quads + 1);
+        this.indices.push(i + 1, i + quads + 2, i + quads + 1);
       }
     }
   }

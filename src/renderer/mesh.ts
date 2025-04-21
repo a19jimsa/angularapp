@@ -79,4 +79,53 @@ export class Mesh {
     );
     this.vao.unbind();
   }
+
+  drawLine(camera: PerspectiveCamera, mousePos: vec3) {
+    // Kamera-position
+    const viewMatrix = camera.getViewMatrix();
+
+    const invertedView = mat4.create();
+    const origin = vec3.fromValues(
+      invertedView[12],
+      invertedView[13],
+      invertedView[14]
+    );
+
+    // Musposition
+    const start = origin;
+    const end = vec3.create();
+    vec3.scaleAndAdd(end, start, mousePos, 100);
+
+    // WebGL
+    const gl = this.gl;
+    this.shader.use();
+
+    // Skapa och binda VBO
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([start[0], start[1], start[2], end[0], end[1], end[2]]),
+      gl.STATIC_DRAW
+    );
+
+    // Bind VBO till attribut i shadern
+    const positionLocation = gl.getAttribLocation(
+      this.shader.program,
+      'a_position'
+    );
+    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionLocation);
+
+    // Ställ in transformation (projection/view-matris)
+    const projectionViewMatrix = camera.getViewProjectionMatrix();
+    const projectionViewLocation = gl.getUniformLocation(
+      this.shader.program,
+      'u_matrix'
+    );
+    gl.uniformMatrix4fv(projectionViewLocation, false, projectionViewMatrix);
+
+    // Rita linjen
+    gl.drawArrays(gl.LINES, 0, 2);
+  }
 }
