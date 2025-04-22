@@ -153,7 +153,7 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.canvas.nativeElement.addEventListener('click', (e) => {
       console.log(this.mousePos);
-      console.log(this.perspectiveCamera.position);
+      //console.log(this.perspectiveCamera.position);
       const invertedMatrix = mat4.create();
       mat4.invert(invertedMatrix, this.perspectiveCamera.getViewMatrix());
       console.log(
@@ -166,8 +166,8 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   pickVertex(vertices: Float32Array) {
-    const epsilon = 0.5;
-    const maxDistance = 100;
+    const epsilon = 5;
+    const maxDistance = 500;
     const step = 0.1;
 
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
@@ -175,15 +175,16 @@ export class MapEditorComponent implements AfterViewInit {
     mat4.invert(invertedView, viewMatrix);
 
     const rayOrigin = vec3.fromValues(
-      -invertedView[12],
+      invertedView[12],
       invertedView[13],
-      -invertedView[14]
+      invertedView[14]
     );
+
 
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, this.mousePos, t); // pos = origin + dir * t
-      console.log(pos);
+      //console.log(pos);
 
       for (let i = 0; i < vertices.length; i += 5) {
         const vx = vertices[i];
@@ -316,6 +317,13 @@ export class MapEditorComponent implements AfterViewInit {
       invertedView[12],
       invertedView[13],
       invertedView[14]
+    );
+
+    // Kamera-riktning (framåt), dvs -Z-kolumn
+    const forward = vec3.fromValues(
+      -invertedView[8],
+      -invertedView[9],
+      -invertedView[10]
     );
 
     // Musposition

@@ -31,10 +31,17 @@ export class PerspectiveCamera {
   }
 
   rotateZ(angle: number) {
+    const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      this.viewMatrix,
+      cameraMatrix,
       MathUtils.degreesToRadians(angle),
+      vec3.fromValues(0, 0, 1)
+    );
+    mat4.lookAt(
+      this.viewMatrix,
+      this.position,
+      vec3.fromValues(0, 0, 0),
       vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
@@ -45,11 +52,18 @@ export class PerspectiveCamera {
   }
 
   rotateY(angle: number) {
+    const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      this.viewMatrix,
+      cameraMatrix,
       MathUtils.degreesToRadians(angle),
       vec3.fromValues(0, 1, 0)
+    );
+    mat4.lookAt(
+      this.viewMatrix,
+      this.position,
+      vec3.fromValues(0, 0, 0),
+      vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -59,11 +73,18 @@ export class PerspectiveCamera {
   }
 
   rotateX(angle: number) {
+    const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      this.viewMatrix,
+      cameraMatrix,
       MathUtils.degreesToRadians(angle),
       vec3.fromValues(1, 0, 0)
+    );
+    mat4.lookAt(
+      this.viewMatrix,
+      this.position,
+      vec3.fromValues(0, 0, 0),
+      vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -73,10 +94,15 @@ export class PerspectiveCamera {
   }
 
   updatePosition(x: number, y: number, z: number) {
-    this.position[0] = x;
-    this.position[1] = y;
-    this.position[2] = z;
-    mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
+    this.position[0] += x;
+    this.position[1] += y;
+    this.position[2] += z;
+    mat4.lookAt(
+      this.viewMatrix,
+      this.position,
+      vec3.fromValues(0, 0, 0),
+      vec3.fromValues(0, 0, 1)
+    );
     mat4.multiply(
       this.viewProjectionMatrix,
       this.projectionMatrix,
