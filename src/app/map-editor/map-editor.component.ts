@@ -24,9 +24,8 @@ import { MathUtils } from 'src/Utils/MathUtils';
 import { Model } from 'src/renderer/model';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Ecs } from 'src/core/ecs';
-import { Entity } from '../entity';
 import { Terrain } from 'src/components/terrain';
-import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-map-editor',
@@ -39,6 +38,7 @@ import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
     MatButtonModule,
     MatIconModule,
     FormsModule,
+    MatSliderModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -66,8 +66,8 @@ export class MapEditorComponent implements AfterViewInit {
   scene: any[] = new Array();
 
   constructor() {
-    this.orthoCamera = new OrtographicCamera(0, 800, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(800, 600);
+    this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
+    this.perspectiveCamera = new PerspectiveCamera(600, 600);
   }
 
   async ngAfterViewInit() {
@@ -75,7 +75,7 @@ export class MapEditorComponent implements AfterViewInit {
     if (!this.gl) throw Error('Webgl2 not supported');
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
-    this.gl.canvas.width = 800;
+    this.gl.canvas.width = 600;
     this.gl.canvas.height = 600;
     this.renderer = new Renderer(this.gl);
     this.texture1 = new Texture(this.gl);
@@ -98,16 +98,16 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.rotateX(-1);
           break;
         case 'KeyA':
-          this.perspectiveCamera.rotateZ(-1);
-          break;
-        case 'KeyD':
           this.perspectiveCamera.rotateZ(1);
           break;
+        case 'KeyD':
+          this.perspectiveCamera.rotateZ(-1);
+          break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 1, 0);
+          this.perspectiveCamera.updatePosition(0, 0, 1);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -1, 0);
+          this.perspectiveCamera.updatePosition(0, 0, -1);
           break;
         case 'ArrowRight':
           this.perspectiveCamera.updatePosition(1, 0, 0);
@@ -120,8 +120,8 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.canvas.nativeElement.addEventListener('mousemove', (e) => {
       const rect = this.canvas.nativeElement.getBoundingClientRect();
-      const x = e.x - rect.left - this.canvas.nativeElement.clientLeft;
-      const y = e.y - rect.top - this.canvas.nativeElement.clientTop;
+      const x = e.x - rect.left;
+      const y = e.y - rect.top;
       const clipX = (x / rect.width) * 2 - 1;
       const clipY = (y / rect.height) * -2 + 1;
       const normalizedPos = vec2.fromValues(clipX, clipY);
@@ -148,26 +148,36 @@ export class MapEditorComponent implements AfterViewInit {
       this.mousePos[0] = mouseRay[0];
       this.mousePos[1] = mouseRay[1];
       this.mousePos[2] = mouseRay[2];
+      //console.log(this.mousePos, invertedView);
     });
 
     this.canvas.nativeElement.addEventListener('click', (e) => {
+      console.log(this.mousePos);
+      console.log(this.perspectiveCamera.position);
+      const invertedMatrix = mat4.create();
+      mat4.invert(invertedMatrix, this.perspectiveCamera.getViewMatrix());
+      console.log(
+        'x' + invertedMatrix[12],
+        'y' + invertedMatrix[13],
+        'z' + invertedMatrix[14]
+      );
       this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
     });
   }
 
   pickVertex(vertices: Float32Array) {
-    const epsilon = 5;
+    const epsilon = 0.5;
     const maxDistance = 100;
-    const step = 0.01;
+    const step = 0.1;
 
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
     const invertedView = mat4.create();
     mat4.invert(invertedView, viewMatrix);
 
     const rayOrigin = vec3.fromValues(
-      invertedView[12],
+      -invertedView[12],
       invertedView[13],
-      invertedView[14]
+      -invertedView[14]
     );
 
     for (let t = 0; t < maxDistance; t += step) {
@@ -240,7 +250,7 @@ export class MapEditorComponent implements AfterViewInit {
       shader
     );
     const backgroundModel = new Model();
-    backgroundModel.addPlane(1, 20, 20);
+    backgroundModel.addPlane(10, 50, 50);
     this.backgroundMesh = new Mesh(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -250,16 +260,6 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     console.log(backgroundModel.vertices);
-
-    const cubeModel = new Model();
-    cubeModel.addCube(10, 10, 10, 10, 10, 10);
-    this.cubeMesh = new Mesh(
-      gl,
-      new Float32Array(cubeModel.vertices),
-      new Uint16Array(cubeModel.indices),
-      this.texture1.getTexture(1),
-      shader2
-    );
 
     const ecs = new Ecs();
     const entity = ecs.createEntity();
@@ -307,10 +307,37 @@ export class MapEditorComponent implements AfterViewInit {
     this.texture1.createHeightMap(terrain.heightMap, 2);
     this.texture1.setUniform(shader, 'u_heightmap', 2);
 
+    // Kamera-position
+    const viewMatrix = this.perspectiveCamera.getViewMatrix();
+
+    const invertedView = mat4.create();
+    mat4.invert(invertedView, viewMatrix);
+    const origin = vec3.fromValues(
+      invertedView[12],
+      invertedView[13],
+      invertedView[14]
+    );
+
+    // Musposition
+    const start = origin;
+    const end = vec3.create();
+    vec3.scaleAndAdd(end, start, this.mousePos, 500);
+
     this.debugMesh = new Mesh(
       gl,
-      new Float32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-      new Uint16Array([0, 1]),
+      new Float32Array([
+        start[0],
+        start[1],
+        start[2],
+        0,
+        0,
+        start[0],
+        start[1],
+        start[2],
+        0,
+        0,
+      ]),
+      new Uint16Array([0, 1, 2]),
       this.texture1.getTexture(0),
       shader3
     );
@@ -400,9 +427,9 @@ export class MapEditorComponent implements AfterViewInit {
   draw() {
     const gl = this.gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LESS);
-    gl.enable(gl.CULL_FACE);
+    //gl.enable(gl.CULL_FACE);
     gl.depthMask(false);
     gl.cullFace(gl.FRONT);
     gl.frontFace(gl.CCW);

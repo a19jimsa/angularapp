@@ -72,7 +72,7 @@ export class Mesh {
     this.gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
     this.vao.bind();
     this.gl.drawElements(
-      this.gl.TRIANGLES,
+      this.gl.LINE_STRIP,
       this.vao.indexBuffer.getCount(),
       this.gl.UNSIGNED_SHORT,
       0
@@ -80,21 +80,22 @@ export class Mesh {
     this.vao.unbind();
   }
 
-  drawLine(camera: PerspectiveCamera, mousePos: vec3) {
+  drawLine(camera: PerspectiveCamera, direction: vec3) {
     // Kamera-position
     const viewMatrix = camera.getViewMatrix();
 
     const invertedView = mat4.create();
+    mat4.invert(invertedView, viewMatrix);
     const origin = vec3.fromValues(
-      invertedView[12],
-      invertedView[13],
-      invertedView[14]
+      -invertedView[12],
+      -invertedView[13],
+      -invertedView[14]
     );
 
     // Musposition
     const start = origin;
     const end = vec3.create();
-    vec3.scaleAndAdd(end, start, mousePos, 100);
+    vec3.scaleAndAdd(end, start, direction, 1000);
 
     // WebGL
     const gl = this.gl;
@@ -105,7 +106,14 @@ export class Mesh {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array([start[0], start[1], start[2], end[0], end[1], end[2]]),
+      new Float32Array([
+        start[0],
+        start[1],
+        start[2],
+        end[0],
+        end[1],
+        end[2],
+      ]),
       gl.STATIC_DRAW
     );
 

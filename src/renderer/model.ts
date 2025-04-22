@@ -151,12 +151,12 @@ export class Model {
         const posX = u * width - halfWidth;
 
         // Position (x, y, z) + UV (u, v)
-        this.vertices.push(-posX, 0, -posZ); // y = 0 (flat plane)
+        this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
       }
     }
 
-    // Indices
+    // Indices (anti clockwise winding order)
     for (let z = 0; z < quads; z++) {
       for (let x = 0; x < quads; x++) {
         const i = z * (quads + 1) + x;
@@ -164,6 +164,14 @@ export class Model {
         this.indices.push(i + 1, i + quads + 2, i + quads + 1);
       }
     }
+    // // Indices (clockwise winding order)
+    // for (let z = 0; z < quads; z++) {
+    //   for (let x = 0; x < quads; x++) {
+    //     const i = z * (quads + 1) + x;
+    //     this.indices.push(i, i + quads + 1, i + 1);
+    //     this.indices.push(i + 1, i + quads + 1, i + quads + 2);
+    //   }
+    // }
   }
 
   recalculateNormals(quads: number, width: number, height: number) {

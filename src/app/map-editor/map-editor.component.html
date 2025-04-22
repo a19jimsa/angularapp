@@ -144,4 +144,17 @@
       </mat-card>
     </div>
   </div>
+  <div class="row">
+    <mat-card>
+      <mat-slider min="-200" max="20" step="1" discrete>
+        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[0]" />
+      </mat-slider>
+      <mat-slider min="-200" max="20" step="1" discrete>
+        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[1]" />
+      </mat-slider>
+      <mat-slider min="-200" max="20" step="1" discrete>
+        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[2]" />
+      </mat-slider>
+    </mat-card>
+  </div>
 </div>
