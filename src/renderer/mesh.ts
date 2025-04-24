@@ -72,7 +72,7 @@ export class Mesh {
     this.gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
     this.vao.bind();
     this.gl.drawElements(
-      this.gl.LINE_STRIP,
+      this.gl.TRIANGLES,
       this.vao.indexBuffer.getCount(),
       this.gl.UNSIGNED_SHORT,
       0
@@ -95,7 +95,7 @@ export class Mesh {
     // Musposition
     const start = origin;
     const end = vec3.create();
-    vec3.scaleAndAdd(end, start, direction, 1000);
+    vec3.scaleAndAdd(end, start, direction, 100);
 
     // WebGL
     const gl = this.gl;
@@ -106,14 +106,7 @@ export class Mesh {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array([
-        start[0],
-        start[1],
-        start[2],
-        end[0],
-        end[1],
-        end[2],
-      ]),
+      new Float32Array([start[0], start[1], start[2], end[0], end[1], end[2]]),
       gl.STATIC_DRAW
     );
 
@@ -135,5 +128,26 @@ export class Mesh {
 
     // Rita linjen
     gl.drawArrays(gl.LINES, 0, 2);
+  }
+
+  drawPivot(perspectiveCamera: PerspectiveCamera) {
+    this.shader.use();
+    const location = this.gl.getUniformLocation(
+      this.shader.program,
+      'u_matrix'
+    );
+    this.gl.uniformMatrix4fv(
+      location,
+      false,
+      perspectiveCamera.getViewProjectionMatrix()
+    );
+    this.vao.bind();
+    this.gl.drawElements(
+      this.gl.LINES,
+      this.vao.indexBuffer.getCount(),
+      this.gl.UNSIGNED_SHORT,
+      0
+    );
+    this.vao.unbind();
   }
 }

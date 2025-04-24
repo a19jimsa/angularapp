@@ -134,6 +134,16 @@ export class Model {
     this.indices = indices;
   }
 
+  addPivot() {
+    const positions = [
+      0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 10, 0, 0
+    ];
+    const indices = [0, 1, 2, 3, 4, 5];
+    this.vertices.push(...positions);
+    this.indices.push(...indices);
+  }
+
   addPlane(quads: number, width: number, height: number) {
     this.vertices = [];
     this.indices = [];

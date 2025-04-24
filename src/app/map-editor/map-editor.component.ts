@@ -62,8 +62,10 @@ export class MapEditorComponent implements AfterViewInit {
   backgroundMesh!: Mesh;
   cubeMesh!: Mesh;
   debugMesh!: Mesh;
+  pivotMesh!: Mesh;
   angle = 0;
   scene: any[] = new Array();
+  isMouseDown: boolean = false;
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -151,7 +153,7 @@ export class MapEditorComponent implements AfterViewInit {
       //console.log(this.mousePos, invertedView);
     });
 
-    this.canvas.nativeElement.addEventListener('click', (e) => {
+    this.canvas.nativeElement.addEventListener('mousedown', (e) => {
       console.log(this.mousePos);
       //console.log(this.perspectiveCamera.position);
       const invertedMatrix = mat4.create();
@@ -161,12 +163,16 @@ export class MapEditorComponent implements AfterViewInit {
         'y' + invertedMatrix[13],
         'z' + invertedMatrix[14]
       );
-      this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
+      this.isMouseDown = true;
+    });
+
+    this.canvas.nativeElement.addEventListener('mouseup', (e) => {
+      this.isMouseDown = false;
     });
   }
 
   pickVertex(vertices: Float32Array) {
-    const epsilon = 5;
+    const epsilon = 1;
     const maxDistance = 500;
     const step = 0.1;
 
@@ -180,12 +186,9 @@ export class MapEditorComponent implements AfterViewInit {
       invertedView[14]
     );
 
-
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, this.mousePos, t); // pos = origin + dir * t
-      //console.log(pos);
-
       for (let i = 0; i < vertices.length; i += 5) {
         const vx = vertices[i];
         const vy = vertices[i + 1];
@@ -198,13 +201,32 @@ export class MapEditorComponent implements AfterViewInit {
 
         // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
-          alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
+          //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
+          this.meshBrush(vertices, vx, vy, vz);
           return; // Om du vill stoppa när du hittar första träffen
         }
       }
     }
-
     return null;
+  }
+
+  meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
+    const brushRadius = 20;
+    const brushStrength = 1.5;
+    for (let i = 0; i < vertices.length; i += 5) {
+      const vx = vertices[i];
+      const vz = vertices[i + 2];
+      // Beräkna distans från rayens aktuella punkt till vertexen
+      const dx = vx - x;
+      const dz = vz - z;
+      const dist = Math.sqrt(dx * dx + dz * dz);
+
+      // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
+      if (dist < brushRadius) {
+        const influence = 1 - dist / brushRadius;
+        vertices[i + 1] += influence * brushStrength;
+      }
+    }
   }
 
   async init() {
@@ -223,8 +245,10 @@ export class MapEditorComponent implements AfterViewInit {
     const image2 = await this.texture1.loadTexture(
       '/assets/textures/texture_map.png'
     );
+
     this.texture1.createAndBindTexture(image1, 0);
     this.texture1.createAndBindTexture(image2, 1);
+
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
@@ -243,6 +267,7 @@ export class MapEditorComponent implements AfterViewInit {
         bone.endY
       );
     }
+
     this.mesh = new Mesh(
       gl,
       new Float32Array(model.vertices),
@@ -250,14 +275,15 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture1.getTexture(0),
       shader
     );
+
     const backgroundModel = new Model();
-    backgroundModel.addPlane(10, 50, 50);
+    backgroundModel.addPlane(100, 150, 150);
     this.backgroundMesh = new Mesh(
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
       this.texture1.getTexture(1),
-      shader
+      shader1
     );
 
     console.log(backgroundModel.vertices);
@@ -319,13 +345,6 @@ export class MapEditorComponent implements AfterViewInit {
       invertedView[14]
     );
 
-    // Kamera-riktning (framåt), dvs -Z-kolumn
-    const forward = vec3.fromValues(
-      -invertedView[8],
-      -invertedView[9],
-      -invertedView[10]
-    );
-
     // Musposition
     const start = origin;
     const end = vec3.create();
@@ -346,6 +365,16 @@ export class MapEditorComponent implements AfterViewInit {
         0,
       ]),
       new Uint16Array([0, 1, 2]),
+      this.texture1.getTexture(0),
+      shader3
+    );
+
+    const pivotModel = new Model();
+    pivotModel.addPivot();
+    this.pivotMesh = new Mesh(
+      gl,
+      new Float32Array(pivotModel.vertices),
+      new Uint16Array(pivotModel.indices),
       this.texture1.getTexture(0),
       shader3
     );
@@ -383,6 +412,9 @@ export class MapEditorComponent implements AfterViewInit {
 
   update() {
     this.updateBonePositions(this.bones);
+    if (this.isMouseDown) {
+      this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
+    }
     this.angle++;
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
@@ -402,17 +434,15 @@ export class MapEditorComponent implements AfterViewInit {
         bone.endY
       );
     }
-    if (this.mesh) {
-      this.gl.bindBuffer(
-        this.gl.ARRAY_BUFFER,
-        this.mesh.vao.vertexBuffer.buffer
-      );
-      this.gl.bufferSubData(
-        this.gl.ARRAY_BUFFER,
-        0,
-        new Float32Array(model.vertices)
-      );
-    }
+    this.gl.bindBuffer(
+      this.gl.ARRAY_BUFFER,
+      this.backgroundMesh.vao.vertexBuffer.buffer
+    );
+    this.gl.bufferSubData(
+      this.gl.ARRAY_BUFFER,
+      0,
+      new Float32Array(this.backgroundMesh.vao.vertexBuffer.vertices)
+    );
   }
 
   updateBonePositions(bones: Bone[]): void {
@@ -435,10 +465,8 @@ export class MapEditorComponent implements AfterViewInit {
   draw() {
     const gl = this.gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.disable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LESS);
-    //gl.enable(gl.CULL_FACE);
-    gl.depthMask(false);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.FRONT);
     gl.frontFace(gl.CCW);
     gl.enable(gl.BLEND);
@@ -448,6 +476,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.backgroundMesh.draw(this.perspectiveCamera);
     //this.mesh?.draw(this.orthoCamera);
     //this.cubeMesh.draw(this.perspectiveCamera);
+    this.pivotMesh.drawPivot(this.perspectiveCamera);
     this.debugMesh.drawLine(this.perspectiveCamera, this.mousePos);
   }
 }

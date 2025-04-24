@@ -11,7 +11,7 @@ export class PerspectiveCamera {
   constructor(width: number, height: number) {
     mat4.perspective(
       this.projectionMatrix,
-      MathUtils.degreesToRadians(100),
+      MathUtils.degreesToRadians(45),
       width / height,
       0.1,
       1000
@@ -34,14 +34,8 @@ export class PerspectiveCamera {
     const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      cameraMatrix,
-      MathUtils.degreesToRadians(angle),
-      vec3.fromValues(0, 0, 1)
-    );
-    mat4.lookAt(
       this.viewMatrix,
-      this.position,
-      vec3.fromValues(0, 0, 0),
+      MathUtils.degreesToRadians(angle),
       vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
@@ -55,15 +49,9 @@ export class PerspectiveCamera {
     const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      cameraMatrix,
+      this.viewMatrix,
       MathUtils.degreesToRadians(angle),
       vec3.fromValues(0, 1, 0)
-    );
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      vec3.fromValues(0, 0, 0),
-      vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -76,15 +64,9 @@ export class PerspectiveCamera {
     const cameraMatrix = mat4.create();
     mat4.rotate(
       this.viewMatrix,
-      cameraMatrix,
+      this.viewMatrix,
       MathUtils.degreesToRadians(angle),
       vec3.fromValues(1, 0, 0)
-    );
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      vec3.fromValues(0, 0, 0),
-      vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -94,15 +76,10 @@ export class PerspectiveCamera {
   }
 
   updatePosition(x: number, y: number, z: number) {
-    this.position[0] += x;
-    this.position[1] += y;
-    this.position[2] += z;
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      vec3.fromValues(0, 0, 0),
-      vec3.fromValues(0, 0, 1)
-    );
+    this.position[0] = x;
+    this.position[1] = y;
+    this.position[2] = z;
+    mat4.translate(this.viewMatrix, this.viewMatrix, this.position);
     mat4.multiply(
       this.viewProjectionMatrix,
       this.projectionMatrix,
