@@ -33,6 +33,11 @@ enum Tools {
   Heightmap,
 }
 
+type MeshBrush = {
+  radius: number;
+  strength: number;
+};
+
 @Component({
   selector: 'app-map-editor',
   imports: [
@@ -76,6 +81,7 @@ export class MapEditorComponent implements AfterViewInit {
   splatMap = new Uint8Array(512 * 512 * 4);
   splatColor = 'red';
   tool: Tools = 0;
+  meshbrush: MeshBrush = { radius: 5, strength: 1 };
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -128,6 +134,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
       }
+    });
+
+    this.canvas.nativeElement.addEventListener('mouseleave', (e) => {
+      this.isMouseDown = false;
     });
 
     this.canvas.nativeElement.addEventListener('mousemove', (e) => {
@@ -230,7 +240,7 @@ export class MapEditorComponent implements AfterViewInit {
   createSplatmap(uv0: number, uv1: number) {
     const texX = Math.floor(uv0 * 512); // Omvandla u till texel X
     const texY = Math.floor(uv1 * 512); // Omvandla v till texel Y
-    this.paintCircle(512, 512, texX, texY, 16, new Uint8Array([0, 0, 255, 0]));
+    this.paintCircle(512, 512, texX, texY, 32, new Uint8Array([0, 0, 255, 0]));
     this.updateSplatmap();
   }
 
@@ -318,8 +328,8 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
-    const brushRadius = 10;
-    const brushStrength = 0.5;
+    const brushRadius = this.meshbrush.radius;
+    const brushStrength = this.meshbrush.strength;
     for (let i = 0; i < vertices.length; i += 5) {
       const vx = vertices[i];
       const vz = vertices[i + 2];
@@ -524,26 +534,36 @@ export class MapEditorComponent implements AfterViewInit {
     if (this.isMouseDown) {
       this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
     }
-
-    this.angle++;
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
       model.addSquares(
-        this.texture1.getImage(1).width,
-        this.texture1.getImage(1).height,
+        this.texture1.getImage(0).width,
+        this.texture1.getImage(0).height,
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
         bone.pivot,
         bone.startX,
         bone.startY,
         bone.endX,
         bone.endY,
-        200 + bone.position.x - bone.pivot.x - bone.endX / 2,
-        200 + bone.position.y - bone.pivot.y,
+        300 + bone.position.x - bone.pivot.x - bone.endX / 2,
+        300 + bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY
       );
     }
+    if (this.mesh) {
+      this.gl.bindBuffer(
+        this.gl.ARRAY_BUFFER,
+        this.mesh.vao.vertexBuffer.buffer
+      );
+      this.gl.bufferSubData(
+        this.gl.ARRAY_BUFFER,
+        0,
+        new Float32Array(model.vertices)
+      );
+    }
+
     this.gl.bindBuffer(
       this.gl.ARRAY_BUFFER,
       this.backgroundMesh.vao.vertexBuffer.buffer
@@ -584,7 +604,7 @@ export class MapEditorComponent implements AfterViewInit {
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     this.backgroundMesh.draw(this.perspectiveCamera);
-    //this.mesh?.draw(this.orthoCamera);
+    this.mesh?.draw(this.orthoCamera);
     //this.cubeMesh.draw(this.perspectiveCamera);
     this.pivotMesh.drawPivot(this.perspectiveCamera);
     this.debugMesh.drawLine(this.perspectiveCamera, this.mousePos);

@@ -129,6 +129,12 @@
                   <mat-icon>map</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
+              <mat-slider min="0" max="10" step="1" discrete>
+                <input matSliderThumb [(ngModel)]="meshbrush.radius" />
+              </mat-slider>
+              <mat-slider min="0" max="10" step="1" discrete>
+                <input matSliderThumb [(ngModel)]="meshbrush.strength" />
+              </mat-slider>
               <button mat-fab (click)="changeTool(1)">
                 <mat-icon>landscape</mat-icon>
               </button>
