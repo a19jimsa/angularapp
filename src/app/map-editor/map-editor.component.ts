@@ -26,6 +26,12 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Ecs } from 'src/core/ecs';
 import { Terrain } from 'src/components/terrain';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatRadioModule } from '@angular/material/radio';
+
+enum Tools {
+  Splatmap,
+  Heightmap,
+}
 
 @Component({
   selector: 'app-map-editor',
@@ -39,6 +45,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatIconModule,
     FormsModule,
     MatSliderModule,
+    MatRadioModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -66,10 +73,13 @@ export class MapEditorComponent implements AfterViewInit {
   angle = 0;
   scene: any[] = new Array();
   isMouseDown: boolean = false;
+  splatMap = new Uint8Array(512 * 512 * 4);
+  splatColor = 'red';
+  tool: Tools = 0;
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(600, 600);
+    this.perspectiveCamera = new PerspectiveCamera(800, 600);
   }
 
   async ngAfterViewInit() {
@@ -77,7 +87,7 @@ export class MapEditorComponent implements AfterViewInit {
     if (!this.gl) throw Error('Webgl2 not supported');
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
-    this.gl.canvas.width = 600;
+    this.gl.canvas.width = 800;
     this.gl.canvas.height = 600;
     this.renderer = new Renderer(this.gl);
     this.texture1 = new Texture(this.gl);
@@ -106,10 +116,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.rotateZ(-1);
           break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 0, 1);
+          this.perspectiveCamera.updatePosition(0, 1, 0);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, 0, -1);
+          this.perspectiveCamera.updatePosition(0, -1, 0);
           break;
         case 'ArrowRight':
           this.perspectiveCamera.updatePosition(1, 0, 0);
@@ -163,6 +173,7 @@ export class MapEditorComponent implements AfterViewInit {
         'y' + invertedMatrix[13],
         'z' + invertedMatrix[14]
       );
+
       this.isMouseDown = true;
     });
 
@@ -173,8 +184,8 @@ export class MapEditorComponent implements AfterViewInit {
 
   pickVertex(vertices: Float32Array) {
     const epsilon = 1;
-    const maxDistance = 500;
-    const step = 0.1;
+    const maxDistance = 100;
+    const step = 1;
 
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
     const invertedView = mat4.create();
@@ -202,7 +213,13 @@ export class MapEditorComponent implements AfterViewInit {
         // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
           //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
-          this.meshBrush(vertices, vx, vy, vz);
+          //set active tool later on!
+          //this.meshBrush(vertices, vx, vy, vz);
+          if (this.tool === Tools.Splatmap) {
+            this.createSplatmap(vertices[i + 3], vertices[i + 4]);
+          } else {
+            this.meshBrush(vertices, vx, vy, vz);
+          }
           return; // Om du vill stoppa när du hittar första träffen
         }
       }
@@ -210,9 +227,99 @@ export class MapEditorComponent implements AfterViewInit {
     return null;
   }
 
+  createSplatmap(uv0: number, uv1: number) {
+    const texX = Math.floor(uv0 * 512); // Omvandla u till texel X
+    const texY = Math.floor(uv1 * 512); // Omvandla v till texel Y
+    this.paintCircle(512, 512, texX, texY, 16, new Uint8Array([0, 0, 255, 0]));
+    this.updateSplatmap();
+  }
+
+  paintRect(
+    width: number,
+    height: number,
+    cx: number,
+    cy: number,
+    size: number
+  ) {
+    const half = Math.floor(size / 2);
+    for (let y = -half; y <= half; y++) {
+      for (let x = -half; x <= half; x++) {
+        const px = cx + x;
+        const py = cy + y;
+
+        if (px >= 0 && px < width && py >= 0 && py < height) {
+          const idx = (py * width + px) * 4;
+          this.splatMap[idx + 0] = 0; // R
+          this.splatMap[idx + 1] = 255; // G
+          this.splatMap[idx + 2] = 0; // B
+          this.splatMap[idx + 3] = 0; // A
+        }
+      }
+    }
+  }
+
+  paintCircle(
+    width: number,
+    height: number,
+    cx: number,
+    cy: number,
+    radius: number,
+    color: Uint8Array
+  ) {
+    if (this.splatColor === 'red') {
+      color.set([255, 0, 0, 0]);
+    } else if (this.splatColor === 'green') {
+      color.set([0, 255, 0, 0]);
+    } else if (this.splatColor === 'blue') {
+      color.set([0, 0, 255, 0]);
+    } else if (this.splatColor === 'alpha') {
+      color.set([0, 0, 0, 255]);
+    }
+    for (let y = -radius; y <= radius; y++) {
+      for (let x = -radius; x <= radius; x++) {
+        const dx = x;
+        const dy = y;
+        if (dx * dx + dy * dy <= radius * radius) {
+          const px = cx + dx;
+          const py = cy + dy;
+
+          if (px >= 0 && px < width && py >= 0 && py < height) {
+            const idx = (py * width + px) * 4;
+
+            // Måla t.ex. grönt med full opacitet
+            this.splatMap[idx + 0] = color[0]; // R
+            this.splatMap[idx + 1] = color[1]; // G
+            this.splatMap[idx + 2] = color[2]; // B
+            this.splatMap[idx + 3] = color[3]; // A
+          }
+        }
+      }
+    }
+  }
+
+  updateSplatmap() {
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture1.getTexture(2));
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      512,
+      512,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      this.splatMap
+    );
+  }
+
+  changeTool(id: number) {
+    this.tool = id;
+  }
+
   meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
-    const brushRadius = 20;
-    const brushStrength = 1.5;
+    const brushRadius = 10;
+    const brushStrength = 0.5;
     for (let i = 0; i < vertices.length; i += 5) {
       const vx = vertices[i];
       const vz = vertices[i + 2];
@@ -248,6 +355,8 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.texture1.createAndBindTexture(image1, 0);
     this.texture1.createAndBindTexture(image2, 1);
+    this.texture1.createAndBindTexture(this.splatMap, 2);
+    this.texture1.setUniform(shader1, 'u_splatmap', 2);
 
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
@@ -277,7 +386,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 150, 150);
+    backgroundModel.addPlane(50, 50, 50);
     this.backgroundMesh = new Mesh(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -331,8 +440,8 @@ export class MapEditorComponent implements AfterViewInit {
     // Kontrollera storleken på arrayen innan du skickar den till WebGL
     console.log(terrain.heightMap.length, expectedSize); // Bör visa samma värde för båda
 
-    this.texture1.createHeightMap(terrain.heightMap, 2);
-    this.texture1.setUniform(shader, 'u_heightmap', 2);
+    this.texture1.createHeightMap(terrain.heightMap, 3);
+    this.texture1.setUniform(shader, 'u_heightmap', 3);
 
     // Kamera-position
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
@@ -415,13 +524,14 @@ export class MapEditorComponent implements AfterViewInit {
     if (this.isMouseDown) {
       this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
     }
+
     this.angle++;
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
       model.addSquares(
-        this.texture1.getImage(0).width,
-        this.texture1.getImage(0).height,
+        this.texture1.getImage(1).width,
+        this.texture1.getImage(1).height,
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
         bone.pivot,
         bone.startX,

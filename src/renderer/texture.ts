@@ -22,20 +22,34 @@ export class Texture {
     });
   }
 
-  createAndBindTexture(image: HTMLImageElement, slot: number) {
-    this.slot = slot;
+  createAndBindTexture(image: HTMLImageElement | Uint8Array, slot: number) {
     const gl = this.gl;
+    this.slot = slot;
     const texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + slot);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0, // Level (mipmap nivå)
-      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-      gl.RGBA, // Format
-      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-      image
-    );
+    if (image instanceof HTMLImageElement) {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0, // Level (mipmap nivå)
+        gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
+        gl.RGBA, // Format
+        gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
+        image
+      );
+    } else {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0, // mipmap level
+        gl.RGBA, // internal format
+        512,
+        512,
+        0, // border
+        gl.RGBA, // format
+        gl.UNSIGNED_BYTE, // type
+        image
+      );
+    }
 
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,

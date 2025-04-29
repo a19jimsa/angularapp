@@ -123,23 +123,41 @@
             </mat-expansion-panel>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title> Mesh </mat-panel-title>
+                <mat-panel-title> Terrain </mat-panel-title>
                 <mat-panel-description>
                   Type the country name
                   <mat-icon>map</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
+              <button mat-fab (click)="changeTool(1)">
+                <mat-icon>landscape</mat-icon>
+              </button>
             </mat-expansion-panel>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title> Mesh Renderer </mat-panel-title>
+                <mat-panel-title> Splatmap Terrain </mat-panel-title>
                 <mat-panel-description>
                   Inform the date you wish to travel
                   <mat-icon>date_range</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
+              <mat-radio-group
+                aria-labelledby="example-radio-group-label"
+                class="example-radio-group"
+                [(ngModel)]="splatColor"
+              >
+                <mat-radio-button value="red">Red</mat-radio-button>
+                <mat-radio-button value="green">Green</mat-radio-button>
+                <mat-radio-button value="blue">Blue</mat-radio-button>
+                <mat-radio-button value="alpha">Alpha</mat-radio-button>
+              </mat-radio-group>
+              <div>Your color is: {{ splatColor }}</div>
             </mat-expansion-panel>
           </mat-accordion>
+          <button mat-button>Create splatmap</button>
+          <button mat-fab (click)="changeTool(0)">
+            <mat-icon>brush</mat-icon>
+          </button>
         </mat-card-content>
       </mat-card>
     </div>

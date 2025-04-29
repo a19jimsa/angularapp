@@ -137,7 +137,7 @@ export class Model {
   addPivot() {
     const positions = [
       0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 10, 0, 0
+      0, 0, 0, 10, 0, 0,
     ];
     const indices = [0, 1, 2, 3, 4, 5];
     this.vertices.push(...positions);
@@ -182,60 +182,5 @@ export class Model {
     //     this.indices.push(i + 1, i + quads + 1, i + quads + 2);
     //   }
     // }
-  }
-
-  recalculateNormals(quads: number, width: number, height: number) {
-    this.normals = new Array(this.indices.length).fill(0);
-    const positions = [];
-    for (let i = 0; i < this.vertices.length; i += 5) {
-      positions.push(
-        this.vertices[i],
-        this.vertices[i + 1],
-        this.vertices[i + 2]
-      ); // x, y, z
-    }
-    console.log(this.vertices);
-    for (let i = 0; i < this.indices.length; i += 3) {
-      const i0 = this.indices[i];
-      const i1 = this.indices[i + 1];
-      const i2 = this.indices[i + 2];
-      const v0 = vec3.fromValues(
-        positions[i0 * 3],
-        positions[i0 * 3 + 1],
-        positions[i0 * 3 + 2]
-      );
-      const v1 = vec3.fromValues(
-        positions[i1 * 3],
-        positions[i1 * 3 + 1],
-        positions[i1 * 3 + 2]
-      );
-      const v2 = vec3.fromValues(
-        positions[i2 * 3],
-        positions[i2 * 3 + 1],
-        positions[i2 * 3 + 2]
-      );
-      const edge1 = vec3.subtract(vec3.create(), v1, v0);
-      const edge2 = vec3.subtract(vec3.create(), v2, v0);
-      const faceNormal = vec3.cross(vec3.create(), edge1, edge2);
-      vec3.normalize(faceNormal, faceNormal);
-      // Accumulate normal to each vertex normal
-      for (let j of [i0, i1, i2]) {
-        this.normals[j * 3] += faceNormal[0];
-        this.normals[j * 3 + 1] += faceNormal[1];
-        this.normals[j * 3 + 2] += faceNormal[2];
-      }
-    }
-    for (let i = 0; i < this.normals.length; i += 3) {
-      const normal = vec3.fromValues(
-        this.normals[i],
-        this.normals[i + 1],
-        this.normals[i + 2]
-      );
-      vec3.normalize(normal, normal);
-      this.normals[i] = normal[0] * -1;
-      this.normals[i + 1] = normal[1] * -1;
-      this.normals[i + 2] = normal[2] * -1;
-    }
-    return this.normals;
   }
 }
