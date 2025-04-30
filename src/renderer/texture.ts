@@ -61,10 +61,10 @@ export class Texture {
       this.gl.TEXTURE_MAG_FILTER,
       this.gl.LINEAR
     );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
-    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    //this.gl.generateMipmap(this.gl.TEXTURE_2D);
     this.texture.push(texture!);
     this.images.push(image);
   }

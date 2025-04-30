@@ -38,6 +38,11 @@ type MeshBrush = {
   strength: number;
 };
 
+type SplatBrush = {
+  alpha: number;
+  radius: number;
+};
+
 @Component({
   selector: 'app-map-editor',
   imports: [
@@ -82,10 +87,11 @@ export class MapEditorComponent implements AfterViewInit {
   splatColor = 'red';
   tool: Tools = 0;
   meshbrush: MeshBrush = { radius: 5, strength: 1 };
+  splatBrush: SplatBrush = { alpha: 0.5, radius: 5 };
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(800, 600);
+    this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
   }
 
   async ngAfterViewInit() {
@@ -240,7 +246,7 @@ export class MapEditorComponent implements AfterViewInit {
   createSplatmap(uv0: number, uv1: number) {
     const texX = Math.floor(uv0 * 512); // Omvandla u till texel X
     const texY = Math.floor(uv1 * 512); // Omvandla v till texel Y
-    this.paintCircle(512, 512, texX, texY, 32, new Uint8Array([0, 0, 255, 0]));
+    this.paintCircle(512, 512, texX, texY);
     this.updateSplatmap();
   }
 
@@ -268,23 +274,9 @@ export class MapEditorComponent implements AfterViewInit {
     }
   }
 
-  paintCircle(
-    width: number,
-    height: number,
-    cx: number,
-    cy: number,
-    radius: number,
-    color: Uint8Array
-  ) {
-    if (this.splatColor === 'red') {
-      color.set([255, 0, 0, 0]);
-    } else if (this.splatColor === 'green') {
-      color.set([0, 255, 0, 0]);
-    } else if (this.splatColor === 'blue') {
-      color.set([0, 0, 255, 0]);
-    } else if (this.splatColor === 'alpha') {
-      color.set([0, 0, 0, 255]);
-    }
+  paintCircle(width: number, height: number, cx: number, cy: number) {
+    const alpha = this.splatBrush.alpha;
+    const radius = this.splatBrush.radius;
     for (let y = -radius; y <= radius; y++) {
       for (let x = -radius; x <= radius; x++) {
         const dx = x;
@@ -292,15 +284,66 @@ export class MapEditorComponent implements AfterViewInit {
         if (dx * dx + dy * dy <= radius * radius) {
           const px = cx + dx;
           const py = cy + dy;
-
-          if (px >= 0 && px < width && py >= 0 && py < height) {
+          if (px > 0 && px < width - 1 && py > 0 && py < height - 1) {
             const idx = (py * width + px) * 4;
 
-            // Måla t.ex. grönt med full opacitet
-            this.splatMap[idx + 0] = color[0]; // R
-            this.splatMap[idx + 1] = color[1]; // G
-            this.splatMap[idx + 2] = color[2]; // B
-            this.splatMap[idx + 3] = color[3]; // A
+            if (this.splatColor === 'red') {
+              this.splatMap[idx + 0] = 255;
+              if (this.splatMap[idx + 1] !== 0) {
+                this.splatMap[idx + 0] = 255 * alpha;
+                this.splatMap[idx + 1] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 2] !== 0) {
+                this.splatMap[idx + 0] = 255 * alpha;
+                this.splatMap[idx + 2] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 3] !== 0) {
+                this.splatMap[idx + 0] = 255 * alpha;
+                this.splatMap[idx + 3] = 255 * (1 - alpha);
+              }
+            } else if (this.splatColor === 'green') {
+              this.splatMap[idx + 1] = 255;
+              if (this.splatMap[idx + 0] !== 0) {
+                this.splatMap[idx + 1] = 255 * alpha;
+                this.splatMap[idx + 0] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 2] !== 0) {
+                this.splatMap[idx + 1] = 255 * alpha;
+                this.splatMap[idx + 2] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 3] !== 0) {
+                this.splatMap[idx + 1] = 255 * alpha;
+                this.splatMap[idx + 3] = 255 * (1 - alpha);
+              }
+            } else if (this.splatColor === 'blue') {
+              this.splatMap[idx + 2] = 255;
+              if (this.splatMap[idx + 0] !== 0) {
+                this.splatMap[idx + 2] = 255 * alpha;
+                this.splatMap[idx + 0] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 1] !== 0) {
+                this.splatMap[idx + 2] = 255 * alpha;
+                this.splatMap[idx + 1] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 3] !== 0) {
+                this.splatMap[idx + 2] = 255 * alpha;
+                this.splatMap[idx + 3] = 255 * (1 - alpha);
+              }
+            } else if (this.splatColor === 'alpha') {
+              this.splatMap[idx + 3] = 255;
+              if (this.splatMap[idx + 0] !== 0) {
+                this.splatMap[idx + 3] = 255 * alpha;
+                this.splatMap[idx + 0] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 1] !== 0) {
+                this.splatMap[idx + 3] = 255 * alpha;
+                this.splatMap[idx + 1] = 255 * (1 - alpha);
+              }
+              if (this.splatMap[idx + 2] !== 0) {
+                this.splatMap[idx + 3] = 255 * alpha;
+                this.splatMap[idx + 2] = 255 * (1 - alpha);
+              }
+            }
           }
         }
       }
@@ -396,7 +439,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(50, 50, 50);
+    backgroundModel.addPlane(100, 50, 50);
     this.backgroundMesh = new Mesh(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -604,7 +647,7 @@ export class MapEditorComponent implements AfterViewInit {
     gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
     gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     this.backgroundMesh.draw(this.perspectiveCamera);
-    this.mesh?.draw(this.orthoCamera);
+    //this.mesh?.draw(this.orthoCamera);
     //this.cubeMesh.draw(this.perspectiveCamera);
     this.pivotMesh.drawPivot(this.perspectiveCamera);
     this.debugMesh.drawLine(this.perspectiveCamera, this.mousePos);
