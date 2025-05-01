@@ -235,6 +235,7 @@ export class MapEditorComponent implements AfterViewInit {
             this.createSplatmap(vertices[i + 3], vertices[i + 4]);
           } else {
             this.meshBrush(vertices, vx, vy, vz);
+            this.backgroundMesh.updateNormals();
           }
           return; // Om du vill stoppa när du hittar första träffen
         }
