@@ -1,4 +1,4 @@
-import { IndexBuffer, NormalBuffer, VertexBuffer } from './buffer';
+import { IndexBuffer, VertexBuffer } from './buffer';
 
 //VAO
 export class VertexArrayBuffer {
@@ -6,7 +6,6 @@ export class VertexArrayBuffer {
   vao: WebGLVertexArrayObject | null;
   vertexBuffer: VertexBuffer;
   indexBuffer: IndexBuffer;
-  normalBuffer: NormalBuffer;
 
   constructor(
     gl: WebGL2RenderingContext,
@@ -23,6 +22,7 @@ export class VertexArrayBuffer {
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+    
     this.indexBuffer = IndexBuffer.create(gl, indices);
     this.indexBuffer.buffer = gl.createBuffer();
     if (!this.indexBuffer.buffer) {
@@ -31,8 +31,6 @@ export class VertexArrayBuffer {
     this.indexBuffer.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-
-    this.normalBuffer = NormalBuffer.create(gl, new Float32Array(new Array()));
   }
 
   bind() {

@@ -1,6 +1,5 @@
 import { mat4, vec2, vec3 } from 'gl-matrix';
 import { VertexArrayBuffer } from './vertex-array-buffer';
-import { Texture } from './texture';
 import { Shader } from './shader';
 import { PerspectiveCamera } from './perspective-camera';
 import { OrtographicCamera } from './orthographic-camera';
@@ -33,13 +32,14 @@ export class Mesh {
 
   private setupMesh(shader: Shader) {
     const gl = this.gl;
+    shader.use();
     const positionLoc = gl.getAttribLocation(shader.program, 'a_position');
     gl.vertexAttribPointer(
       positionLoc,
       3,
       gl.FLOAT,
       false,
-      5 * Float32Array.BYTES_PER_ELEMENT,
+      8 * Float32Array.BYTES_PER_ELEMENT,
       0
     );
     gl.enableVertexAttribArray(positionLoc);
@@ -49,10 +49,69 @@ export class Mesh {
       2,
       gl.FLOAT,
       false,
-      5 * Float32Array.BYTES_PER_ELEMENT,
+      8 * Float32Array.BYTES_PER_ELEMENT,
       3 * Float32Array.BYTES_PER_ELEMENT
     );
     gl.enableVertexAttribArray(texLocation);
+    const normalLocation = gl.getAttribLocation(shader.program, 'a_normal');
+    gl.vertexAttribPointer(
+      normalLocation,
+      3,
+      gl.FLOAT,
+      false,
+      8 * Float32Array.BYTES_PER_ELEMENT,
+      5 * Float32Array.BYTES_PER_ELEMENT
+    );
+    gl.enableVertexAttribArray(normalLocation);
+  }
+
+  updateNormals() {
+    const gl = this.gl;
+    const normals = new Array();
+    for (let i = 0; i < this.vao.indexBuffer.indices.length; i += 5) {
+      const i0 = this.vao.indexBuffer.indices[i];
+      const i1 = this.vao.indexBuffer.indices[i + 1];
+      const i2 = this.vao.indexBuffer.indices[i + 2];
+
+      const v0 = this.vao.vertexBuffer.vertices[i0 * 5];
+      const v1 = this.vao.vertexBuffer.vertices[i0 * 5 + 1];
+      const v2 = this.vao.vertexBuffer.vertices[i0 * 5 + 2];
+
+      const v3 = this.vao.vertexBuffer.vertices[i1 * 5];
+      const v4 = this.vao.vertexBuffer.vertices[i1 * 5 + 1];
+      const v5 = this.vao.vertexBuffer.vertices[i1 * 5 + 2];
+
+      const v6 = this.vao.vertexBuffer.vertices[i2 * 5];
+      const v7 = this.vao.vertexBuffer.vertices[i2 * 5 + 1];
+      const v8 = this.vao.vertexBuffer.vertices[i2 * 5 + 2];
+
+      const triangleA = vec3.fromValues(v0, v1, v2);
+      const triangleB = vec3.fromValues(v3, v4, v5);
+      const triangleC = vec3.fromValues(v6, v7, v8);
+
+      const edge = vec3.create();
+      vec3.subtract(edge, triangleB, triangleA);
+      const edge1 = vec3.create();
+      vec3.subtract(edge1, triangleC, triangleA);
+
+      const normal = vec3.create();
+      vec3.cross(normal, edge, edge1);
+      vec3.normalize(normal, normal);
+      console.log(normal[0]);
+
+      normals.push(normal[0], normal[1], normal[2]);
+    }
+    for (let i = 0; i < normals.length; i += 3) {
+      const n0 = normals[i];
+      const n1 = normals[i + 1];
+      const n2 = normals[i + 2];
+
+      const normal = vec3.fromValues(n0, n1, n2);
+      vec3.normalize(normal, normal);
+      normals[i] = normal[0];
+      normals[i + 1] = normal[1];
+      normals[i + 2] = normal[2];
+    }
   }
 
   translate(x: number, y: number, z: number) {
@@ -72,7 +131,7 @@ export class Mesh {
     this.gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
     this.vao.bind();
     this.gl.drawElements(
-      this.gl.TRIANGLES,
+      this.gl.LINE_STRIP,
       this.vao.indexBuffer.getCount(),
       this.gl.UNSIGNED_SHORT,
       0

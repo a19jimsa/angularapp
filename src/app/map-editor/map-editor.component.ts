@@ -216,7 +216,7 @@ export class MapEditorComponent implements AfterViewInit {
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, this.mousePos, t); // pos = origin + dir * t
-      for (let i = 0; i < vertices.length; i += 5) {
+      for (let i = 0; i < vertices.length; i += 8) {
         const vx = vertices[i];
         const vy = vertices[i + 1];
         const vz = vertices[i + 2];
@@ -373,7 +373,7 @@ export class MapEditorComponent implements AfterViewInit {
   meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
     const brushRadius = this.meshbrush.radius;
     const brushStrength = this.meshbrush.strength;
-    for (let i = 0; i < vertices.length; i += 5) {
+    for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i];
       const vz = vertices[i + 2];
       // Beräkna distans från rayens aktuella punkt till vertexen
@@ -447,8 +447,6 @@ export class MapEditorComponent implements AfterViewInit {
       this.texture1.getTexture(1),
       shader1
     );
-
-    console.log(backgroundModel.vertices);
 
     const ecs = new Ecs();
     const entity = ecs.createEntity();
@@ -614,7 +612,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.gl.bufferSubData(
       this.gl.ARRAY_BUFFER,
       0,
-      new Float32Array(this.backgroundMesh.vao.vertexBuffer.vertices)
+      this.backgroundMesh.vao.vertexBuffer.vertices
     );
   }
 

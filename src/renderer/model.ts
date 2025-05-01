@@ -48,6 +48,9 @@ export class Model {
       0,
       u0,
       v0,
+      0,
+      0,
+      0,
 
       // top-right
       (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
@@ -55,6 +58,9 @@ export class Model {
       0,
       u1,
       v0,
+      0,
+      0,
+      0,
 
       // bottom-right
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
@@ -62,6 +68,9 @@ export class Model {
       0,
       u1,
       v1,
+      0,
+      0,
+      0,
 
       // bottom-left
       (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
@@ -69,6 +78,9 @@ export class Model {
       0,
       u0,
       v1,
+      0,
+      0,
+      0,
     ];
 
     this.vertices.push(...vertices);
@@ -136,8 +148,8 @@ export class Model {
 
   addPivot() {
     const positions = [
-      0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 10, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0,
     ];
     const indices = [0, 1, 2, 3, 4, 5];
     this.vertices.push(...positions);
@@ -160,9 +172,10 @@ export class Model {
         const u = x / quads;
         const posX = u * width - halfWidth;
 
-        // Position (x, y, z) + UV (u, v)
+        // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
+        this.vertices.push(0, 0, 0); // Normals
       }
     }
 
