@@ -1,6 +1,10 @@
 import { Component } from './component';
 
-export class Terrain extends Component {
-  override type: string = 'Terrain';
-  heightMap = new Uint8Array(64 * 64 * 4);
+export class Heightmap extends Component {
+  override type: string = 'Heightmap';
+  coords: Uint8ClampedArray;
+  constructor(coords: Uint8ClampedArray) {
+    super();
+    this.coords = coords;
+  }
 }

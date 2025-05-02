@@ -66,48 +66,6 @@ export class MeshRenderer {
     gl.useProgram(null);
   }
 
-  updateNormals() {
-    const gl = this.gl;
-    const normals = new Array();
-    //Stride 8 xyzuvnormals(3)
-    for (let i = 0; i < this.vao.indexBuffer.indices.length; i += 3) {
-      const i0 = this.vao.indexBuffer.indices[i];
-      const i1 = this.vao.indexBuffer.indices[i + 1];
-      const i2 = this.vao.indexBuffer.indices[i + 2];
-
-      const v0 = this.vao.vertexBuffer.vertices[i0 * 8];
-      const v1 = this.vao.vertexBuffer.vertices[i0 * 8 + 1];
-      const v2 = this.vao.vertexBuffer.vertices[i0 * 8 + 2];
-
-      const v3 = this.vao.vertexBuffer.vertices[i1 * 8];
-      const v4 = this.vao.vertexBuffer.vertices[i1 * 8 + 1];
-      const v5 = this.vao.vertexBuffer.vertices[i1 * 8 + 2];
-
-      const v6 = this.vao.vertexBuffer.vertices[i2 * 8];
-      const v7 = this.vao.vertexBuffer.vertices[i2 * 8 + 1];
-      const v8 = this.vao.vertexBuffer.vertices[i2 * 8 + 2];
-
-      const triangleA = vec3.fromValues(v0, v1, v2);
-      const triangleB = vec3.fromValues(v3, v4, v5);
-      const triangleC = vec3.fromValues(v6, v7, v8);
-
-      const edge = vec3.create();
-      vec3.subtract(edge, triangleB, triangleA);
-      const edge1 = vec3.create();
-      vec3.subtract(edge1, triangleC, triangleA);
-
-      const normal = vec3.create();
-      vec3.cross(normal, edge, edge1);
-      vec3.normalize(normal, normal);
-      // Skriv normalen till varje vertex i triangeln (flat shading)
-      for (const idx of [i0, i1, i2]) {
-        this.vao.vertexBuffer.vertices[idx * 8 + 5] = normal[0];
-        this.vao.vertexBuffer.vertices[idx * 8 + 6] = normal[1];
-        this.vao.vertexBuffer.vertices[idx * 8 + 7] = normal[2];
-      }
-    }
-  }
-
   translate(x: number, y: number, z: number) {
     const model = mat4.create();
     mat4.translate(model, model, vec3.fromValues(x, y, z));

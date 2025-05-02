@@ -1,11 +1,13 @@
 <div class="container-fluid border">
-  <div class="row p-2">
-    <div class="col-2">
+  <div class="row">
+    <div class="col-1">
       <mat-card class="h-100">
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Scene</mat-card-title>
-            <mat-card-subtitle>Add to scene</mat-card-subtitle>
+            <mat-card-subtitle
+              ><button mat-flat-button>Add to scene</button></mat-card-subtitle
+            >
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -15,30 +17,14 @@
         >
       </mat-card>
     </div>
-    <div class="col-8">
+    <div class="col-9">
       <canvas #canvas class="border"></canvas>
     </div>
     <div class="col-2">
       <mat-card class="h-100">
-        <mat-card-header>
-          <mat-card-title-group>
-            <mat-card-title>Something</mat-card-title>
-            <mat-card-subtitle>Something Something</mat-card-subtitle>
-          </mat-card-title-group>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-form-field class="w-100">
-            <mat-label>Vertex position</mat-label>
-            <input
-              matInput
-              step="5"
-              min="0"
-              type="number"
-              (change)="getVertexPosition()"
-              [(ngModel)]="this.activeVertexId"
-            />
-          </mat-form-field>
-          <button mat-button (click)="updateVertexValues()">Submit</button>
+        <mat-card-content
+          class="d-flex flex-column justify-content-between h-100"
+        >
           <mat-accordion class="example-headers-align" multi>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
@@ -156,20 +142,20 @@
               <mat-radio-group
                 aria-labelledby="example-radio-group-label"
                 class="example-radio-group"
-                [(ngModel)]="splatColor"
+                [(ngModel)]="splatBrush.color"
               >
                 <mat-radio-button value="red">Red</mat-radio-button>
                 <mat-radio-button value="green">Green</mat-radio-button>
                 <mat-radio-button value="blue">Blue</mat-radio-button>
                 <mat-radio-button value="alpha">Alpha</mat-radio-button>
               </mat-radio-group>
-              <div>Your color is: {{ splatColor }}</div>
+              <div>Your color is: {{ splatBrush.color }}</div>
               <button mat-fab (click)="changeTool(0)">
                 <mat-icon>brush</mat-icon>
               </button>
             </mat-expansion-panel>
           </mat-accordion>
-          <button mat-button>Create splatmap</button>
+          <button mat-button>Add Component</button>
         </mat-card-content>
       </mat-card>
     </div>

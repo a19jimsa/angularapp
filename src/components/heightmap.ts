@@ -2,9 +2,9 @@ import { Component } from './component';
 
 export class Heightmap extends Component {
   override type: string = 'Heightmap';
-  coords = new Float32Array();
-  constructor(x: number, y: number) {
+  coords: Uint8ClampedArray;
+  constructor(coords: Uint8ClampedArray) {
     super();
-    this.coords = new Float32Array(x * y);
+    this.coords = coords;
   }
 }

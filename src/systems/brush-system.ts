@@ -1,20 +1,27 @@
 import { mat4, vec3 } from 'gl-matrix';
+import { MeshBrush } from 'src/app/map-editor/map-editor.component';
 import { Mesh } from 'src/components/mesh';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class BrushSystem {
-  update(ecs: Ecs, mousePos: vec3, perspectiveCamera: PerspectiveCamera) {
+  update(
+    meshBrush: MeshBrush,
+    ecs: Ecs,
+    mousePos: vec3,
+    perspectiveCamera: PerspectiveCamera
+  ) {
     for (const entity of ecs.getEntities()) {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (mesh) {
-        this.pickVertex(mesh.vertices, mousePos, perspectiveCamera);
+        this.pickVertex(meshBrush, mesh, mousePos, perspectiveCamera);
       }
     }
   }
 
   private pickVertex(
-    vertices: Float32Array,
+    meshBrush: MeshBrush,
+    mesh: Mesh,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
@@ -35,10 +42,10 @@ export class BrushSystem {
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, t); // pos = origin + dir * t
-      for (let i = 0; i < vertices.length; i += 8) {
-        const vx = vertices[i];
-        const vy = vertices[i + 1];
-        const vz = vertices[i + 2];
+      for (let i = 0; i < mesh.vertices.length; i += 8) {
+        const vx = mesh.vertices[i];
+        const vy = mesh.vertices[i + 1];
+        const vz = mesh.vertices[i + 2];
         // Beräkna distans från rayens aktuella punkt till vertexen
         const dx = vx - pos[0];
         const dy = vy - pos[1];
@@ -48,7 +55,8 @@ export class BrushSystem {
         // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
           //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
-          this.meshBrush(vertices, vx, vy, vz);
+          this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
+          this.updateNormals(mesh);
           //this.backgroundMesh.updateNormals();
           return; // Om du vill stoppa när du hittar första träffen
         }
@@ -57,9 +65,15 @@ export class BrushSystem {
     return null;
   }
 
-  private meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
-    const brushRadius = 5;
-    const brushStrength = 1;
+  private meshBrush(
+    meshBrush: MeshBrush,
+    vertices: Float32Array,
+    x: number,
+    y: number,
+    z: number
+  ) {
+    const brushRadius = meshBrush.radius;
+    const brushStrength = meshBrush.strength;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i];
       const vz = vertices[i + 2];
@@ -75,5 +89,45 @@ export class BrushSystem {
       }
     }
     console.log(vertices);
+  }
+
+  updateNormals(mesh: Mesh) {
+    //Stride 8 xyzuvnormals(3)
+    for (let i = 0; i < mesh.indices.length; i += 3) {
+      const i0 = mesh.indices[i];
+      const i1 = mesh.indices[i + 1];
+      const i2 = mesh.indices[i + 2];
+
+      const v0 = mesh.vertices[i0 * 8];
+      const v1 = mesh.vertices[i0 * 8 + 1];
+      const v2 = mesh.vertices[i0 * 8 + 2];
+
+      const v3 = mesh.vertices[i1 * 8];
+      const v4 = mesh.vertices[i1 * 8 + 1];
+      const v5 = mesh.vertices[i1 * 8 + 2];
+
+      const v6 = mesh.vertices[i2 * 8];
+      const v7 = mesh.vertices[i2 * 8 + 1];
+      const v8 = mesh.vertices[i2 * 8 + 2];
+
+      const triangleA = vec3.fromValues(v0, v1, v2);
+      const triangleB = vec3.fromValues(v3, v4, v5);
+      const triangleC = vec3.fromValues(v6, v7, v8);
+
+      const edge = vec3.create();
+      vec3.subtract(edge, triangleB, triangleA);
+      const edge1 = vec3.create();
+      vec3.subtract(edge1, triangleC, triangleA);
+
+      const normal = vec3.create();
+      vec3.cross(normal, edge, edge1);
+      vec3.normalize(normal, normal);
+      // Skriv normalen till varje vertex i triangeln (flat shading)
+      for (const idx of [i0, i1, i2]) {
+        mesh.vertices[idx * 8 + 5] = normal[0];
+        mesh.vertices[idx * 8 + 6] = normal[1];
+        mesh.vertices[idx * 8 + 7] = normal[2];
+      }
+    }
   }
 }

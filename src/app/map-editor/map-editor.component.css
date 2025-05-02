@@ -2,3 +2,7 @@ canvas {
   display: flex;
   justify-self: center;
 }
+
+.mat-mdc-card-content {
+  padding: 0px;
+}

@@ -1,3 +1,4 @@
+import { Splatmap } from 'src/components/splatmap';
 import { Shader } from './shader';
 
 export class Texture {
@@ -22,7 +23,12 @@ export class Texture {
     });
   }
 
-  createAndBindTexture(image: HTMLImageElement | Uint8Array, slot: number) {
+  createAndBindTexture(
+    image: HTMLImageElement | null,
+    width: number,
+    height: number,
+    slot: number
+  ) {
     const gl = this.gl;
     this.slot = slot;
     const texture = gl.createTexture();
@@ -42,12 +48,12 @@ export class Texture {
         gl.TEXTURE_2D,
         0, // mipmap level
         gl.RGBA, // internal format
-        512,
-        512,
+        width,
+        height,
         0, // border
         gl.RGBA, // format
         gl.UNSIGNED_BYTE, // type
-        image
+        null
       );
     }
 
