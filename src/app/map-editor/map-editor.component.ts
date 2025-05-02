@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
@@ -29,8 +28,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
 import { Material } from 'src/components/material';
-import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 import { RenderSystem } from 'src/systems/render-system';
+import { BrushSystem } from 'src/systems/brush-system';
 
 enum Tools {
   Splatmap,
@@ -87,6 +86,7 @@ export class MapEditorComponent implements AfterViewInit {
   splatBrush: SplatBrush = { alpha: 0.5, radius: 5 };
   ecs: Ecs;
   renderSystem: RenderSystem = new RenderSystem();
+  brushSystem: BrushSystem = new BrushSystem();
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -196,52 +196,6 @@ export class MapEditorComponent implements AfterViewInit {
     this.canvas.nativeElement.addEventListener('mouseup', (e) => {
       this.isMouseDown = false;
     });
-  }
-
-  pickVertex(vertices: Float32Array) {
-    const epsilon = 1;
-    const maxDistance = 100;
-    const step = 1;
-
-    const viewMatrix = this.perspectiveCamera.getViewMatrix();
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, viewMatrix);
-
-    const rayOrigin = vec3.fromValues(
-      invertedView[12],
-      invertedView[13],
-      invertedView[14]
-    );
-
-    for (let t = 0; t < maxDistance; t += step) {
-      const pos = vec3.create();
-      vec3.scaleAndAdd(pos, rayOrigin, this.mousePos, t); // pos = origin + dir * t
-      for (let i = 0; i < vertices.length; i += 8) {
-        const vx = vertices[i];
-        const vy = vertices[i + 1];
-        const vz = vertices[i + 2];
-        // Beräkna distans från rayens aktuella punkt till vertexen
-        const dx = vx - pos[0];
-        const dy = vy - pos[1];
-        const dz = vz - pos[2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
-        if (dist < epsilon) {
-          //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
-          //set active tool later on!
-          //this.meshBrush(vertices, vx, vy, vz);
-          if (this.tool === Tools.Splatmap) {
-            this.createSplatmap(vertices[i + 3], vertices[i + 4]);
-          } else {
-            this.meshBrush(vertices, vx, vy, vz);
-            //this.backgroundMesh.updateNormals();
-          }
-          return; // Om du vill stoppa när du hittar första träffen
-        }
-      }
-    }
-    return null;
   }
 
   createSplatmap(uv0: number, uv1: number) {
@@ -371,25 +325,6 @@ export class MapEditorComponent implements AfterViewInit {
     this.tool = id;
   }
 
-  meshBrush(vertices: Float32Array, x: number, y: number, z: number) {
-    const brushRadius = this.meshbrush.radius;
-    const brushStrength = this.meshbrush.strength;
-    for (let i = 0; i < vertices.length; i += 8) {
-      const vx = vertices[i];
-      const vz = vertices[i + 2];
-      // Beräkna distans från rayens aktuella punkt till vertexen
-      const dx = vx - x;
-      const dz = vz - z;
-      const dist = Math.sqrt(dx * dx + dz * dz);
-
-      // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
-      if (dist < brushRadius) {
-        const influence = 1 - dist / brushRadius;
-        vertices[i + 1] += influence * brushStrength;
-      }
-    }
-  }
-
   async init() {
     const gl = this.gl;
     const shader = new Shader(gl);
@@ -446,10 +381,12 @@ export class MapEditorComponent implements AfterViewInit {
       newEntity,
       new Mesh(
         backgroundMesh.vao.vao,
+        backgroundMesh.vao.vertexBuffer.buffer,
         backgroundMesh.vao.vertexBuffer.vertices,
         backgroundMesh.vao.indexBuffer.indices
       )
     );
+    
     this.ecs.addComponent(
       newEntity,
       new Material(shader1.program, this.texture1.getTexture(1), 1)
@@ -557,9 +494,9 @@ export class MapEditorComponent implements AfterViewInit {
 
   update() {
     this.updateBonePositions(this.bones);
-    // if (this.isMouseDown) {
-    //   this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
-    // }
+    if (this.isMouseDown) {
+      this.brushSystem.update(this.ecs, this.mousePos, this.perspectiveCamera);
+    }
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
@@ -579,15 +516,13 @@ export class MapEditorComponent implements AfterViewInit {
       );
     }
 
-    // this.gl.bindBuffer(
-    //   this.gl.ARRAY_BUFFER,
-    //   this.backgroundMesh.vao.vertexBuffer.buffer
-    // );
-    // this.gl.bufferSubData(
-    //   this.gl.ARRAY_BUFFER,
-    //   0,
-    //   this.backgroundMesh.vao.vertexBuffer.vertices
-    // );
+    for (const entity of this.ecs.getEntities()) {
+      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
+      if (mesh) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.buffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, mesh.vertices);
+      }
+    }
   }
 
   updateBonePositions(bones: Bone[]): void {
