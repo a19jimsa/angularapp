@@ -1,26 +1,40 @@
-import { Render } from '../components/render';
-import { Rotation } from '../components/rotation';
-import { Transform } from '../components/transform';
+import { Mesh } from 'src/components/mesh';
 import { Ecs } from '../core/ecs';
-import { Renderer } from '../app/renderer';
+import { Transform } from 'src/components/transform';
+import { Material } from 'src/components/material';
+import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class RenderSystem {
-  update(ecs: Ecs, renderer: Renderer) {
+  update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.FRONT);
+    gl.frontFace(gl.CCW);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.1, 0.6, 0.9, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
     for (const entity of ecs.getEntities()) {
-      const render = ecs.getComponent<Render>(entity, 'Render');
+      //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
-      const rotation = ecs.getComponent<Rotation>(entity, 'Rotation');
-      let angle = 0;
-      if (rotation !== undefined) {
-        angle = rotation.angle;
-      }
-      if (render !== undefined && transform !== undefined) {
-        renderer.render(
-          transform.position,
-          render.color,
-          transform.radius,
-          angle
+      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
+      const material = ecs.getComponent<Material>(entity, 'Material');
+
+      if (mesh && material) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, material.texture);
+        gl.useProgram(material.program);
+        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+        gl.bindVertexArray(mesh.vao);
+        gl.drawElements(
+          gl.TRIANGLES,
+          mesh.indices.length,
+          gl.UNSIGNED_SHORT,
+          0
         );
+        gl.bindVertexArray(null);
       }
     }
   }

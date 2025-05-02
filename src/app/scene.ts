@@ -94,8 +94,6 @@ export class Scene {
   }
 
   start() {
-
-
     this.controlSystem.update(this.ecs, this.mouseHandler);
     this.collisionSystem.update(this.ecs, this);
     this.movementSystem.update(this.ecs);
@@ -106,9 +104,10 @@ export class Scene {
       this.canvasHeight,
       this.width,
       this.height
-    );    this.renderer.clearScreen();
+    );
+    this.renderer.clearScreen();
     this.renderer.drawBackground();
-    this.renderSystem.update(this.ecs, this.renderer);
+    //this.renderSystem.update(this.ecs, null);
     window.requestAnimationFrame(() => this.start());
   }
 }

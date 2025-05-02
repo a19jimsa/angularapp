@@ -16,7 +16,7 @@ import { Shader } from 'src/renderer/shader';
 import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
-import { Mesh } from 'src/renderer/mesh';
+import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
@@ -27,6 +27,10 @@ import { Ecs } from 'src/core/ecs';
 import { Terrain } from 'src/components/terrain';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
+import { Mesh } from 'src/components/mesh';
+import { Material } from 'src/components/material';
+import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
+import { RenderSystem } from 'src/systems/render-system';
 
 enum Tools {
   Splatmap,
@@ -67,7 +71,6 @@ export class MapEditorComponent implements AfterViewInit {
   gl!: WebGL2RenderingContext;
   width: number = 0;
   height: number = 0;
-  renderer!: Renderer;
   perspectiveCamera: PerspectiveCamera;
   orthoCamera: OrtographicCamera;
   texture1!: Texture;
@@ -75,23 +78,20 @@ export class MapEditorComponent implements AfterViewInit {
   activeVertexId: number = 0;
   activeVertexPosition: vec3 = vec3.fromValues(0, 0, 0);
   bones: Bone[] = new Array();
-  mesh: Mesh | null = null;
-  backgroundMesh!: Mesh;
-  cubeMesh!: Mesh;
-  debugMesh!: Mesh;
-  pivotMesh!: Mesh;
   angle = 0;
-  scene: any[] = new Array();
   isMouseDown: boolean = false;
   splatMap = new Uint8Array(512 * 512 * 4);
   splatColor = 'red';
   tool: Tools = 0;
   meshbrush: MeshBrush = { radius: 5, strength: 1 };
   splatBrush: SplatBrush = { alpha: 0.5, radius: 5 };
+  ecs: Ecs;
+  renderSystem: RenderSystem = new RenderSystem();
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
+    this.ecs = new Ecs();
   }
 
   async ngAfterViewInit() {
@@ -101,11 +101,11 @@ export class MapEditorComponent implements AfterViewInit {
     this.height = this.canvas.nativeElement.height;
     this.gl.canvas.width = 800;
     this.gl.canvas.height = 600;
-    this.renderer = new Renderer(this.gl);
     this.texture1 = new Texture(this.gl);
-    if (!this.renderer) return;
     this.addEventListeners();
     await Loader.loadAllBones();
+    // await Loader.loadAllShader();
+    // await Loader.loadAllTextures();
     this.bones = Loader.getBones('skeleton');
     await this.init();
   }
@@ -134,10 +134,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, -1, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(1, 0, 0);
+          this.perspectiveCamera.updatePosition(0.1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(-0.1, 0, 0);
           break;
       }
     });
@@ -235,7 +235,7 @@ export class MapEditorComponent implements AfterViewInit {
             this.createSplatmap(vertices[i + 3], vertices[i + 4]);
           } else {
             this.meshBrush(vertices, vx, vy, vz);
-            this.backgroundMesh.updateNormals();
+            //this.backgroundMesh.updateNormals();
           }
           return; // Om du vill stoppa när du hittar första träffen
         }
@@ -431,17 +431,9 @@ export class MapEditorComponent implements AfterViewInit {
       );
     }
 
-    this.mesh = new Mesh(
-      gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      this.texture1.getTexture(0),
-      shader
-    );
-
     const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 50, 50);
-    this.backgroundMesh = new Mesh(
+    backgroundModel.addPlane(50, 0, 100, 100);
+    const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
@@ -449,8 +441,20 @@ export class MapEditorComponent implements AfterViewInit {
       shader1
     );
 
-    const ecs = new Ecs();
-    const entity = ecs.createEntity();
+    const newEntity = this.ecs.createEntity();
+    this.ecs.addComponent(
+      newEntity,
+      new Mesh(
+        backgroundMesh.vao.vao,
+        backgroundMesh.vao.vertexBuffer.vertices,
+        backgroundMesh.vao.indexBuffer.indices
+      )
+    );
+    this.ecs.addComponent(
+      newEntity,
+      new Material(shader1.program, this.texture1.getTexture(1), 1)
+    );
+
     const terrain = new Terrain();
     let hardness = 255;
     const radius = 10;
@@ -511,60 +515,40 @@ export class MapEditorComponent implements AfterViewInit {
     const end = vec3.create();
     vec3.scaleAndAdd(end, start, this.mousePos, 500);
 
-    this.debugMesh = new Mesh(
-      gl,
-      new Float32Array([
-        start[0],
-        start[1],
-        start[2],
-        0,
-        0,
-        start[0],
-        start[1],
-        start[2],
-        0,
-        0,
-      ]),
-      new Uint16Array([0, 1, 2]),
-      this.texture1.getTexture(0),
-      shader3
-    );
+    // this.debugMesh = new MeshRenderer(
+    //   gl,
+    //   new Float32Array([
+    //     start[0],
+    //     start[1],
+    //     start[2],
+    //     0,
+    //     0,
+    //     start[0],
+    //     start[1],
+    //     start[2],
+    //     0,
+    //     0,
+    //   ]),
+    //   new Uint16Array([0, 1, 2]),
+    //   this.texture1.getTexture(0),
+    //   shader3
+    // );
 
-    const pivotModel = new Model();
-    pivotModel.addPivot();
-    this.pivotMesh = new Mesh(
-      gl,
-      new Float32Array(pivotModel.vertices),
-      new Uint16Array(pivotModel.indices),
-      this.texture1.getTexture(0),
-      shader3
-    );
+    // const pivotModel = new Model();
+    // pivotModel.addPivot();
+    // this.pivotMesh = new MeshRenderer(
+    //   gl,
+    //   new Float32Array(pivotModel.vertices),
+    //   new Uint16Array(pivotModel.indices),
+    //   this.texture1.getTexture(0),
+    //   shader3
+    // );
     this.loop();
   }
-
-  getVertexPosition() {
-    if (this.mesh) {
-      this.activeVertexPosition[0] =
-        this.mesh.vao.vertexBuffer.vertices[this.activeVertexId];
-      this.activeVertexPosition[1] =
-        this.mesh.vao.vertexBuffer.vertices[this.activeVertexId + 1];
-      this.activeVertexPosition[2] =
-        this.mesh.vao.vertexBuffer.vertices[this.activeVertexId + 2];
-    }
-  }
-
-  updateVertexValues() {
-    if (this.mesh) {
-      this.mesh.vao.vertexBuffer.vertices[this.activeVertexId] =
-        this.activeVertexPosition[0];
-      this.mesh.vao.vertexBuffer.vertices[this.activeVertexId + 1] =
-        this.activeVertexPosition[1];
-      this.mesh.vao.vertexBuffer.vertices[this.activeVertexId + 2] =
-        this.activeVertexPosition[2];
-    }
-  }
-
+  getVertexPosition() {}
+  updateVertexValues() {}
   loop() {
+    //FPS
     //console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
@@ -573,9 +557,9 @@ export class MapEditorComponent implements AfterViewInit {
 
   update() {
     this.updateBonePositions(this.bones);
-    if (this.isMouseDown) {
-      this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
-    }
+    // if (this.isMouseDown) {
+    //   this.pickVertex(this.backgroundMesh.vao.vertexBuffer.vertices);
+    // }
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
@@ -594,27 +578,16 @@ export class MapEditorComponent implements AfterViewInit {
         bone.endY
       );
     }
-    if (this.mesh) {
-      this.gl.bindBuffer(
-        this.gl.ARRAY_BUFFER,
-        this.mesh.vao.vertexBuffer.buffer
-      );
-      this.gl.bufferSubData(
-        this.gl.ARRAY_BUFFER,
-        0,
-        new Float32Array(model.vertices)
-      );
-    }
 
-    this.gl.bindBuffer(
-      this.gl.ARRAY_BUFFER,
-      this.backgroundMesh.vao.vertexBuffer.buffer
-    );
-    this.gl.bufferSubData(
-      this.gl.ARRAY_BUFFER,
-      0,
-      this.backgroundMesh.vao.vertexBuffer.vertices
-    );
+    // this.gl.bindBuffer(
+    //   this.gl.ARRAY_BUFFER,
+    //   this.backgroundMesh.vao.vertexBuffer.buffer
+    // );
+    // this.gl.bufferSubData(
+    //   this.gl.ARRAY_BUFFER,
+    //   0,
+    //   this.backgroundMesh.vao.vertexBuffer.vertices
+    // );
   }
 
   updateBonePositions(bones: Bone[]): void {
@@ -635,20 +608,6 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   draw() {
-    const gl = this.gl;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.FRONT);
-    gl.frontFace(gl.CCW);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0.1, 0.6, 0.9, 1.0); // Svart bakgrund
-    gl.clear(gl.COLOR_BUFFER_BIT); // Rensa skärmen
-    this.backgroundMesh.draw(this.perspectiveCamera);
-    //this.mesh?.draw(this.orthoCamera);
-    //this.cubeMesh.draw(this.perspectiveCamera);
-    this.pivotMesh.drawPivot(this.perspectiveCamera);
-    this.debugMesh.drawLine(this.perspectiveCamera, this.mousePos);
+    this.renderSystem.update(this.ecs, this.gl, this.perspectiveCamera);
   }
 }

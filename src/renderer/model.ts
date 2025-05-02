@@ -156,7 +156,7 @@ export class Model {
     this.indices.push(...indices);
   }
 
-  addPlane(quads: number, width: number, height: number) {
+  addPlane(quads: number, xPos: number, width: number, height: number) {
     this.vertices = [];
     this.indices = [];
 
@@ -167,13 +167,12 @@ export class Model {
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
       const posZ = v * height - halfHeight;
-
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
         const posX = u * width - halfWidth;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
-        this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
+        this.vertices.push(posX + xPos, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
         this.vertices.push(0, 0, 0); // Normals
       }
@@ -187,13 +186,5 @@ export class Model {
         this.indices.push(i + 1, i + quads + 2, i + quads + 1);
       }
     }
-    // // Indices (clockwise winding order)
-    // for (let z = 0; z < quads; z++) {
-    //   for (let x = 0; x < quads; x++) {
-    //     const i = z * (quads + 1) + x;
-    //     this.indices.push(i, i + quads + 1, i + 1);
-    //     this.indices.push(i + 1, i + quads + 1, i + quads + 2);
-    //   }
-    // }
   }
 }

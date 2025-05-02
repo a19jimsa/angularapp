@@ -10,7 +10,7 @@ export type Vertex = {
   texture: vec2;
 };
 
-export class Mesh {
+export class MeshRenderer {
   gl: WebGL2RenderingContext;
   vao: VertexArrayBuffer;
   texture: WebGLTexture;
@@ -63,6 +63,7 @@ export class Mesh {
       5 * Float32Array.BYTES_PER_ELEMENT
     );
     gl.enableVertexAttribArray(normalLocation);
+    gl.useProgram(null);
   }
 
   updateNormals() {
