@@ -1,5 +1,6 @@
 import { Component } from '../components/component';
 import { Entity } from '../app/entity';
+import { Mesh } from 'src/components/mesh';
 
 export class Ecs {
   private entities: Set<Entity> = new Set();

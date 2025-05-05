@@ -22,7 +22,7 @@ export class VertexArrayBuffer {
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-    
+
     this.indexBuffer = IndexBuffer.create(gl, indices);
     this.indexBuffer.buffer = gl.createBuffer();
     if (!this.indexBuffer.buffer) {
@@ -31,6 +31,7 @@ export class VertexArrayBuffer {
     this.indexBuffer.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    this.unbind();
   }
 
   bind() {

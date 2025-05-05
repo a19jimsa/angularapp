@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 
 export class Shader {
   gl: WebGL2RenderingContext;
@@ -36,7 +36,6 @@ export class Shader {
     const shader = this.gl.createShader(type)!;
     this.gl.shaderSource(shader, source);
     this.gl.compileShader(shader);
-
     if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
       console.error('Shader compile failed:', this.gl.getShaderInfoLog(shader));
       this.gl.deleteShader(shader);
@@ -75,5 +74,10 @@ export class Shader {
     const location = this.gl.getUniformLocation(this.program!, name);
     if (!location) return;
     this.gl.uniformMatrix4fv(location, false, matrix);
+  }
+
+  setInt(program: WebGLProgram, name: string, x: number) {
+    const location = this.gl.getUniformLocation(program, name);
+    this.gl.uniform1i(location, x);
   }
 }

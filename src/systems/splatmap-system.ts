@@ -134,43 +134,91 @@ export class SplatmapSystem {
           if (px > 0 && px < splatmap.width && py > 0 && py < splatmap.height) {
             const idx = (py * splatmap.width + px) * 4;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            const clampValue = 255 * (1 - distance / radius);
+            const strength = 255 * (1 - distance / radius) * alpha;
             if (splatColor === 'red') {
               //Red
-              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] + clampValue;
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] + strength,
+                255
+              );
               //Green
-              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
               //Blue
-              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
               //Alpha
-              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
             } else if (splatColor === 'green') {
               //Red
-              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
               //Green
-              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] + clampValue;
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] + strength,
+                255
+              );
               //Blue
-              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
               //Alpha
-              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
             } else if (splatColor === 'blue') {
               //Red
-              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
               //Green
-              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
               //Blue
-              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] + clampValue;
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] + strength,
+                255
+              );
               //Alpha
-              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
             } else if (splatColor === 'alpha') {
               //Red
-              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
               //Green
-              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
               //Blue
-              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
               //Alpha
-              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] + clampValue;
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] + strength,
+                255
+              );
             }
           }
         }

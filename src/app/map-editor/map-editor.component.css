@@ -1,9 +1,10 @@
 canvas {
   display: flex;
   justify-self: center;
+  width: 800px;
+  height: 600px;
 }
 
 .mat-mdc-card-content {
   padding: 0px;
 }
-

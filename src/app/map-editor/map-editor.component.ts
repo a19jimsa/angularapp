@@ -31,6 +31,7 @@ import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
 import { SplatmapSystem } from 'src/systems/splatmap-system';
+import { Skybox } from 'src/components/skybox';
 
 enum Tools {
   Splatmap,
@@ -116,10 +117,10 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateX(1);
+          this.perspectiveCamera.rotateY(1);
           break;
         case 'KeyS':
-          this.perspectiveCamera.rotateX(-1);
+          this.perspectiveCamera.rotateY(-1);
           break;
         case 'KeyA':
           this.perspectiveCamera.rotateZ(1);
@@ -231,7 +232,7 @@ export class MapEditorComponent implements AfterViewInit {
     const shader1 = new Shader(gl);
     await shader1.initShaders('image_vertex.txt', 'image_fragment.txt');
     const shader2 = new Shader(gl);
-    await shader2.initShaders('image_vertex.txt', 'image_fragment.txt');
+    await shader2.initShaders('skybox_vertex.txt', 'skybox_fragment.txt');
     const shader3 = new Shader(gl);
     await shader3.initShaders('basic_vertex.txt', 'basic_fragment.txt');
     const image1 = await this.texture1.loadTexture(
@@ -241,29 +242,32 @@ export class MapEditorComponent implements AfterViewInit {
       '/assets/textures/texture_map.png'
     );
 
+    const skybox1 = await this.texture1.loadTexture(
+      'assets/textures/skybox/right.jpg'
+    );
+    const skybox2 = await this.texture1.loadTexture(
+      'assets/textures/skybox/left.jpg'
+    );
+    const skybox3 = await this.texture1.loadTexture(
+      'assets/textures/skybox/top.jpg'
+    );
+    const skybox4 = await this.texture1.loadTexture(
+      'assets/textures/skybox/bottom.jpg'
+    );
+    const skybox5 = await this.texture1.loadTexture(
+      'assets/textures/skybox/front.jpg'
+    );
+    const skybox6 = await this.texture1.loadTexture(
+      'assets/textures/skybox/back.jpg'
+    );
+
     this.texture1.createAndBindTexture(image1, image1.width, image1.height, 0);
     this.texture1.createAndBindTexture(image2, image2.width, image2.height, 1);
     this.texture1.createAndBindTexture(null, 2048, 2048, 2);
     this.texture1.createAndBindTexture(null, 2048, 2048, 3);
 
-    const model = new Model();
-    for (let i = 0; i < this.bones.length; i++) {
-      const bone = this.bones[i];
-      model.addSquares(
-        500,
-        500,
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-        bone.pivot,
-        bone.startX,
-        bone.startY,
-        bone.endX,
-        bone.endY,
-        200 + bone.position.x - bone.pivot.x - bone.endX / 2,
-        500 + bone.position.y - bone.pivot.y,
-        bone.endX,
-        bone.endY
-      );
-    }
+    const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
+    const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
 
     const backgroundModel = new Model();
     backgroundModel.addPlane(150, 0, 100, 100);
@@ -319,6 +323,32 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Splatmap>(
       entity2,
       new Splatmap(2048, 2048, this.texture1.getTexture(3), 3)
+    );
+
+    //First create model
+    const skyboxModel = new Model();
+    skyboxModel.addSkybox();
+    //Then create mesh
+    const skyboxMesh = new MeshRenderer(
+      gl,
+      new Float32Array(skyboxModel.vertices),
+      new Uint16Array(skyboxModel.indices),
+      shader2
+    );
+    //Then add to entity!
+    const skyboxEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Mesh>(
+      skyboxEntity,
+      new Mesh(
+        skyboxMesh.vao.vao,
+        skyboxMesh.vao.vertexBuffer.buffer,
+        skyboxMesh.vao.vertexBuffer.vertices,
+        skyboxMesh.vao.indexBuffer.indices
+      )
+    );
+    this.ecs.addComponent(
+      skyboxEntity,
+      new Skybox(skyboxMesh.vao, shader2, skyboxTexture!)
     );
 
     // Kamera-position
