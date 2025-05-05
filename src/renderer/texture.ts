@@ -73,6 +73,8 @@ export class Texture {
     //this.gl.generateMipmap(this.gl.TEXTURE_2D);
     this.texture.push(texture!);
     this.images.push(image);
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
   createHeightMap(data: Uint8Array, slot: number) {

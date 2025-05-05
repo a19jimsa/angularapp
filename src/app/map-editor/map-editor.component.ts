@@ -76,15 +76,13 @@ export class MapEditorComponent implements AfterViewInit {
   orthoCamera: OrtographicCamera;
   texture1!: Texture;
   mousePos = vec3.create();
-  activeVertexId: number = 0;
-  activeVertexPosition: vec3 = vec3.fromValues(0, 0, 0);
   bones: Bone[] = new Array();
   angle = 0;
   isMouseDown: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
   meshbrush: MeshBrush = { radius: 5, strength: 1 };
-  splatBrush: SplatBrush = { alpha: 0.5, radius: 5, color: 'red' };
+  splatBrush: SplatBrush = { alpha: 1, radius: 50, color: 'red' };
   ecs: Ecs;
   renderSystem: RenderSystem = new RenderSystem();
   brushSystem: BrushSystem = new BrushSystem();
@@ -204,8 +202,10 @@ export class MapEditorComponent implements AfterViewInit {
     const gl = this.gl;
     for (const entity of this.ecs.getEntities()) {
       const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
-      if (!splatmap) continue;
-      gl.bindTexture(gl.TEXTURE_2D, this.texture1.getTexture(2));
+      const material = this.ecs.getComponent<Material>(entity, 'Material');
+      if (!splatmap || !material) continue;
+      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
+      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
       gl.texSubImage2D(
         gl.TEXTURE_2D,
         0,
@@ -242,9 +242,9 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     this.texture1.createAndBindTexture(image1, image1.width, image1.height, 0);
-    this.texture1.createAndBindTexture(image2, image1.width, image1.height, 1);
+    this.texture1.createAndBindTexture(image2, image2.width, image2.height, 1);
     this.texture1.createAndBindTexture(null, 2048, 2048, 2);
-    this.texture1.setUniform(shader1, 'u_splatmap', 2);
+    this.texture1.createAndBindTexture(null, 2048, 2048, 3);
 
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
@@ -266,12 +266,11 @@ export class MapEditorComponent implements AfterViewInit {
     }
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(50, 0, 100, 100);
+    backgroundModel.addPlane(150, 0, 100, 100);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
-      this.texture1.getTexture(1),
       shader1
     );
 
@@ -285,12 +284,42 @@ export class MapEditorComponent implements AfterViewInit {
         backgroundMesh.vao.indexBuffer.indices
       )
     );
-
     this.ecs.addComponent(
       newEntity,
       new Material(shader1.program, this.texture1.getTexture(1), 1)
     );
-    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(2048, 2048));
+    this.ecs.addComponent<Splatmap>(
+      newEntity,
+      new Splatmap(2048, 2048, this.texture1.getTexture(2), 2)
+    );
+
+    const backgroundModel2 = new Model();
+    backgroundModel2.addPlane(150, 100, 100, 100);
+    const backgroundMesh2 = new MeshRenderer(
+      gl,
+      new Float32Array(backgroundModel2.vertices),
+      new Uint16Array(backgroundModel2.indices),
+      shader1
+    );
+
+    const entity2 = this.ecs.createEntity();
+    this.ecs.addComponent(
+      entity2,
+      new Mesh(
+        backgroundMesh2.vao.vao,
+        backgroundMesh2.vao.vertexBuffer.buffer,
+        backgroundMesh2.vao.vertexBuffer.vertices,
+        backgroundMesh2.vao.indexBuffer.indices
+      )
+    );
+    this.ecs.addComponent(
+      entity2,
+      new Material(shader1.program, this.texture1.getTexture(1), 1)
+    );
+    this.ecs.addComponent<Splatmap>(
+      entity2,
+      new Splatmap(2048, 2048, this.texture1.getTexture(3), 3)
+    );
 
     // Kamera-position
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
@@ -335,6 +364,7 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
+    this.updateSplatmap();
     this.loop();
   }
 

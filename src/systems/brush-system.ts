@@ -52,13 +52,10 @@ export class BrushSystem {
         const dz = vz - pos[2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
-          //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
           this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
           this.updateNormals(mesh);
-          //this.backgroundMesh.updateNormals();
-          return; // Om du vill stoppa när du hittar första träffen
+          return;
         }
       }
     }
@@ -88,7 +85,6 @@ export class BrushSystem {
         vertices[i + 1] += influence * brushStrength;
       }
     }
-    console.log(vertices);
   }
 
   updateNormals(mesh: Mesh) {

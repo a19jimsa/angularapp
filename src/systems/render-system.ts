@@ -3,6 +3,7 @@ import { Ecs } from '../core/ecs';
 import { Transform } from 'src/components/transform';
 import { Material } from 'src/components/material';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { Splatmap } from 'src/components/splatmap';
 
 export class RenderSystem {
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
@@ -20,11 +21,24 @@ export class RenderSystem {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const material = ecs.getComponent<Material>(entity, 'Material');
+      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
 
       if (mesh && material) {
+        gl.useProgram(material.program);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
-        gl.useProgram(material.program);
+        const texLocation = gl.getUniformLocation(
+          material.program,
+          'u_texture'
+        );
+        gl.uniform1i(texLocation, 0);
+        gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
+        gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
+        const splatmapLocation = gl.getUniformLocation(
+          material.program,
+          'u_splatmap'
+        );
+        gl.uniform1i(splatmapLocation, splatmap.slot);
         const location = gl.getUniformLocation(material.program, 'u_matrix');
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);

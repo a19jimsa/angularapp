@@ -10,7 +10,7 @@ export class VertexBuffer implements Buffer {
   gl: WebGL2RenderingContext;
   constructor(gl: WebGL2RenderingContext, vertices: Float32Array) {
     this.gl = gl;
-    this.vertices = vertices;
+    this.vertices = new Float32Array(vertices);
     this.buffer = gl.createBuffer();
   }
 
@@ -37,7 +37,7 @@ export class IndexBuffer {
   indices: Uint16Array;
   gl: WebGL2RenderingContext;
   constructor(gl: WebGL2RenderingContext, indices: Uint16Array) {
-    this.indices = indices;
+    this.indices = new Uint16Array(indices);
     this.gl = gl;
     this.buffer = gl.createBuffer();
   }

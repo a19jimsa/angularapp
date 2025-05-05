@@ -4,6 +4,7 @@ import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class SplatmapSystem {
   update(
@@ -129,68 +130,47 @@ export class SplatmapSystem {
         if (dx * dx + dy * dy <= radius * radius) {
           const px = cx + dx;
           const py = cy + dy;
-          if (Math.random() < 0.5) continue;
-
           //To not draw outside of width and height
           if (px > 0 && px < splatmap.width && py > 0 && py < splatmap.height) {
             const idx = (py * splatmap.width + px) * 4;
-
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const clampValue = 255 * (1 - distance / radius);
             if (splatColor === 'red') {
-              splatmap.coords[idx + 0] = 255;
-              if (splatmap.coords[idx + 1] !== 0) {
-                splatmap.coords[idx + 0] = 255 * alpha;
-                splatmap.coords[idx + 1] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 2] !== 0) {
-                splatmap.coords[idx + 0] = 255 * alpha;
-                splatmap.coords[idx + 2] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 3] !== 0) {
-                splatmap.coords[idx + 0] = 255 * alpha;
-                splatmap.coords[idx + 3] = 255 * (1 - alpha);
-              }
+              //Red
+              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] + clampValue;
+              //Green
+              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              //Blue
+              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              //Alpha
+              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
             } else if (splatColor === 'green') {
-              splatmap.coords[idx + 1] = 255;
-              if (splatmap.coords[idx + 0] !== 0) {
-                splatmap.coords[idx + 1] = 255 * alpha;
-                splatmap.coords[idx + 0] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 2] !== 0) {
-                splatmap.coords[idx + 1] = 255 * alpha;
-                splatmap.coords[idx + 2] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 3] !== 0) {
-                splatmap.coords[idx + 1] = 255 * alpha;
-                splatmap.coords[idx + 3] = 255 * (1 - alpha);
-              }
+              //Red
+              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              //Green
+              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] + clampValue;
+              //Blue
+              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              //Alpha
+              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
             } else if (splatColor === 'blue') {
-              splatmap.coords[idx + 2] = 255;
-              if (splatmap.coords[idx + 0] !== 0) {
-                splatmap.coords[idx + 2] = 255 * alpha;
-                splatmap.coords[idx + 0] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 1] !== 0) {
-                splatmap.coords[idx + 2] = 255 * alpha;
-                splatmap.coords[idx + 1] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 3] !== 0) {
-                splatmap.coords[idx + 2] = 255 * alpha;
-                splatmap.coords[idx + 3] = 255 * (1 - alpha);
-              }
+              //Red
+              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              //Green
+              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              //Blue
+              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] + clampValue;
+              //Alpha
+              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] - clampValue;
             } else if (splatColor === 'alpha') {
-              splatmap.coords[idx + 3] = 255;
-              if (splatmap.coords[idx + 0] !== 0) {
-                splatmap.coords[idx + 3] = 255 * alpha;
-                splatmap.coords[idx + 0] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 1] !== 0) {
-                splatmap.coords[idx + 3] = 255 * alpha;
-                splatmap.coords[idx + 1] = 255 * (1 - alpha);
-              }
-              if (splatmap.coords[idx + 2] !== 0) {
-                splatmap.coords[idx + 3] = 255 * alpha;
-                splatmap.coords[idx + 2] = 255 * (1 - alpha);
-              }
+              //Red
+              splatmap.coords[idx + 0] = splatmap.coords[idx + 0] - clampValue;
+              //Green
+              splatmap.coords[idx + 1] = splatmap.coords[idx + 1] - clampValue;
+              //Blue
+              splatmap.coords[idx + 2] = splatmap.coords[idx + 2] - clampValue;
+              //Alpha
+              splatmap.coords[idx + 3] = splatmap.coords[idx + 3] + clampValue;
             }
           }
         }
