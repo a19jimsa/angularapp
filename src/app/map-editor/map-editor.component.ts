@@ -325,31 +325,7 @@ export class MapEditorComponent implements AfterViewInit {
       new Splatmap(2048, 2048, this.texture1.getTexture(3), 3)
     );
 
-    //First create model
-    const skyboxModel = new Model();
-    skyboxModel.addSkybox();
-    //Then create mesh
-    const skyboxMesh = new MeshRenderer(
-      gl,
-      new Float32Array(skyboxModel.vertices),
-      new Uint16Array(skyboxModel.indices),
-      shader2
-    );
-    //Then add to entity!
-    const skyboxEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Mesh>(
-      skyboxEntity,
-      new Mesh(
-        skyboxMesh.vao.vao,
-        skyboxMesh.vao.vertexBuffer.buffer,
-        skyboxMesh.vao.vertexBuffer.vertices,
-        skyboxMesh.vao.indexBuffer.indices
-      )
-    );
-    this.ecs.addComponent(
-      skyboxEntity,
-      new Skybox(skyboxMesh.vao, shader2, skyboxTexture!)
-    );
+    this.setupSkybox(shader2, skyboxTexture!);
 
     // Kamera-position
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
@@ -396,6 +372,37 @@ export class MapEditorComponent implements AfterViewInit {
     // );
     this.updateSplatmap();
     this.loop();
+  }
+
+  setupSkybox(shader: Shader, texture: WebGLTexture) {
+    const gl = this.gl;
+    //First create model
+    const skyboxModel = new Model();
+    skyboxModel.addSkybox();
+    //Then create mesh
+    const skyboxMesh = new MeshRenderer(
+      gl,
+      new Float32Array(skyboxModel.vertices),
+      new Uint16Array(skyboxModel.indices),
+      shader
+    );
+    //Then add to entity!
+    const skyboxEntity = this.ecs.createEntity();
+    this.ecs.addComponent(
+      skyboxEntity,
+      new Skybox(skyboxMesh.vao, shader, texture!)
+    );
+    shader.use();
+    gl.bindVertexArray(skyboxMesh.vao.vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, skyboxMesh.vao.vertexBuffer.buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      skyboxMesh.vao.vertexBuffer.vertices,
+      gl.STATIC_DRAW
+    );
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    skyboxMesh.vao.unbind();
   }
 
   loop() {

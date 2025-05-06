@@ -15,7 +15,6 @@ export class RenderSystem {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // gl.frontFace(gl.CCW);
     // gl.enable(gl.BLEND);
     // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -27,47 +26,39 @@ export class RenderSystem {
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
 
-      // if (mesh && material) {
-      //   gl.useProgram(material.program);
-      //   gl.activeTexture(gl.TEXTURE0);
-      //   gl.bindTexture(gl.TEXTURE_2D, material.texture);
-      //   const texLocation = gl.getUniformLocation(
-      //     material.program,
-      //     'u_texture'
-      //   );
-      //   gl.uniform1i(texLocation, 0);
-      //   gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
-      //   gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
-      //   const splatmapLocation = gl.getUniformLocation(
-      //     material.program,
-      //     'u_splatmap'
-      //   );
-      //   gl.uniform1i(splatmapLocation, splatmap.slot);
-      //   const location = gl.getUniformLocation(material.program, 'u_matrix');
-      //   gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+      if (mesh && material) {
+        gl.useProgram(material.program);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, material.texture);
+        const texLocation = gl.getUniformLocation(
+          material.program,
+          'u_texture'
+        );
+        gl.uniform1i(texLocation, 0);
+        gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
+        gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
+        const splatmapLocation = gl.getUniformLocation(
+          material.program,
+          'u_splatmap'
+        );
+        gl.uniform1i(splatmapLocation, splatmap.slot);
+        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
 
-      //   gl.bindVertexArray(mesh.vao);
-      //   gl.drawElements(
-      //     gl.TRIANGLES,
-      //     mesh.indices.length,
-      //     gl.UNSIGNED_SHORT,
-      //     0
-      //   );
-      //   gl.bindVertexArray(null);
-      // }
-      if (skybox && mesh) {
+        gl.bindVertexArray(mesh.vao);
+        gl.drawElements(
+          gl.TRIANGLES,
+          mesh.indices.length,
+          gl.UNSIGNED_SHORT,
+          0
+        );
+        gl.bindVertexArray(null);
+      }
+      if (skybox) {
         gl.depthMask(false);
         gl.depthFunc(gl.LEQUAL);
         gl.useProgram(skybox.shader.program);
         gl.bindVertexArray(skybox.vao.vao);
-        gl.bindBuffer(gl.ARRAY_BUFFER, skybox.vao.vertexBuffer.buffer);
-        gl.bufferData(
-          gl.ARRAY_BUFFER,
-          skybox.vao.vertexBuffer.vertices,
-          gl.STATIC_DRAW
-        );
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(0);
         const matrix = mat4.create();
         mat4.copy(matrix, camera.getViewMatrix());
         matrix[12] = 0;
@@ -83,7 +74,6 @@ export class RenderSystem {
         gl.uniform1i(textureLocation, 0);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.texture);
-
         gl.drawArrays(gl.TRIANGLES, 0, 36);
         gl.bindVertexArray(null);
         gl.depthMask(true);

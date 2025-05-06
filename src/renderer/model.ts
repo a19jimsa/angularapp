@@ -160,12 +160,12 @@ export class Model {
 
     // prettier-ignore
     const indices = [
-      0,  2,  1,      0,  3,  2,    // front
-      4,  6,  5,      4,  7,  6,    // back
-      8,  10,  9,     8,  11, 10,   // top
-      12, 14, 13,     12, 15, 14,   // bottom
-      16, 18, 17,     16, 19, 18,   // right
-      20, 22, 21,     20, 23, 22,   // left
+      0,  1,  2,      0,  2,  3,    // front
+      4,  5,  6,      4,  6,  7,    // back
+      8,  9,  10,     8,  10, 11,   // top
+      12, 13, 14,     12, 14, 15,   // bottom
+      16, 17, 18,     16, 18, 19,   // right
+      20, 21, 22,     20, 22, 23,   // left
     ];
     this.vertices = positions;
     this.indices = indices;
@@ -187,7 +187,6 @@ export class Model {
 
     const halfWidth = width / 2;
     const halfHeight = height / 2;
-
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
@@ -207,8 +206,8 @@ export class Model {
     for (let z = 0; z < quads; z++) {
       for (let x = 0; x < quads; x++) {
         const i = z * (quads + 1) + x;
-        this.indices.push(i, i + 1, i + quads + 1);
-        this.indices.push(i + 1, i + quads + 2, i + quads + 1);
+        this.indices.push(i, i + quads + 1, i + 1);
+        this.indices.push(i + 1, i + quads + 1, i + quads + 2);
       }
     }
   }
