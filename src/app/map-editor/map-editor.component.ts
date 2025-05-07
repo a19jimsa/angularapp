@@ -91,7 +91,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
+    this.perspectiveCamera = new PerspectiveCamera(800, 600);
     this.ecs = new Ecs();
   }
 
@@ -117,16 +117,16 @@ export class MapEditorComponent implements AfterViewInit {
       console.log(event.code);
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateY(1);
+          this.perspectiveCamera.rotateX(1);
           break;
         case 'KeyS':
-          this.perspectiveCamera.rotateY(-1);
+          this.perspectiveCamera.rotateX(-1);
           break;
         case 'KeyA':
-          this.perspectiveCamera.rotateZ(1);
+          this.perspectiveCamera.updatePosition(0, 0, 1);
           break;
         case 'KeyD':
-          this.perspectiveCamera.rotateZ(-1);
+          this.perspectiveCamera.updatePosition(0, 0, -1);
           break;
         case 'ArrowUp':
           this.perspectiveCamera.updatePosition(0, 1, 0);
@@ -135,10 +135,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, -1, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(0.1, 0, 0);
+          this.perspectiveCamera.updatePosition(1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-0.1, 0, 0);
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
       }
     });

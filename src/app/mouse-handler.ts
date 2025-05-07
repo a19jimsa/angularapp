@@ -30,6 +30,10 @@ export class MouseHandler {
       'mousemove',
       this.handleMove.bind(this)
     );
+    this.canvas.nativeElement.addEventListener(
+      'drag',
+      this.handleDragMovement.bind(this)
+    );
     console.log('Created mousehandler');
   }
 
@@ -59,4 +63,9 @@ export class MouseHandler {
     this.isDownPosition.x = event.x - this.rect.left;
     this.isDownPosition.y = event.y - this.rect.top;
   }
+
+  handleDragMovement(event: MouseEvent) {
+    console.log(event);
+  }
+  
 }

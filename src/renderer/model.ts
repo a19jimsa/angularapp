@@ -185,15 +185,13 @@ export class Model {
     this.vertices = [];
     this.indices = [];
 
-    const halfWidth = width / 2;
-    const halfHeight = height / 2;
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
-      const posZ = v * height - halfHeight;
+      const posZ = v * height;
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
-        const posX = u * width - halfWidth;
+        const posX = u * width;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX + xPos, 0, posZ); // y = 0 (flat plane)

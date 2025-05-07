@@ -5,16 +5,16 @@ export class PerspectiveCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
-  position: vec3 = vec3.fromValues(0, 0, 10);
+  private position: vec3 = vec3.fromValues(0, 3, 100);
   private rotation: number = 0;
 
   constructor(width: number, height: number) {
     mat4.perspective(
       this.projectionMatrix,
-      MathUtils.degreesToRadians(60),
+      MathUtils.degreesToRadians(45),
       width / height,
       1,
-      2000
+      1000
     );
     mat4.lookAt(
       this.viewMatrix,
@@ -35,7 +35,7 @@ export class PerspectiveCamera {
       this.viewMatrix,
       this.viewMatrix,
       MathUtils.degreesToRadians(angle),
-      vec3.fromValues(1, 0, 1)
+      vec3.fromValues(0, 0, 1)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -63,7 +63,7 @@ export class PerspectiveCamera {
       this.viewMatrix,
       this.viewMatrix,
       MathUtils.degreesToRadians(angle),
-      vec3.fromValues(1, 0, 1)
+      vec3.fromValues(1, 0, 0)
     );
     mat4.multiply(
       this.viewProjectionMatrix,

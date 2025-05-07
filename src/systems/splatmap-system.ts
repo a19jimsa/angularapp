@@ -64,7 +64,6 @@ export class SplatmapSystem {
 
         // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
-          //alert(`Träff på vertex vid: (${vx}, ${vy}, ${vz})`);
           this.splatmapBrush(
             splatBrush,
             splatmap,
