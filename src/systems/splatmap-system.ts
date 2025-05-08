@@ -35,7 +35,7 @@ export class SplatmapSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 1;
+    const epsilon = 0.5;
     const maxDistance = 100;
     const step = 1;
 
@@ -56,13 +56,12 @@ export class SplatmapSystem {
         const vx = vertices[i];
         const vy = vertices[i + 1];
         const vz = vertices[i + 2];
-        // Beräkna distans från rayens aktuella punkt till vertexen
+
         const dx = vx - pos[0];
         const dy = vy - pos[1];
         const dz = vz - pos[2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
         if (dist < epsilon) {
           this.splatmapBrush(
             splatBrush,
@@ -70,7 +69,7 @@ export class SplatmapSystem {
             vertices[i + 3],
             vertices[i + 4]
           );
-          return; // Om du vill stoppa när du hittar första träffen
+          return;
         }
       }
     }
@@ -85,7 +84,8 @@ export class SplatmapSystem {
   ) {
     const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
     const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
-    this.paintCircle(splatBrush, splatmap, texX, texY);
+    //this.paintCircle(splatBrush, splatmap, texX, texY);
+    this.paintTexture(splatBrush, splatmap, texX, texY);
   }
 
   paintRect(
@@ -108,6 +108,91 @@ export class SplatmapSystem {
           splatmap[idx + 1] = 255; // G
           splatmap[idx + 2] = 0; // B
           splatmap[idx + 3] = 0; // A
+        }
+      }
+    }
+  }
+
+  paintTexture(
+    splatBrush: SplatBrush,
+    splatmap: Splatmap,
+    posX: number,
+    posY: number
+  ) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = splatBrush.imageData.width;
+    canvas.height = splatBrush.imageData.height;
+    ctx.drawImage(splatBrush.imageData, 0, 0);
+    //Get all imagedata of image on canvas
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    console.log(canvas.height);
+    // loop canvas
+    const radius = 100;
+    for (let y = 0; y < radius; y++) {
+      for (let x = 0; x < radius; x++) {
+        //Get pixel data
+        const dx = posX + x;
+        const dy = posY + y;
+        //Pixel of splatmap
+        const idx = (dy * splatmap.width + dx) * 4;
+        //Pixel of canvas
+        const srcIdx = (y * canvas.width + x) * 4;
+        const color = imageData.data[srcIdx + 0];
+        if (color >= 250) continue;
+        if (splatBrush.color === 'red') {
+          //Red
+          splatmap.coords[idx + 0] = Math.min(
+            splatmap.coords[idx + 0] + color,
+            255
+          );
+          //Green
+          splatmap.coords[idx + 1] = Math.min(
+            splatmap.coords[idx + 1] - color,
+            255
+          );
+          //Blue
+          splatmap.coords[idx + 2] = Math.min(
+            splatmap.coords[idx + 2] - color,
+            255
+          );
+          //Alpha
+          splatmap.coords[idx + 3] = Math.min(
+            splatmap.coords[idx + 3] - color,
+            255
+          );
+        } else if (splatBrush.color === 'green') {
+          //Red
+          splatmap.coords[idx + 0] = Math.min(
+            splatmap.coords[idx + 0] - color,
+            255
+          );
+          //Green
+          splatmap.coords[idx + 1] = Math.min(
+            splatmap.coords[idx + 1] + color,
+            255
+          );
+          //Blue
+          splatmap.coords[idx + 2] = Math.min(
+            splatmap.coords[idx + 2] - color,
+            255
+          );
+          //Alpha
+          splatmap.coords[idx + 3] = Math.min(
+            splatmap.coords[idx + 3] - color,
+            255
+          );
+        } else if (splatBrush.color === 'blue') {
+          splatmap.coords[idx + 0] = 0;
+          splatmap.coords[idx + 1] = 0;
+          splatmap.coords[idx + 2] = 255;
+          splatmap.coords[idx + 3] = 0;
+        } else if (splatBrush.color === 'alpha') {
+          splatmap.coords[idx + 0] = 0;
+          splatmap.coords[idx + 1] = 0;
+          splatmap.coords[idx + 2] = 0;
+          splatmap.coords[idx + 3] = 255;
         }
       }
     }

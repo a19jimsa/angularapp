@@ -47,6 +47,7 @@ export type SplatBrush = {
   alpha: number;
   radius: number;
   color: string;
+  imageData: HTMLImageElement;
 };
 
 @Component({
@@ -83,7 +84,12 @@ export class MapEditorComponent implements AfterViewInit {
   splatColor = 'red';
   tool: Tools = 0;
   meshbrush: MeshBrush = { radius: 5, strength: 1 };
-  splatBrush: SplatBrush = { alpha: 1, radius: 50, color: 'red' };
+  splatBrush: SplatBrush = {
+    alpha: 1,
+    radius: 50,
+    color: 'red',
+    imageData: new Image(),
+  };
   ecs: Ecs;
   renderSystem: RenderSystem = new RenderSystem();
   brushSystem: BrushSystem = new BrushSystem();
@@ -190,7 +196,6 @@ export class MapEditorComponent implements AfterViewInit {
         'y' + invertedMatrix[13],
         'z' + invertedMatrix[14]
       );
-
       this.isMouseDown = true;
     });
 
@@ -269,8 +274,22 @@ export class MapEditorComponent implements AfterViewInit {
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
 
+    const smokeBrushImage = await this.texture1.loadTexture(
+      'assets/textures/smoke_brush.jpg'
+    );
+
+    const starBrushImage = await this.texture1.loadTexture(
+      'assets/textures/star_brush.jpg'
+    );
+
+    const terrainBrushImage = await this.texture1.loadTexture(
+      'assets/textures/terrain_brush.jpg'
+    );
+
+    this.splatBrush.imageData = terrainBrushImage;
+
     const backgroundModel = new Model();
-    backgroundModel.addPlane(150, 0, 100, 100);
+    backgroundModel.addPlane(150, 0, 200, 200);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -298,7 +317,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(150, 100, 100, 100);
+    backgroundModel2.addPlane(150, 200, 200, 200);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),
@@ -431,6 +450,7 @@ export class MapEditorComponent implements AfterViewInit {
       );
       this.updateSplatmap();
     }
+
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];

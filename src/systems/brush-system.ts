@@ -79,7 +79,6 @@ export class BrushSystem {
       const dz = vz - z;
       const dist = Math.sqrt(dx * dx + dz * dz);
 
-      // Om vi är nära nog en vertex (dist < threshold), skriv ut träffen
       if (dist < brushRadius) {
         const influence = 1 - dist / brushRadius;
         vertices[i + 1] += influence * brushStrength;
