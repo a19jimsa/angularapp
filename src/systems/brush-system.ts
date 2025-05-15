@@ -86,7 +86,13 @@ export class BrushSystem {
     }
   }
 
-  updateNormals(mesh: Mesh) {
+  updateNormals(mesh: Mesh): void {
+    // Steg 1: Initiera alla normals till 0
+    for (let i = 0; i < mesh.vertices.length / 8; i++) {
+      mesh.vertices[i * 8 + 5] = 0;
+      mesh.vertices[i * 8 + 6] = 0;
+      mesh.vertices[i * 8 + 7] = 0;
+    }
     //Stride 8 xyzuvnormals(3)
     for (let i = 0; i < mesh.indices.length; i += 3) {
       const i0 = mesh.indices[i];
@@ -119,10 +125,23 @@ export class BrushSystem {
       vec3.normalize(normal, normal);
       // Skriv normalen till varje vertex i triangeln (flat shading)
       for (const idx of [i0, i1, i2]) {
-        mesh.vertices[idx * 8 + 5] = normal[0];
-        mesh.vertices[idx * 8 + 6] = normal[1];
-        mesh.vertices[idx * 8 + 7] = normal[2];
+        mesh.vertices[idx * 8 + 5] += normal[0];
+        mesh.vertices[idx * 8 + 6] += normal[1];
+        mesh.vertices[idx * 8 + 7] += normal[2];
       }
+    }
+    // Steg 3: Normalisera normals för varje vertex
+    for (let i = 0; i < mesh.vertices.length / 8; i++) {
+      const nx = mesh.vertices[i * 8 + 5];
+      const ny = mesh.vertices[i * 8 + 6];
+      const nz = mesh.vertices[i * 8 + 7];
+
+      const normal = vec3.fromValues(nx, ny, nz);
+      vec3.normalize(normal, normal);
+
+      mesh.vertices[i * 8 + 5] = normal[0];
+      mesh.vertices[i * 8 + 6] = normal[1];
+      mesh.vertices[i * 8 + 7] = normal[2];
     }
   }
 }

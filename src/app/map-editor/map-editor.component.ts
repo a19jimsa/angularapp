@@ -120,7 +120,6 @@ export class MapEditorComponent implements AfterViewInit {
   addEventListeners() {
     document.addEventListener('keydown', (event) => {
       const speed = 10;
-      console.log(event.code);
       switch (event.code) {
         case 'KeyW':
           this.perspectiveCamera.rotateX(1);
@@ -187,15 +186,9 @@ export class MapEditorComponent implements AfterViewInit {
     });
 
     this.canvas.nativeElement.addEventListener('mousedown', (e) => {
-      console.log(this.mousePos);
       //console.log(this.perspectiveCamera.position);
       const invertedMatrix = mat4.create();
       mat4.invert(invertedMatrix, this.perspectiveCamera.getViewMatrix());
-      console.log(
-        'x' + invertedMatrix[12],
-        'y' + invertedMatrix[13],
-        'z' + invertedMatrix[14]
-      );
       this.isMouseDown = true;
     });
 
@@ -289,7 +282,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.splatBrush.imageData = terrainBrushImage;
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(150, 0, 200, 200);
+    backgroundModel.addPlane(100, 0, 200, 200);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -309,15 +302,15 @@ export class MapEditorComponent implements AfterViewInit {
     );
     this.ecs.addComponent(
       newEntity,
-      new Material(shader1.program, this.texture1.getTexture(1), 1)
+      new Material(shader1.program, this.texture1.getTexture(1)!, 1)
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(2048, 2048, this.texture1.getTexture(2), 2)
+      new Splatmap(2048, 2048, this.texture1.getTexture(2)!, 2)
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(150, 200, 200, 200);
+    backgroundModel2.addPlane(50, 200, 200, 200);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),
@@ -337,11 +330,11 @@ export class MapEditorComponent implements AfterViewInit {
     );
     this.ecs.addComponent(
       entity2,
-      new Material(shader1.program, this.texture1.getTexture(1), 1)
+      new Material(shader1.program, this.texture1.getTexture(1)!, 1)
     );
     this.ecs.addComponent<Splatmap>(
       entity2,
-      new Splatmap(2048, 2048, this.texture1.getTexture(3), 3)
+      new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
     );
 
     this.setupSkybox(shader2, skyboxTexture!);
@@ -426,7 +419,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   loop() {
     //FPS
-    //console.log(Math.floor(performance.now() / 1000));
+    console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
     requestAnimationFrame(() => this.loop());

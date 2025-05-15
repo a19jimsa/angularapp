@@ -3,7 +3,7 @@ import { Shader } from './shader';
 
 export class Texture {
   private gl: WebGL2RenderingContext;
-  private texture: WebGLTexture[] = new Array();
+  private textureMap = new Map<number, WebGLTexture>();
   private images = new Array();
   private slot: number = 0;
   constructor(gl: WebGL2RenderingContext) {
@@ -94,52 +94,30 @@ export class Texture {
     );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-    //this.gl.generateMipmap(this.gl.TEXTURE_2D);
-    this.texture.push(texture!);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    //Much better!
+    this.textureMap.set(slot, texture!);
     this.images.push(image);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
-  }
-
-  createHeightMap(data: Uint8Array, slot: number) {
-    const gl = this.gl;
-    const heightTexture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0, // Level (mipmap nivå)
-      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-      64, // Bredd
-      64, // Höjd
-      0, // Border (ska alltid vara 0)
-      gl.RGBA, // Format
-      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-      data // Data från Uint8Array
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {
     const gl = this.gl;
     const texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + slot);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureMap.get(slot)!);
 
     gl.texImage2D(
       gl.TEXTURE_2D,
-      0, // Level (mipmap nivå)
-      gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-      image.width, // Bredd
-      image.height, // Höjd
-      0, // Border (ska alltid vara 0)
-      gl.RGBA, // Format
-      gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-      data // Data från Uint8Array
+      0,
+      gl.RGBA,
+      image.width,
+      image.height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data
     );
 
     this.gl.texParameteri(
@@ -163,7 +141,9 @@ export class Texture {
       this.gl.REPEAT
     );
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
-    this.texture.push(texture!);
+    //Push texture for later use... maybe use a map?=??? better than random position and rely on slot?=???
+    //Much better!
+    this.textureMap.set(slot, texture!);
   }
 
   setUniform(shader: Shader, name: string, slot: number) {
@@ -176,18 +156,20 @@ export class Texture {
   }
 
   getTexture(slot: number) {
-    return this.texture[slot];
+    return this.textureMap.get(slot);
   }
 
   getImage(slot: number) {
     return this.images[slot];
   }
 
-  bind(gl: WebGL2RenderingContext) {
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+  bind(textureSlot: number) {
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.textureMap.get(textureSlot)!);
   }
 
-  unbind(gl: WebGL2RenderingContext) {
+  unbind() {
+    const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 }
