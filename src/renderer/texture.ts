@@ -92,14 +92,16 @@ export class Texture {
       this.gl.TEXTURE_MAG_FILTER,
       this.gl.LINEAR
     );
+    gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.generateMipmap(gl.TEXTURE_2D);
+
     //Much better!
     this.textureMap.set(slot, texture!);
     this.images.push(image);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    console.log(this.textureMap);
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {

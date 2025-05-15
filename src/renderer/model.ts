@@ -196,9 +196,10 @@ export class Model {
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX + xPos, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
-        this.vertices.push(0, 0, 0); // Normals
+        this.vertices.push(1, 1, 1); // Normals
       }
     }
+    console.log(this.vertices);
 
     // Indices (anti clockwise winding order)
     for (let z = 0; z < quads; z++) {
