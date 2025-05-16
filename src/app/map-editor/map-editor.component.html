@@ -99,13 +99,13 @@
             </mat-expansion-panel>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title> Terrain </mat-panel-title>
+                <mat-panel-title> Terrain Tools</mat-panel-title>
                 <mat-panel-description>
                   <mat-icon>map</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="d-flex flex-column justify-content-center">
-                <mat-slider min="0" max="10" step="1" discrete>
+                <mat-slider min="0" max="50" step="1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.radius" />
                 </mat-slider>
                 <mat-slider min="0" max="1" step="0.1" discrete>
@@ -128,7 +128,7 @@
                   <mat-slider min="0" max="1" step="0.1" discrete>
                     <input matSliderThumb [(ngModel)]="splatBrush.alpha" />
                   </mat-slider>
-                  <mat-slider min="0" max="50" step="1" discrete>
+                  <mat-slider min="0" max="100" step="1" discrete>
                     <input matSliderThumb [(ngModel)]="splatBrush.radius" />
                   </mat-slider>
                   <button mat-fab (click)="changeTool(0)">

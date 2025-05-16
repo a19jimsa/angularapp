@@ -41,6 +41,7 @@ enum Tools {
 export type MeshBrush = {
   radius: number;
   strength: number;
+  image: HTMLImageElement;
 };
 
 export type SplatBrush = {
@@ -83,7 +84,7 @@ export class MapEditorComponent implements AfterViewInit {
   isMouseDown: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
-  meshbrush: MeshBrush = { radius: 5, strength: 1 };
+  meshbrush: MeshBrush = { radius: 5, strength: 1, image: new Image() };
   splatBrush: SplatBrush = {
     alpha: 1,
     radius: 50,
@@ -197,28 +198,6 @@ export class MapEditorComponent implements AfterViewInit {
     });
   }
 
-  updateSplatmap() {
-    const gl = this.gl;
-    for (const entity of this.ecs.getEntities()) {
-      const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
-      const material = this.ecs.getComponent<Material>(entity, 'Material');
-      if (!splatmap || !material) continue;
-      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
-      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        splatmap.width,
-        splatmap.height,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        splatmap.coords
-      );
-    }
-  }
-
   changeTool(id: number) {
     this.tool = id;
   }
@@ -279,7 +258,8 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/terrain_brush.jpg'
     );
 
-    this.splatBrush.imageData = terrainBrushImage;
+    this.splatBrush.imageData = starBrushImage;
+    this.meshbrush.image = smokeBrushImage;
 
     const backgroundModel = new Model();
     backgroundModel.addPlane(100, 0, 200, 200);
@@ -382,7 +362,14 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
-    this.updateSplatmap();
+    this.splatmapSystem.update(
+      this.splatBrush,
+      this.ecs,
+      this.mousePos,
+      this.perspectiveCamera,
+      this.gl
+    );
+
     this.loop();
   }
 
@@ -439,9 +426,9 @@ export class MapEditorComponent implements AfterViewInit {
         this.splatBrush,
         this.ecs,
         this.mousePos,
-        this.perspectiveCamera
+        this.perspectiveCamera,
+        this.gl
       );
-      this.updateSplatmap();
     }
 
     const model = new Model();

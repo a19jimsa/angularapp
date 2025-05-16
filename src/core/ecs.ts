@@ -1,5 +1,5 @@
-import { Component } from '../components/component';
 import { Entity } from '../app/entity';
+import { Component } from '../components/component';
 
 export class Ecs {
   private entities: Set<Entity> = new Set();

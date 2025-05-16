@@ -1,5 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { SplatBrush } from 'src/app/map-editor/map-editor.component';
+import { Material } from 'src/components/material';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
 import { Ecs } from 'src/core/ecs';
@@ -10,7 +11,8 @@ export class SplatmapSystem {
     splatBrush: SplatBrush,
     ecs: Ecs,
     mousePos: vec3,
-    perspectiveCamera: PerspectiveCamera
+    perspectiveCamera: PerspectiveCamera,
+    gl: WebGL2RenderingContext
   ) {
     for (const entity of ecs.getEntities()) {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
@@ -24,6 +26,28 @@ export class SplatmapSystem {
           perspectiveCamera
         );
       }
+    }
+    this.updateSplatmap(ecs, gl);
+  }
+
+  updateSplatmap(ecs: Ecs, gl: WebGL2RenderingContext) {
+    for (const entity of ecs.getEntities()) {
+      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+      const material = ecs.getComponent<Material>(entity, 'Material');
+      if (!splatmap || !material) continue;
+      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
+      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        splatmap.width,
+        splatmap.height,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        splatmap.coords
+      );
     }
   }
 
@@ -83,8 +107,8 @@ export class SplatmapSystem {
   ) {
     const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
     const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
-    //this.paintCircle(splatBrush, splatmap, texX, texY);
-    this.paintTexture(splatBrush, splatmap, texX, texY);
+    this.paintCircle(splatBrush, splatmap, texX, texY);
+    //this.paintTexture(splatBrush, splatmap, texX, texY);
   }
 
   paintRect(
@@ -137,27 +161,27 @@ export class SplatmapSystem {
         //Pixel of canvas
         const srcIdx = (y * canvas.width + x) * 4;
         const color = imageData.data[srcIdx + 0];
-
         if (splatBrush.color === 'red') {
-          splatmap.coords[idx + 0] = 255;
+          splatmap.coords[idx + 0] = color;
           splatmap.coords[idx + 1] = 0;
           splatmap.coords[idx + 2] = 0;
           splatmap.coords[idx + 3] = 0;
         } else if (splatBrush.color === 'green') {
-          splatmap.coords[idx + 0] = 0;
-          splatmap.coords[idx + 1] = 255;
+          splatmap.coords[idx + 0] = 255 - color;
+          splatmap.coords[idx + 1] = color;
+          ('');
           splatmap.coords[idx + 2] = 0;
           splatmap.coords[idx + 3] = 0;
         } else if (splatBrush.color === 'blue') {
           splatmap.coords[idx + 0] = 0;
           splatmap.coords[idx + 1] = 0;
-          splatmap.coords[idx + 2] = 255;
+          splatmap.coords[idx + 2] = color;
           splatmap.coords[idx + 3] = 0;
         } else if (splatBrush.color === 'alpha') {
           splatmap.coords[idx + 0] = 0;
           splatmap.coords[idx + 1] = 0;
           splatmap.coords[idx + 2] = 0;
-          splatmap.coords[idx + 3] = 255;
+          splatmap.coords[idx + 3] = color;
         }
       }
     }

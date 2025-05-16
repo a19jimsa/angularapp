@@ -69,6 +69,8 @@ export class BrushSystem {
     y: number,
     z: number
   ) {
+    const imageData = this.getImageData(meshBrush.image);
+    if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     for (let i = 0; i < vertices.length; i += 8) {
@@ -78,15 +80,55 @@ export class BrushSystem {
       const dx = vx - x;
       const dz = vz - z;
       const dist = Math.sqrt(dx * dx + dz * dz);
-
-      if (dist < brushRadius) {
-        const influence = 1 - dist / brushRadius;
-        vertices[i + 1] += influence * brushStrength;
+      if (dist > brushRadius) continue;
+      // Mappa från world-space till penselns bildkoordinater
+      const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
+      const fz = (dz + brushRadius) / (brushRadius * 2);
+      console.log(fx, fz);
+      const px = Math.floor(fx * imageData.width);
+      const py = Math.floor(fz * imageData.height);
+      if (px >= 0 && px < imageData.width && py >= 0 && py < imageData.height) {
+        const pixelIndex = (py * imageData.width + px) * 4;
+        const red = imageData.data[pixelIndex];
+        console.log(red);
+        if (red !== 255) {
+          const influence = (1 - dist / brushRadius) * brushStrength;
+          vertices[i + 1] += influence;
+        }
       }
     }
   }
 
-  updateNormals(mesh: Mesh): void {
+  // Mappa en världspostition till en bildposition
+  worldToBrushImageCoord(
+    vx: number,
+    vz: number,
+    brushCenterX: number,
+    brushCenterZ: number,
+    brushRadius: number,
+    imageData: HTMLImageElement
+  ) {
+    const u =
+      ((vx - (brushCenterX - brushRadius)) / (brushRadius * 2)) *
+      imageData.width;
+    const v =
+      ((vz - (brushCenterZ - brushRadius)) / (brushRadius * 2)) *
+      imageData.height;
+    return { u: Math.floor(u), v: Math.floor(v) };
+  }
+
+  private getImageData(image: HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
+    //Get all imagedata of image on canvas
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+
+  public updateNormals(mesh: Mesh): void {
     // Steg 1: Initiera alla normals till 0
     for (let i = 0; i < mesh.vertices.length / 8; i++) {
       mesh.vertices[i * 8 + 5] = 0;
