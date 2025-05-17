@@ -6,11 +6,12 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
 import { Skybox } from 'src/components/skybox';
 import { mat4 } from 'gl-matrix';
+import { AnimatedTexture } from 'src/components/animatedTexture';
 
 export class RenderSystem {
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    //gl.enable(gl.CULL_FACE);
+    gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
     // Clear the canvas AND the depth buffer.
@@ -26,6 +27,10 @@ export class RenderSystem {
       const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
+      const animatedTexture = ecs.getComponent<AnimatedTexture>(
+        entity,
+        'AnimatedTexture'
+      );
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.program);
@@ -46,6 +51,27 @@ export class RenderSystem {
         const location = gl.getUniformLocation(material.program, 'u_matrix');
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
 
+        gl.bindVertexArray(mesh.vao);
+        gl.drawElements(
+          gl.TRIANGLES,
+          mesh.indices.length,
+          gl.UNSIGNED_SHORT,
+          0
+        );
+        gl.bindVertexArray(null);
+      } else if (mesh && material && animatedTexture) {
+        gl.useProgram(material.program);
+        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+        const textureLocation = gl.getUniformLocation(
+          material.program,
+          'waterTexture'
+        );
+        gl.uniform1i(textureLocation, material.slot);
+        gl.activeTexture(gl.TEXTURE0 + material.slot);
+        gl.bindTexture(gl.TEXTURE_2D, material.texture);
+        const timeLocation = gl.getUniformLocation(material.program, 'u_time');
+        gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
           gl.TRIANGLES,

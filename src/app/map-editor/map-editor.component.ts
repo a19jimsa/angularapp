@@ -32,6 +32,7 @@ import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
 import { SplatmapSystem } from 'src/systems/splatmap-system';
 import { Skybox } from 'src/components/skybox';
+import { AnimatedTexture } from 'src/components/animatedTexture';
 
 enum Tools {
   Splatmap,
@@ -220,11 +221,18 @@ export class MapEditorComponent implements AfterViewInit {
     await shader2.initShaders('skybox_vertex.txt', 'skybox_fragment.txt');
     const shader3 = new Shader(gl);
     await shader3.initShaders('basic_vertex.txt', 'basic_fragment.txt');
-    const image1 = await this.texture1.loadTexture(
+    const waterShader = new Shader(gl);
+    await waterShader.initShaders('water_vertex.txt', 'water_fragment.txt');
+
+    const sprite = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
     );
-    const image2 = await this.texture1.loadTexture(
+    const textureMapImage = await this.texture1.loadTexture(
       '/assets/textures/texture_map.png'
+    );
+
+    const waterTextureImage = await this.texture1.loadTexture(
+      '/assets/textures/water_texture.jpg'
     );
 
     const skybox1 = await this.texture1.loadTexture(
@@ -246,10 +254,21 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/skybox/back.jpg'
     );
 
-    this.texture1.createAndBindTexture(image1, image1.width, image1.height, 0);
-    this.texture1.createAndBindTexture(image2, image2.width, image2.height, 1);
+    this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height, 0);
+    this.texture1.createAndBindTexture(
+      textureMapImage,
+      textureMapImage.width,
+      textureMapImage.height,
+      1
+    );
     this.texture1.createAndBindTexture(null, 2048, 2048, 2);
     this.texture1.createAndBindTexture(null, 2048, 2048, 3);
+    this.texture1.createAndBindTexture(
+      waterTextureImage,
+      waterTextureImage.width,
+      waterTextureImage.height,
+      4
+    );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -277,7 +296,7 @@ export class MapEditorComponent implements AfterViewInit {
       roundBrushImage
     );
 
-    this.splatBrush.imageData = starBrushImage;
+    this.splatBrush.imageData = roundBrushImage;
     this.meshbrush.image = smokeBrushImage;
 
     const grassModel = new Model();
@@ -297,7 +316,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 0, 100, 100);
+    backgroundModel.addPlane(100, 0, 0, 100, 100);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -318,7 +337,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(100, 100, 100, 100);
+    backgroundModel2.addPlane(100, 100, 0, 100, 100);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),
@@ -336,6 +355,8 @@ export class MapEditorComponent implements AfterViewInit {
       entity2,
       new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
     );
+
+    this.createMesh(waterShader, this.texture1.getTexture(4)!);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -422,6 +443,23 @@ export class MapEditorComponent implements AfterViewInit {
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(0);
     skyboxMesh.vao.unbind();
+  }
+
+  createMesh(shader: Shader, texture: WebGLTexture) {
+    const entity = this.ecs.createEntity();
+    const model = new Model();
+    //Change later in runtime with some parameters in UI
+    model.addPlane(10, 10, 0.1, 50, 50);
+    const mesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Material>(entity, new Material(shader, texture, 4));
+    this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
+    console.log('Created Mesh!!!');
   }
 
   loop() {

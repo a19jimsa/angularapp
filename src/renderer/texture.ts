@@ -5,7 +5,6 @@ export class Texture {
   private gl: WebGL2RenderingContext;
   private textureMap = new Map<number, WebGLTexture>();
   private images = new Array();
-  private slot: number = 0;
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
@@ -55,7 +54,6 @@ export class Texture {
     slot: number
   ) {
     const gl = this.gl;
-    this.slot = slot;
     const texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + slot);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
@@ -151,10 +149,6 @@ export class Texture {
   setUniform(shader: Shader, name: string, slot: number) {
     shader.use();
     this.gl.uniform1i(this.gl.getUniformLocation(shader.program!, name), slot);
-  }
-
-  getSlot() {
-    return this.slot;
   }
 
   getTexture(slot: number) {
