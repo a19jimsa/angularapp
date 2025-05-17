@@ -84,13 +84,11 @@ export class BrushSystem {
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
-      console.log(fx, fz);
       const px = Math.floor(fx * imageData.width);
       const py = Math.floor(fz * imageData.height);
       if (px >= 0 && px < imageData.width && py >= 0 && py < imageData.height) {
         const pixelIndex = (py * imageData.width + px) * 4;
         const red = imageData.data[pixelIndex];
-        console.log(red);
         if (red !== 255) {
           const influence = (1 - dist / brushRadius) * brushStrength;
           vertices[i + 1] += influence;

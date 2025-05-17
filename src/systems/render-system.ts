@@ -5,13 +5,14 @@ import { Material } from 'src/components/material';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
 import { Skybox } from 'src/components/skybox';
-import { mat3, mat4 } from 'gl-matrix';
+import { mat4 } from 'gl-matrix';
 
 export class RenderSystem {
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.CULL_FACE);
+    //gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
+    gl.frontFace(gl.CCW);
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -26,7 +27,7 @@ export class RenderSystem {
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
 
-      if (mesh && material) {
+      if (mesh && material && splatmap) {
         gl.useProgram(material.program);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
@@ -53,7 +54,20 @@ export class RenderSystem {
           0
         );
         gl.bindVertexArray(null);
+      } else if (mesh && material) {
+        gl.useProgram(material.program);
+        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+        gl.bindVertexArray(mesh.vao);
+        gl.drawElements(
+          gl.TRIANGLES,
+          mesh.indices.length,
+          gl.UNSIGNED_SHORT,
+          0
+        );
+        gl.bindVertexArray(null);
       }
+
       if (skybox) {
         gl.depthMask(false);
         gl.depthFunc(gl.LEQUAL);

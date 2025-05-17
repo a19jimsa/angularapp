@@ -5,9 +5,7 @@
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Scene</mat-card-title>
-            <mat-card-subtitle
-              ><button mat-flat-button>Add to scene</button></mat-card-subtitle
-            >
+            <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content>
@@ -15,6 +13,7 @@
           {{ item }}
           }</mat-card-content
         >
+        <button mat-flat-button>Add to scene</button>
       </mat-card>
     </div>
     <div class="col-8">
@@ -99,11 +98,15 @@
             </mat-expansion-panel>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title> Terrain Tools</mat-panel-title>
-                <mat-panel-description>
-                  <mat-icon>map</mat-icon>
-                </mat-panel-description>
+                <mat-panel-title> Terrain</mat-panel-title>
+                <mat-panel-description> </mat-panel-description>
               </mat-expansion-panel-header>
+              <h5>Brushes</h5>
+              @for (item of brushToolsImages; track $index) {
+              <button (click)="changeBrushImage($index)">
+                <img src="{{ item.src }}" width="50" height="50" />
+              </button>
+              }
               <div class="d-flex flex-column justify-content-center">
                 <mat-slider min="0" max="50" step="1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.radius" />
@@ -119,9 +122,7 @@
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title> Splatmap Terrain </mat-panel-title>
-                <mat-panel-description>
-                  <mat-icon>date_range</mat-icon>
-                </mat-panel-description>
+                <mat-panel-description> </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="d-flex flex-row">
                 <div>

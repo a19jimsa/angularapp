@@ -82,6 +82,7 @@ export class MapEditorComponent implements AfterViewInit {
   bones: Bone[] = new Array();
   angle = 0;
   isMouseDown: boolean = false;
+  isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
   meshbrush: MeshBrush = { radius: 5, strength: 1, image: new Image() };
@@ -96,9 +97,11 @@ export class MapEditorComponent implements AfterViewInit {
   brushSystem: BrushSystem = new BrushSystem();
   splatmapSystem: SplatmapSystem = new SplatmapSystem();
 
+  brushToolsImages: HTMLImageElement[] = new Array();
+
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(800, 600);
+    this.perspectiveCamera = new PerspectiveCamera(1024, 768);
     this.ecs = new Ecs();
   }
 
@@ -107,8 +110,8 @@ export class MapEditorComponent implements AfterViewInit {
     if (!this.gl) throw Error('Webgl2 not supported');
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
-    this.gl.canvas.width = 800;
-    this.gl.canvas.height = 600;
+    this.gl.canvas.width = 1024;
+    this.gl.canvas.height = 768;
     this.texture1 = new Texture(this.gl);
     this.addEventListeners();
     await Loader.loadAllBones();
@@ -184,6 +187,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.mousePos[1] = mouseRay[1];
       this.mousePos[2] = mouseRay[2];
       //console.log(this.mousePos, invertedView);
+      this.isMouseMoved = true;
     });
 
     this.canvas.nativeElement.addEventListener('mousedown', (e) => {
@@ -196,6 +200,10 @@ export class MapEditorComponent implements AfterViewInit {
     this.canvas.nativeElement.addEventListener('mouseup', (e) => {
       this.isMouseDown = false;
     });
+  }
+
+  changeBrushImage(id: number) {
+    this.meshbrush.image = this.brushToolsImages[id];
   }
 
   changeTool(id: number) {
@@ -258,39 +266,59 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/terrain_brush.jpg'
     );
 
+    const roundBrushImage = await this.texture1.loadTexture(
+      'assets/textures/round_brush.jpg'
+    );
+
+    this.brushToolsImages.push(
+      smokeBrushImage,
+      starBrushImage,
+      terrainBrushImage,
+      roundBrushImage
+    );
+
     this.splatBrush.imageData = starBrushImage;
     this.meshbrush.image = smokeBrushImage;
 
+    const grassModel = new Model();
+    grassModel.addGrass();
+    const grassMesh = new MeshRenderer(
+      gl,
+      new Float32Array(grassModel.vertices),
+      new Uint16Array(grassModel.indices),
+      shader3
+    );
+
+    const grassEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Mesh>(grassEntity, new Mesh(grassMesh.vao));
+    this.ecs.addComponent<Material>(
+      grassEntity,
+      new Material(grassMesh.shader, null, -1)
+    );
+
     const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 0, 200, 200);
+    backgroundModel.addPlane(100, 0, 100, 100);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
       new Uint16Array(backgroundModel.indices),
-      shader1
+      shader
     );
 
     const newEntity = this.ecs.createEntity();
+    this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
     this.ecs.addComponent(
       newEntity,
-      new Mesh(
-        backgroundMesh.vao.vao,
-        backgroundMesh.vao.vertexBuffer.buffer,
-        backgroundMesh.vao.vertexBuffer.vertices,
-        backgroundMesh.vao.indexBuffer.indices
-      )
+      new Material(shader1, this.texture1.getTexture(1)!, 1)
     );
-    this.ecs.addComponent(
-      newEntity,
-      new Material(shader1.program, this.texture1.getTexture(1)!, 1)
-    );
+
     this.ecs.addComponent<Splatmap>(
       newEntity,
       new Splatmap(2048, 2048, this.texture1.getTexture(2)!, 2)
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(50, 200, 200, 200);
+    backgroundModel2.addPlane(100, 100, 100, 100);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),
@@ -299,18 +327,10 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const entity2 = this.ecs.createEntity();
+    this.ecs.addComponent(entity2, new Mesh(backgroundMesh2.vao));
     this.ecs.addComponent(
       entity2,
-      new Mesh(
-        backgroundMesh2.vao.vao,
-        backgroundMesh2.vao.vertexBuffer.buffer,
-        backgroundMesh2.vao.vertexBuffer.vertices,
-        backgroundMesh2.vao.indexBuffer.indices
-      )
-    );
-    this.ecs.addComponent(
-      entity2,
-      new Material(shader1.program, this.texture1.getTexture(1)!, 1)
+      new Material(backgroundMesh2.shader, this.texture1.getTexture(1)!, 1)
     );
     this.ecs.addComponent<Splatmap>(
       entity2,
@@ -406,7 +426,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   loop() {
     //FPS
-    console.log(Math.floor(performance.now() / 1000));
+    //console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
     requestAnimationFrame(() => this.loop());
@@ -421,7 +441,11 @@ export class MapEditorComponent implements AfterViewInit {
         this.mousePos,
         this.perspectiveCamera
       );
-    } else if (this.isMouseDown && this.tool === Tools.Splatmap) {
+    } else if (
+      this.isMouseDown &&
+      this.isMouseMoved &&
+      this.tool === Tools.Splatmap
+    ) {
       this.splatmapSystem.update(
         this.splatBrush,
         this.ecs,
@@ -429,6 +453,7 @@ export class MapEditorComponent implements AfterViewInit {
         this.perspectiveCamera,
         this.gl
       );
+      this.isMouseMoved = false;
     }
 
     const model = new Model();

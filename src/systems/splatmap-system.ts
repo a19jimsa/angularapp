@@ -196,6 +196,7 @@ export class SplatmapSystem {
     const alpha = splatBrush.alpha;
     const radius = splatBrush.radius;
     const splatColor = splatBrush.color;
+
     for (let y = -radius; y <= radius; y++) {
       for (let x = -radius; x <= radius; x++) {
         const dx = x;
@@ -207,7 +208,7 @@ export class SplatmapSystem {
           if (px > 0 && px < splatmap.width && py > 0 && py < splatmap.height) {
             const idx = (py * splatmap.width + px) * 4;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            const strength = 255 * (1 - distance / radius) * alpha;
+            const strength = 255 * alpha * (1 - distance / radius);
             if (splatColor === 'red') {
               //Red
               splatmap.coords[idx + 0] = Math.min(

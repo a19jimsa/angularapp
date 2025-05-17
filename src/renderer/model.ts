@@ -181,6 +181,39 @@ export class Model {
     this.indices.push(...indices);
   }
 
+  addGrass() {
+    const width = 2; // 1 quad i bredd
+    const height = 5; // 5 quads i höjd
+    const sizeX = 2; // bredd på hela strået
+    const sizeY = 5; // höjd på hela strået
+
+    for (let y = 0; y <= height; y++) {
+      const v = y / height;
+      const posY = v * sizeY;
+      for (let x = 0; x <= width; x++) {
+        const u = x / width;
+        const posX = u * sizeX;
+
+        this.vertices.push(posX, posY, 0); // position
+        this.vertices.push(u, v); // UV
+        this.vertices.push(0, 0, 1); // normal uppåt
+      }
+    }
+
+    for (let y = 0; y < height; y++) {
+      const i = y * (width + 1); // varje rad har (width + 1) punkter
+
+      const topLeft = i;
+      const bottomLeft = i + (width + 1);
+      const topRight = i + 1;
+      const bottomRight = i + (width + 1) + 1;
+
+      // två trianglar per quad
+      this.indices.push(topLeft, bottomLeft, topRight);
+      this.indices.push(topRight, bottomLeft, bottomRight);
+    }
+  }
+
   addPlane(quads: number, xPos: number, width: number, height: number) {
     this.vertices = [];
     this.indices = [];
@@ -196,10 +229,9 @@ export class Model {
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX + xPos, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
-        this.vertices.push(1, 1, 1); // Normals
+        this.vertices.push(0, 1, 0); // Normals
       }
     }
-    console.log(this.vertices);
 
     // Indices (anti clockwise winding order)
     for (let z = 0; z < quads; z++) {

@@ -1,13 +1,14 @@
+import { Shader } from 'src/renderer/shader';
 import { Component } from './component';
 
 export class Material extends Component {
   override type: string = 'Material';
   program: WebGLProgram;
-  texture: WebGLTexture;
+  texture: WebGLTexture | null;
   slot: number;
-  constructor(program: WebGLProgram, texture: WebGLTexture, slot: number) {
+  constructor(shader: Shader, texture: WebGLTexture | null, slot: number) {
     super();
-    this.program = program;
+    this.program = shader.program;
     this.texture = texture;
     this.slot = slot;
   }
