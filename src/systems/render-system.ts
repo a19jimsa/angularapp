@@ -65,7 +65,7 @@ export class RenderSystem {
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         const textureLocation = gl.getUniformLocation(
           material.program,
-          'waterTexture'
+          'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
         gl.activeTexture(gl.TEXTURE0 + material.slot);

@@ -34,15 +34,23 @@ import { SplatmapSystem } from 'src/systems/splatmap-system';
 import { Skybox } from 'src/components/skybox';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 
-enum Tools {
+export enum Tools {
   Splatmap,
   Heightmap,
+}
+
+export enum ToolBrush {
+  Height,
+  Grass,
+  Trees,
+  Splat,
 }
 
 export type MeshBrush = {
   radius: number;
   strength: number;
   image: HTMLImageElement;
+  type: ToolBrush;
 };
 
 export type SplatBrush = {
@@ -86,7 +94,13 @@ export class MapEditorComponent implements AfterViewInit {
   isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
-  meshbrush: MeshBrush = { radius: 5, strength: 1, image: new Image() };
+  meshbrush: MeshBrush = {
+    radius: 5,
+    strength: 1,
+    image: new Image(),
+    type: ToolBrush.Height,
+  };
+
   splatBrush: SplatBrush = {
     alpha: 1,
     radius: 50,
@@ -207,8 +221,16 @@ export class MapEditorComponent implements AfterViewInit {
     this.meshbrush.image = this.brushToolsImages[id];
   }
 
-  changeTool(id: number) {
-    this.tool = id;
+  changeTool(name: string) {
+    if (name === 'grass') {
+      this.meshbrush.type = ToolBrush.Grass;
+    } else if (name === 'tree') {
+      this.meshbrush.type = ToolBrush.Trees;
+    } else if (name === 'height') {
+      this.meshbrush.type = ToolBrush.Height;
+    } else if (name === 'splat') {
+      this.meshbrush.type = ToolBrush.Splat;
+    }
   }
 
   async init() {
@@ -219,16 +241,18 @@ export class MapEditorComponent implements AfterViewInit {
     await shader1.initShaders('image_vertex.txt', 'image_fragment.txt');
     const shader2 = new Shader(gl);
     await shader2.initShaders('skybox_vertex.txt', 'skybox_fragment.txt');
-    const shader3 = new Shader(gl);
-    await shader3.initShaders('basic_vertex.txt', 'basic_fragment.txt');
+    const basicShader = new Shader(gl);
+    await basicShader.initShaders('basic_vertex.txt', 'basic_fragment.txt');
     const waterShader = new Shader(gl);
     await waterShader.initShaders('water_vertex.txt', 'water_fragment.txt');
+    const grassShader = new Shader(gl);
+    await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
 
     const sprite = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
     );
     const textureMapImage = await this.texture1.loadTexture(
-      '/assets/textures/texture_map.png'
+      '/assets/textures/texture_map.jpg'
     );
 
     const waterTextureImage = await this.texture1.loadTexture(
@@ -305,7 +329,7 @@ export class MapEditorComponent implements AfterViewInit {
       gl,
       new Float32Array(grassModel.vertices),
       new Uint16Array(grassModel.indices),
-      shader3
+      grassShader
     );
 
     const grassEntity = this.ecs.createEntity();
@@ -313,6 +337,10 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Material>(
       grassEntity,
       new Material(grassMesh.shader, null, -1)
+    );
+    this.ecs.addComponent<AnimatedTexture>(
+      grassEntity,
+      new AnimatedTexture(10)
     );
 
     const backgroundModel = new Model();
@@ -356,7 +384,8 @@ export class MapEditorComponent implements AfterViewInit {
       new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
     );
 
-    this.createMesh(waterShader, this.texture1.getTexture(4)!);
+    this.createMesh(waterShader, 4);
+    this.createTree(basicShader, 4);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -445,7 +474,7 @@ export class MapEditorComponent implements AfterViewInit {
     skyboxMesh.vao.unbind();
   }
 
-  createMesh(shader: Shader, texture: WebGLTexture) {
+  createMesh(shader: Shader, slot: number) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
@@ -457,8 +486,30 @@ export class MapEditorComponent implements AfterViewInit {
       shader
     );
     this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
-    this.ecs.addComponent<Material>(entity, new Material(shader, texture, 4));
+    this.ecs.addComponent<Material>(
+      entity,
+      new Material(shader, this.texture1.getTexture(slot)!, slot)
+    );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
+    console.log('Created Mesh!!!');
+  }
+
+  createTree(shader: Shader, slot: number) {
+    const entity = this.ecs.createEntity();
+    const model = new Model();
+    //Change later in runtime with some parameters in UI
+    model.addTree();
+    const mesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Material>(
+      entity,
+      new Material(shader, this.texture1.getTexture(slot)!, slot)
+    );
     console.log('Created Mesh!!!');
   }
 
@@ -470,19 +521,36 @@ export class MapEditorComponent implements AfterViewInit {
     requestAnimationFrame(() => this.loop());
   }
 
+  updateMesh() {
+    //Update mesh triangles
+    for (const entity of this.ecs.getEntities()) {
+      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
+      if (mesh) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.buffer);
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, mesh.vertices);
+      }
+    }
+  }
+
   update() {
     this.updateBonePositions(this.bones);
-    if (this.isMouseDown && this.tool === Tools.Heightmap) {
+    if (
+      this.isMouseDown &&
+      this.isMouseMoved &&
+      this.meshbrush.type === ToolBrush.Height
+    ) {
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
         this.mousePos,
         this.perspectiveCamera
       );
+      this.isMouseMoved = false;
+      this.updateMesh();
     } else if (
       this.isMouseDown &&
       this.isMouseMoved &&
-      this.tool === Tools.Splatmap
+      this.meshbrush.type === ToolBrush.Splat
     ) {
       this.splatmapSystem.update(
         this.splatBrush,
@@ -511,14 +579,6 @@ export class MapEditorComponent implements AfterViewInit {
         bone.endX,
         bone.endY
       );
-    }
-
-    for (const entity of this.ecs.getEntities()) {
-      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
-      if (mesh) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.buffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, mesh.vertices);
-      }
     }
   }
 

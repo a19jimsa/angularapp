@@ -209,9 +209,19 @@ export class Model {
       const bottomRight = i + (width + 1) + 1;
 
       // två trianglar per quad
-      this.indices.push(topLeft, bottomLeft, topRight);
-      this.indices.push(topRight, bottomLeft, bottomRight);
+      this.indices.push(topRight, bottomRight, topLeft);
+      this.indices.push(bottomRight, bottomLeft, topLeft);
     }
+  }
+
+  addTree() {
+    const position = [
+      10, 10, 0, 0, 0, 0, 0, 0, 20, 10, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0,
+      0, 10, 0, 0, 0, 0, 0, 0, 0,
+    ];
+    const indices = [0, 3, 1, 1, 3, 2];
+    this.vertices = position;
+    this.indices = indices;
   }
 
   addPlane(

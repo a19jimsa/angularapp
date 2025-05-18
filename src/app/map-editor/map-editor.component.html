@@ -102,6 +102,17 @@
                 <mat-panel-description> </mat-panel-description>
               </mat-expansion-panel-header>
               <h5>Brushes</h5>
+              <div class="d-flex justify-content-around w-100">
+                <button mat-fab (click)="changeTool('grass')">
+                  <mat-icon>grass</mat-icon>
+                </button>
+                <button mat-fab (click)="changeTool('tree')">
+                  <mat-icon>forest</mat-icon>
+                </button>
+                <button mat-fab (click)="changeTool('height')">
+                  <mat-icon>landscape</mat-icon>
+                </button>
+              </div>
               @for (item of brushToolsImages; track $index) {
               <button (click)="changeBrushImage($index)">
                 <img src="{{ item.src }}" width="50" height="50" />
@@ -114,9 +125,6 @@
                 <mat-slider min="0" max="1" step="0.1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.strength" />
                 </mat-slider>
-                <button mat-fab (click)="changeTool(1)">
-                  <mat-icon>landscape</mat-icon>
-                </button>
               </div>
             </mat-expansion-panel>
             <mat-expansion-panel>
@@ -132,7 +140,7 @@
                   <mat-slider min="0" max="100" step="1" discrete>
                     <input matSliderThumb [(ngModel)]="splatBrush.radius" />
                   </mat-slider>
-                  <button mat-fab (click)="changeTool(0)">
+                  <button mat-fab (click)="changeTool('splat')">
                     <mat-icon>brush</mat-icon>
                   </button>
                 </div>
