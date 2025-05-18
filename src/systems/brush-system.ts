@@ -1,7 +1,9 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { MeshBrush } from 'src/app/map-editor/map-editor.component';
+import { MeshBrush, ToolBrush } from 'src/app/map-editor/map-editor.component';
+import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Ecs } from 'src/core/ecs';
+import { Model } from 'src/renderer/model';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class BrushSystem {
@@ -14,12 +16,13 @@ export class BrushSystem {
     for (const entity of ecs.getEntities()) {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (mesh) {
-        this.pickVertex(meshBrush, mesh, mousePos, perspectiveCamera);
+        this.pickVertex(ecs, meshBrush, mesh, mousePos, perspectiveCamera);
       }
     }
   }
 
   private pickVertex(
+    ecs: Ecs,
     meshBrush: MeshBrush,
     mesh: Mesh,
     mousePos: vec3,
@@ -51,15 +54,34 @@ export class BrushSystem {
         const dy = vy - pos[1];
         const dz = vz - pos[2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
         if (dist < epsilon) {
-          this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
-          this.updateNormals(mesh);
+          if (meshBrush.type === ToolBrush.Height) {
+            this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
+            this.updateNormals(mesh);
+          } else if (meshBrush.type === ToolBrush.Grass) {
+            this.grassBrush(ecs, mesh, vx, vy, vz);
+          }
           return;
         }
       }
     }
     return null;
+  }
+
+  private grassBrush(ecs: Ecs, terrain: Mesh, x: number, y: number, z: number) {
+    for (const entity of ecs.getEntities()) {
+      const grass = ecs.getComponent<Grass>(entity, 'Grass');
+      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
+      if (grass && mesh) {
+        for (let i = 0; i < terrain.vertices.length; i += 32) {
+          const vx = terrain.vertices[i];
+          const vz = terrain.vertices[i + 2];
+
+          grass.positions.push(vx - x, 0, vz - z);
+          console.log(vx);
+        }
+      }
+    }
   }
 
   private meshBrush(
@@ -95,24 +117,6 @@ export class BrushSystem {
         }
       }
     }
-  }
-
-  // Mappa en världspostition till en bildposition
-  worldToBrushImageCoord(
-    vx: number,
-    vz: number,
-    brushCenterX: number,
-    brushCenterZ: number,
-    brushRadius: number,
-    imageData: HTMLImageElement
-  ) {
-    const u =
-      ((vx - (brushCenterX - brushRadius)) / (brushRadius * 2)) *
-      imageData.width;
-    const v =
-      ((vz - (brushCenterZ - brushRadius)) / (brushRadius * 2)) *
-      imageData.height;
-    return { u: Math.floor(u), v: Math.floor(v) };
   }
 
   private getImageData(image: HTMLImageElement) {

@@ -7,6 +7,7 @@ import { Splatmap } from 'src/components/splatmap';
 import { Skybox } from 'src/components/skybox';
 import { mat4 } from 'gl-matrix';
 import { AnimatedTexture } from 'src/components/animatedTexture';
+import { Grass } from 'src/components/grass';
 
 export class RenderSystem {
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
@@ -26,6 +27,7 @@ export class RenderSystem {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+      const grass = ecs.getComponent<Grass>(entity, 'Grass');
       const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
       const animatedTexture = ecs.getComponent<AnimatedTexture>(
         entity,
@@ -57,6 +59,38 @@ export class RenderSystem {
           mesh.indices.length,
           gl.UNSIGNED_SHORT,
           0
+        );
+        gl.bindVertexArray(null);
+      } else if (mesh && material && grass) {
+        gl.useProgram(material.program);
+        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+        const textureLocation = gl.getUniformLocation(
+          material.program,
+          'u_texture'
+        );
+        gl.uniform1i(textureLocation, material.slot);
+        gl.activeTexture(gl.TEXTURE0 + material.slot);
+        gl.bindTexture(gl.TEXTURE_2D, material.texture);
+        const timeLocation = gl.getUniformLocation(material.program, 'u_time');
+        gl.uniform1f(timeLocation, performance.now() * 0.001);
+        gl.bindVertexArray(mesh.vao);
+        const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
+        const instanceCount = grass.positions.length / 3; // en xyz per strå
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, grass.buffer);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array(grass.positions),
+          gl.STATIC_DRAW
+        );
+
+        gl.drawElementsInstanced(
+          gl.TRIANGLES,
+          indexCountPerBlade, // hur många index beskriver ETT strå
+          gl.UNSIGNED_SHORT, // typ i index‑buffern
+          0, // byte‑offset i index‑buffern
+          instanceCount
         );
         gl.bindVertexArray(null);
       } else if (mesh && material && animatedTexture) {

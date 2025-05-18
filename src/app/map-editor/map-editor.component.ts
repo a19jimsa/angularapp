@@ -33,6 +33,7 @@ import { Splatmap } from 'src/components/splatmap';
 import { SplatmapSystem } from 'src/systems/splatmap-system';
 import { Skybox } from 'src/components/skybox';
 import { AnimatedTexture } from 'src/components/animatedTexture';
+import { Grass } from 'src/components/grass';
 
 export enum Tools {
   Splatmap,
@@ -324,7 +325,10 @@ export class MapEditorComponent implements AfterViewInit {
     this.meshbrush.image = smokeBrushImage;
 
     const grassModel = new Model();
-    grassModel.addGrass();
+    grassModel.addGrass(0, 0, 0);
+
+    console.log(grassModel.vertices);
+
     const grassMesh = new MeshRenderer(
       gl,
       new Float32Array(grassModel.vertices),
@@ -336,11 +340,15 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Mesh>(grassEntity, new Mesh(grassMesh.vao));
     this.ecs.addComponent<Material>(
       grassEntity,
-      new Material(grassMesh.shader, null, -1)
+      new Material(grassShader, null, 4)
     );
     this.ecs.addComponent<AnimatedTexture>(
       grassEntity,
       new AnimatedTexture(10)
+    );
+    this.ecs.addComponent<Grass>(
+      grassEntity,
+      new Grass(grassMesh.vao, gl, grassShader)
     );
 
     const backgroundModel = new Model();
@@ -522,7 +530,6 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   updateMesh() {
-    //Update mesh triangles
     for (const entity of this.ecs.getEntities()) {
       const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
       if (mesh) {
@@ -534,11 +541,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   update() {
     this.updateBonePositions(this.bones);
-    if (
-      this.isMouseDown &&
-      this.isMouseMoved &&
-      this.meshbrush.type === ToolBrush.Height
-    ) {
+    if (this.isMouseDown && this.isMouseMoved) {
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
@@ -547,19 +550,6 @@ export class MapEditorComponent implements AfterViewInit {
       );
       this.isMouseMoved = false;
       this.updateMesh();
-    } else if (
-      this.isMouseDown &&
-      this.isMouseMoved &&
-      this.meshbrush.type === ToolBrush.Splat
-    ) {
-      this.splatmapSystem.update(
-        this.splatBrush,
-        this.ecs,
-        this.mousePos,
-        this.perspectiveCamera,
-        this.gl
-      );
-      this.isMouseMoved = false;
     }
 
     const model = new Model();

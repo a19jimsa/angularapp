@@ -181,7 +181,7 @@ export class Model {
     this.indices.push(...indices);
   }
 
-  addGrass() {
+  addGrass(vx: number, vy: number, vz: number) {
     const width = 2; // 1 quad i bredd
     const height = 5; // 5 quads i höjd
     const sizeX = 2; // bredd på hela strået
@@ -196,13 +196,12 @@ export class Model {
 
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
-        this.vertices.push(0, 0, 1); // normal uppåt
+        this.vertices.push(0, 1, 0); // normal uppåt
       }
     }
 
     for (let y = 0; y < height; y++) {
       const i = y * (width + 1); // varje rad har (width + 1) punkter
-
       const topLeft = i;
       const bottomLeft = i + (width + 1);
       const topRight = i + 1;
