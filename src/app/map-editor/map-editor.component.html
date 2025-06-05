@@ -135,10 +135,10 @@
               <div class="d-flex flex-row">
                 <div>
                   <mat-slider min="0" max="1" step="0.1" discrete>
-                    <input matSliderThumb [(ngModel)]="splatBrush.alpha" />
+                    <input matSliderThumb [(ngModel)]="meshbrush.alpha" />
                   </mat-slider>
                   <mat-slider min="0" max="100" step="1" discrete>
-                    <input matSliderThumb [(ngModel)]="splatBrush.radius" />
+                    <input matSliderThumb [(ngModel)]="meshbrush.radius" />
                   </mat-slider>
                   <button mat-fab (click)="changeTool('splat')">
                     <mat-icon>brush</mat-icon>
@@ -148,14 +148,14 @@
                   <mat-radio-group
                     aria-labelledby="example-radio-group-label"
                     class="example-radio-group"
-                    [(ngModel)]="splatBrush.color"
+                    [(ngModel)]="meshbrush.color"
                   >
                     <mat-radio-button value="red">Red</mat-radio-button>
                     <mat-radio-button value="green">Green</mat-radio-button>
                     <mat-radio-button value="blue">Blue</mat-radio-button>
                     <mat-radio-button value="alpha">Alpha</mat-radio-button>
                   </mat-radio-group>
-                  <div>Your color is: {{ splatBrush.color }}</div>
+                  <div>Your color is: {{ meshbrush.color }}</div>
                 </div>
               </div>
             </mat-expansion-panel>

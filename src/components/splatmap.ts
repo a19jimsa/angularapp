@@ -18,7 +18,7 @@ export class Splatmap extends Component {
     this.height = height;
     this.coords = new Uint8ClampedArray(width * height * 4);
     for (let i = 0; i < this.coords.length; i += 4) {
-      this.coords[i] = 255;
+      this.coords[i + 3] = 255;
     }
     this.slot = slot;
     this.texture = texture;

@@ -1,14 +1,16 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { MeshBrush, ToolBrush } from 'src/app/map-editor/map-editor.component';
+import { Entity } from 'src/app/entity';
+import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
+import { Splatmap } from 'src/components/splatmap';
+import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
-import { Model } from 'src/renderer/model';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class BrushSystem {
   update(
-    meshBrush: MeshBrush,
+    meshBrush: Brush,
     ecs: Ecs,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
@@ -16,14 +18,22 @@ export class BrushSystem {
     for (const entity of ecs.getEntities()) {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (mesh) {
-        this.pickVertex(ecs, meshBrush, mesh, mousePos, perspectiveCamera);
+        this.pickVertex(
+          ecs,
+          entity,
+          meshBrush,
+          mesh,
+          mousePos,
+          perspectiveCamera
+        );
       }
     }
   }
 
   private pickVertex(
     ecs: Ecs,
-    meshBrush: MeshBrush,
+    entity: Entity,
+    meshBrush: Brush,
     mesh: Mesh,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
@@ -59,7 +69,22 @@ export class BrushSystem {
             this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
-            this.grassBrush(ecs, mesh, vx, vy, vz);
+            this.grassBrush(
+              ecs,
+              mesh.vertices[i + 3] * 100,
+              0,
+              mesh.vertices[i + 4] * 100
+            );
+          } else if (meshBrush.type === ToolBrush.Trees) {
+            this.treeBrush(ecs, entity, vx, vy, vz);
+          } else if (meshBrush.type === ToolBrush.Splat) {
+            this.paintCircle(
+              ecs,
+              entity,
+              meshBrush,
+              mesh.vertices[i + 3],
+              mesh.vertices[i + 4]
+            );
           }
           return;
         }
@@ -68,24 +93,154 @@ export class BrushSystem {
     return null;
   }
 
-  private grassBrush(ecs: Ecs, terrain: Mesh, x: number, y: number, z: number) {
+  private grassBrush(ecs: Ecs, x: number, y: number, z: number) {
     for (const entity of ecs.getEntities()) {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (grass && mesh) {
-        for (let i = 0; i < terrain.vertices.length; i += 32) {
-          const vx = terrain.vertices[i];
-          const vz = terrain.vertices[i + 2];
+        if (grass.amountOfGrass >= grass.maxGrassBuffer) {
+          return;
+        }
+        grass.positions.push(x * 2, y * 2, z * 2);
+        grass.amountOfGrass++;
+        console.log(grass.amountOfGrass);
+      }
+    }
+  }
 
-          grass.positions.push(vx - x, 0, vz - z);
-          console.log(vx);
+  private treeBrush(ecs: Ecs, entity: Entity, x: number, y: number, z: number) {
+    const tree = ecs.getComponent<Tree>(entity, 'Tree');
+    if (tree) {
+      console.log(x, y, z);
+      tree.positions.push(x * 2, y * 2, z * 2);
+    }
+  }
+
+  private paintCircle(
+    ecs: Ecs,
+    entity: Entity,
+    brush: Brush,
+    uv0: number,
+    uv1: number
+  ) {
+    const alpha = brush.alpha;
+    const radius = brush.radius;
+    const splatColor = brush.color;
+    const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+    if (splatmap) {
+      const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
+      const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
+      for (let y = -radius; y <= radius; y++) {
+        for (let x = -radius; x <= radius; x++) {
+          const dx = x;
+          const dy = y;
+          if (dx * dx + dy * dy <= radius * radius) {
+            const px = texX + dx;
+            const py = texY + dy;
+            //To not draw outside of width and height
+            if (
+              px > 0 &&
+              px < splatmap.width &&
+              py > 0 &&
+              py < splatmap.height
+            ) {
+              const idx = (py * splatmap.width + px) * 4;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              const strength = 255 * alpha * (1 - distance / radius);
+              if (splatColor === 'red') {
+                //Red
+                splatmap.coords[idx + 0] = Math.min(
+                  splatmap.coords[idx + 0] + strength,
+                  255
+                );
+                //Green
+                splatmap.coords[idx + 1] = Math.min(
+                  splatmap.coords[idx + 1] - strength,
+                  255
+                );
+                //Blue
+                splatmap.coords[idx + 2] = Math.min(
+                  splatmap.coords[idx + 2] - strength,
+                  255
+                );
+                //Alpha
+                splatmap.coords[idx + 3] = Math.min(
+                  splatmap.coords[idx + 3] - strength,
+                  255
+                );
+              } else if (splatColor === 'green') {
+                //Red
+                splatmap.coords[idx + 0] = Math.min(
+                  splatmap.coords[idx + 0] - strength,
+                  255
+                );
+                //Green
+                splatmap.coords[idx + 1] = Math.min(
+                  splatmap.coords[idx + 1] + strength,
+                  255
+                );
+                //Blue
+                splatmap.coords[idx + 2] = Math.min(
+                  splatmap.coords[idx + 2] - strength,
+                  255
+                );
+                //Alpha
+                splatmap.coords[idx + 3] = Math.min(
+                  splatmap.coords[idx + 3] - strength,
+                  255
+                );
+              } else if (splatColor === 'blue') {
+                //Red
+                splatmap.coords[idx + 0] = Math.min(
+                  splatmap.coords[idx + 0] - strength,
+                  255
+                );
+                //Green
+                splatmap.coords[idx + 1] = Math.min(
+                  splatmap.coords[idx + 1] - strength,
+                  255
+                );
+                //Blue
+                splatmap.coords[idx + 2] = Math.min(
+                  splatmap.coords[idx + 2] + strength,
+                  255
+                );
+                //Alpha
+                splatmap.coords[idx + 3] = Math.min(
+                  splatmap.coords[idx + 3] - strength,
+                  255
+                );
+              } else if (splatColor === 'alpha') {
+                //Red
+                splatmap.coords[idx + 0] = Math.min(
+                  splatmap.coords[idx + 0] - strength,
+                  255
+                );
+                //Green
+                splatmap.coords[idx + 1] = Math.min(
+                  splatmap.coords[idx + 1] - strength,
+                  255
+                );
+                //Blue
+                splatmap.coords[idx + 2] = Math.min(
+                  splatmap.coords[idx + 2] - strength,
+                  255
+                );
+                //Alpha
+                splatmap.coords[idx + 3] = Math.min(
+                  splatmap.coords[idx + 3] + strength,
+                  255
+                );
+              }
+            }
+          }
         }
       }
     }
   }
 
   private meshBrush(
-    meshBrush: MeshBrush,
+    meshBrush: Brush,
     vertices: Float32Array,
     x: number,
     y: number,

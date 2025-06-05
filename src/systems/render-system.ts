@@ -79,14 +79,10 @@ export class RenderSystem {
         const instanceCount = grass.positions.length / 3; // en xyz per strå
 
         gl.bindBuffer(gl.ARRAY_BUFFER, grass.buffer);
-        gl.bufferData(
-          gl.ARRAY_BUFFER,
-          new Float32Array(grass.positions),
-          gl.STATIC_DRAW
-        );
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(grass.positions));
 
         gl.drawElementsInstanced(
-          gl.TRIANGLES,
+          gl.LINE_STRIP,
           indexCountPerBlade, // hur många index beskriver ETT strå
           gl.UNSIGNED_SHORT, // typ i index‑buffern
           0, // byte‑offset i index‑buffern
@@ -127,7 +123,6 @@ export class RenderSystem {
         );
         gl.bindVertexArray(null);
       }
-
       if (skybox) {
         gl.depthMask(false);
         gl.depthFunc(gl.LEQUAL);

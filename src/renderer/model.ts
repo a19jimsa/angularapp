@@ -184,19 +184,20 @@ export class Model {
   addGrass(vx: number, vy: number, vz: number) {
     const width = 2; // 1 quad i bredd
     const height = 5; // 5 quads i höjd
-    const sizeX = 2; // bredd på hela strået
-    const sizeY = 5; // höjd på hela strået
-
+    const sizeX = 1; // bredd på hela strået
+    const sizeY = 2; // höjd på hela strået
     for (let y = 0; y <= height; y++) {
       const v = y / height;
       const posY = v * sizeY;
+      const rowWidth = sizeX * (1.0 - v); // 100% till 0%
+
       for (let x = 0; x <= width; x++) {
         const u = x / width;
-        const posX = u * sizeX;
+        const posX = (u - 0.5) * rowWidth;
 
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
-        this.vertices.push(0, 1, 0); // normal uppåt
+        this.vertices.push(1, 0, 0); // normal framåt
       }
     }
 

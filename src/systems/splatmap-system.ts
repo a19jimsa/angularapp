@@ -1,5 +1,5 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { SplatBrush } from 'src/app/map-editor/map-editor.component';
+import { Brush } from 'src/app/map-editor/map-editor.component';
 import { Material } from 'src/components/material';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
@@ -8,7 +8,7 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class SplatmapSystem {
   update(
-    splatBrush: SplatBrush,
+    splatBrush: Brush,
     ecs: Ecs,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera,
@@ -27,32 +27,10 @@ export class SplatmapSystem {
         );
       }
     }
-    this.updateSplatmap(ecs, gl);
-  }
-
-  updateSplatmap(ecs: Ecs, gl: WebGL2RenderingContext) {
-    for (const entity of ecs.getEntities()) {
-      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
-      const material = ecs.getComponent<Material>(entity, 'Material');
-      if (!splatmap || !material) continue;
-      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
-      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        splatmap.width,
-        splatmap.height,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        splatmap.coords
-      );
-    }
   }
 
   private pickVertex(
-    splatBrush: SplatBrush,
+    splatBrush: Brush,
     splatmap: Splatmap,
     vertices: Float32Array,
     mousePos: vec3,
@@ -100,14 +78,14 @@ export class SplatmapSystem {
   }
 
   splatmapBrush(
-    splatBrush: SplatBrush,
+    splatBrush: Brush,
     splatmap: Splatmap,
     uv0: number,
     uv1: number
   ) {
     const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
     const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
-    this.paintCircle(splatBrush, splatmap, texX, texY);
+    //this.paintCircle(splatBrush, splatmap, texX, texY);
     //this.paintTexture(splatBrush, splatmap, texX, texY);
   }
 
@@ -137,7 +115,7 @@ export class SplatmapSystem {
   }
 
   paintTexture(
-    splatBrush: SplatBrush,
+    splatBrush: Brush,
     splatmap: Splatmap,
     posX: number,
     posY: number
@@ -145,9 +123,9 @@ export class SplatmapSystem {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    canvas.width = splatBrush.imageData.width;
-    canvas.height = splatBrush.imageData.height;
-    ctx.drawImage(splatBrush.imageData, 0, 0);
+    canvas.width = splatBrush.image.width;
+    canvas.height = splatBrush.image.height;
+    ctx.drawImage(splatBrush.image, 0, 0);
     //Get all imagedata of image on canvas
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     // loop canvas
@@ -182,119 +160,6 @@ export class SplatmapSystem {
           splatmap.coords[idx + 1] = 0;
           splatmap.coords[idx + 2] = 0;
           splatmap.coords[idx + 3] = color;
-        }
-      }
-    }
-  }
-
-  paintCircle(
-    splatBrush: SplatBrush,
-    splatmap: Splatmap,
-    cx: number,
-    cy: number
-  ) {
-    const alpha = splatBrush.alpha;
-    const radius = splatBrush.radius;
-    const splatColor = splatBrush.color;
-
-    for (let y = -radius; y <= radius; y++) {
-      for (let x = -radius; x <= radius; x++) {
-        const dx = x;
-        const dy = y;
-        if (dx * dx + dy * dy <= radius * radius) {
-          const px = cx + dx;
-          const py = cy + dy;
-          //To not draw outside of width and height
-          if (px > 0 && px < splatmap.width && py > 0 && py < splatmap.height) {
-            const idx = (py * splatmap.width + px) * 4;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const strength = 255 * alpha * (1 - distance / radius);
-            if (splatColor === 'red') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] + strength,
-                255
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255
-              );
-            } else if (splatColor === 'green') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] + strength,
-                255
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255
-              );
-            } else if (splatColor === 'blue') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] + strength,
-                255
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255
-              );
-            } else if (splatColor === 'alpha') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] + strength,
-                255
-              );
-            }
-          }
         }
       }
     }

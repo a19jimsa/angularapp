@@ -30,10 +30,11 @@ import { Material } from 'src/components/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
-import { SplatmapSystem } from 'src/systems/splatmap-system';
 import { Skybox } from 'src/components/skybox';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Grass } from 'src/components/grass';
+import { Transform } from 'src/components/transform';
+import { Vec } from '../vec';
 
 export enum Tools {
   Splatmap,
@@ -47,18 +48,13 @@ export enum ToolBrush {
   Splat,
 }
 
-export type MeshBrush = {
+export type Brush = {
   radius: number;
   strength: number;
+  color: string;
+  alpha: number;
   image: HTMLImageElement;
   type: ToolBrush;
-};
-
-export type SplatBrush = {
-  alpha: number;
-  radius: number;
-  color: string;
-  imageData: HTMLImageElement;
 };
 
 @Component({
@@ -95,23 +91,17 @@ export class MapEditorComponent implements AfterViewInit {
   isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
-  meshbrush: MeshBrush = {
+  meshbrush: Brush = {
     radius: 5,
     strength: 1,
     image: new Image(),
     type: ToolBrush.Height,
-  };
-
-  splatBrush: SplatBrush = {
-    alpha: 1,
-    radius: 50,
     color: 'red',
-    imageData: new Image(),
+    alpha: 1,
   };
   ecs: Ecs;
   renderSystem: RenderSystem = new RenderSystem();
   brushSystem: BrushSystem = new BrushSystem();
-  splatmapSystem: SplatmapSystem = new SplatmapSystem();
 
   brushToolsImages: HTMLImageElement[] = new Array();
 
@@ -314,20 +304,22 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/round_brush.jpg'
     );
 
+    const strokeBrushImage = await this.texture1.loadTexture(
+      'assets/textures/stroke_brush.jpg'
+    );
+
     this.brushToolsImages.push(
       smokeBrushImage,
       starBrushImage,
       terrainBrushImage,
-      roundBrushImage
+      roundBrushImage,
+      strokeBrushImage
     );
 
-    this.splatBrush.imageData = roundBrushImage;
     this.meshbrush.image = smokeBrushImage;
 
     const grassModel = new Model();
     grassModel.addGrass(0, 0, 0);
-
-    console.log(grassModel.vertices);
 
     const grassMesh = new MeshRenderer(
       gl,
@@ -392,7 +384,8 @@ export class MapEditorComponent implements AfterViewInit {
       new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
     );
 
-    this.createMesh(waterShader, 4);
+    this.createWater(waterShader, 4, 0, 0.1);
+    this.createWater(waterShader, 4, 50, 0.1);
     this.createTree(basicShader, 4);
 
     this.setupSkybox(shader2, skyboxTexture!);
@@ -440,13 +433,6 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
-    this.splatmapSystem.update(
-      this.splatBrush,
-      this.ecs,
-      this.mousePos,
-      this.perspectiveCamera,
-      this.gl
-    );
 
     this.loop();
   }
@@ -498,6 +484,29 @@ export class MapEditorComponent implements AfterViewInit {
       entity,
       new Material(shader, this.texture1.getTexture(slot)!, slot)
     );
+    console.log('Created Mesh!!!');
+  }
+
+  createWater(shader: Shader, slot: number, x: number, y: number) {
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent<Transform>(
+      entity,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 100)
+    );
+    const model = new Model();
+    //Change later in runtime with some parameters in UI
+    model.addPlane(10, x, y, 50, 50);
+    const mesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Material>(
+      entity,
+      new Material(shader, this.texture1.getTexture(slot)!, slot)
+    );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
     console.log('Created Mesh!!!');
   }
@@ -519,6 +528,7 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(shader, this.texture1.getTexture(slot)!, slot)
     );
     console.log('Created Mesh!!!');
+    this.updateSplatmap();
   }
 
   loop() {
@@ -550,6 +560,7 @@ export class MapEditorComponent implements AfterViewInit {
       );
       this.isMouseMoved = false;
       this.updateMesh();
+      this.updateSplatmap();
     }
 
     const model = new Model();
@@ -568,6 +579,28 @@ export class MapEditorComponent implements AfterViewInit {
         300 + bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY
+      );
+    }
+  }
+
+  updateSplatmap() {
+    const ecs = this.ecs;
+    const gl = this.gl;
+    for (const entity of ecs.getEntities()) {
+      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+      if (!splatmap) continue;
+      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
+      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        splatmap.width,
+        splatmap.height,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        splatmap.coords
       );
     }
   }
