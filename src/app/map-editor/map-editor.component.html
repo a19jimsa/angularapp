@@ -1,7 +1,7 @@
 <div class="container-fluid border">
   <div class="row">
     <div class="col-1">
-      <mat-card class="h-100">
+      <mat-card class="h-100 d-flex flex-column justify-content-between">
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Scene</mat-card-title>
@@ -158,6 +158,18 @@
                   <div>Your color is: {{ meshbrush.color }}</div>
                 </div>
               </div>
+              <div>Change shader: {{ selectedShader }}</div>
+              <mat-form-field>
+                <mat-label>Shaders</mat-label>
+                <mat-select
+                  [(ngModel)]="selectedShader"
+                  name="shader"
+                  (selectionChange)="changeShader($event)"
+                  ><mat-option value="default">Default</mat-option>
+                  <mat-option value="shader1">Shader 1</mat-option>
+                  <mat-option value="shader2">Shader 2</mat-option></mat-select
+                >
+              </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
           <button mat-button>Add Component</button>

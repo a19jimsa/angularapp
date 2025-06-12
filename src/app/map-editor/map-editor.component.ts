@@ -16,7 +16,7 @@ import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
 import { MathUtils } from 'src/Utils/MathUtils';
@@ -36,6 +36,7 @@ import { Grass } from 'src/components/grass';
 import { Transform } from 'src/components/transform';
 import { Vec } from '../vec';
 import { Tree } from 'src/components/tree';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 export enum Tools {
   Splatmap,
@@ -71,6 +72,7 @@ export type Brush = {
     FormsModule,
     MatSliderModule,
     MatRadioModule,
+    MatSelectModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -100,11 +102,18 @@ export class MapEditorComponent implements AfterViewInit {
     color: 'red',
     alpha: 1,
   };
+
   ecs: Ecs;
+  //All systems in editor
   renderSystem: RenderSystem = new RenderSystem();
   brushSystem: BrushSystem = new BrushSystem();
 
   brushToolsImages: HTMLImageElement[] = new Array();
+
+  selectedShader: string = 'default';
+
+  splatmapShader1!: Shader;
+  splatmapShader2!: Shader;
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -241,6 +250,11 @@ export class MapEditorComponent implements AfterViewInit {
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
     const treeShader = new Shader(gl);
     await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
+    this.splatmapShader1 = new Shader(gl);
+    await this.splatmapShader1.initShaders(
+      'splatmap_vertex.txt',
+      'splatmap_fragment.txt'
+    );
 
     const sprite = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
@@ -351,7 +365,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(50, 0, 0, 200, 200);
+    backgroundModel.addPlane(100, 0, 0, 100, 100);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -372,7 +386,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(50, 200, 0, 200, 200);
+    backgroundModel2.addPlane(100, 100, 0, 100, 100);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),
@@ -442,6 +456,20 @@ export class MapEditorComponent implements AfterViewInit {
     // );
 
     this.loop();
+  }
+
+  changeShader(event: MatSelectChange) {
+    for (const entity of this.ecs.getEntities()) {
+      const material = this.ecs.getComponent<Material>(entity, 'Material');
+      const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
+      if (material && splatmap) {
+        if (event.value === 'shader1') {
+          material.shader = this.splatmapShader1;
+        } else if (event.value === 'shader2') {
+          material.shader = this.splatmapShader2;
+        }
+      }
+    }
   }
 
   setupSkybox(shader: Shader, texture: WebGLTexture) {

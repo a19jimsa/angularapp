@@ -1,8 +1,8 @@
-import { Shader } from 'src/renderer/shader';
 import { Component } from './component';
-import { VertexArrayBuffer } from 'src/renderer/vertex-array-buffer';
 
 export class Grass extends Component {
   override type: string = 'Grass';
+  maxGrassBuffer: number = 10000;
+  amountOfGrass: number = 0;
   positions: number[] = new Array();
 }

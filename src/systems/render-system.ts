@@ -95,22 +95,25 @@ export class RenderSystem {
       );
 
       if (mesh && material && splatmap) {
-        gl.useProgram(material.program);
+        gl.useProgram(material.shader.program);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
         const texLocation = gl.getUniformLocation(
-          material.program,
+          material.shader.program,
           'u_texture'
         );
         gl.uniform1i(texLocation, 0);
         gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
         gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
         const splatmapLocation = gl.getUniformLocation(
-          material.program,
+          material.shader.program,
           'u_splatmap'
         );
         gl.uniform1i(splatmapLocation, splatmap.slot);
-        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        const location = gl.getUniformLocation(
+          material.shader.program,
+          'u_matrix'
+        );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
 
         gl.bindVertexArray(mesh.vao);
@@ -122,17 +125,23 @@ export class RenderSystem {
         );
         gl.bindVertexArray(null);
       } else if (mesh && material && grass) {
-        gl.useProgram(material.program);
-        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.useProgram(material.shader.program);
+        const location = gl.getUniformLocation(
+          material.shader.program,
+          'u_matrix'
+        );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         const textureLocation = gl.getUniformLocation(
-          material.program,
+          material.shader.program,
           'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
         gl.activeTexture(gl.TEXTURE0 + material.slot);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
-        const timeLocation = gl.getUniformLocation(material.program, 'u_time');
+        const timeLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_time'
+        );
         gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
@@ -148,17 +157,23 @@ export class RenderSystem {
         );
         gl.bindVertexArray(null);
       } else if (mesh && material && animatedTexture) {
-        gl.useProgram(material.program);
-        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.useProgram(material.shader.program);
+        const location = gl.getUniformLocation(
+          material.shader.program,
+          'u_matrix'
+        );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         const textureLocation = gl.getUniformLocation(
-          material.program,
+          material.shader.program,
           'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
         gl.activeTexture(gl.TEXTURE0 + material.slot);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
-        const timeLocation = gl.getUniformLocation(material.program, 'u_time');
+        const timeLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_time'
+        );
         gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
@@ -169,17 +184,23 @@ export class RenderSystem {
         );
         gl.bindVertexArray(null);
       } else if (mesh && material && tree) {
-        gl.useProgram(material.program);
-        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.useProgram(material.shader.program);
+        const location = gl.getUniformLocation(
+          material.shader.program,
+          'u_matrix'
+        );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         const textureLocation = gl.getUniformLocation(
-          material.program,
+          material.shader.program,
           'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
         gl.activeTexture(gl.TEXTURE0 + material.slot);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
-        const timeLocation = gl.getUniformLocation(material.program, 'u_time');
+        const timeLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_time'
+        );
         gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         const instanceCount = tree.positions.length / 3; // en xyz per träd
@@ -194,8 +215,11 @@ export class RenderSystem {
         );
         gl.bindVertexArray(null);
       } else if (mesh && material) {
-        gl.useProgram(material.program);
-        const location = gl.getUniformLocation(material.program, 'u_matrix');
+        gl.useProgram(material.shader.program);
+        const location = gl.getUniformLocation(
+          material.shader.program,
+          'u_matrix'
+        );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(

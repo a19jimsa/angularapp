@@ -2,10 +2,10 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Sudoku } from '../sudoku';
 
 @Component({
-    selector: 'app-sudokumenu',
-    templateUrl: './sudokumenu.component.html',
-    styleUrls: ['./sudokumenu.component.css'],
-    standalone: false
+  selector: 'app-sudokumenu',
+  templateUrl: './sudokumenu.component.html',
+  styleUrls: ['./sudokumenu.component.css'],
+  standalone: false,
 })
 export class SudokumenuComponent implements OnInit {
   @Input() sudokuNumbers!: Sudoku[];

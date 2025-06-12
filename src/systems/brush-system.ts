@@ -96,9 +96,11 @@ export class BrushSystem {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (grass && mesh) {
         for (let i = 0; i < 100; i++) {
+          if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
           const randomx = -5 + Math.random() * 10;
           const randomz = -5 + Math.random() * 10;
           grass.positions.push((x + randomx) * 2, y * 2, (z + randomz) * 2);
+          grass.amountOfGrass++;
         }
       }
     }
