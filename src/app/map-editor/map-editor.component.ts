@@ -351,7 +351,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
 
     const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 0, 0, 100, 100);
+    backgroundModel.addPlane(50, 0, 0, 200, 200);
     const backgroundMesh = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel.vertices),
@@ -372,7 +372,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(100, 100, 0, 100, 100);
+    backgroundModel2.addPlane(50, 200, 0, 200, 200);
     const backgroundMesh2 = new MeshRenderer(
       gl,
       new Float32Array(backgroundModel2.vertices),

@@ -39,7 +39,7 @@ export class BrushSystem {
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 1;
-    const maxDistance = 100;
+    const maxDistance = 200;
     const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
@@ -55,6 +55,7 @@ export class BrushSystem {
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, t); // pos = origin + dir * t
+      //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let i = 0; i < mesh.vertices.length; i += 8) {
         const vx = mesh.vertices[i];
         const vy = mesh.vertices[i + 1];
@@ -69,12 +70,7 @@ export class BrushSystem {
             this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
-            this.grassBrush(
-              ecs,
-              mesh.vertices[i + 3] * 100,
-              0,
-              mesh.vertices[i + 4] * 100
-            );
+            this.grassBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
             console.log('Trees');
             this.treeBrush(ecs, vx, vy, vz);
