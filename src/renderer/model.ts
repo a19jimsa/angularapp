@@ -214,10 +214,42 @@ export class Model {
     }
   }
 
-  addTree() {
+  addTree(width: number, height: number) {
+    //xyz,uv,normals
+    const z = 0;
     const position = [
-      10, 10, 0, 0, 0, 0, 0, 0, 20, 10, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0,
-      0, 10, 0, 0, 0, 0, 0, 0, 0,
+      0,
+      10 + height,
+      z,
+      0,
+      0,
+      0,
+      0,
+      0,
+      20 + width,
+      10 + height,
+      z,
+      1,
+      0,
+      0,
+      0,
+      0,
+      20 + width,
+      0,
+      z,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      z,
+      0,
+      1,
+      0,
+      0,
+      0,
     ];
     const indices = [0, 3, 1, 1, 3, 2];
     this.vertices = position;

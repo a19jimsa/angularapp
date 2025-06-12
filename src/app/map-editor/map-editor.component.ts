@@ -35,6 +35,7 @@ import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Grass } from 'src/components/grass';
 import { Transform } from 'src/components/transform';
 import { Vec } from '../vec';
+import { Tree } from 'src/components/tree';
 
 export enum Tools {
   Splatmap,
@@ -238,6 +239,8 @@ export class MapEditorComponent implements AfterViewInit {
     await waterShader.initShaders('water_vertex.txt', 'water_fragment.txt');
     const grassShader = new Shader(gl);
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
+    const treeShader = new Shader(gl);
+    await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
 
     const sprite = await this.texture1.loadTexture(
       '/assets/sprites/104085.png'
@@ -269,6 +272,10 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/skybox/back.jpg'
     );
 
+    const tree = await this.texture1.loadTexture(
+      'assets/textures/tree_assets.png'
+    );
+
     this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height, 0);
     this.texture1.createAndBindTexture(
       textureMapImage,
@@ -284,6 +291,7 @@ export class MapEditorComponent implements AfterViewInit {
       waterTextureImage.height,
       4
     );
+    this.texture1.createAndBindTexture(tree, tree.width, tree.height, 5);
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -329,7 +337,6 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const grassEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Mesh>(grassEntity, new Mesh(grassMesh.vao));
     this.ecs.addComponent<Material>(
       grassEntity,
       new Material(grassShader, null, 4)
@@ -338,10 +345,10 @@ export class MapEditorComponent implements AfterViewInit {
       grassEntity,
       new AnimatedTexture(10)
     );
-    this.ecs.addComponent<Grass>(
-      grassEntity,
-      new Grass(grassMesh.vao, gl, grassShader)
-    );
+
+    this.ecs.addComponent<Grass>(grassEntity, new Grass());
+    const newMesh = this.renderSystem.createBatch(gl, grassMesh);
+    this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
 
     const backgroundModel = new Model();
     backgroundModel.addPlane(100, 0, 0, 100, 100);
@@ -386,7 +393,7 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.createWater(waterShader, 4, 0, 0.1);
     this.createWater(waterShader, 4, 50, 0.1);
-    this.createTree(basicShader, 4);
+    this.createTree(treeShader, 5);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -468,7 +475,7 @@ export class MapEditorComponent implements AfterViewInit {
     skyboxMesh.vao.unbind();
   }
 
-  createMesh(shader: Shader, slot: number) {
+  private createMesh(shader: Shader, slot: number) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
@@ -487,7 +494,7 @@ export class MapEditorComponent implements AfterViewInit {
     console.log('Created Mesh!!!');
   }
 
-  createWater(shader: Shader, slot: number, x: number, y: number) {
+  private createWater(shader: Shader, slot: number, x: number, y: number) {
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       entity,
@@ -508,27 +515,29 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(shader, this.texture1.getTexture(slot)!, slot)
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
-    console.log('Created Mesh!!!');
+    console.log('Created Water!!!');
   }
 
-  createTree(shader: Shader, slot: number) {
+  private createTree(shader: Shader, slot: number) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addTree();
+    model.addTree(0, 20);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
       shader
     );
-    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+
     this.ecs.addComponent<Material>(
       entity,
       new Material(shader, this.texture1.getTexture(slot)!, slot)
     );
-    console.log('Created Mesh!!!');
-    this.updateSplatmap();
+    this.ecs.addComponent<Tree>(entity, new Tree());
+    const newTreeMesh = this.renderSystem.createBatch(this.gl, mesh);
+    this.ecs.addComponent<Mesh>(entity, new Mesh(newTreeMesh.vao));
+    console.log('Created tree!');
   }
 
   loop() {

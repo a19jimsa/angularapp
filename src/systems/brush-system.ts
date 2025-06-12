@@ -76,7 +76,8 @@ export class BrushSystem {
               mesh.vertices[i + 4] * 100
             );
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, entity, vx, vy, vz);
+            console.log('Trees');
+            this.treeBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintCircle(
               ecs,
@@ -98,21 +99,22 @@ export class BrushSystem {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       if (grass && mesh) {
-        if (grass.amountOfGrass >= grass.maxGrassBuffer) {
-          return;
+        for (let i = 0; i < 100; i++) {
+          const randomx = -5 + Math.random() * 10;
+          const randomz = -5 + Math.random() * 10;
+          grass.positions.push((x + randomx) * 2, y * 2, (z + randomz) * 2);
         }
-        grass.positions.push(x * 2, y * 2, z * 2);
-        grass.amountOfGrass++;
-        console.log(grass.amountOfGrass);
       }
     }
   }
 
-  private treeBrush(ecs: Ecs, entity: Entity, x: number, y: number, z: number) {
-    const tree = ecs.getComponent<Tree>(entity, 'Tree');
-    if (tree) {
-      console.log(x, y, z);
-      tree.positions.push(x * 2, y * 2, z * 2);
+  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
+    for (const entity of ecs.getEntities()) {
+      const tree = ecs.getComponent<Tree>(entity, 'Tree');
+      if (tree) {
+        tree.positions.push(x * 1.7, y * 2, z * 2);
+        return;
+      }
     }
   }
 
