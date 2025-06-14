@@ -290,22 +290,20 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/tree_assets.png'
     );
 
-    this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height, 0);
+    this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
     this.texture1.createAndBindTexture(
       textureMapImage,
       textureMapImage.width,
-      textureMapImage.height,
-      1
+      textureMapImage.height
     );
-    this.texture1.createAndBindTexture(null, 2048, 2048, 2);
-    this.texture1.createAndBindTexture(null, 2048, 2048, 3);
+    this.texture1.createAndBindTexture(null, 2048, 2048);
+    this.texture1.createAndBindTexture(null, 2048, 2048);
     this.texture1.createAndBindTexture(
       waterTextureImage,
       waterTextureImage.width,
-      waterTextureImage.height,
-      4
+      waterTextureImage.height
     );
-    this.texture1.createAndBindTexture(tree, tree.width, tree.height, 5);
+    this.texture1.createAndBindTexture(tree, tree.width, tree.height);
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -377,12 +375,12 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
     this.ecs.addComponent(
       newEntity,
-      new Material(shader1, this.texture1.getTexture(1)!, 1)
+      new Material(shader1, this.texture1.getTexture(1), 1)
     );
 
     this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(2048, 2048, this.texture1.getTexture(2)!, 2)
+      new Splatmap(2048, 2048, this.texture1.getTexture(2), 2)
     );
 
     const backgroundModel2 = new Model();
@@ -600,24 +598,24 @@ export class MapEditorComponent implements AfterViewInit {
       this.updateSplatmap();
     }
 
-    const model = new Model();
-    for (let i = 0; i < this.bones.length; i++) {
-      const bone = this.bones[i];
-      model.addSquares(
-        this.texture1.getImage(0).width,
-        this.texture1.getImage(0).height,
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-        bone.pivot,
-        bone.startX,
-        bone.startY,
-        bone.endX,
-        bone.endY,
-        300 + bone.position.x - bone.pivot.x - bone.endX / 2,
-        300 + bone.position.y - bone.pivot.y,
-        bone.endX,
-        bone.endY
-      );
-    }
+    // const model = new Model();
+    // for (let i = 0; i < this.bones.length; i++) {
+    //   const bone = this.bones[i];
+    //   model.addSquares(
+    //     this.texture1.getImage(0).width,
+    //     this.texture1.getImage(0).height,
+    //     MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+    //     bone.pivot,
+    //     bone.startX,
+    //     bone.startY,
+    //     bone.endX,
+    //     bone.endY,
+    //     300 + bone.position.x - bone.pivot.x - bone.endX / 2,
+    //     300 + bone.position.y - bone.pivot.y,
+    //     bone.endX,
+    //     bone.endY
+    //   );
+    // }
   }
 
   updateSplatmap() {

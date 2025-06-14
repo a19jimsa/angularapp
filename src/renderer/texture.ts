@@ -1,10 +1,8 @@
-import { Splatmap } from 'src/components/splatmap';
 import { Shader } from './shader';
 
 export class Texture {
   private gl: WebGL2RenderingContext;
   private textureMap = new Map<number, WebGLTexture>();
-  private images = new Array();
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
@@ -50,12 +48,11 @@ export class Texture {
   createAndBindTexture(
     image: HTMLImageElement | null,
     width: number,
-    height: number,
-    slot: number
+    height: number
   ) {
     const gl = this.gl;
     const texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.activeTexture(gl.TEXTURE0 + this.textureMap.size);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
     if (image instanceof HTMLImageElement) {
       gl.texImage2D(
@@ -94,12 +91,15 @@ export class Texture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
+    if (!texture) {
+      new Error('Could not create texture');
+      return;
+    }
     //Much better!
-    this.textureMap.set(slot, texture!);
-    this.images.push(image);
+    const slot = this.textureMap.size;
+    this.textureMap.set(this.textureMap.size, texture);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    console.log(this.textureMap);
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {
@@ -152,13 +152,11 @@ export class Texture {
   }
 
   getTexture(slot: number) {
-    return this.textureMap.get(slot);
+    if (!this.textureMap.get(slot)) {
+      new Error('Could not get texture!');
+    }
+    return this.textureMap.get(slot)!;
   }
-
-  getImage(slot: number) {
-    return this.images[slot];
-  }
-
   bind(textureSlot: number) {
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.textureMap.get(textureSlot)!);

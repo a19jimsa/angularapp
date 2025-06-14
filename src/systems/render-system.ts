@@ -115,7 +115,11 @@ export class RenderSystem {
           'u_matrix'
         );
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
-
+        const timeLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_time'
+        );
+        gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
           gl.TRIANGLES,
