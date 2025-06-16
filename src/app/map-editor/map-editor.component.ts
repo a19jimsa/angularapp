@@ -304,6 +304,7 @@ export class MapEditorComponent implements AfterViewInit {
       waterTextureImage.height
     );
     this.texture1.createAndBindTexture(tree, tree.width, tree.height);
+    this.texture1.createAndBindTexture(null, 2048, 2048);
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -403,8 +404,10 @@ export class MapEditorComponent implements AfterViewInit {
       new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
     );
 
-    this.createWater(waterShader, 4, 0, 0.1);
-    this.createWater(waterShader, 4, 50, 0.1);
+    this.createTerrainWithSplatmap(0, 100, shader1, 6);
+
+    // this.createWater(waterShader, 4, 0, 0.1);
+    // this.createWater(waterShader, 4, 50, 0.1);
     this.createTree(treeShader, 5);
 
     this.setupSkybox(shader2, skyboxTexture!);
@@ -499,6 +502,36 @@ export class MapEditorComponent implements AfterViewInit {
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(0);
     skyboxMesh.vao.unbind();
+  }
+
+  private createTerrainWithSplatmap(
+    xPos: number,
+    zPos: number,
+    shader: Shader,
+    slot: number
+  ) {
+    const model = new Model();
+    model.addPlane(100, xPos, zPos, 100, 100);
+    const backgroundMesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    const newEntity = this.ecs.createEntity();
+    //Add mesh component to entity
+    this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
+    //Add material compoent to entity
+    this.ecs.addComponent(
+      newEntity,
+      new Material(shader, this.texture1.getTexture(1), 1)
+    );
+
+    //Add splatmap too terrain entity
+    this.ecs.addComponent<Splatmap>(
+      newEntity,
+      new Splatmap(2048, 2048, this.texture1.getTexture(slot), slot)
+    );
   }
 
   private createMesh(shader: Shader, slot: number) {

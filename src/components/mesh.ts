@@ -7,6 +7,9 @@ export class Mesh extends Component {
   buffer: WebGLBuffer | null;
   vertices: Float32Array;
   indices: Uint16Array;
+  //To be used later for different stride and offset in vertices
+  stride: number = 8;
+  offset: number = 4;
 
   constructor(vao: VertexArrayBuffer) {
     super();

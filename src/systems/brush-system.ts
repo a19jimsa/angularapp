@@ -285,7 +285,7 @@ export class BrushSystem {
     return ctx.getImageData(0, 0, canvas.width, canvas.height);
   }
 
-  public updateNormals(mesh: Mesh): void {
+  private updateNormals(mesh: Mesh): void {
     // Steg 1: Initiera alla normals till 0
     for (let i = 0; i < mesh.vertices.length / 8; i++) {
       mesh.vertices[i * 8 + 5] = 0;
