@@ -1,0 +1,17 @@
+precision mediump float;
+
+//Shared in shaders
+uniform sampler2D u_texture;
+uniform float u_time;
+
+varying vec2 v_texcoord;
+
+void main() {
+    //vec2 uv = v_texcoord * 5.0 + u_time * 0.1;
+    vec4 texColor = texture2D(u_texture, v_texcoord);
+    if(texColor.a < 0.9) {
+        discard;
+    }
+    float alpha = 1.0;
+    gl_FragColor = vec4(texColor.rgb, alpha);
+}

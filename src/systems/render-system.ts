@@ -12,7 +12,7 @@ import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 
 export class RenderSystem {
-  createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer) {
+  createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
     mesh.shader.use();
     mesh.vao.bind();
     const buffer = gl.createBuffer();
@@ -23,7 +23,7 @@ export class RenderSystem {
     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vao.vertexBuffer.buffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array(10000 * 3),
+      new Float32Array(amount * 3),
       gl.DYNAMIC_DRAW
     );
     const location = gl.getAttribLocation(

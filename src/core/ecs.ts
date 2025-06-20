@@ -36,15 +36,16 @@ export class Ecs {
     return entity;
   }
 
-  addComponent<T extends Component>(entity: Entity, component: T): void {
+  addComponent<T extends Component>(entity: Entity, component: T): T | null {
     if (!this.components.has(entity)) {
       this.components.set(entity, []);
     }
     const type = this.components
       .get(entity)
       ?.find((e) => e.type === component.type);
-    if (type) return;
+    if (type) return null;
     this.components.get(entity)?.push(component);
+    return component;
   }
 
   removeComponent<T extends Component>(entity: Entity, componentType: string) {

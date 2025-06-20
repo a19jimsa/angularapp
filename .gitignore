@@ -42,4 +42,6 @@ testem.log
 Thumbs.db
 
 #Sprites and json
-/src/assets
+/src/assets/img
+/src/assets/sprites
+/src/assets/textures

@@ -1,0 +1,16 @@
+attribute vec4 a_position;
+attribute vec3 a_normal;
+attribute vec4 a_instancePositions;
+
+uniform mat4 u_matrix;
+uniform float u_time;
+varying vec2 v_texcoord;
+varying float v_height;
+
+void main() {
+    float h = a_position.y;
+    float offsetX = 0.3 * h * sin(u_time * 2.0);
+    vec4 displaced = a_position + vec4(offsetX,0.0,0.0,0.0);
+    gl_Position = u_matrix * (displaced + a_instancePositions);
+    v_height = h;
+}

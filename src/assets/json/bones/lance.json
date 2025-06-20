@@ -1,0 +1,23 @@
+[
+  {
+    "type": "Bone",
+    "id": "effect1",
+    "position": { "x": 0, "y": 0 },
+    "pivot": { "x": 0, "y": 0 },
+    "parentId": null,
+    "length": 105,
+    "rotation": 0,
+    "startX": 0,
+    "startY": 65,
+    "endX": 251,
+    "endY": 60,
+    "order": 3,
+    "attachAt": 1,
+    "globalRotation": 90,
+    "globalSpriteRotation": 90,
+    "hierarchyDepth": 0,
+    "scale": { "x": 1, "y": 1 },
+    "minAngle": 0,
+    "maxAngle": 180
+  }
+]

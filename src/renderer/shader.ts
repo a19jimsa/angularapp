@@ -37,6 +37,7 @@ export class Shader {
     this.gl.shaderSource(shader, source);
     this.gl.compileShader(shader);
     if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+      console.log(source);
       console.error('Shader compile failed:', this.gl.getShaderInfoLog(shader));
       this.gl.deleteShader(shader);
       return null;

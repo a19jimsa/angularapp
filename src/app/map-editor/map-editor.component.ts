@@ -287,7 +287,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const tree = await this.texture1.loadTexture(
-      'assets/textures/tree_assets.png'
+      'assets/textures/tree_texture.png'
     );
 
     this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
@@ -325,16 +325,16 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/round_brush.jpg'
     );
 
-    const strokeBrushImage = await this.texture1.loadTexture(
-      'assets/textures/stroke_brush.jpg'
-    );
+    // const strokeBrushImage = await this.texture1.loadTexture(
+    //   'assets/textures/stroke_brush.jpg'
+    // );
 
     this.brushToolsImages.push(
       smokeBrushImage,
       starBrushImage,
       terrainBrushImage,
-      roundBrushImage,
-      strokeBrushImage
+      roundBrushImage
+      //strokeBrushImage
     );
 
     this.meshbrush.image = smokeBrushImage;
@@ -359,9 +359,15 @@ export class MapEditorComponent implements AfterViewInit {
       new AnimatedTexture(10)
     );
 
-    this.ecs.addComponent<Grass>(grassEntity, new Grass());
-    const newMesh = this.renderSystem.createBatch(gl, grassMesh);
-    this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
+    const grass = this.ecs.addComponent<Grass>(grassEntity, new Grass());
+    if (grass) {
+      const newMesh = this.renderSystem.createBatch(
+        gl,
+        grassMesh,
+        grass.maxGrassBuffer
+      );
+      this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
+    }
 
     const backgroundModel = new Model();
     backgroundModel.addPlane(100, 0, 0, 100, 100);
@@ -594,7 +600,7 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(shader, this.texture1.getTexture(slot)!, slot)
     );
     this.ecs.addComponent<Tree>(entity, new Tree());
-    const newTreeMesh = this.renderSystem.createBatch(this.gl, mesh);
+    const newTreeMesh = this.renderSystem.createBatch(this.gl, mesh, 1000);
     this.ecs.addComponent<Mesh>(entity, new Mesh(newTreeMesh.vao));
     console.log('Created tree!');
   }
