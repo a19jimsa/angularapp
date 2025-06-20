@@ -15,10 +15,10 @@ void main() {
     vec2 pixelOffset = 1.0 / pixelResolution;
     vec2 padding = pixelOffset * 0.5;
     vec2 tileSize = vec2(1.0 / 6.0, 1.0 / 2.0);
-    vec2 uv_leafs = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(0.0, 0.0) * tileSize + padding;
+    vec2 uv_leafs = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(1.0, 0.0) * tileSize + padding;
     vec2 uv_sand = fract(v_texcoord) * (tileSize - 2.0 * padding)+ vec2(2.0, 1.0) * tileSize + padding;
-    vec2 uv_ground = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(4.0, 0.0) * tileSize + padding;
-    vec2 uv_water = fract(v_texcoord + vec2(u_time * 0.1, 0.0)) * (tileSize - 2.0 * padding) + vec2(5.0, 0.0) * tileSize + padding;
+    vec2 uv_ground = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(3.0, 0.0) * tileSize + padding;
+    vec2 uv_water = fract(v_texcoord + vec2(u_time * 0.1, u_time * 0.2)) * (tileSize - 2.0 * padding) + vec2(5.0, 0.0) * tileSize + padding;
     vec3 lightDir = normalize(vec3(0, 3, 0));
     float light = dot(lightDir, v_normal * 2. - 1.0);
 

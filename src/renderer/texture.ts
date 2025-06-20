@@ -100,6 +100,7 @@ export class Texture {
     this.textureMap.set(this.textureMap.size, texture);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    return texture;
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {

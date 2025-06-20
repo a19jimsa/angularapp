@@ -369,47 +369,8 @@ export class MapEditorComponent implements AfterViewInit {
       this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
     }
 
-    const backgroundModel = new Model();
-    backgroundModel.addPlane(100, 0, 0, 100, 100);
-    const backgroundMesh = new MeshRenderer(
-      gl,
-      new Float32Array(backgroundModel.vertices),
-      new Uint16Array(backgroundModel.indices),
-      shader
-    );
-
-    const newEntity = this.ecs.createEntity();
-    this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
-    this.ecs.addComponent(
-      newEntity,
-      new Material(shader1, this.texture1.getTexture(1), 1)
-    );
-
-    this.ecs.addComponent<Splatmap>(
-      newEntity,
-      new Splatmap(2048, 2048, this.texture1.getTexture(2), 2)
-    );
-
-    const backgroundModel2 = new Model();
-    backgroundModel2.addPlane(100, 100, 0, 100, 100);
-    const backgroundMesh2 = new MeshRenderer(
-      gl,
-      new Float32Array(backgroundModel2.vertices),
-      new Uint16Array(backgroundModel2.indices),
-      shader1
-    );
-
-    const entity2 = this.ecs.createEntity();
-    this.ecs.addComponent(entity2, new Mesh(backgroundMesh2.vao));
-    this.ecs.addComponent(
-      entity2,
-      new Material(backgroundMesh2.shader, this.texture1.getTexture(1)!, 1)
-    );
-    this.ecs.addComponent<Splatmap>(
-      entity2,
-      new Splatmap(2048, 2048, this.texture1.getTexture(3)!, 3)
-    );
-
+    this.createTerrainWithSplatmap(0, 0, shader1, 2);
+    this.createTerrainWithSplatmap(100, 100, shader1, 3);
     this.createTerrainWithSplatmap(0, 100, shader1, 6);
 
     // this.createWater(waterShader, 4, 0, 0.1);
