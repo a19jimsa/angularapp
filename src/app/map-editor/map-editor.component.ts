@@ -59,6 +59,7 @@ export type Brush = {
   image: HTMLImageElement;
   type: ToolBrush;
   entity: Entity;
+  negative: boolean;
 };
 
 @Component({
@@ -105,6 +106,7 @@ export class MapEditorComponent implements AfterViewInit {
     color: 'red',
     alpha: 1,
     entity: -1,
+    negative: false,
   };
 
   ecs: Ecs;
@@ -431,11 +433,7 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
-    for (const entity of this.ecs.getEntities()) {
-      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
-      if (!mesh) continue;
-      this.brushSystem.updateNormals(mesh);
-    }
+
     this.loop();
   }
 
@@ -492,7 +490,6 @@ export class MapEditorComponent implements AfterViewInit {
   ) {
     const width = 512;
     const height = 512;
-
     const model = new Model();
     model.addPlane(100, xPos, zPos, 300, 300);
     const backgroundMesh = new MeshRenderer(
@@ -510,13 +507,14 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(shader, this.texture1.getTexture(slot), slot)
     );
 
-    const splatmap = this.texture1.createAndBindTexture(null, 512, 512);
-    if (splatmap === undefined) return;
+    const splatmap = this.texture1.createAndBindTexture(null, width, height);
     //Add splatmap too terrain entity
     this.ecs.addComponent<Splatmap>(
       newEntity,
       new Splatmap(width, height, this.texture1.getTexture(splatmap), splatmap)
     );
+    this.updateSplatmap();
+    this.updateMesh();
   }
 
   private createMesh(shader: Shader, slot: number) {

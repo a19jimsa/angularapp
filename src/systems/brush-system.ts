@@ -24,9 +24,9 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 1;
-    const maxDistance = 100;
-    const step = 0.5;
+    const epsilon = 5;
+    const maxDistance = 200;
+    const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
     const invertedView = mat4.create();
@@ -41,14 +41,14 @@ export class BrushSystem {
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     if (!mesh) return;
 
-    for (let t = 0; t < maxDistance; t += step) {
+    for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
-      vec3.scaleAndAdd(pos, rayOrigin, mousePos, t); // pos = origin + dir * t
+      vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
       //8 Stride change later to make it get from the mesh stride, offset etc.
-      for (let i = 0; i < mesh.vertices.length; i += 8) {
-        const vx = mesh.vertices[i];
-        const vy = mesh.vertices[i + 1];
-        const vz = mesh.vertices[i + 2];
+      for (let j = 0; j < mesh.vertices.length; j += 8) {
+        const vx = mesh.vertices[j];
+        const vy = mesh.vertices[j + 1];
+        const vz = mesh.vertices[j + 2];
         // Beräkna distans från rayens aktuella punkt till vertexen
         const dx = vx - pos[0];
         const dy = vy - pos[1];
@@ -66,8 +66,8 @@ export class BrushSystem {
             this.paintCircle(
               ecs,
               meshBrush,
-              mesh.vertices[i + 3],
-              mesh.vertices[i + 4]
+              mesh.vertices[j + 3],
+              mesh.vertices[j + 4]
             );
           }
           return;
@@ -269,7 +269,7 @@ export class BrushSystem {
     // Steg 1: Initiera alla normals till 0
     for (let i = 0; i < mesh.vertices.length / 8; i++) {
       mesh.vertices[i * 8 + 5] = 0;
-      mesh.vertices[i * 8 + 6] = 0;
+      mesh.vertices[i * 8 + 6] = 1;
       mesh.vertices[i * 8 + 7] = 0;
     }
     //Stride 8 xyzuvnormals(3)
