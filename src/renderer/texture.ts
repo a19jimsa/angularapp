@@ -49,7 +49,7 @@ export class Texture {
     image: HTMLImageElement | null,
     width: number,
     height: number
-  ) {
+  ): number {
     const gl = this.gl;
     const texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + this.textureMap.size);
@@ -87,20 +87,20 @@ export class Texture {
       this.gl.TEXTURE_MAG_FILTER,
       this.gl.LINEAR
     );
-    gl.generateMipmap(gl.TEXTURE_2D);
+    //gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
     if (!texture) {
       new Error('Could not create texture');
-      return;
+      return -1;
     }
     //Much better!
     const slot = this.textureMap.size;
     this.textureMap.set(this.textureMap.size, texture);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    return texture;
+    return slot;
   }
 
   createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {

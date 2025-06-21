@@ -15,32 +15,18 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    for (const entity of ecs.getEntities()) {
-      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
-      if (mesh) {
-        this.pickVertex(
-          ecs,
-          entity,
-          meshBrush,
-          mesh,
-          mousePos,
-          perspectiveCamera
-        );
-      }
-    }
+    this.pickVertex(ecs, meshBrush, mousePos, perspectiveCamera);
   }
 
   private pickVertex(
     ecs: Ecs,
-    entity: Entity,
     meshBrush: Brush,
-    mesh: Mesh,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 1;
-    const maxDistance = 200;
-    const step = 1;
+    const maxDistance = 100;
+    const step = 0.5;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
     const invertedView = mat4.create();
@@ -51,6 +37,9 @@ export class BrushSystem {
       invertedView[13],
       invertedView[14]
     );
+
+    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    if (!mesh) return;
 
     for (let t = 0; t < maxDistance; t += step) {
       const pos = vec3.create();
@@ -72,12 +61,10 @@ export class BrushSystem {
           } else if (meshBrush.type === ToolBrush.Grass) {
             this.grassBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            console.log('Trees');
             this.treeBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintCircle(
               ecs,
-              entity,
               meshBrush,
               mesh.vertices[i + 3],
               mesh.vertices[i + 4]
@@ -87,14 +74,12 @@ export class BrushSystem {
         }
       }
     }
-    return null;
   }
 
   private grassBrush(ecs: Ecs, x: number, y: number, z: number) {
     for (const entity of ecs.getEntities()) {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
-      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
-      if (grass && mesh) {
+      if (grass) {
         for (let i = 0; i < 100; i++) {
           if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
           const randomx = -5 + Math.random() * 10;
@@ -102,6 +87,7 @@ export class BrushSystem {
           grass.positions.push((x + randomx) * 2, y * 2, (z + randomz) * 2);
           grass.amountOfGrass++;
         }
+        return;
       }
     }
   }
@@ -116,17 +102,11 @@ export class BrushSystem {
     }
   }
 
-  private paintCircle(
-    ecs: Ecs,
-    entity: Entity,
-    brush: Brush,
-    uv0: number,
-    uv1: number
-  ) {
-    const alpha = brush.alpha;
-    const radius = brush.radius;
-    const splatColor = brush.color;
-    const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+  private paintCircle(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
+    const alpha = meshBrush.alpha;
+    const radius = meshBrush.radius;
+    const splatColor = meshBrush.color;
+    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
     if (splatmap) {
       const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
       const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
@@ -285,7 +265,7 @@ export class BrushSystem {
     return ctx.getImageData(0, 0, canvas.width, canvas.height);
   }
 
-  private updateNormals(mesh: Mesh): void {
+  public updateNormals(mesh: Mesh): void {
     // Steg 1: Initiera alla normals till 0
     for (let i = 0; i < mesh.vertices.length / 8; i++) {
       mesh.vertices[i * 8 + 5] = 0;

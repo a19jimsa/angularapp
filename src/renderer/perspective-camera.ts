@@ -11,7 +11,7 @@ export class PerspectiveCamera {
   constructor(width: number, height: number) {
     mat4.perspective(
       this.projectionMatrix,
-      MathUtils.degreesToRadians(45),
+      MathUtils.degreesToRadians(60),
       width / height,
       1,
       1000

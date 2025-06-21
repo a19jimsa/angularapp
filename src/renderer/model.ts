@@ -277,7 +277,7 @@ export class Model {
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX + xPos, 0, posZ + zPos); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
-        this.vertices.push(0, 1, 0); // Normals
+        this.vertices.push(0, 0, 0); // Normals
       }
     }
 

@@ -37,6 +37,7 @@ import { Transform } from 'src/components/transform';
 import { Vec } from '../vec';
 import { Tree } from 'src/components/tree';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { Entity } from '../entity';
 
 export enum Tools {
   Splatmap,
@@ -57,6 +58,7 @@ export type Brush = {
   alpha: number;
   image: HTMLImageElement;
   type: ToolBrush;
+  entity: Entity;
 };
 
 @Component({
@@ -94,13 +96,15 @@ export class MapEditorComponent implements AfterViewInit {
   isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
+
   meshbrush: Brush = {
     radius: 5,
     strength: 1,
     image: new Image(),
-    type: ToolBrush.Height,
+    type: ToolBrush.Grass,
     color: 'red',
     alpha: 1,
+    entity: -1,
   };
 
   ecs: Ecs;
@@ -218,6 +222,10 @@ export class MapEditorComponent implements AfterViewInit {
     });
   }
 
+  changeActiveEntity(entity: Entity) {
+    this.meshbrush.entity = entity;
+  }
+
   changeBrushImage(id: number) {
     this.meshbrush.image = this.brushToolsImages[id];
   }
@@ -290,21 +298,22 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/tree_texture.png'
     );
 
-    this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
-    this.texture1.createAndBindTexture(
+    // const spriteSlot = this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
+    const slot = this.texture1.createAndBindTexture(
       textureMapImage,
       textureMapImage.width,
       textureMapImage.height
     );
-    this.texture1.createAndBindTexture(null, 2048, 2048);
-    this.texture1.createAndBindTexture(null, 2048, 2048);
-    this.texture1.createAndBindTexture(
-      waterTextureImage,
-      waterTextureImage.width,
-      waterTextureImage.height
-    );
-    this.texture1.createAndBindTexture(tree, tree.width, tree.height);
-    this.texture1.createAndBindTexture(null, 2048, 2048);
+    // const waterSlot = this.texture1.createAndBindTexture(
+    //   waterTextureImage,
+    //   waterTextureImage.width,
+    //   waterTextureImage.height
+    // );
+    // const treeSlot = this.texture1.createAndBindTexture(
+    //   tree,
+    //   tree.width,
+    //   tree.height
+    // );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -369,9 +378,9 @@ export class MapEditorComponent implements AfterViewInit {
       this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
     }
 
-    this.createTerrainWithSplatmap(0, 0, shader1, 2);
-    this.createTerrainWithSplatmap(100, 100, shader1, 3);
-    this.createTerrainWithSplatmap(0, 100, shader1, 6);
+    this.createTerrainWithSplatmap(0, 0, shader1, slot);
+    this.createTerrainWithSplatmap(300, 300, shader1, slot);
+    this.createTerrainWithSplatmap(0, 300, shader1, slot);
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
@@ -422,7 +431,11 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
-
+    for (const entity of this.ecs.getEntities()) {
+      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
+      if (!mesh) continue;
+      this.brushSystem.updateNormals(mesh);
+    }
     this.loop();
   }
 
@@ -477,8 +490,11 @@ export class MapEditorComponent implements AfterViewInit {
     shader: Shader,
     slot: number
   ) {
+    const width = 512;
+    const height = 512;
+
     const model = new Model();
-    model.addPlane(100, xPos, zPos, 100, 100);
+    model.addPlane(100, xPos, zPos, 300, 300);
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -488,16 +504,18 @@ export class MapEditorComponent implements AfterViewInit {
     const newEntity = this.ecs.createEntity();
     //Add mesh component to entity
     this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
-    //Add material compoent to entity
+    //Add material component to entity
     this.ecs.addComponent(
       newEntity,
-      new Material(shader, this.texture1.getTexture(1), 1)
+      new Material(shader, this.texture1.getTexture(slot), slot)
     );
 
+    const splatmap = this.texture1.createAndBindTexture(null, 512, 512);
+    if (splatmap === undefined) return;
     //Add splatmap too terrain entity
     this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(2048, 2048, this.texture1.getTexture(slot), slot)
+      new Splatmap(width, height, this.texture1.getTexture(splatmap), splatmap)
     );
   }
 

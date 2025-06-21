@@ -1,7 +1,7 @@
 import { Component } from './component';
 
-export class Heightmap extends Component {
-  override type: string = 'Heightmap';
+export class Terrain extends Component {
+  override type: string = 'Terrain';
   coords: Uint8ClampedArray;
   constructor(coords: Uint8ClampedArray) {
     super();

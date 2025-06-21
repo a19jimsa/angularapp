@@ -10,7 +10,7 @@
         </mat-card-header>
         <mat-card-content>
           @for (item of ecs.getEntities(); track $index) {
-          {{ item }}
+          <button (click)="changeActiveEntity(item)">{{ item }}</button>
           }</mat-card-content
         >
         <button mat-flat-button>Add to scene</button>
