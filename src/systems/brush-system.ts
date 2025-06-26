@@ -24,7 +24,7 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 5;
+    const epsilon = 1;
     const maxDistance = 200;
     const step = 1;
 

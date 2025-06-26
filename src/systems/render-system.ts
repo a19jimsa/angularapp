@@ -120,6 +120,11 @@ export class RenderSystem {
           'u_time'
         );
         gl.uniform1f(timeLocation, performance.now() * 0.001);
+        const viewLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_view'
+        );
+        gl.uniformMatrix4fv(viewLocation, false, camera.getViewMatrix());
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
           gl.TRIANGLES,

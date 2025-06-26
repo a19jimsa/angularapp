@@ -248,8 +248,11 @@ export class MapEditorComponent implements AfterViewInit {
     const gl = this.gl;
     const shader = new Shader(gl);
     await shader.initShaders('imageVS.txt', 'imageFS.txt');
-    const shader1 = new Shader(gl);
-    await shader1.initShaders('image_vertex.txt', 'image_fragment.txt');
+    this.splatmapShader1 = new Shader(gl);
+    await this.splatmapShader1.initShaders(
+      'image_vertex.txt',
+      'image_fragment.txt'
+    );
     const shader2 = new Shader(gl);
     await shader2.initShaders('skybox_vertex.txt', 'skybox_fragment.txt');
     const basicShader = new Shader(gl);
@@ -260,8 +263,8 @@ export class MapEditorComponent implements AfterViewInit {
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
     const treeShader = new Shader(gl);
     await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
-    this.splatmapShader1 = new Shader(gl);
-    await this.splatmapShader1.initShaders(
+    this.splatmapShader2 = new Shader(gl);
+    await this.splatmapShader2.initShaders(
       'splatmap_vertex.txt',
       'splatmap_fragment.txt'
     );
@@ -278,22 +281,22 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const skybox1 = await this.texture1.loadTexture(
-      'assets/textures/skybox/right.jpg'
+      'assets/textures/skybox/right.bmp'
     );
     const skybox2 = await this.texture1.loadTexture(
-      'assets/textures/skybox/left.jpg'
+      'assets/textures/skybox/left.bmp'
     );
     const skybox3 = await this.texture1.loadTexture(
-      'assets/textures/skybox/top.jpg'
+      'assets/textures/skybox/top.bmp'
     );
     const skybox4 = await this.texture1.loadTexture(
-      'assets/textures/skybox/bottom.jpg'
+      'assets/textures/skybox/bottom.bmp'
     );
     const skybox5 = await this.texture1.loadTexture(
-      'assets/textures/skybox/front.jpg'
+      'assets/textures/skybox/front.bmp'
     );
     const skybox6 = await this.texture1.loadTexture(
-      'assets/textures/skybox/back.jpg'
+      'assets/textures/skybox/back.bmp'
     );
 
     const tree = await this.texture1.loadTexture(
@@ -311,11 +314,11 @@ export class MapEditorComponent implements AfterViewInit {
     //   waterTextureImage.width,
     //   waterTextureImage.height
     // );
-    // const treeSlot = this.texture1.createAndBindTexture(
-    //   tree,
-    //   tree.width,
-    //   tree.height
-    // );
+    const treeSlot = this.texture1.createAndBindTexture(
+      tree,
+      tree.width,
+      tree.height
+    );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
     const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
@@ -380,13 +383,13 @@ export class MapEditorComponent implements AfterViewInit {
       this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
     }
 
-    this.createTerrainWithSplatmap(0, 0, shader1, slot);
-    this.createTerrainWithSplatmap(300, 300, shader1, slot);
-    this.createTerrainWithSplatmap(0, 300, shader1, slot);
+    this.createTerrainWithSplatmap(0, 0, this.splatmapShader1, slot);
+    this.createTerrainWithSplatmap(300, 300, this.splatmapShader1, slot);
+    this.createTerrainWithSplatmap(0, 300, this.splatmapShader1, slot);
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
-    this.createTree(treeShader, 5);
+    this.createTree(treeShader, treeSlot);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -442,9 +445,9 @@ export class MapEditorComponent implements AfterViewInit {
       const material = this.ecs.getComponent<Material>(entity, 'Material');
       const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
       if (material && splatmap) {
-        if (event.value === 'shader1') {
+        if (event.value === 'default') {
           material.shader = this.splatmapShader1;
-        } else if (event.value === 'shader2') {
+        } else if (event.value === 'shader1') {
           material.shader = this.splatmapShader2;
         }
       }
