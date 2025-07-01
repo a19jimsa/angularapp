@@ -5,6 +5,7 @@ varying float v_height;
 
 varying vec3 v_normal;
 varying float v_depth;
+varying float v_fogDistance;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_splatmap;
@@ -18,7 +19,7 @@ void main() {
    vec2 uv_rock = fract(v_texcoord) * (tileSize - 2.0 * padding)+ vec2(1.0, 0.0) * tileSize + padding;
    vec2 uv_snow = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(2.0, 0.0) * tileSize + padding;
    vec2 uv_ground = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(4.0, 0.0) * tileSize + padding;
-    vec3 lightDir = normalize(vec3(0, 3, 1));
+   vec3 lightDir = normalize(vec3(0, 3, 1));
    float light = dot(lightDir, v_normal * 2. - 1.0);
 
    vec4 leaf_color = texture2D(u_texture, uv_leafs);
@@ -26,7 +27,7 @@ void main() {
    vec4 snow_color = texture2D(u_texture, uv_snow);
    vec4 ground_color = texture2D(u_texture, uv_ground);
 
-   vec4 splat = texture2D(u_splatmap, v_texcoord / 5.0);
+   vec4 splat = texture2D(u_splatmap, v_texcoord / 10.0);
 
    vec4 result =
         leaf_color * splat.r +
@@ -34,11 +35,14 @@ void main() {
         snow_color  * splat.b +
         ground_color * splat.a;
 
-   float factor = smoothstep(0.0, 500.0, v_depth);
+    float fogFactor = 1.0 - exp(-v_fogDistance * 0.005);
+    float heightFactor = 1.0 - smoothstep(0.0, 50.0, v_height);
+    fogFactor *= heightFactor;
 
-   vec3 color = mix(vec3(0.5, 0.6, 0.75), result.rgb, factor);
+    vec3 fogColor = vec3(0.5, 0.6, 0.75);
+    vec3 color = mix(result.rgb, fogColor, fogFactor);
 
-   gl_FragColor = vec4(color.rgb * (light * 1.0 + 1.0), 1);
+   gl_FragColor = vec4(color.rgb * (light * 1.0 + 0.5), 1);
    //gl_FragColor = texture2D(u_splatmap, v_texcoord / 5.0);
    //gl_FragColor = vec4(color, 1.0); 
 

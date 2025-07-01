@@ -5,12 +5,16 @@ uniform sampler2D u_texture;
 uniform float u_time;
 
 varying vec2 v_texcoord;
+varying float v_fogDistance;
 
 void main() {
     vec4 texColor = texture2D(u_texture, v_texcoord);
     if(texColor.a < 0.9) {
         discard;
     }
+    float fogFactor = 1.0 / exp(v_fogDistance * 0.01);
+    vec3 fogColor = vec3(0.5, 0.6, 0.75);
     float alpha = 1.0;
-    gl_FragColor = vec4(texColor.rgb, alpha);
+    vec3 color = mix(fogColor, texColor.rgb, fogFactor);
+    gl_FragColor = vec4(color, alpha);
 }

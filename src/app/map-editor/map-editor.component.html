@@ -11,17 +11,17 @@
         <mat-card-content class="h-100 d-flex flex-column">
           @for (item of ecs.getEntities(); track $index) {
           <button mat-button="filled" (click)="changeActiveEntity(item)">
-            {{ item }}
+            {{ getSceneObjectName(item) }}
           </button>
           }</mat-card-content
         >
         <button mat-flat-button>Add to scene</button>
       </mat-card>
     </div>
-    <div class="col-8">
+    <div class="col-9">
       <canvas #canvas class="border"></canvas>
     </div>
-    <div class="col-3">
+    <div class="col-2">
       <mat-card class="h-100">
         <mat-card-content
           class="d-flex flex-column justify-content-between h-100"

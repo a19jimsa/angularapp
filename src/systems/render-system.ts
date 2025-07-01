@@ -210,6 +210,11 @@ export class RenderSystem {
           material.shader.program,
           'u_time'
         );
+        const viewLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_view'
+        );
+        gl.uniformMatrix4fv(viewLocation, false, camera.getViewMatrix());
         gl.uniform1f(timeLocation, performance.now() * 0.001);
         gl.bindVertexArray(mesh.vao);
         const instanceCount = tree.positions.length / 3; // en xyz per träd

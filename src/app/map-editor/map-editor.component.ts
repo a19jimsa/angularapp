@@ -38,6 +38,7 @@ import { Vec } from '../vec';
 import { Tree } from 'src/components/tree';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
+import { Name } from 'src/components/name';
 
 export enum Tools {
   Splatmap,
@@ -121,9 +122,11 @@ export class MapEditorComponent implements AfterViewInit {
   splatmapShader1!: Shader;
   splatmapShader2!: Shader;
 
+  sceneObjects: Set<Name> = new Set<Name>();
+
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(1024, 768);
+    this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
   }
 
@@ -148,28 +151,28 @@ export class MapEditorComponent implements AfterViewInit {
       const speed = 10;
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateX(1);
+          this.perspectiveCamera.rotateX(10);
           break;
         case 'KeyS':
-          this.perspectiveCamera.rotateX(-1);
+          this.perspectiveCamera.rotateX(-10);
           break;
         case 'KeyA':
-          this.perspectiveCamera.updatePosition(0, 0, 1);
+          this.perspectiveCamera.updatePosition(0, 0, 10);
           break;
         case 'KeyD':
-          this.perspectiveCamera.updatePosition(0, 0, -1);
+          this.perspectiveCamera.updatePosition(0, 0, -10);
           break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 1, 0);
+          this.perspectiveCamera.updatePosition(0, 10, 0);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -1, 0);
+          this.perspectiveCamera.updatePosition(0, -10, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(1, 0, 0);
+          this.perspectiveCamera.updatePosition(10, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(-10, 0, 0);
           break;
       }
     });
@@ -384,6 +387,7 @@ export class MapEditorComponent implements AfterViewInit {
     }
 
     this.createTerrainWithSplatmap(0, 0, this.splatmapShader1, slot);
+    this.createTerrainWithSplatmap(300, 0, this.splatmapShader1, slot);
     this.createTerrainWithSplatmap(300, 300, this.splatmapShader1, slot);
     this.createTerrainWithSplatmap(0, 300, this.splatmapShader1, slot);
 
@@ -436,8 +440,19 @@ export class MapEditorComponent implements AfterViewInit {
     //   this.texture1.getTexture(0),
     //   shader3
     // );
-
+    //Add all entities with names to the scene list to display them in the scene list
+    for (const entity of this.ecs.getEntities()) {
+      const name = this.ecs.getComponent<Name>(entity, 'Name');
+      if (!name) continue;
+      this.sceneObjects.add(name);
+    }
     this.loop();
+  }
+
+  public getSceneObjectName(entity: Entity) {
+    const name = this.ecs.getComponent<Name>(entity, 'Name');
+    if (!name) return 'No name';
+    return this.ecs.getComponent<Name>(entity, 'Name').value;
   }
 
   changeShader(event: MatSelectChange) {
@@ -468,6 +483,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
     //Then add to entity!
     const skyboxEntity = this.ecs.createEntity();
+    this.ecs.addComponent(skyboxEntity, new Name('Skybox'));
     this.ecs.addComponent(
       skyboxEntity,
       new Skybox(skyboxMesh.vao, shader, texture!)
@@ -502,6 +518,7 @@ export class MapEditorComponent implements AfterViewInit {
       shader
     );
     const newEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
     //Add mesh component to entity
     this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
     //Add material component to entity
