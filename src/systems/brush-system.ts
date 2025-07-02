@@ -40,26 +40,27 @@ export class BrushSystem {
 
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     if (!mesh) return;
-
     for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
+
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx = mesh.vertices[j];
         const vy = mesh.vertices[j + 1];
         const vz = mesh.vertices[j + 2];
-        // Beräkna distans från rayens aktuella punkt till vertexen
+        // Calculate distance between vertex positions and raycaster's position.
         const dx = vx - pos[0];
         const dy = vy - pos[1];
         const dz = vz - pos[2];
+        //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (dist < epsilon) {
           if (meshBrush.type === ToolBrush.Height) {
             this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
-            this.grassBrush(ecs, vx, vy, vz);
+            this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
           } else if (meshBrush.type === ToolBrush.Trees) {
             this.treeBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Splat) {
@@ -76,18 +77,27 @@ export class BrushSystem {
     }
   }
 
-  private grassBrush(ecs: Ecs, x: number, y: number, z: number) {
+  private grassBrush(
+    ecs: Ecs,
+    x: number,
+    y: number,
+    z: number,
+    mesh: Mesh,
+    meshBrush: Brush
+  ) {
     for (const entity of ecs.getEntities()) {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
       if (grass) {
-        for (let i = 0; i < 100; i++) {
-          if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
-          const randomx = -5 + Math.random() * 10;
-          const randomz = -5 + Math.random() * 10;
-          grass.positions.push((x + randomx) * 2, y * 2, (z + randomz) * 2);
-          grass.amountOfGrass++;
+        const radius = meshBrush.radius;
+        for (let j = -radius; j < meshBrush.radius; j++) {
+          for (let i = -radius; i < meshBrush.radius; i++) {
+            if (j * j + i * i <= radius * radius) {
+              if (grass.positions.length > grass.maxGrassBuffer) return;
+              grass.positions.push(x * 2 + j * 0.5, y, z * 2 + i * 0.5);
+            }
+          }
         }
-        return;
+        console.log(grass.positions.length);
       }
     }
   }
@@ -109,23 +119,23 @@ export class BrushSystem {
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
     if (splatmap) {
       const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
-      const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
-      for (let y = -radius; y <= radius; y++) {
+      const texZ = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
+      for (let z = -radius; z <= radius; z++) {
         for (let x = -radius; x <= radius; x++) {
           const dx = x;
-          const dy = y;
-          if (dx * dx + dy * dy <= radius * radius) {
+          const dz = z;
+          if (dx * dx + dz * dz <= radius * radius) {
             const px = texX + dx;
-            const py = texY + dy;
+            const pz = texZ + dz;
             //To not draw outside of width and height
             if (
-              px > 0 &&
-              px < splatmap.width &&
-              py > 0 &&
-              py < splatmap.height
+              px >= 0 &&
+              px <= splatmap.width &&
+              pz >= 0 &&
+              pz <= splatmap.height
             ) {
-              const idx = (py * splatmap.width + px) * 4;
-              const distance = Math.sqrt(dx * dx + dy * dy);
+              const idx = (pz * splatmap.width + px) * 4;
+              const distance = Math.sqrt(dx * dx + dz * dz);
               const strength = 255 * alpha * (1 - distance / radius);
               if (splatColor === 'red') {
                 //Red
@@ -233,20 +243,21 @@ export class BrushSystem {
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i];
       const vz = vertices[i + 2];
-      // Beräkna distans från rayens aktuella punkt till vertexen
+      // Calculate distance again between vertices and raycasting...
       const dx = vx - x;
       const dz = vz - z;
+      //Same formula again for some reasong.. need a function!
       const dist = Math.sqrt(dx * dx + dz * dz);
       if (dist > brushRadius) continue;
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
       const px = Math.floor(fx * imageData.width);
-      const py = Math.floor(fz * imageData.height);
-      if (px >= 0 && px < imageData.width && py >= 0 && py < imageData.height) {
-        const pixelIndex = (py * imageData.width + px) * 4;
+      const pz = Math.floor(fz * imageData.height);
+      if (px > 0 && px < imageData.width && pz > 0 && pz < imageData.height) {
+        const pixelIndex = (pz * imageData.width + px) * 4;
         const red = imageData.data[pixelIndex];
-        if (red !== 255) {
+        if (red < 255) {
           const influence = (1 - dist / brushRadius) * brushStrength;
           vertices[i + 1] += influence;
         }

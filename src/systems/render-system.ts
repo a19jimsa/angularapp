@@ -127,7 +127,7 @@ export class RenderSystem {
         gl.uniformMatrix4fv(viewLocation, false, camera.getViewMatrix());
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
-          gl.TRIANGLES,
+          gl.LINE_STRIP,
           mesh.indices.length,
           gl.UNSIGNED_SHORT,
           0
