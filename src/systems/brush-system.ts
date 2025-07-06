@@ -60,11 +60,12 @@ export class BrushSystem {
             this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
-            this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
+            //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
+            this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
             this.treeBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Splat) {
-            this.paintCircle(
+            this.paintImage(
               ecs,
               meshBrush,
               mesh.vertices[j + 3],
@@ -73,6 +74,41 @@ export class BrushSystem {
           }
           return;
         }
+      }
+    }
+  }
+
+  private grassBrushWithImage(
+    ecs: Ecs,
+    meshBrush: Brush,
+    vx: number,
+    vy: number,
+    vz: number
+  ) {
+    const image = this.getImageData(meshBrush.image, 1);
+    if (!image) return;
+    for (const entity of ecs.getEntities()) {
+      const grass = ecs.getComponent<Grass>(entity, 'Grass');
+      if (grass) {
+        for (let z = 0; z < image.height; z++) {
+          for (let x = 0; x < image.width; x++) {
+            const index = (z * image.width + x) * 4;
+            const r = image.data[index];
+            if (r === 0) {
+              const posX = vx * 2 + x - 64;
+              const posZ = vz * 2 + z - 64;
+              const dist = Math.sqrt(vx * vx + vz * vz);
+              console.log(dist);
+              if (dist < meshBrush.radius) {
+                if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
+                grass.positions.push(posX, vy * 2, posZ);
+                grass.amountOfGrass++;
+              }
+            }
+          }
+        }
+        console.log(grass.positions.length);
+        return;
       }
     }
   }
@@ -112,6 +148,32 @@ export class BrushSystem {
     }
   }
 
+  
+  private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
+    const alpha = meshBrush.alpha;
+    const radius = meshBrush.radius;
+    const splatColor = meshBrush.color;
+    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+    if (splatmap) {
+      const image = this.getImageData(meshBrush.image, radius / 100);
+      if (!image) return;
+      const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
+      const texZ = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
+      for (let y = 0; y < image.height; y++) {
+        for (let x = 0; x < image.width; x++) {
+          const dx = texX + x;
+          const dz = texZ + y;
+          const splatmapIndex = (dz * splatmap.width + dx) * 4;
+          const imageIndex = (y * image.width + x) * 4;
+          const r = image.data[imageIndex];
+          splatmap.coords[splatmapIndex + 0] = r;
+          splatmap.coords[splatmapIndex + 1] = 255 - r;
+        }
+      }
+      return;
+    }
+  }
+
   private paintCircle(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
     const alpha = meshBrush.alpha;
     const radius = meshBrush.radius;
@@ -128,100 +190,94 @@ export class BrushSystem {
             const px = texX + dx;
             const pz = texZ + dz;
             //To not draw outside of width and height
-            if (
-              px >= 0 &&
-              px <= splatmap.width &&
-              pz >= 0 &&
-              pz <= splatmap.height
-            ) {
-              const idx = (pz * splatmap.width + px) * 4;
-              const distance = Math.sqrt(dx * dx + dz * dz);
-              const strength = 255 * alpha * (1 - distance / radius);
-              if (splatColor === 'red') {
-                //Red
-                splatmap.coords[idx + 0] = Math.min(
-                  splatmap.coords[idx + 0] + strength,
-                  255
-                );
-                //Green
-                splatmap.coords[idx + 1] = Math.min(
-                  splatmap.coords[idx + 1] - strength,
-                  255
-                );
-                //Blue
-                splatmap.coords[idx + 2] = Math.min(
-                  splatmap.coords[idx + 2] - strength,
-                  255
-                );
-                //Alpha
-                splatmap.coords[idx + 3] = Math.min(
-                  splatmap.coords[idx + 3] - strength,
-                  255
-                );
-              } else if (splatColor === 'green') {
-                //Red
-                splatmap.coords[idx + 0] = Math.min(
-                  splatmap.coords[idx + 0] - strength,
-                  255
-                );
-                //Green
-                splatmap.coords[idx + 1] = Math.min(
-                  splatmap.coords[idx + 1] + strength,
-                  255
-                );
-                //Blue
-                splatmap.coords[idx + 2] = Math.min(
-                  splatmap.coords[idx + 2] - strength,
-                  255
-                );
-                //Alpha
-                splatmap.coords[idx + 3] = Math.min(
-                  splatmap.coords[idx + 3] - strength,
-                  255
-                );
-              } else if (splatColor === 'blue') {
-                //Red
-                splatmap.coords[idx + 0] = Math.min(
-                  splatmap.coords[idx + 0] - strength,
-                  255
-                );
-                //Green
-                splatmap.coords[idx + 1] = Math.min(
-                  splatmap.coords[idx + 1] - strength,
-                  255
-                );
-                //Blue
-                splatmap.coords[idx + 2] = Math.min(
-                  splatmap.coords[idx + 2] + strength,
-                  255
-                );
-                //Alpha
-                splatmap.coords[idx + 3] = Math.min(
-                  splatmap.coords[idx + 3] - strength,
-                  255
-                );
-              } else if (splatColor === 'alpha') {
-                //Red
-                splatmap.coords[idx + 0] = Math.min(
-                  splatmap.coords[idx + 0] - strength,
-                  255
-                );
-                //Green
-                splatmap.coords[idx + 1] = Math.min(
-                  splatmap.coords[idx + 1] - strength,
-                  255
-                );
-                //Blue
-                splatmap.coords[idx + 2] = Math.min(
-                  splatmap.coords[idx + 2] - strength,
-                  255
-                );
-                //Alpha
-                splatmap.coords[idx + 3] = Math.min(
-                  splatmap.coords[idx + 3] + strength,
-                  255
-                );
-              }
+
+            const idx = (pz * splatmap.width + px) * 4;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+            const strength = 255 * alpha * (1 - distance / radius);
+            if (splatColor === 'red') {
+              //Red
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] + strength,
+                255
+              );
+              //Green
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
+              //Blue
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
+              //Alpha
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
+            } else if (splatColor === 'green') {
+              //Red
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
+              //Green
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] + strength,
+                255
+              );
+              //Blue
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
+              //Alpha
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
+            } else if (splatColor === 'blue') {
+              //Red
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
+              //Green
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
+              //Blue
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] + strength,
+                255
+              );
+              //Alpha
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] - strength,
+                255
+              );
+            } else if (splatColor === 'alpha') {
+              //Red
+              splatmap.coords[idx + 0] = Math.min(
+                splatmap.coords[idx + 0] - strength,
+                255
+              );
+              //Green
+              splatmap.coords[idx + 1] = Math.min(
+                splatmap.coords[idx + 1] - strength,
+                255
+              );
+              //Blue
+              splatmap.coords[idx + 2] = Math.min(
+                splatmap.coords[idx + 2] - strength,
+                255
+              );
+              //Alpha
+              splatmap.coords[idx + 3] = Math.min(
+                splatmap.coords[idx + 3] + strength,
+                255
+              );
             }
           }
         }
@@ -236,7 +292,7 @@ export class BrushSystem {
     y: number,
     z: number
   ) {
-    const imageData = this.getImageData(meshBrush.image);
+    const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
@@ -265,15 +321,16 @@ export class BrushSystem {
     }
   }
 
-  private getImageData(image: HTMLImageElement) {
+  private getImageData(image: HTMLImageElement, scale: number) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     canvas.width = image.width;
     canvas.height = image.height;
+    ctx.scale(scale, scale);
     ctx.drawImage(image, 0, 0);
     //Get all imagedata of image on canvas
-    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return ctx.getImageData(0, 0, image.width * scale, image.height * scale);
   }
 
   public updateNormals(mesh: Mesh): void {

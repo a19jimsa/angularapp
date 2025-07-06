@@ -147,7 +147,6 @@ export class SplatmapSystem {
         } else if (splatBrush.color === 'green') {
           splatmap.coords[idx + 0] = 255 - color;
           splatmap.coords[idx + 1] = color;
-          ('');
           splatmap.coords[idx + 2] = 0;
           splatmap.coords[idx + 3] = 0;
         } else if (splatBrush.color === 'blue') {
