@@ -29,7 +29,7 @@ void main() {
     // Steg 3: Läs färg från texturen
     vec4 water_color = texture2D(u_texture, uv_water);
 
-    vec4 splat = texture2D(u_splatmap, v_texcoord / 10.0);
+    vec4 splat = texture2D(u_splatmap, v_texcoord / 20.0);
 
     vec4 result =
         leaf_color * splat.r +

@@ -94,7 +94,7 @@ export class BrushSystem {
           for (let x = 0; x < image.width; x++) {
             const index = (z * image.width + x) * 4;
             const r = image.data[index];
-            if (r === 0) {
+            if (r < 200) {
               const posX = vx - x;
               const posZ = vz - z;
               if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
@@ -407,6 +407,7 @@ export class BrushSystem {
   }
 
   private getImageData(image: HTMLImageElement, scale: number) {
+    if (scale <= 0) return;
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
