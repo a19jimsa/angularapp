@@ -85,7 +85,7 @@ export class BrushSystem {
     vy: number,
     vz: number
   ) {
-    const image = this.getImageData(meshBrush.image, 1);
+    const image = this.getImageData(meshBrush.image, meshBrush.radius * 0.01);
     if (!image) return;
     for (const entity of ecs.getEntities()) {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
@@ -95,15 +95,15 @@ export class BrushSystem {
             const index = (z * image.width + x) * 4;
             const r = image.data[index];
             if (r === 0) {
-              const posX = vx * 2 + x - 64;
-              const posZ = vz * 2 + z - 64;
-              const dist = Math.sqrt(vx * vx + vz * vz);
-              console.log(dist);
-              if (dist < meshBrush.radius) {
-                if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
-                grass.positions.push(posX, vy * 2, posZ);
-                grass.amountOfGrass++;
-              }
+              const posX = vx - x;
+              const posZ = vz - z;
+              if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
+              grass.positions.push(
+                posX * 2 + image.width,
+                vy,
+                posZ * 2 + image.height
+              );
+              grass.amountOfGrass++;
             }
           }
         }
