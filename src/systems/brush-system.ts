@@ -148,26 +148,111 @@ export class BrushSystem {
     }
   }
 
-  
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
-    const alpha = meshBrush.alpha;
+    //const alpha = meshBrush.alpha;
     const radius = meshBrush.radius;
     const splatColor = meshBrush.color;
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
     if (splatmap) {
-      const image = this.getImageData(meshBrush.image, radius / 100);
+      const image = this.getImageData(meshBrush.image, radius * 0.01);
       if (!image) return;
-      const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
-      const texZ = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
+      const texX =
+        Math.floor(uv0 * splatmap.width) - Math.floor(image.width / 2);
+      const texZ =
+        Math.floor(uv1 * splatmap.height) - Math.floor(image.height / 2);
       for (let y = 0; y < image.height; y++) {
         for (let x = 0; x < image.width; x++) {
           const dx = texX + x;
           const dz = texZ + y;
           const splatmapIndex = (dz * splatmap.width + dx) * 4;
           const imageIndex = (y * image.width + x) * 4;
-          const r = image.data[imageIndex];
-          splatmap.coords[splatmapIndex + 0] = r;
-          splatmap.coords[splatmapIndex + 1] = 255 - r;
+          const red = image.data[imageIndex];
+          const color = 255 - red; // 0-255 Om vandla svart till färg. 255 om svart
+          if (splatColor === 'red') {
+            //Red
+            splatmap.coords[splatmapIndex + 0] = Math.min(
+              splatmap.coords[splatmapIndex + 0] + color,
+              255
+            );
+            //Green
+            splatmap.coords[splatmapIndex + 1] = Math.min(
+              splatmap.coords[splatmapIndex + 1] - color,
+              255
+            );
+            //Blue
+            splatmap.coords[splatmapIndex + 2] = Math.min(
+              splatmap.coords[splatmapIndex + 2] - color,
+              255
+            );
+            //Alpha
+            splatmap.coords[splatmapIndex + 3] = Math.min(
+              splatmap.coords[splatmapIndex + 3] - color,
+              255
+            );
+          } else if (splatColor === 'green') {
+            //Red
+            splatmap.coords[splatmapIndex + 0] = Math.min(
+              splatmap.coords[splatmapIndex + 0] - color,
+              255
+            );
+            //Green
+            splatmap.coords[splatmapIndex + 1] = Math.min(
+              splatmap.coords[splatmapIndex + 1] + color,
+              255
+            );
+            //Blue
+            splatmap.coords[splatmapIndex + 2] = Math.min(
+              splatmap.coords[splatmapIndex + 2] - color,
+              255
+            );
+            //Alpha
+            splatmap.coords[splatmapIndex + 3] = Math.min(
+              splatmap.coords[splatmapIndex + 3] - color,
+              255
+            );
+          } else if (splatColor === 'blue') {
+            //Red
+            splatmap.coords[splatmapIndex + 0] = Math.min(
+              splatmap.coords[splatmapIndex + 0] - color,
+              255
+            );
+            //Green
+            splatmap.coords[splatmapIndex + 1] = Math.min(
+              splatmap.coords[splatmapIndex + 1] - color,
+              255
+            );
+            //Blue
+            splatmap.coords[splatmapIndex + 2] = Math.min(
+              splatmap.coords[splatmapIndex + 2] + color,
+              255
+            );
+            //Alpha
+            splatmap.coords[splatmapIndex + 3] = Math.min(
+              splatmap.coords[splatmapIndex + 3] - color,
+              255
+            );
+          } else if (splatColor === 'alpha') {
+            //Red
+            splatmap.coords[splatmapIndex + 0] = Math.min(
+              splatmap.coords[splatmapIndex + 0] - color,
+              255
+            );
+            //Green
+            splatmap.coords[splatmapIndex + 1] = Math.min(
+              splatmap.coords[splatmapIndex + 1] - color,
+              255
+            );
+            //Blue
+            splatmap.coords[splatmapIndex + 2] = Math.min(
+              splatmap.coords[splatmapIndex + 2] - color,
+              255
+            );
+            //Alpha
+            splatmap.coords[splatmapIndex + 3] = Math.min(
+              splatmap.coords[splatmapIndex + 3] + color,
+              255
+            );
+          }
         }
       }
       return;

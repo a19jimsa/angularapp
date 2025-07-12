@@ -27,7 +27,7 @@ void main() {
    vec4 snow_color = texture2D(u_texture, uv_snow);
    vec4 ground_color = texture2D(u_texture, uv_ground);
 
-   vec4 splat = texture2D(u_splatmap, v_texcoord / 10.0);
+   vec4 splat = texture2D(u_splatmap, v_texcoord / 100.0);
 
    vec4 result =
         leaf_color * splat.r +
@@ -43,7 +43,7 @@ void main() {
     vec3 color = mix(result.rgb, fogColor, fogFactor);
 
    gl_FragColor = vec4(color.rgb * (light * 1.0 + 0.5), 1);
-   //gl_FragColor = texture2D(u_splatmap, v_texcoord / 5.0);
+   //gl_FragColor = texture2D(u_splatmap, v_texcoord / 10.0);
    //gl_FragColor = vec4(color, 1.0); 
 
 }
