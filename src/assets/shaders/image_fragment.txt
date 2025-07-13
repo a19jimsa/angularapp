@@ -6,28 +6,45 @@ varying float v_height;
 varying vec3 v_normal;
 varying float v_depth;
 varying float v_fogDistance;
+varying vec3 v_worldSpace;
+varying vec3 v_worldNormal;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_splatmap;
 
-void main() {
+vec4 TriplarMapping(vec3 worldPosition, vec3 worldNormal, sampler2D texture, vec2 tile){
    vec2 pixelResolution = vec2(6144, 2048);
    vec2 pixelOffset = 1.0 / pixelResolution;
    vec2 padding = pixelOffset * 0.5;
    vec2 tileSize = vec2(1.0 / 6.0, 1.0 / 2.0);
-   vec2 uv_leafs = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(4.0, 1.0) * tileSize + padding;
-   vec2 uv_rock = fract(v_texcoord) * (tileSize - 2.0 * padding)+ vec2(0.0, 1.0) * tileSize + padding;
-   vec2 uv_snow = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(2.0, 0.0) * tileSize + padding;
-   vec2 uv_ground = fract(v_texcoord) * (tileSize - 2.0 * padding) + vec2(4.0, 0.0) * tileSize + padding;
+   float tiling = 0.1;
+
+   vec3 blending = abs(worldNormal);
+
+   blending /= (blending.x + blending.y + blending.z);
+   
+   vec2 uvX = worldPosition.zy * tiling;
+   vec2 uvY = worldPosition.xz * tiling;
+   vec2 uvZ = worldPosition.xy * tiling;
+
+   vec4 colorX = texture2D(texture, fract(uvX) * (tileSize - 2.0 * padding) + tile * tileSize + padding);
+   vec4 colorY = texture2D(texture, fract(uvY) * (tileSize - 2.0 * padding) + tile * tileSize + padding);
+   vec4 colorZ = texture2D(texture, fract(uvZ) * (tileSize - 2.0 * padding) + tile * tileSize + padding);
+
+   vec4 finalColor = colorX * blending.x + colorY * blending.y + colorZ * blending.z;
+   return finalColor;
+}
+
+void main() {
    vec3 lightDir = normalize(vec3(0, 3, 1));
    float light = dot(lightDir, v_normal * 2. - 1.0);
 
-   vec4 leaf_color = texture2D(u_texture, uv_leafs);
-   vec4 sand_color = texture2D(u_texture, uv_rock);
-   vec4 snow_color = texture2D(u_texture, uv_snow);
-   vec4 ground_color = texture2D(u_texture, uv_ground);
+   vec4 leaf_color = TriplarMapping(v_worldSpace, v_worldNormal, u_texture, vec2(1.0, 1.0));
+   vec4 sand_color = TriplarMapping(v_worldSpace, v_worldNormal, u_texture, vec2(3.0, 1.0));
+   vec4 snow_color = TriplarMapping(v_worldSpace, v_worldNormal, u_texture, vec2(0.0, 1.0));
+   vec4 ground_color = TriplarMapping(v_worldSpace, v_worldNormal, u_texture, vec2(5.0, 1.0));
 
-   vec4 splat = texture2D(u_splatmap, v_texcoord / 20.0);
+   vec4 splat = texture2D(u_splatmap, v_texcoord);
 
    vec4 result =
         leaf_color * splat.r +
@@ -36,14 +53,13 @@ void main() {
         ground_color * splat.a;
 
     float fogFactor = 1.0 - exp(-v_fogDistance * 0.005);
-    float heightFactor = 1.0 - smoothstep(0.0, 50.0, v_height);
+    float heightFactor = 1.0 - smoothstep(0.0, 200.0, v_height);
     fogFactor *= heightFactor;
 
     vec3 fogColor = vec3(0.5, 0.6, 0.75);
     vec3 color = mix(result.rgb, fogColor, fogFactor);
 
    gl_FragColor = vec4(color.rgb * (light * 1.0 + 0.5), 1);
-   //gl_FragColor = texture2D(u_splatmap, v_texcoord / 10.0);
-   //gl_FragColor = vec4(color, 1.0); 
+   //gl_FragColor = vec4(color);
 
 }

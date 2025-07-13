@@ -95,8 +95,8 @@ export class BrushSystem {
             const index = (z * image.width + x) * 4;
             const r = image.data[index];
             if (r < 200) {
-              const posX = vx - x;
-              const posZ = vz - z;
+              const posX = vx - x * Math.random();
+              const posZ = vz - z * Math.random();
               if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
               grass.positions.push(
                 posX * 2 + image.width,
@@ -404,6 +404,7 @@ export class BrushSystem {
         }
       }
     }
+    console.log(vertices);
   }
 
   private getImageData(image: HTMLImageElement, scale: number) {

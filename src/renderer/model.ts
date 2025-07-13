@@ -256,13 +256,7 @@ export class Model {
     this.indices = indices;
   }
 
-  addPlane(
-    quads: number,
-    xPos: number,
-    zPos: number,
-    width: number,
-    height: number
-  ) {
+  addPlane(quads: number, width: number, height: number) {
     this.vertices = [];
     this.indices = [];
 
@@ -275,7 +269,7 @@ export class Model {
         const posX = u * width;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
-        this.vertices.push(posX + xPos, 0, posZ + zPos); // y = 0 (flat plane)
+        this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
         this.vertices.push(0, 1, 0); // Normals
       }

@@ -135,8 +135,8 @@ export class MapEditorComponent implements AfterViewInit {
     if (!this.gl) throw Error('Webgl2 not supported');
     this.width = this.canvas.nativeElement.width;
     this.height = this.canvas.nativeElement.height;
-    this.gl.canvas.width = 1024;
-    this.gl.canvas.height = 768;
+    this.gl.canvas.width = 1920;
+    this.gl.canvas.height = 1080;
     this.texture1 = new Texture(this.gl);
     this.addEventListeners();
     await Loader.loadAllBones();
@@ -342,6 +342,10 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/round_brush.jpg'
     );
 
+    const smallRoundBrushImage = await this.texture1.loadTexture(
+      'assets/textures/round_brush_small.jpg'
+    );
+
     // const strokeBrushImage = await this.texture1.loadTexture(
     //   'assets/textures/stroke_brush.jpg'
     // );
@@ -350,8 +354,8 @@ export class MapEditorComponent implements AfterViewInit {
       smokeBrushImage,
       starBrushImage,
       terrainBrushImage,
-      roundBrushImage
-      //strokeBrushImage
+      roundBrushImage,
+      smallRoundBrushImage
     );
 
     this.meshbrush.image = smokeBrushImage;
@@ -386,10 +390,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
     }
 
-    this.createTerrainWithSplatmap(0, 0, this.splatmapShader1, slot);
-    this.createTerrainWithSplatmap(300, 0, this.splatmapShader1, slot);
-    this.createTerrainWithSplatmap(300, 300, this.splatmapShader1, slot);
-    this.createTerrainWithSplatmap(0, 300, this.splatmapShader1, slot);
+    this.createTerrainWithSplatmap(this.splatmapShader1, slot);
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
@@ -501,16 +502,11 @@ export class MapEditorComponent implements AfterViewInit {
     skyboxMesh.vao.unbind();
   }
 
-  private createTerrainWithSplatmap(
-    xPos: number,
-    zPos: number,
-    shader: Shader,
-    slot: number
-  ) {
-    const width = 512;
-    const height = 512;
+  private createTerrainWithSplatmap(shader: Shader, slot: number) {
+    const width = 1024;
+    const height = 1024;
     const model = new Model();
-    model.addPlane(100, xPos, zPos, 300, 300);
+    model.addPlane(200, 100, 100);
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -541,7 +537,7 @@ export class MapEditorComponent implements AfterViewInit {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(10, 10, 0.1, 50, 50);
+    model.addPlane(10, 10, 0.1);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -564,7 +560,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(10, x, y, 50, 50);
+    model.addPlane(10, x, y);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
