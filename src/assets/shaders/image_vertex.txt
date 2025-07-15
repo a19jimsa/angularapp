@@ -4,6 +4,7 @@ attribute vec3 a_normal;
 
 uniform mat4 u_matrix;
 uniform mat4 u_view;
+uniform vec3 u_cameraPos;
 
 varying vec2 v_texcoord;
 varying float v_height;
@@ -12,16 +13,19 @@ varying float v_depth;
 varying float v_fogDistance;
 varying vec3 v_worldSpace;
 varying vec3 v_worldNormal;
-
+varying vec3 v_cameraPos;
+varying vec3 v_fragPos;
 
 void main() {
    v_worldSpace = a_position.xyz;
-   v_worldNormal = normalize(a_normal);
-   gl_Position = u_matrix * a_position;
+   v_worldNormal = a_normal;
    v_texcoord = a_texcoord;
    v_height = a_position.y;
    v_normal = a_normal;
    v_depth = a_position.z;
    vec4 viewPos = u_view * a_position;
    v_fogDistance = length(viewPos.z);
+   v_cameraPos = u_cameraPos;
+   v_fragPos = a_position.xyz;
+   gl_Position = u_matrix * a_position;
 }

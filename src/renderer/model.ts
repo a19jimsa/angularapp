@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix';
 import { Vec } from 'src/app/vec';
 
 export class Model {
@@ -282,6 +281,43 @@ export class Model {
         this.indices.push(i, i + quads + 1, i + 1);
         this.indices.push(i + 1, i + quads + 1, i + quads + 2);
       }
+    }
+  }
+
+  addCylinder() {
+    this.vertices = [];
+    this.indices = [];
+
+    const height = 10;
+    const segments = 30;
+    const radius = 10;
+
+    for (let i = 0; i <= segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      const x = Math.cos(theta) * radius;
+      const z = Math.sin(theta) * radius;
+      const u = i / segments;
+      console.log(x, z);
+      //Top
+      this.vertices.push(x, height, z);
+      this.vertices.push(u, 1);
+      this.vertices.push(0, 0, 0);
+      //Bottom
+      this.vertices.push(x, -height, z);
+      this.vertices.push(u, 0);
+      this.vertices.push(0, 0, 0);
+    }
+
+    for (let i = 0; i < segments; i++) {
+      const top0 = i * 2 + 1;
+      const bottom0 = i * 2;
+      const top1 = (i + 1) * 2 + 1;
+      const bottom1 = (i + 1) * 2;
+
+      // Triangel 1
+      this.indices.push(top0, bottom0, top1);
+      // Triangel 2
+      this.indices.push(top1, bottom0, bottom1);
     }
   }
 }

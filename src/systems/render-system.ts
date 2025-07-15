@@ -5,11 +5,12 @@ import { Material } from 'src/components/material';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
 import { Skybox } from 'src/components/skybox';
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Grass } from 'src/components/grass';
 import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
+import { Transform3D } from 'src/components/transform3D';
 
 export class RenderSystem {
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
@@ -43,7 +44,7 @@ export class RenderSystem {
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
-    gl.enable(gl.BLEND);
+    //gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     // Clear the canvas AND the depth buffer.
     gl.clearColor(0, 0, 0, 0); // Viktigt! Gör hela canvasen transparent
@@ -126,6 +127,17 @@ export class RenderSystem {
         );
         gl.uniformMatrix4fv(viewLocation, false, camera.getViewMatrix());
         gl.bindVertexArray(mesh.vao);
+        const cameraLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_cameraPos'
+        );
+        const cameraMatrix = mat4.invert(mat4.create(), camera.getViewMatrix());
+        const cameraPos = vec3.fromValues(
+          cameraMatrix[12],
+          cameraMatrix[13],
+          cameraMatrix[14]
+        );
+        gl.uniform3fv(cameraLocation, cameraPos);
         gl.drawElements(
           gl.TRIANGLES,
           mesh.indices.length,
@@ -184,6 +196,19 @@ export class RenderSystem {
           'u_time'
         );
         gl.uniform1f(timeLocation, performance.now() * 0.001);
+        const transform3D = ecs.getComponent<Transform3D>(
+          entity,
+          'Transform3D'
+        );
+        if (transform3D) {
+          const modelMatrix = mat4.create();
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          const uModelLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_model'
+          );
+          gl.uniformMatrix4fv(uModelLocation, false, modelMatrix);
+        }
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(
           gl.TRIANGLES,
@@ -234,6 +259,17 @@ export class RenderSystem {
           material.shader.program,
           'u_matrix'
         );
+
+        if (material.texture !== null) {
+          console.log(material.texture);
+          const textureLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_texture'
+          );
+          gl.uniform1i(textureLocation, material.slot);
+          gl.activeTexture(gl.TEXTURE0 + material.slot);
+          gl.bindTexture(gl.TEXTURE_2D, material.texture);
+        }
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(

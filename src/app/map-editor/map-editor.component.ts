@@ -39,6 +39,7 @@ import { Tree } from 'src/components/tree';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
 import { Name } from 'src/components/name';
+import { Transform3D } from 'src/components/transform3D';
 
 export enum Tools {
   Splatmap,
@@ -124,10 +125,36 @@ export class MapEditorComponent implements AfterViewInit {
 
   sceneObjects: Set<Name> = new Set<Name>();
 
+  transform: Transform3D = new Transform3D();
+
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
+  }
+
+  get translateX() {
+    return this.transform.translate[0];
+  }
+
+  get translateY() {
+    return this.transform.translate[1];
+  }
+
+  get translateZ() {
+    return this.transform.translate[2];
+  }
+
+  set translateX(value: number) {
+    this.transform.translate[0] = value;
+  }
+
+  set translateY(value: number) {
+    this.transform.translate[1] = value;
+  }
+
+  set translateZ(value: number) {
+    this.transform.translate[2] = value;
   }
 
   async ngAfterViewInit() {
@@ -151,10 +178,10 @@ export class MapEditorComponent implements AfterViewInit {
       const speed = 10;
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateX(10);
+          this.perspectiveCamera.rotateY(5);
           break;
         case 'KeyS':
-          this.perspectiveCamera.rotateX(-10);
+          this.perspectiveCamera.rotateY(-5);
           break;
         case 'KeyA':
           this.perspectiveCamera.updatePosition(0, 0, 10);
@@ -175,6 +202,11 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(-10, 0, 0);
           break;
       }
+    });
+
+    this.canvas.nativeElement.addEventListener('wheel', (event) => {
+      console.log(event.deltaY);
+      this.perspectiveCamera.rotateX(event.deltaY / 50);
     });
 
     this.canvas.nativeElement.addEventListener('mouseleave', (e) => {
@@ -229,6 +261,11 @@ export class MapEditorComponent implements AfterViewInit {
 
   changeActiveEntity(entity: Entity) {
     this.meshbrush.entity = entity;
+    const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
+    if (transform) {
+      this.transform = transform;
+      console.log(this.transform.translate);
+    }
   }
 
   changeBrushImage(id: number) {
@@ -266,14 +303,16 @@ export class MapEditorComponent implements AfterViewInit {
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
     const treeShader = new Shader(gl);
     await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
+    const vfxShader = new Shader(gl);
+    await vfxShader.initShaders('vfx_vertex.txt', 'vfx_fragment.txt');
     this.splatmapShader2 = new Shader(gl);
     await this.splatmapShader2.initShaders(
       'splatmap_vertex.txt',
       'splatmap_fragment.txt'
     );
 
-    const sprite = await this.texture1.loadTexture(
-      '/assets/sprites/104085.png'
+    const whirlwindTexture = await this.texture1.loadTexture(
+      '/assets/textures/whirlwind_map.jpg'
     );
     const textureMapImage = await this.texture1.loadTexture(
       '/assets/textures/texture_map.jpg'
@@ -312,11 +351,13 @@ export class MapEditorComponent implements AfterViewInit {
       textureMapImage.width,
       textureMapImage.height
     );
-    // const waterSlot = this.texture1.createAndBindTexture(
-    //   waterTextureImage,
-    //   waterTextureImage.width,
-    //   waterTextureImage.height
-    // );
+
+    const whirlwindSlot = this.texture1.createAndBindTexture(
+      whirlwindTexture,
+      whirlwindTexture.width,
+      whirlwindTexture.height
+    );
+
     const treeSlot = this.texture1.createAndBindTexture(
       tree,
       tree.width,
@@ -346,16 +387,51 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/round_brush_small.jpg'
     );
 
+    const smallBrushImage = await this.texture1.loadTexture(
+      'assets/textures/small_brush.jpg'
+    );
+
     // const strokeBrushImage = await this.texture1.loadTexture(
     //   'assets/textures/stroke_brush.jpg'
     // );
+
+    // const cylinderModel = new Model();
+    // cylinderModel.addCylinder();
+    // const effectEntity = this.ecs.createEntity();
+    // const cylinderMesh = new MeshRenderer(
+    //   gl,
+    //   new Float32Array(cylinderModel.vertices),
+    //   new Uint16Array(cylinderModel.indices),
+    //   vfxShader
+    // );
+
+    // this.ecs.addComponent<Material>(
+    //   effectEntity,
+    //   new Material(
+    //     vfxShader,
+    //     this.texture1.getTexture(whirlwindSlot)!,
+    //     whirlwindSlot
+    //   )
+    // );
+
+    // this.ecs.addComponent<AnimatedTexture>(
+    //   effectEntity,
+    //   new AnimatedTexture(10)
+    // );
+
+    // this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D());
+
+    // this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
+
+    // this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
 
     this.brushToolsImages.push(
       smokeBrushImage,
       starBrushImage,
       terrainBrushImage,
       roundBrushImage,
-      smallRoundBrushImage
+      smallRoundBrushImage,
+      smallBrushImage
     );
 
     this.meshbrush.image = smokeBrushImage;
@@ -506,7 +582,7 @@ export class MapEditorComponent implements AfterViewInit {
     const width = 1024;
     const height = 1024;
     const model = new Model();
-    model.addPlane(200, 100, 100);
+    model.addPlane(100, 100, 100);
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),

@@ -35,25 +35,19 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <div class="col-3">Translate</div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>X</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Y</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Z</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
+                <mat-form-field class="w-100">
+                  <mat-label>X</mat-label>
+                  <input matInput type="number" [(ngModel)]="translateX" />
+                </mat-form-field>
+
+                <mat-form-field class="w-100">
+                  <mat-label>Y</mat-label>
+                  <input matInput type="number" [(ngModel)]="translateY" />
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                  <mat-label>Z</mat-label>
+                  <input matInput type="number" [(ngModel)]="translateZ" />
+                </mat-form-field>
               </div>
               <div class="row">
                 <div class="col-3">Rotation</div>

@@ -107,7 +107,6 @@ export class BrushSystem {
             }
           }
         }
-        console.log(grass.positions.length);
         return;
       }
     }
@@ -424,7 +423,7 @@ export class BrushSystem {
     // Steg 1: Initiera alla normals till 0
     for (let i = 0; i < mesh.vertices.length / 8; i++) {
       mesh.vertices[i * 8 + 5] = 0;
-      mesh.vertices[i * 8 + 6] = 1;
+      mesh.vertices[i * 8 + 6] = 0;
       mesh.vertices[i * 8 + 7] = 0;
     }
     //Stride 8 xyzuvnormals(3)

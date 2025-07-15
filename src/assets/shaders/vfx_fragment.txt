@@ -1,0 +1,36 @@
+precision mediump float;
+
+//Shared in shaders
+uniform sampler2D u_texture;
+uniform float u_time;
+
+varying vec2 v_texcoord;
+
+void main() {
+    // 🎯 Snurra texturen runt cylindern
+    float angleOffset = u_time * 0.5; // snurrhastighet
+
+    // Lägg på snurr
+    float rotatedU = fract(v_texcoord.x + angleOffset);
+
+    // 🎯 Scrolla texturen uppåt
+    float scrolledV = fract(v_texcoord.y - u_time);
+
+    // 🎯 Slå upp textur
+    vec2 sampleUV = vec2(rotatedU, scrolledV);
+    vec4 tex = texture2D(u_texture, sampleUV);
+
+    // 🎯 Fyllfärg och styrka
+    vec3 color = tex.rgb * vec3(0.6, 0.8, 1.0); // blåaktig virvel
+
+    // 🎯 Transparens mot cylinderkanterna (tunna kanten)
+    float edgeFade = smoothstep(0.0, 0.1, v_texcoord.y) * smoothstep(1.0, 0.9, v_texcoord.y);
+
+    // 🎯 Lägg på extra fade (t.ex. från textur alpha)
+    float alpha = tex.r * edgeFade;
+    if(tex.r < 0.5){
+        discard;
+    }
+
+    gl_FragColor = vec4(color, alpha);
+}
