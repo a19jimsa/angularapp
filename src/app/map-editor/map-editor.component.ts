@@ -110,7 +110,6 @@ export class MapEditorComponent implements AfterViewInit {
     entity: -1,
     negative: false,
   };
-
   ecs: Ecs;
   //All systems in editor
   renderSystem: RenderSystem = new RenderSystem();
@@ -308,6 +307,10 @@ export class MapEditorComponent implements AfterViewInit {
     }
   }
 
+  addToScene() {
+    this.createTerrainWithSplatmap(0);
+  }
+
   async init() {
     const gl = this.gl;
     const shader = new Shader(gl);
@@ -490,7 +493,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
     }
 
-    this.createTerrainWithSplatmap(this.splatmapShader1, slot);
+    this.createTerrainWithSplatmap(slot);
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
@@ -602,7 +605,7 @@ export class MapEditorComponent implements AfterViewInit {
     skyboxMesh.vao.unbind();
   }
 
-  private createTerrainWithSplatmap(shader: Shader, slot: number) {
+  private createTerrainWithSplatmap(slot: number) {
     const width = 1024;
     const height = 1024;
     const model = new Model();
@@ -611,7 +614,7 @@ export class MapEditorComponent implements AfterViewInit {
       this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
-      shader
+      this.splatmapShader1
     );
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
@@ -620,7 +623,7 @@ export class MapEditorComponent implements AfterViewInit {
     //Add material component to entity
     this.ecs.addComponent(
       newEntity,
-      new Material(shader, this.texture1.getTexture(slot), slot)
+      new Material(this.splatmapShader1, this.texture1.getTexture(slot), slot)
     );
 
     const splatmap = this.texture1.createAndBindTexture(null, width, height);

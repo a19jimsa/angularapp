@@ -148,8 +148,9 @@ export class RenderSystem {
             'u_model'
           );
           const modelMatrix = mat4.create();
-          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           gl.uniformMatrix4fv(model, false, modelMatrix);
           gl.drawElements(
             gl.TRIANGLES,

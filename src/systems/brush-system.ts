@@ -26,7 +26,7 @@ export class BrushSystem {
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 1;
-    const maxDistance = 200;
+    const maxDistance = 300;
     const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
@@ -51,9 +51,14 @@ export class BrushSystem {
 
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
-        const vx = mesh.vertices[j] * transform3D.scale[0];
-        const vy = mesh.vertices[j + 1] * transform3D.scale[1];
-        const vz = mesh.vertices[j + 2] * transform3D.scale[2];
+        const vx =
+          mesh.vertices[j] * transform3D.scale[0] + transform3D.translate[0];
+        const vy =
+          mesh.vertices[j + 1] * transform3D.scale[1] +
+          transform3D.translate[1];
+        const vz =
+          mesh.vertices[j + 2] * transform3D.scale[2] +
+          transform3D.translate[2];
         // Calculate distance between vertex positions and raycaster's position.
         const dx = vx - pos[0];
         const dy = vy - pos[1];
@@ -62,21 +67,13 @@ export class BrushSystem {
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (dist < epsilon) {
           if (meshBrush.type === ToolBrush.Height) {
-            this.meshBrush(
-              meshBrush,
-              mesh.vertices,
-              vx,
-              vy,
-              vz,
-              transform3D.scale[0],
-              transform3D.scale[2]
-            );
+            this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, transform3D);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, vx, vy, vz);
+            this.treeBrush(ecs, mesh.vertices[j + 3], mesh.vertices[j + 4]);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintImage(
               ecs,
@@ -145,16 +142,15 @@ export class BrushSystem {
             }
           }
         }
-        console.log(grass.positions.length);
       }
     }
   }
 
-  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
+  private treeBrush(ecs: Ecs, u: number, v: number) {
     for (const entity of ecs.getEntities()) {
       const tree = ecs.getComponent<Tree>(entity, 'Tree');
       if (tree) {
-        tree.positions.push(x * 1.7, y * 2, z * 2);
+        tree.positions.push(u, 0, v);
         return;
       }
     }
@@ -382,26 +378,26 @@ export class BrushSystem {
     }
   }
 
-  private meshBrush(
+  private heightBrush(
     meshBrush: Brush,
     vertices: Float32Array,
     x: number,
     y: number,
     z: number,
-    scaleX: number,
-    scaleZ: number
+    transform3D: Transform3D
   ) {
     const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     for (let i = 0; i < vertices.length; i += 8) {
-      const vx = vertices[i] * scaleX;
-      const vz = vertices[i + 2] * scaleZ;
+      const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
+      const vz =
+        vertices[i + 2] * transform3D.scale[2] + transform3D.translate[2];
       // Calculate distance again between vertices and raycasting...
       const dx = vx - x;
       const dz = vz - z;
-      //Same formula again for some reasong.. need a function!
+      //Same formula again for some reasong... need a function!
       const dist = Math.sqrt(dx * dx + dz * dz);
       if (dist > brushRadius) continue;
       // Mappa från world-space till penselns bildkoordinater
