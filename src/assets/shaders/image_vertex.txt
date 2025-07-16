@@ -5,6 +5,7 @@ attribute vec3 a_normal;
 uniform mat4 u_matrix;
 uniform mat4 u_view;
 uniform vec3 u_cameraPos;
+uniform mat4 u_model;
 
 varying vec2 v_texcoord;
 varying float v_height;
@@ -27,5 +28,5 @@ void main() {
    v_fogDistance = length(viewPos.z);
    v_cameraPos = u_cameraPos;
    v_fragPos = a_position.xyz;
-   gl_Position = u_matrix * a_position;
+   gl_Position = u_matrix * u_model * a_position;
 }

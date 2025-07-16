@@ -4,6 +4,7 @@ import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
+import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
@@ -39,16 +40,20 @@ export class BrushSystem {
     );
 
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    if (!mesh) return;
+    const transform3D = ecs.getComponent<Transform3D>(
+      meshBrush.entity,
+      'Transform3D'
+    );
+    if (!mesh || !transform3D) return;
     for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
 
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
-        const vx = mesh.vertices[j];
-        const vy = mesh.vertices[j + 1];
-        const vz = mesh.vertices[j + 2];
+        const vx = mesh.vertices[j] * transform3D.scale[0];
+        const vy = mesh.vertices[j + 1] * transform3D.scale[1];
+        const vz = mesh.vertices[j + 2] * transform3D.scale[2];
         // Calculate distance between vertex positions and raycaster's position.
         const dx = vx - pos[0];
         const dy = vy - pos[1];
@@ -57,7 +62,15 @@ export class BrushSystem {
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (dist < epsilon) {
           if (meshBrush.type === ToolBrush.Height) {
-            this.meshBrush(meshBrush, mesh.vertices, vx, vy, vz);
+            this.meshBrush(
+              meshBrush,
+              mesh.vertices,
+              vx,
+              vy,
+              vz,
+              transform3D.scale[0],
+              transform3D.scale[2]
+            );
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
@@ -374,15 +387,17 @@ export class BrushSystem {
     vertices: Float32Array,
     x: number,
     y: number,
-    z: number
+    z: number,
+    scaleX: number,
+    scaleZ: number
   ) {
     const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     for (let i = 0; i < vertices.length; i += 8) {
-      const vx = vertices[i];
-      const vz = vertices[i + 2];
+      const vx = vertices[i] * scaleX;
+      const vz = vertices[i + 2] * scaleZ;
       // Calculate distance again between vertices and raycasting...
       const dx = vx - x;
       const dz = vz - z;
@@ -403,7 +418,6 @@ export class BrushSystem {
         }
       }
     }
-    console.log(vertices);
   }
 
   private getImageData(image: HTMLImageElement, scale: number) {

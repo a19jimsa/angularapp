@@ -255,17 +255,17 @@ export class Model {
     this.indices = indices;
   }
 
-  addPlane(quads: number, width: number, height: number) {
+  addPlane(quads: number) {
     this.vertices = [];
     this.indices = [];
 
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
-      const posZ = v * height;
+      const posZ = z;
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
-        const posX = u * width;
+        const posX = x;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)

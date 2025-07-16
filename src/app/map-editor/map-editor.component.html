@@ -50,26 +50,22 @@
                 </mat-form-field>
               </div>
               <div class="row">
-                <div class="col-3">Rotation</div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>X</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Y</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Z</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
+                <mat-form-field class="w-100">
+                  <mat-label>X</mat-label>
+                  <input matInput type="number" [(ngModel)]="scaleX" />
+                </mat-form-field>
+
+                <mat-form-field class="w-100">
+                  <mat-label>Y</mat-label>
+                  <input matInput type="number" [(ngModel)]="scaleY" />
+                </mat-form-field>
+
+                <mat-form-field class="w-100">
+                  <mat-label>Z</mat-label>
+                  <input matInput type="number" [(ngModel)]="scaleZ" />
+                </mat-form-field>
               </div>
+
               <div class="row">
                 <div class="col-3">Scale</div>
                 <div class="col-3">

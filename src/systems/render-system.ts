@@ -138,12 +138,27 @@ export class RenderSystem {
           cameraMatrix[14]
         );
         gl.uniform3fv(cameraLocation, cameraPos);
-        gl.drawElements(
-          gl.TRIANGLES,
-          mesh.indices.length,
-          gl.UNSIGNED_SHORT,
-          0
+        const transform3D = ecs.getComponent<Transform3D>(
+          entity,
+          'Transform3D'
         );
+        if (transform3D) {
+          const model = gl.getUniformLocation(
+            material.shader.program,
+            'u_model'
+          );
+          const modelMatrix = mat4.create();
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          gl.uniformMatrix4fv(model, false, modelMatrix);
+          gl.drawElements(
+            gl.TRIANGLES,
+            mesh.indices.length,
+            gl.UNSIGNED_SHORT,
+            0
+          );
+        }
+
         gl.bindVertexArray(null);
       } else if (mesh && material && grass) {
         gl.useProgram(material.shader.program);

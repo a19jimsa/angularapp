@@ -157,6 +157,30 @@ export class MapEditorComponent implements AfterViewInit {
     this.transform.translate[2] = value;
   }
 
+  get scaleX() {
+    return this.transform.scale[0];
+  }
+
+  get scaleY() {
+    return this.transform.scale[1];
+  }
+
+  get scaleZ() {
+    return this.transform.scale[2];
+  }
+
+  set scaleX(value: number) {
+    this.transform.scale[0] = value;
+  }
+
+  set scaleY(value: number) {
+    this.transform.scale[1] = value;
+  }
+
+  set scaleZ(value: number) {
+    this.transform.scale[2] = value;
+  }
+
   async ngAfterViewInit() {
     this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
@@ -582,7 +606,7 @@ export class MapEditorComponent implements AfterViewInit {
     const width = 1024;
     const height = 1024;
     const model = new Model();
-    model.addPlane(100, 100, 100);
+    model.addPlane(100);
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -605,6 +629,7 @@ export class MapEditorComponent implements AfterViewInit {
       newEntity,
       new Splatmap(width, height, this.texture1.getTexture(splatmap), splatmap)
     );
+    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
     this.updateSplatmap();
     this.updateMesh();
   }
@@ -613,7 +638,7 @@ export class MapEditorComponent implements AfterViewInit {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(10, 10, 0.1);
+    model.addPlane(10);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -636,7 +661,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(10, x, y);
+    model.addPlane(10);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
