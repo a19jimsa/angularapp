@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  model,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,6 +41,9 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
 import { Name } from 'src/components/name';
 import { Transform3D } from 'src/components/transform3D';
+import { AnimationSystem } from 'src/systems/animation-system';
+import { Skeleton } from 'src/components/skeleton';
+import { ResourceManager } from 'src/core/resource-manager';
 
 export enum Tools {
   Splatmap,
@@ -81,7 +85,6 @@ export type Brush = {
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapEditorComponent implements AfterViewInit {
   @ViewChild('canvas', { static: true })
@@ -125,6 +128,8 @@ export class MapEditorComponent implements AfterViewInit {
   sceneObjects: Set<Name> = new Set<Name>();
 
   transform: Transform3D = new Transform3D();
+
+  animationSystem: AnimationSystem = new AnimationSystem();
 
   constructor() {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -180,6 +185,30 @@ export class MapEditorComponent implements AfterViewInit {
     this.transform.scale[2] = value;
   }
 
+  get rotateX() {
+    return this.transform.rotation[0];
+  }
+
+  get rotateY() {
+    return this.transform.rotation[1];
+  }
+
+  get rotateZ() {
+    return this.transform.rotation[2];
+  }
+
+  set rotateX(value: number) {
+    this.transform.rotation[0] = value;
+  }
+
+  set rotateY(value: number) {
+    this.transform.rotation[1] = value;
+  }
+
+  set rotateZ(value: number) {
+    this.transform.rotation[2] = value;
+  }
+
   async ngAfterViewInit() {
     this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
@@ -190,6 +219,8 @@ export class MapEditorComponent implements AfterViewInit {
     this.texture1 = new Texture(this.gl);
     this.addEventListeners();
     await Loader.loadAllBones();
+    await ResourceManager.loadAllAnimations();
+    console.log(ResourceManager.getAnimations());
     // await Loader.loadAllShader();
     // await Loader.loadAllTextures();
     this.bones = Loader.getBones('skeleton');
@@ -201,16 +232,16 @@ export class MapEditorComponent implements AfterViewInit {
       const speed = 10;
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.rotateY(5);
-          break;
-        case 'KeyS':
-          this.perspectiveCamera.rotateY(-5);
-          break;
-        case 'KeyA':
           this.perspectiveCamera.updatePosition(0, 0, 10);
           break;
-        case 'KeyD':
+        case 'KeyS':
           this.perspectiveCamera.updatePosition(0, 0, -10);
+          break;
+        case 'KeyA':
+          this.perspectiveCamera.updatePosition(1, 0, 0);
+          break;
+        case 'KeyD':
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
         case 'ArrowUp':
           this.perspectiveCamera.updatePosition(0, 10, 0);
@@ -345,8 +376,8 @@ export class MapEditorComponent implements AfterViewInit {
       '/assets/textures/texture_map.jpg'
     );
 
-    const waterTextureImage = await this.texture1.loadTexture(
-      '/assets/textures/water_texture.jpg'
+    const characterImage = await this.texture1.loadTexture(
+      '/assets/textures/104085.png'
     );
 
     const skybox1 = await this.texture1.loadTexture(
@@ -389,6 +420,12 @@ export class MapEditorComponent implements AfterViewInit {
       tree,
       tree.width,
       tree.height
+    );
+
+    const characterSlot = this.texture1.createAndBindTexture(
+      characterImage,
+      characterImage.width,
+      characterImage.height
     );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
@@ -461,7 +498,7 @@ export class MapEditorComponent implements AfterViewInit {
       smallBrushImage
     );
 
-    this.meshbrush.image = smokeBrushImage;
+    this.meshbrush.image = smallRoundBrushImage;
 
     const grassModel = new Model();
     grassModel.addGrass(0, 0, 0);
@@ -476,7 +513,7 @@ export class MapEditorComponent implements AfterViewInit {
     const grassEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
       grassEntity,
-      new Material(grassShader, null, 4)
+      new Material(grassShader, null, -1)
     );
     this.ecs.addComponent<AnimatedTexture>(
       grassEntity,
@@ -550,7 +587,64 @@ export class MapEditorComponent implements AfterViewInit {
       if (!name) continue;
       this.sceneObjects.add(name);
     }
+
+    this.createCharacter(shader, characterImage, characterSlot);
     this.loop();
+  }
+
+  private createCharacter(
+    shader: Shader,
+    image: HTMLImageElement,
+    slot: number
+  ) {
+    const model = new Model();
+    for (let i = 0; i < this.bones.length; i++) {
+      const bone = this.bones[i];
+      model.addSquares(
+        image.width,
+        image.height,
+        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+        bone.pivot,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        bone.position.x - bone.pivot.x - bone.endX / 2,
+        bone.position.y - bone.pivot.y,
+        bone.endX,
+        bone.endY,
+        bone.order
+      );
+    }
+    const entity = this.ecs.createEntity();
+    const mesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Material>(
+      entity,
+      new Material(shader, this.texture1.getTexture(slot), slot)
+    );
+    this.ecs.addComponent<Name>(entity, new Name('Player'));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D());
+    const playerSkeleton = new Skeleton(
+      'assets/sprites/88022.png',
+      'playerAnimations'
+    );
+    playerSkeleton.bones = Loader.getBones('skeleton');
+    const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
+    if (!skeleton) return;
+    skeleton.image = image;
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      'running'
+    );
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
   }
 
   public getSceneObjectName(entity: Entity) {
@@ -609,7 +703,7 @@ export class MapEditorComponent implements AfterViewInit {
     const width = 1024;
     const height = 1024;
     const model = new Model();
-    model.addPlane(100);
+    model.addPlane(50);
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -720,8 +814,40 @@ export class MapEditorComponent implements AfterViewInit {
     }
   }
 
+  updateBatch() {
+    for (const entity of this.ecs.getEntities()) {
+      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
+      const skeleton = this.ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      if (mesh && skeleton) {
+        const model = new Model();
+        for (let i = 0; i < skeleton.bones.length; i++) {
+          const bone = skeleton.bones[i];
+          model.addSquares(
+            skeleton.image.width,
+            skeleton.image.height,
+            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+            bone.pivot,
+            bone.startX,
+            bone.startY,
+            bone.endX,
+            bone.endY,
+            bone.position.x - bone.pivot.x - bone.endX / 2,
+            bone.position.y - bone.pivot.y,
+            bone.endX,
+            bone.endY,
+            i
+          );
+        }
+        mesh.vertices = new Float32Array(model.vertices);
+        console.log(mesh.vertices);
+      }
+    }
+  }
+
   update() {
-    this.updateBonePositions(this.bones);
+    this.animationSystem.update(this.ecs);
+    this.updateMesh();
+    this.updateBatch();
     if (this.isMouseDown && this.isMouseMoved) {
       this.brushSystem.update(
         this.meshbrush,
@@ -730,28 +856,8 @@ export class MapEditorComponent implements AfterViewInit {
         this.perspectiveCamera
       );
       this.isMouseMoved = false;
-      this.updateMesh();
       this.updateSplatmap();
     }
-
-    // const model = new Model();
-    // for (let i = 0; i < this.bones.length; i++) {
-    //   const bone = this.bones[i];
-    //   model.addSquares(
-    //     this.texture1.getImage(0).width,
-    //     this.texture1.getImage(0).height,
-    //     MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-    //     bone.pivot,
-    //     bone.startX,
-    //     bone.startY,
-    //     bone.endX,
-    //     bone.endY,
-    //     300 + bone.position.x - bone.pivot.x - bone.endX / 2,
-    //     300 + bone.position.y - bone.pivot.y,
-    //     bone.endX,
-    //     bone.endY
-    //   );
-    // }
   }
 
   updateSplatmap() {
@@ -773,23 +879,6 @@ export class MapEditorComponent implements AfterViewInit {
         gl.UNSIGNED_BYTE,
         splatmap.coords
       );
-    }
-  }
-
-  updateBonePositions(bones: Bone[]): void {
-    for (const bone of bones) {
-      let parentRotation = 0;
-      if (bone.parentId) {
-        const parent = MathUtils.findBoneById(bones, bone.parentId);
-        if (parent) {
-          parentRotation = MathUtils.calculateGlobalRotation(bones, parent);
-          bone.position = MathUtils.calculateParentPosition(
-            parent.position,
-            parent.length * bone.attachAt * parent.scale.y,
-            parentRotation
-          );
-        }
-      }
     }
   }
 

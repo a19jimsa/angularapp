@@ -23,7 +23,7 @@ export class AnimationSystem {
     }
   }
 
-  runAnimation(skeleton: Skeleton, keyframes: Keyframe[]) {
+  private runAnimation(skeleton: Skeleton, keyframes: Keyframe[]) {
     if (!keyframes) return;
     if (keyframes.length === 0) return;
     const totalDuration = keyframes[keyframes.length - 1].time;
@@ -80,11 +80,11 @@ export class AnimationSystem {
     }
   }
 
-  sortBonesByHierarchy(skeleton: Skeleton): void {
+  private sortBonesByHierarchy(skeleton: Skeleton): void {
     skeleton.bones.sort((a, b) => a.hierarchyDepth - b.hierarchyDepth);
   }
 
-  updateBonePositions(bones: Bone[]): void {
+  private updateBonePositions(bones: Bone[]): void {
     for (const bone of bones) {
       let parentRotation = 0;
       if (bone.parentId) {
@@ -103,7 +103,7 @@ export class AnimationSystem {
     }
   }
 
-  blendAnimations(skeleton: Skeleton) {
+  private blendAnimations(skeleton: Skeleton) {
     if (skeleton.takeSnapshot) {
       this.createSnaphot(skeleton);
       skeleton.takeSnapshot = false;
@@ -143,7 +143,7 @@ export class AnimationSystem {
     }
   }
 
-  createSnaphot(skeleton: Skeleton) {
+  private createSnaphot(skeleton: Skeleton) {
     skeleton.blend = true;
     skeleton.snapShot = {};
     if (!skeleton.keyframes) return;

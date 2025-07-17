@@ -7,6 +7,7 @@ uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform mat4 u_model;
 
+
 varying vec2 v_texcoord;
 varying float v_height;
 varying vec3 v_normal;

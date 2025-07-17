@@ -26,7 +26,7 @@ export class BrushSystem {
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 1;
-    const maxDistance = 300;
+    const maxDistance = 200;
     const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
@@ -45,8 +45,8 @@ export class BrushSystem {
       'Transform3D'
     );
     if (!mesh || !transform3D) return;
+    const pos = vec3.create();
     for (let i = 0; i < maxDistance; i += step) {
-      const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
 
       //8 Stride change later to make it get from the mesh stride, offset etc.

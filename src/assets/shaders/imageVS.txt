@@ -1,16 +1,12 @@
 attribute vec4 a_position;
 attribute vec2 a_texcoord;
  
-uniform sampler2D u_heightmap;
 uniform mat4 u_matrix;
+uniform mat4 u_model;
  
 varying vec2 v_texcoord;
-varying float v_height;
  
 void main() {
-   float displacement = texture2D(u_heightmap, a_texcoord).r * 10.0;
-   vec4 displacedPosition = a_position + vec4(0.0, displacement, 0.0, 0.0);
-   gl_Position = u_matrix * displacedPosition;
+   gl_Position = u_matrix * u_model * vec4(a_position.x, a_position.y, 0.0, 1.0);
    v_texcoord = a_texcoord;
-   v_height = displacement;
 }

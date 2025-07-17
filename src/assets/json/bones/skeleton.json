@@ -1,28 +1,6 @@
 [
   {
     "type": "Bone",
-    "id": "cape",
-    "pivot": { "x": 0, "y": 0 },
-    "position": { "x": 2.6169456325960145, "y": -66.90202853067478 },
-    "parentId": "torso",
-    "length": 0,
-    "rotation": 0,
-    "startX": 22,
-    "startY": 498,
-    "endX": 138,
-    "endY": 97,
-    "order": -10,
-    "offset": { "x": -64.8611369657831, "y": 7.1251955802217966 },
-    "attachAt": 1,
-    "globalRotation": 94.28799999997847,
-    "globalSpriteRotation": 180,
-    "hierarchyDepth": 2,
-    "scale": { "x": 1, "y": 1 },
-    "minAngle": 0,
-    "maxAngle": 0
-  },
-  {
-    "type": "Bone",
     "id": "left_arm",
     "pivot": { "x": 0, "y": 13 },
     "position": { "x": 15.01019014754271, "y": -58.45173324632267 },

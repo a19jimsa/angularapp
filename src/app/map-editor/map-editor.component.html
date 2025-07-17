@@ -1,6 +1,6 @@
-<div class="container-fluid border">
+<div class="container-fluid border" style="height: 850px">
   <div class="row">
-    <div class="col-1">
+    <div class="col-1 overflow-auto" style="height: 800px">
       <mat-card class="h-100 d-flex flex-column justify-content-between">
         <mat-card-header>
           <mat-card-title-group>
@@ -15,17 +15,15 @@
           </button>
           }</mat-card-content
         >
-        <button mat-flat-button (click)="addToScene()">Add to scene</button>
+        <button mat-button (click)="addToScene()">Add to scene</button>
       </mat-card>
     </div>
     <div class="col-9">
-      <canvas #canvas class="border"></canvas>
+      <canvas #canvas></canvas>
     </div>
-    <div class="col-2">
-      <mat-card class="h-100">
-        <mat-card-content
-          class="d-flex flex-column justify-content-between h-100"
-        >
+    <div class="col-2 overflow-auto" style="height: 800px">
+      <mat-card class="h-100 d-flex flex-column justify-content-between">
+        <mat-card-content class="h-100 d-flex flex-column">
           <mat-accordion class="example-headers-align" multi>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
@@ -67,25 +65,18 @@
               </div>
 
               <div class="row">
-                <div class="col-3">Scale</div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>X</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Y</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
-                <div class="col-3">
-                  <mat-form-field class="w-100">
-                    <mat-label>Z</mat-label>
-                    <input matInput type="number" />
-                  </mat-form-field>
-                </div>
+                <mat-form-field class="w-100">
+                  <mat-label>X</mat-label>
+                  <input matInput type="number" [(ngModel)]="rotateX" />
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                  <mat-label>Y</mat-label>
+                  <input matInput type="number" [(ngModel)]="rotateY" />
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                  <mat-label>Z</mat-label>
+                  <input matInput type="number" [(ngModel)]="rotateZ" />
+                </mat-form-field>
               </div>
             </mat-expansion-panel>
             <mat-expansion-panel>

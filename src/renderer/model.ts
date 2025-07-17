@@ -43,7 +43,8 @@ export class Model {
     dx: number,
     dy: number,
     dw: number,
-    dh: number
+    dh: number,
+    order: number
   ) {
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
@@ -62,14 +63,14 @@ export class Model {
     const y1 = dy + dh;
 
     //Rotate from correct pivot position
-    const pivotX = dx + pivot.x + dh / 2;
+    const pivotX = dx + pivot.x + sw / 2;
     const pivotY = dy + pivot.y;
 
     const vertices = [
       // top-left
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
       (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
-      0,
+      order,
       u0,
       v0,
       0,
@@ -79,7 +80,7 @@ export class Model {
       // top-right
       (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
       (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
-      0,
+      order,
       u1,
       v0,
       0,
@@ -89,7 +90,7 @@ export class Model {
       // bottom-right
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
       (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
-      0,
+      order,
       u1,
       v1,
       0,
@@ -99,7 +100,7 @@ export class Model {
       // bottom-left
       (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
       (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
-      0,
+      order,
       u0,
       v1,
       0,
