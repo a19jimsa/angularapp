@@ -42,10 +42,10 @@ export class RenderSystem {
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
-    //gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
-    //gl.enable(gl.BLEND);
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     // Clear the canvas AND the depth buffer.
     gl.clearColor(0, 0, 0, 0); // Viktigt! Gör hela canvasen transparent
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -149,11 +149,14 @@ export class RenderSystem {
           );
           const modelMatrix = mat4.create();
 
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+          mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           gl.uniformMatrix4fv(model, false, modelMatrix);
           gl.drawElements(
-            gl.TRIANGLES,
+            gl.LINE_STRIP,
             mesh.indices.length,
             gl.UNSIGNED_SHORT,
             0
@@ -210,6 +213,10 @@ export class RenderSystem {
         );
         if (transform3D) {
           const modelMatrix = mat4.create();
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+          mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           const uModelLocation = gl.getUniformLocation(
             material.shader.program,

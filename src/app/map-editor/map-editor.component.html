@@ -15,7 +15,13 @@
           </button>
           }</mat-card-content
         >
-        <button mat-button (click)="addToScene()">Add to scene</button>
+        <button mat-button [matMenuTriggerFor]="animals">Add to scene</button>
+        <mat-menu #animals="matMenu">
+          <button mat-menu-item (click)="createWater()">Water</button>
+          <button mat-menu-item (click)="createTerrainWithSplatmap()">
+            Invertebrates
+          </button>
+        </mat-menu>
       </mat-card>
     </div>
     <div class="col-9">
@@ -109,6 +115,14 @@
                   <input matSliderThumb [(ngModel)]="meshbrush.strength" />
                 </mat-slider>
               </div>
+              <mat-form-field class="w-100">
+                <mat-label>Mesh Quads</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  (click)="changeVertices($event)"
+                />
+              </mat-form-field>
             </mat-expansion-panel>
             <mat-expansion-panel>
               <mat-expansion-panel-header>

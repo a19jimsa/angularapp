@@ -13,8 +13,8 @@ export class PerspectiveCamera {
       this.projectionMatrix,
       MathUtils.degreesToRadians(60),
       width / height,
-      1,
-      -1000
+      0.1,
+      1000
     );
     mat4.lookAt(
       this.viewMatrix,

@@ -48,7 +48,6 @@ export class BrushSystem {
     const pos = vec3.create();
     for (let i = 0; i < maxDistance; i += step) {
       vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
-
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx =
@@ -150,7 +149,7 @@ export class BrushSystem {
     for (const entity of ecs.getEntities()) {
       const tree = ecs.getComponent<Tree>(entity, 'Tree');
       if (tree) {
-        tree.positions.push(u, 0, v);
+        tree.positions.push(u * 2, 0, v * 2);
         return;
       }
     }
@@ -410,7 +409,7 @@ export class BrushSystem {
         const red = imageData.data[pixelIndex];
         if (red < 255) {
           const influence = (1 - dist / brushRadius) * brushStrength;
-          vertices[i + 1] += influence;
+          vertices[i + 1] += influence + 1;
         }
       }
     }

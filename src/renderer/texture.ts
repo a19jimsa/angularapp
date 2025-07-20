@@ -2,7 +2,7 @@ import { Shader } from './shader';
 
 export class Texture {
   private gl: WebGL2RenderingContext;
-  private textureMap = new Map<number, WebGLTexture>();
+  private textureMap = new Map<string, WebGLTexture>();
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
@@ -46,6 +46,7 @@ export class Texture {
   }
 
   createAndBindTexture(
+    name: string,
     image: HTMLImageElement | null,
     width: number,
     height: number
@@ -97,17 +98,22 @@ export class Texture {
     }
     //Much better!
     const slot = this.textureMap.size;
-    this.textureMap.set(this.textureMap.size, texture);
+    this.textureMap.set(name, texture);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, null);
     return slot;
   }
 
-  createNormalMap(data: Uint8Array, image: HTMLImageElement, slot: number) {
+  createNormalMap(
+    name: string,
+    data: Uint8Array,
+    image: HTMLImageElement,
+    slot: number
+  ) {
     const gl = this.gl;
     const texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0 + slot);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureMap.get(slot)!);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureMap.get(name)!);
 
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -144,7 +150,7 @@ export class Texture {
     this.gl.generateMipmap(this.gl.TEXTURE_2D);
     //Push texture for later use... maybe use a map?=??? better than random position and rely on slot?=???
     //Much better!
-    this.textureMap.set(slot, texture!);
+    this.textureMap.set(name, texture!);
   }
 
   setUniform(shader: Shader, name: string, slot: number) {
@@ -152,15 +158,25 @@ export class Texture {
     this.gl.uniform1i(this.gl.getUniformLocation(shader.program!, name), slot);
   }
 
-  getTexture(slot: number) {
-    if (!this.textureMap.get(slot)) {
+  getTexture(name: string) {
+    if (!this.textureMap.get(name)) {
       new Error('Could not get texture!');
     }
-    return this.textureMap.get(slot)!;
+    return this.textureMap.get(name)!;
   }
-  bind(textureSlot: number) {
+
+  getSlot(name: string): number {
+    let index = 0;
+    for (let key of this.textureMap.keys()) {
+      if (key === name) return index;
+      index++;
+    }
+    return -1;
+  }
+
+  bind(name: string) {
     const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.textureMap.get(textureSlot)!);
+    gl.bindTexture(gl.TEXTURE_2D, this.textureMap.get(name)!);
   }
 
   unbind() {

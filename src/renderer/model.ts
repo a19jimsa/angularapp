@@ -66,10 +66,12 @@ export class Model {
     const pivotX = dx + pivot.x + sw / 2;
     const pivotY = dy + pivot.y;
 
+    const divider = 10;
+
     const vertices = [
       // top-left
-      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
-      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
+      ((x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX) / divider,
+      ((x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY) / divider,
       order,
       u0,
       v0,
@@ -78,8 +80,8 @@ export class Model {
       0,
 
       // top-right
-      (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
-      (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
+      ((x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX) / divider,
+      ((x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY) / divider,
       order,
       u1,
       v0,
@@ -88,8 +90,8 @@ export class Model {
       0,
 
       // bottom-right
-      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
-      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
+      ((x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX) / divider,
+      ((x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY) / divider,
       order,
       u1,
       v1,
@@ -98,8 +100,8 @@ export class Model {
       0,
 
       // bottom-left
-      (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
-      (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
+      ((x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX) / divider,
+      ((x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY) / divider,
       order,
       u0,
       v1,
@@ -257,16 +259,17 @@ export class Model {
   }
 
   addPlane(quads: number) {
+    quads = 10;
     this.vertices = [];
     this.indices = [];
 
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
-      const posZ = z;
+      const posZ = v * 500;
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
-        const posX = x;
+        const posX = u * 500;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
