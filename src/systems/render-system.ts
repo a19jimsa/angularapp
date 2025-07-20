@@ -156,7 +156,7 @@ export class RenderSystem {
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           gl.uniformMatrix4fv(model, false, modelMatrix);
           gl.drawElements(
-            gl.LINE_STRIP,
+            gl.TRIANGLES,
             mesh.indices.length,
             gl.UNSIGNED_SHORT,
             0

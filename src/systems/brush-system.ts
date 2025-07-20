@@ -25,8 +25,8 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 1;
-    const maxDistance = 200;
+    const epsilon = 10;
+    const maxDistance = 1000;
     const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
@@ -409,7 +409,7 @@ export class BrushSystem {
         const red = imageData.data[pixelIndex];
         if (red < 255) {
           const influence = (1 - dist / brushRadius) * brushStrength;
-          vertices[i + 1] += influence + 1;
+          vertices[i + 1] += influence;
         }
       }
     }

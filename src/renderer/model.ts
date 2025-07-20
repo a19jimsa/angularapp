@@ -259,17 +259,17 @@ export class Model {
   }
 
   addPlane(quads: number) {
-    quads = 10;
+    quads = 50;
     this.vertices = [];
     this.indices = [];
 
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
-      const posZ = v * 500;
+      const posZ = v * 1000;
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
-        const posX = u * 500;
+        const posX = u * 1000;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
@@ -286,6 +286,7 @@ export class Model {
         this.indices.push(i + 1, i + quads + 1, i + quads + 2);
       }
     }
+    console.log(this.vertices);
   }
 
   addCylinder() {
