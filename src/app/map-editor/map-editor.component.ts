@@ -246,7 +246,7 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, 0, -10);
           break;
         case 'KeyA':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(-1, 0, 0);  
           break;
         case 'KeyD':
           this.perspectiveCamera.updatePosition(1, 0, 0);
