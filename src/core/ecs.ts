@@ -93,4 +93,9 @@ export class Ecs {
     this.components.set(entity, components);
     return entity;
   }
+
+  getEcs() {
+    const json = JSON.stringify(Array.from(this.components.entries()));
+    return json;
+  }
 }

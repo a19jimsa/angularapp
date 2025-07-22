@@ -131,6 +131,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   splatmapShader1!: Shader;
   waterShader!: Shader;
+  whirlwindShader!: Shader;
 
   sceneObjects: Set<Name> = new Set<Name>();
 
@@ -245,10 +246,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, 0, -10);
           break;
         case 'KeyA':
-          this.perspectiveCamera.updatePosition(1, 0, 0);
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
         case 'KeyD':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(1, 0, 0);
           break;
         case 'ArrowUp':
           this.perspectiveCamera.updatePosition(0, 10, 0);
@@ -371,8 +372,11 @@ export class MapEditorComponent implements AfterViewInit {
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
     const treeShader = new Shader(gl);
     await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
-    const vfxShader = new Shader(gl);
-    await vfxShader.initShaders('vfx_vertex.txt', 'vfx_fragment.txt');
+    this.whirlwindShader = new Shader(gl);
+    await this.whirlwindShader.initShaders(
+      'vfx_vertex.txt',
+      'vfx_fragment.txt'
+    );
 
     const whirlwindTexture = await this.texture1.loadTexture(
       '/assets/textures/whirlwind_map.jpg'
@@ -479,36 +483,6 @@ export class MapEditorComponent implements AfterViewInit {
     // const strokeBrushImage = await this.texture1.loadTexture(
     //   'assets/textures/stroke_brush.jpg'
     // );
-
-    // const cylinderModel = new Model();
-    // cylinderModel.addCylinder();
-    // const effectEntity = this.ecs.createEntity();
-    // const cylinderMesh = new MeshRenderer(
-    //   gl,
-    //   new Float32Array(cylinderModel.vertices),
-    //   new Uint16Array(cylinderModel.indices),
-    //   vfxShader
-    // );
-
-    // this.ecs.addComponent<Material>(
-    //   effectEntity,
-    //   new Material(
-    //     vfxShader,
-    //     this.texture1.getTexture(whirlwindSlot)!,
-    //     whirlwindSlot
-    //   )
-    // );
-
-    // this.ecs.addComponent<AnimatedTexture>(
-    //   effectEntity,
-    //   new AnimatedTexture(10)
-    // );
-
-    // this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D());
-
-    // this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
-
-    // this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
 
     this.brushToolsImages.push(
       smokeBrushImage,
@@ -766,6 +740,39 @@ export class MapEditorComponent implements AfterViewInit {
     this.updateMesh();
   }
 
+  protected createCylinder() {
+    const gl = this.gl;
+    const cylinderModel = new Model();
+    cylinderModel.addCylinder();
+    const effectEntity = this.ecs.createEntity();
+    const cylinderMesh = new MeshRenderer(
+      gl,
+      new Float32Array(cylinderModel.vertices),
+      new Uint16Array(cylinderModel.indices),
+      this.whirlwindShader
+    );
+
+    this.ecs.addComponent<Material>(
+      effectEntity,
+      new Material(
+        this.whirlwindShader,
+        this.texture1.getTexture('whirlwind')!,
+        this.texture1.getSlot('whirlwind')
+      )
+    );
+
+    this.ecs.addComponent<AnimatedTexture>(
+      effectEntity,
+      new AnimatedTexture(10)
+    );
+
+    this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D());
+
+    this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
+
+    this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
+  }
+
   protected createMesh(shader: Shader, slot: number) {
     const entity = this.ecs.createEntity();
     const model = new Model();
@@ -960,4 +967,11 @@ export class MapEditorComponent implements AfterViewInit {
       console.log('Dialog reesult ' + result);
     });
   }
+
+  saveMap() {
+    const jsonString = this.ecs.getEcs();
+    localStorage.setItem('map', jsonString);
+  }
+
+  loadMap() {}
 }

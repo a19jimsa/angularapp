@@ -1,4 +1,4 @@
-<div class="container-fluid border" style="height: 850px">
+<div class="container-fluid" style="height: 850px">
   <div class="row">
     <div class="col-1 overflow-auto" style="height: 800px">
       <mat-card class="h-100 d-flex flex-column justify-content-between">
@@ -19,8 +19,9 @@
         <mat-menu #animals="matMenu">
           <button mat-menu-item (click)="createWater()">Water</button>
           <button mat-menu-item (click)="createTerrainWithSplatmap()">
-            Invertebrates
+            Terrain
           </button>
+          <button mat-menu-item (click)="createCylinder()">Cylinder</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -169,7 +170,7 @@
               </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
-          <button mat-button>Add Component</button>
+          <button mat-button (click)="saveMap()">Add Component</button>
         </mat-card-content>
       </mat-card>
     </div>

@@ -104,8 +104,8 @@ export class BrushSystem {
             const index = (z * image.width + x) * 4;
             const r = image.data[index];
             if (r < 200) {
-              const posX = vx - x * Math.random();
-              const posZ = vz - z * Math.random();
+              const posX = vx - x;
+              const posZ = vz - z;
               if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
               grass.positions.push(
                 posX * 2 + image.width,
