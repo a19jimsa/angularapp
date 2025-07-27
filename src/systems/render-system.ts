@@ -11,6 +11,7 @@ import { Grass } from 'src/components/grass';
 import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { Transform3D } from 'src/components/transform3D';
+import { Water } from 'src/components/water';
 
 export class RenderSystem {
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
@@ -94,6 +95,7 @@ export class RenderSystem {
         entity,
         'AnimatedTexture'
       );
+      const water = ecs.getComponent<Water>(entity, 'Water');
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
@@ -223,6 +225,13 @@ export class RenderSystem {
             'u_model'
           );
           gl.uniformMatrix4fv(uModelLocation, false, modelMatrix);
+        }
+        if (water) {
+          const scaleLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_displacmentScale'
+          );
+          gl.uniform1f(scaleLocation, water.scale);
         }
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(

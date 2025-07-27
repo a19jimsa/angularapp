@@ -5,21 +5,26 @@ export class PerspectiveCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
-  private position: vec3 = vec3.fromValues(0, 0, 0);
+  private position: vec3 = vec3.fromValues(0, 10, 1000);
   private rotation: number = 0;
+  private target: vec3 = vec3.fromValues(
+    this.position[0],
+    this.position[1],
+    this.position[2] - 100
+  );
 
   constructor(width: number, height: number) {
     mat4.perspective(
       this.projectionMatrix,
-      MathUtils.degreesToRadians(60),
+      MathUtils.degreesToRadians(45),
       width / height,
       1,
-      2000
+      5000
     );
     mat4.lookAt(
       this.viewMatrix,
       this.position,
-      vec3.fromValues(0, 0, 0),
+      this.target,
       vec3.fromValues(0, 1, 0)
     );
     mat4.multiply(
@@ -31,11 +36,12 @@ export class PerspectiveCamera {
   }
 
   rotateZ(angle: number) {
-    mat4.rotate(
+    this.rotation += angle;
+
+    mat4.rotateZ(
       this.viewMatrix,
       this.viewMatrix,
-      MathUtils.degreesToRadians(angle),
-      vec3.fromValues(0, 0, 1)
+      MathUtils.degreesToRadians(this.rotation)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -45,11 +51,11 @@ export class PerspectiveCamera {
   }
 
   rotateY(angle: number) {
-    mat4.rotate(
+    this.rotation += angle;
+    mat4.rotateY(
       this.viewMatrix,
       this.viewMatrix,
-      MathUtils.degreesToRadians(angle),
-      vec3.fromValues(0, 1, 0)
+      MathUtils.degreesToRadians(this.rotation)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -59,11 +65,22 @@ export class PerspectiveCamera {
   }
 
   rotateX(angle: number) {
-    mat4.rotate(
+    this.rotation += angle;
+    const targetAngleRadians = MathUtils.degreesToRadians(this.rotation);
+    const dirX = 0;
+    const dirY = Math.sin(targetAngleRadians) * 300;
+    const dirZ = -Math.cos(targetAngleRadians) * 300;
+
+    this.target = [
+      this.position[0] + dirX,
+      this.position[1] + dirY,
+      this.position[2] + dirZ,
+    ];
+    mat4.lookAt(
       this.viewMatrix,
-      this.viewMatrix,
-      MathUtils.degreesToRadians(angle),
-      vec3.fromValues(1, 0, 0)
+      this.position,
+      this.target,
+      vec3.fromValues(0, 1, 0)
     );
     mat4.multiply(
       this.viewProjectionMatrix,
@@ -77,10 +94,14 @@ export class PerspectiveCamera {
     this.position[1] += y;
     this.position[2] += z;
 
+    this.target[0] += x;
+    this.target[1] += y;
+    this.target[2] += z;
+
     mat4.lookAt(
       this.viewMatrix,
       this.position,
-      vec3.fromValues(this.position[0], 0, 0),
+      this.target,
       vec3.fromValues(0, 1, 0)
     );
     mat4.multiply(

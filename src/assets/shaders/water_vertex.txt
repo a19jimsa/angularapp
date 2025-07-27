@@ -7,6 +7,7 @@ attribute vec3 a_normal;
 uniform mat4 u_matrix;
 uniform mat4 u_model;
 uniform float u_time;
+uniform float u_displacmentScale;
 uniform sampler2D u_texture;
 
 varying vec2 v_texcoord;
@@ -14,7 +15,7 @@ varying vec2 v_texcoord;
 void main() {
    vec2 tileSize = vec2(1.0 / 2.0, 1.0 / 1.0);
    vec2 uv_heightMap = fract(a_texcoord + vec2(0.0, -0.1 * u_time)) * (tileSize) + vec2(1.0, 0.0) * tileSize;
-   float displacementScale = 20.0;
+   float displacementScale = u_displacmentScale;
    float displacement = texture2D(u_texture, uv_heightMap).r * displacementScale;
    vec4 displacedPosition = a_position + vec4(0, displacement, 0, 0);
    gl_Position = u_matrix * u_model * displacedPosition;

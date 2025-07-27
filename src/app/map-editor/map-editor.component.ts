@@ -48,6 +48,7 @@ import { ResourceManager } from 'src/core/resource-manager';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateEntityDialogComponent } from '../create-entity-dialog/create-entity-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { Water } from 'src/components/water';
 
 export enum Tools {
   Splatmap,
@@ -246,7 +247,7 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, 0, -10);
           break;
         case 'KeyA':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);  
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
         case 'KeyD':
           this.perspectiveCamera.updatePosition(1, 0, 0);
@@ -840,6 +841,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D());
+    this.ecs.addComponent<Water>(entity, new Water(20));
     console.log('Created Water!!!');
   }
 
