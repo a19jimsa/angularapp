@@ -49,6 +49,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateEntityDialogComponent } from '../create-entity-dialog/create-entity-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { Water } from 'src/components/water';
+import { Terrain } from 'src/components/terrain';
 
 export enum Tools {
   Splatmap,
@@ -71,6 +72,7 @@ export type Brush = {
   type: ToolBrush;
   entity: Entity;
   negative: boolean;
+  fallOff: number;
 };
 
 @Component({
@@ -119,6 +121,7 @@ export class MapEditorComponent implements AfterViewInit {
     alpha: 1,
     entity: -1,
     negative: false,
+    fallOff: 0,
   };
 
   ecs: Ecs;
@@ -241,10 +244,10 @@ export class MapEditorComponent implements AfterViewInit {
       const speed = 10;
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.updatePosition(0, 0, 10);
+          this.perspectiveCamera.updatePosition(0, 0, 100);
           break;
         case 'KeyS':
-          this.perspectiveCamera.updatePosition(0, 0, -10);
+          this.perspectiveCamera.updatePosition(0, 0, -100);
           break;
         case 'KeyA':
           this.perspectiveCamera.updatePosition(-1, 0, 0);
@@ -253,16 +256,16 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(1, 0, 0);
           break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 10, 0);
+          this.perspectiveCamera.updatePosition(0, 100, 0);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -10, 0);
+          this.perspectiveCamera.updatePosition(0, -100, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(10, 0, 0);
+          this.perspectiveCamera.updatePosition(100, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-10, 0, 0);
+          this.perspectiveCamera.updatePosition(-100, 0, 0);
           break;
       }
     });
@@ -700,26 +703,18 @@ export class MapEditorComponent implements AfterViewInit {
     const height = 512;
     const model = new Model();
     model.addPlane(200);
+    const newEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
+    //Add mesh component to entity
+    //Check if entity exists as parameter and make a copy of the other terrain
+
     const backgroundMesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
       this.splatmapShader1
     );
-    const newEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
-    //Add mesh component to entity
     this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
-    //Add material component to entity
-    this.ecs.addComponent(
-      newEntity,
-      new Material(
-        this.splatmapShader1,
-        this.texture1.getTexture('textureMap'),
-        0
-      )
-    );
-
     const splatmap = this.texture1.createAndBindTexture(
       'splatmap',
       null,
@@ -736,9 +731,72 @@ export class MapEditorComponent implements AfterViewInit {
         splatmap
       )
     );
+
+    //Add material component to entity
+    this.ecs.addComponent(
+      newEntity,
+      new Material(
+        this.splatmapShader1,
+        this.texture1.getTexture('textureMap'),
+        0
+      )
+    );
+
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
     this.updateSplatmap();
     this.updateMesh();
+  }
+
+  public createAdjacentTerrain() {
+    const activeEntity = this.meshbrush.entity;
+    const mesh = this.ecs.getComponent<Mesh>(activeEntity, 'Mesh');
+    const transform3D = this.ecs.getComponent<Transform3D>(
+      activeEntity,
+      'Transform3D'
+    );
+    if (mesh && transform3D) {
+      const newMesh = new MeshRenderer(
+        this.gl,
+        new Float32Array(mesh.vertices),
+        new Uint16Array(mesh.indices),
+        this.splatmapShader1
+      );
+      const newEntity = this.ecs.createEntity();
+      //Add splatmap too terrain entity
+      this.ecs.addComponent<Splatmap>(
+        newEntity,
+        new Splatmap(
+          512,
+          512,
+          this.texture1.getTexture('splatmap'),
+          this.texture1.getSlot('splatmap')
+        )
+      );
+      //Add material component to entity
+
+      this.ecs.addComponent(
+        newEntity,
+        new Material(
+          this.splatmapShader1,
+          this.texture1.getTexture('textureMap'),
+          this.texture1.getSlot('textureMap')
+        )
+      );
+      this.ecs.addComponent<Mesh>(newEntity, new Mesh(newMesh.vao));
+      this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
+      this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
+    }
+  }
+
+  public createAdjacentVertex() {
+    const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
+    if (!mesh) return;
+    for (let i = 0; i < mesh.vertices.length; i += 8 * 101) {
+      mesh.vertices[i + 1] = 100;
+    }
+    for (let i = 0; i < mesh.vertices.length; i += 8 * 101) {
+      mesh.vertices[i + 99 * 8 + 1] = 100;
+    }
   }
 
   protected createCylinder() {

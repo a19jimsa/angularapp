@@ -151,11 +151,11 @@ export class RenderSystem {
           );
           const modelMatrix = mat4.create();
 
-          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           gl.uniformMatrix4fv(model, false, modelMatrix);
           gl.drawElements(
             gl.TRIANGLES,

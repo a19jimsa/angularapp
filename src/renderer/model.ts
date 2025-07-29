@@ -259,7 +259,7 @@ export class Model {
   }
 
   addPlane(quads: number) {
-    quads = 50;
+    quads = 100;
     this.vertices = [];
     this.indices = [];
 

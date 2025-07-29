@@ -25,7 +25,7 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 10;
+    const epsilon = 5;
     const maxDistance = 1000;
     const step = 1;
 
@@ -389,6 +389,7 @@ export class BrushSystem {
     if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
+    const fallOff = meshBrush.fallOff;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
@@ -408,7 +409,12 @@ export class BrushSystem {
         const pixelIndex = (pz * imageData.width + px) * 4;
         const red = imageData.data[pixelIndex];
         if (red < 255) {
-          const influence = (1 - dist / brushRadius) * brushStrength;
+          const influence =
+            (1 - (dist / brushRadius) * fallOff) * brushStrength;
+          if (fallOff === 0) {
+            vertices[i + 1] += brushStrength;
+            continue;
+          }
           vertices[i + 1] += influence;
         }
       }

@@ -21,6 +21,12 @@
           <button mat-menu-item (click)="createTerrainWithSplatmap()">
             Terrain
           </button>
+          <button mat-menu-item (click)="createAdjacentTerrain()">
+            Adjacent Terrain
+          </button>
+          <button mat-menu-item (click)="createAdjacentVertex()">
+            Raise vertex
+          </button>
           <button mat-menu-item (click)="createCylinder()">Cylinder</button>
         </mat-menu>
       </mat-card>
@@ -114,6 +120,9 @@
                 </mat-slider>
                 <mat-slider min="-10" max="10" step="1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.strength" />
+                </mat-slider>
+                <mat-slider min="0" max="1" step="0.1" discrete>
+                  <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
                 </mat-slider>
               </div>
               <mat-form-field class="w-100">
