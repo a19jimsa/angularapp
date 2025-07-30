@@ -754,26 +754,13 @@ export class MapEditorComponent implements AfterViewInit {
       activeEntity,
       'Transform3D'
     );
-    if (mesh && transform3D) {
-      const newMesh = new MeshRenderer(
-        this.gl,
-        new Float32Array(mesh.vertices),
-        new Uint16Array(mesh.indices),
-        this.splatmapShader1
-      );
+    const splatmap = this.ecs.getComponent<Splatmap>(activeEntity, 'Splatmap');
+    if (mesh && transform3D && splatmap) {
+      this.makeTerrainSeamless(mesh);
       const newEntity = this.ecs.createEntity();
       //Add splatmap too terrain entity
-      this.ecs.addComponent<Splatmap>(
-        newEntity,
-        new Splatmap(
-          512,
-          512,
-          this.texture1.getTexture('splatmap'),
-          this.texture1.getSlot('splatmap')
-        )
-      );
+      this.ecs.addComponent<Splatmap>(newEntity, splatmap);
       //Add material component to entity
-
       this.ecs.addComponent(
         newEntity,
         new Material(
@@ -782,20 +769,21 @@ export class MapEditorComponent implements AfterViewInit {
           this.texture1.getSlot('textureMap')
         )
       );
-      this.ecs.addComponent<Mesh>(newEntity, new Mesh(newMesh.vao));
+      this.ecs.addComponent<Mesh>(newEntity, mesh);
       this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
       this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
     }
   }
 
-  public createAdjacentVertex() {
-    const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
-    if (!mesh) return;
+  private makeTerrainSeamless(mesh: Mesh) {
+    let newValue: number[] = [];
     for (let i = 0; i < mesh.vertices.length; i += 8 * 101) {
-      mesh.vertices[i + 1] = 100;
+      newValue.push(mesh.vertices[i + 1]);
     }
+    let index = 0;
     for (let i = 0; i < mesh.vertices.length; i += 8 * 101) {
-      mesh.vertices[i + 99 * 8 + 1] = 100;
+      mesh.vertices[i + 100 * 8 + 1] = newValue[index];
+      index++;
     }
   }
 

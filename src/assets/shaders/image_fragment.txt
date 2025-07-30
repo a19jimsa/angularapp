@@ -79,7 +79,7 @@ void main() {
    vec3 fogColor = vec3(0.4, 0.6, 0.9);
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);
 
-   vec3 result = (ambient + diffuse + specular) * splatColor.rgb;
+   vec3 result = (ambient + diffuse) * splatColor.rgb;
    gl_FragColor = vec4(result, 1.0);
    //gl_FragColor = vec4(color, 1.0);
    //gl_FragColor = vec4(normalize(v_worldNormal), 1.0);
