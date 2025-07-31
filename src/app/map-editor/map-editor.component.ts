@@ -228,6 +228,15 @@ export class MapEditorComponent implements AfterViewInit {
     return null;
   }
 
+  get animatedTexture(): AnimatedTexture | null {
+    const animatedTexture = this.ecs.getComponent<AnimatedTexture>(
+      this.meshbrush.entity,
+      'AnimatedTexture'
+    );
+    if (animatedTexture) return animatedTexture;
+    return null;
+  }
+
   async ngAfterViewInit() {
     this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
@@ -521,10 +530,7 @@ export class MapEditorComponent implements AfterViewInit {
       grassEntity,
       new Material(grassShader, null, -1)
     );
-    this.ecs.addComponent<AnimatedTexture>(
-      grassEntity,
-      new AnimatedTexture(10)
-    );
+    this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
 
     const grass = this.ecs.addComponent<Grass>(grassEntity, new Grass());
     if (grass) {
@@ -828,7 +834,7 @@ export class MapEditorComponent implements AfterViewInit {
 
     this.ecs.addComponent<AnimatedTexture>(
       effectEntity,
-      new AnimatedTexture(10)
+      new AnimatedTexture(0)
     );
 
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D());
@@ -902,7 +908,7 @@ export class MapEditorComponent implements AfterViewInit {
         this.texture1.getSlot('water')
       )
     );
-    this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(10));
+    this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(0));
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D());
     this.ecs.addComponent<Water>(entity, new Water(20));

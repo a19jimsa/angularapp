@@ -208,7 +208,7 @@ export class RenderSystem {
           material.shader.program,
           'u_time'
         );
-        gl.uniform1f(timeLocation, performance.now() * 0.001);
+        gl.uniform1f(timeLocation, performance.now() * animatedTexture.speed);
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
           'Transform3D'

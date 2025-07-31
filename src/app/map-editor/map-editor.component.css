@@ -3,3 +3,8 @@ canvas {
   justify-self: center;
   width: 100%;
 }
+
+.example-label-container {
+  display: flex;
+  justify-content: space-between;
+}
