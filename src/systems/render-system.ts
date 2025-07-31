@@ -12,6 +12,7 @@ import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
+import { Terrain } from 'src/components/terrain';
 
 export class RenderSystem {
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
@@ -96,6 +97,7 @@ export class RenderSystem {
         'AnimatedTexture'
       );
       const water = ecs.getComponent<Water>(entity, 'Water');
+      const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
@@ -113,6 +115,18 @@ export class RenderSystem {
           'u_splatmap'
         );
         gl.uniform1i(splatmapLocation, splatmap.slot);
+        if (terrain) {
+          const tilingLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_tiling'
+          );
+          gl.uniform1f(tilingLocation, terrain.tiling);
+          const fogLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_fogPower'
+          );
+          gl.uniform1f(fogLocation, terrain.fogPower);
+        }
         const location = gl.getUniformLocation(
           material.shader.program,
           'u_matrix'
@@ -176,7 +190,14 @@ export class RenderSystem {
           material.shader.program,
           'u_time'
         );
-        gl.uniform1f(timeLocation, performance.now() * 0.001);
+        gl.uniform1f(timeLocation, performance.now() * 0.01);
+        const textureLocation = gl.getUniformLocation(
+          material.shader.program,
+          'u_texture'
+        );
+        gl.uniform1i(textureLocation, material.slot);
+        gl.activeTexture(gl.TEXTURE0 + material.slot);
+        gl.bindTexture(gl.TEXTURE_2D, material.texture);
         gl.bindVertexArray(mesh.vao);
         const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
         const instanceCount = grass.positions.length / 3; // en xyz per strå

@@ -140,7 +140,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   sceneObjects: Set<Name> = new Set<Name>();
 
-  transform: Transform3D = new Transform3D();
+  transform: Transform3D = new Transform3D(0, 0, 0);
 
   animationSystem: AnimationSystem = new AnimationSystem();
 
@@ -234,6 +234,15 @@ export class MapEditorComponent implements AfterViewInit {
       'AnimatedTexture'
     );
     if (animatedTexture) return animatedTexture;
+    return null;
+  }
+
+  get terrain(): Terrain | null {
+    const terrain = this.ecs.getComponent<Terrain>(
+      this.meshbrush.entity,
+      'Terrain'
+    );
+    if (terrain) return terrain;
     return null;
   }
 
@@ -346,7 +355,6 @@ export class MapEditorComponent implements AfterViewInit {
     const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
     if (transform) {
       this.transform = transform;
-      console.log(this.transform.translate);
     }
   }
 
@@ -437,6 +445,8 @@ export class MapEditorComponent implements AfterViewInit {
       'assets/textures/tree_texture.png'
     );
 
+    const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
+
     // const spriteSlot = this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
     const slot = this.texture1.createAndBindTexture(
       'textureMap',
@@ -471,6 +481,13 @@ export class MapEditorComponent implements AfterViewInit {
       waterImage,
       waterImage.width,
       waterImage.height
+    );
+
+    const noiseSlot = this.texture1.createAndBindTexture(
+      'noise',
+      noise,
+      noise.width,
+      noise.height
     );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
@@ -528,7 +545,11 @@ export class MapEditorComponent implements AfterViewInit {
     const grassEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
       grassEntity,
-      new Material(grassShader, null, -1)
+      new Material(
+        grassShader,
+        this.texture1.getTexture('noise'),
+        this.texture1.getSlot('noise')
+      )
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
 
@@ -641,7 +662,7 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(shader, this.texture1.getTexture('character'), slot)
     );
     this.ecs.addComponent<Name>(entity, new Name('Player'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D());
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     const playerSkeleton = new Skeleton(
       'assets/sprites/88022.png',
       'playerAnimations'
@@ -715,7 +736,7 @@ export class MapEditorComponent implements AfterViewInit {
     const width = 512;
     const height = 512;
     const model = new Model();
-    model.addPlane(200);
+    model.addPlane(100);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
@@ -755,7 +776,7 @@ export class MapEditorComponent implements AfterViewInit {
       )
     );
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
-    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
+    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
     this.updateSplatmap();
     this.updateMesh();
   }
@@ -783,7 +804,14 @@ export class MapEditorComponent implements AfterViewInit {
         )
       );
       this.ecs.addComponent<Mesh>(newEntity, mesh);
-      this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
+      this.ecs.addComponent<Transform3D>(
+        newEntity,
+        new Transform3D(
+          transform3D.translate[0] - 1000,
+          transform3D.translate[1],
+          transform3D.translate[2]
+        )
+      );
       this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
     }
   }
@@ -800,14 +828,13 @@ export class MapEditorComponent implements AfterViewInit {
     }
   }
 
-  getToolbarComponents() {
+  get getToolbarComponents() {
     const list = [];
     const entity = this.meshbrush.entity;
     const components = this.ecs.getComponents(entity);
     for (const component of components) {
       list.push(component);
     }
-    console.log(list);
     return list;
   }
 
@@ -837,7 +864,7 @@ export class MapEditorComponent implements AfterViewInit {
       new AnimatedTexture(0)
     );
 
-    this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D());
+    this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
 
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
 
@@ -910,7 +937,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(0));
     this.ecs.addComponent<Name>(entity, new Name('Water'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D());
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water(20));
     console.log('Created Water!!!');
   }

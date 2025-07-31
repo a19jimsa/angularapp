@@ -1,3 +1,4 @@
+import { mat3, vec3 } from 'gl-matrix';
 import { Vec } from 'src/app/vec';
 
 export class Model {

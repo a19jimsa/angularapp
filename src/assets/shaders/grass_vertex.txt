@@ -1,16 +1,27 @@
-attribute vec4 a_position;
+precision mediump float;
+
+attribute vec3 a_position;
+attribute vec2 a_texcoord;
 attribute vec3 a_normal;
-attribute vec4 a_instancePositions;
+attribute vec3 a_instancePositions;
 
 uniform mat4 u_matrix;
 uniform float u_time;
+uniform sampler2D u_texture;
+
 varying vec2 v_texcoord;
 varying float v_height;
+varying vec3 v_instancePositions;
 
 void main() {
+    float scale = 0.01;
+    float noise = texture2D(u_texture, vec2(a_texcoord.x * scale, a_texcoord.y * scale + u_time * 0.000001)).r;
     float h = a_position.y;
-    float offsetX = 0.3 * h * sin(u_time * 2.0);
-    vec4 displaced = a_position + vec4(offsetX,0.0,0.0,0.0);
-    gl_Position = u_matrix * (displaced + a_instancePositions);
-    v_height = h;
+    float sway = (noise - 0.5) * 0.4 * h;
+    vec3 displaced = a_position;
+    displaced.z += sway;
+    v_height = a_position.y;
+    v_texcoord = a_texcoord;
+    v_instancePositions = a_instancePositions;
+    gl_Position = u_matrix * (vec4(displaced, 1.0) + vec4(a_instancePositions, 1.0));
 }

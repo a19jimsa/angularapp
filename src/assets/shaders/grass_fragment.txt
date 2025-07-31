@@ -2,10 +2,15 @@ precision mediump float;
 
 varying vec2 v_texcoord;
 varying float v_height;
+varying vec3 v_instancePositions;
 
 uniform sampler2D u_texture;
+uniform float u_time;
 
 void main() {
     vec3 color = mix(vec3(0.2, 0.4, 0.2), vec3(0.0, 1.0, 0.0), v_height / 2.0);
+    float scale = 0.8;
+    vec4 texColor = texture2D(u_texture, vec2(v_texcoord.x * scale, v_texcoord.y * scale + u_time * 0.00001) * vec2(v_instancePositions.xz));
+    //gl_FragColor = texColor;
     gl_FragColor = vec4(color, 1.0);
 }

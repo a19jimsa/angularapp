@@ -1,6 +1,6 @@
 <div class="container-fluid" style="height: 850px">
   <div class="row">
-    <div class="col-1 overflow-auto" style="height: 800px">
+    <div class="col-1 overflow-auto" style="min-height: 800px">
       <mat-card class="h-100 d-flex flex-column justify-content-between">
         <mat-card-header>
           <mat-card-title-group>
@@ -32,7 +32,13 @@
       <canvas #canvas></canvas>
     </div>
     <div class="col-2 overflow-auto" style="height: 800px">
-      <mat-card class="h-100 d-flex flex-column justify-content-between">
+      <mat-card style="min-height: 800px">
+        <mat-card-header>
+          <mat-card-title-group>
+            <mat-card-title>Scene</mat-card-title>
+            <mat-card-subtitle></mat-card-subtitle>
+          </mat-card-title-group>
+        </mat-card-header>
         <mat-card-content class="h-100 d-flex flex-column">
           <mat-accordion class="example-headers-align" multi>
             <mat-expansion-panel>
@@ -90,12 +96,14 @@
               </div>
             </mat-expansion-panel>
 
-            @for (item of getToolbarComponents(); track $index) {
-            @if(item.type.includes("Terrain")){
+            @for (item of getToolbarComponents; track $index) { @if(item ===
+            terrain){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title>{{ item.type }}</mat-panel-title>
-                <mat-panel-description> </mat-panel-description>
+                <mat-panel-title>{{ item.type }} </mat-panel-title>
+                <mat-panel-description
+                  ><mat-icon>landscape_2</mat-icon></mat-panel-description
+                >
               </mat-expansion-panel-header>
               <h5>Brushes</h5>
               <div class="d-flex justify-content-around w-100">
@@ -115,14 +123,60 @@
               </button>
               }
               <div class="d-flex flex-column justify-content-center">
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Radius</label
+                  >
+                  <label class="example-value-label">{{
+                    meshbrush.radius
+                  }}</label>
+                </div>
                 <mat-slider min="0" max="500" step="1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.radius" />
                 </mat-slider>
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Strength</label
+                  >
+                  <label class="example-value-label">{{
+                    meshbrush.strength
+                  }}</label>
+                </div>
                 <mat-slider min="-10" max="10" step="1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.strength" />
                 </mat-slider>
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >FallOff</label
+                  >
+                  <label class="example-value-label">{{
+                    meshbrush.fallOff
+                  }}</label>
+                </div>
                 <mat-slider min="0" max="1" step="0.1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
+                </mat-slider>
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Tiling</label
+                  >
+                  <label class="example-value-label">{{
+                    terrain.tiling
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="0.1" step="0.001">
+                  <input matSliderThumb [(ngModel)]="terrain.tiling" />
+                </mat-slider>
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >FogPower</label
+                  >
+                  <label class="example-value-label">{{
+                    terrain.fogPower
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="0.1" step="0.0001">
+                  <input matSliderThumb [(ngModel)]="terrain.fogPower" />
                 </mat-slider>
               </div>
               <mat-form-field class="w-100">
@@ -185,17 +239,19 @@
                 <mat-panel-title> {{ water.type }} </mat-panel-title>
                 <mat-panel-description> </mat-panel-description>
               </mat-expansion-panel-header>
-              <div class="example-label-container">
-                <label id="example-name-label" class="example-name-label"
-                  >Displacement</label
-                >
-                <label class="example-value-label">{{
-                  water.displacement
-                }}</label>
+              <div class="d-flex flex-column justify-content-center">
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Displacement</label
+                  >
+                  <label class="example-value-label">{{
+                    water.displacement
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="20" step="1" discrete>
+                  <input matSliderThumb [(ngModel)]="water.displacement" />
+                </mat-slider>
               </div>
-              <mat-slider min="0" max="20" step="1" discrete>
-                <input matSliderThumb [(ngModel)]="water.displacement" />
-              </mat-slider>
             </mat-expansion-panel>
             } @if(item.type.includes("Tree")){
             <mat-expansion-panel>
@@ -210,17 +266,19 @@
                 <mat-panel-title> {{ item.type }} </mat-panel-title>
                 <mat-panel-description> </mat-panel-description>
               </mat-expansion-panel-header>
-              <div class="example-label-container">
-                <label id="example-name-label" class="example-name-label"
-                  >Speed</label
-                >
-                <label class="example-value-label">{{
-                  animatedTexture.speed
-                }}</label>
+              <div class="d-flex flex-column justify-content-center">
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Speed</label
+                  >
+                  <label class="example-value-label">{{
+                    animatedTexture.speed
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="0.001" step="0.0001">
+                  <input matSliderThumb [(ngModel)]="animatedTexture.speed" />
+                </mat-slider>
               </div>
-              <mat-slider min="0" max="0.001" step="0.0001">
-                <input matSliderThumb [(ngModel)]="animatedTexture.speed" />
-              </mat-slider>
             </mat-expansion-panel>
             }}
           </mat-accordion>

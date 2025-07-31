@@ -13,13 +13,15 @@ varying vec3 v_fragPos;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_splatmap;
+uniform float u_fogPower;
+uniform float u_tiling;
 
 vec4 TriplarMapping(vec4 worldPosition, vec3 worldNormal, sampler2D texture, vec2 tile){
    vec2 pixelResolution = vec2(6144, 2048);
    vec2 pixelOffset = 1.0 / pixelResolution;
    vec2 padding = pixelOffset * 0.5;
    vec2 tileSize = vec2(1.0 / 6.0, 1.0 / 2.0);
-   float tiling = 0.1;
+   float tiling = u_tiling;
 
    vec3 blending = abs(worldNormal);
 
@@ -72,11 +74,12 @@ void main() {
       snow_color  * splat.b +
       ground_color * splat.a;
 
-   float fogFactor = 1.0 - exp(-v_fogDistance * 0.0001);
+   float fogFactor = 1.0 - exp(- (v_fogDistance * u_fogPower) * (v_fogDistance * u_fogPower));
+   //float fogFactor = 1.0 - exp(-v_fogDistance * u_fogPower);
    //float heightFactor = 1.0 - smoothstep(0.0, 100.0, v_height);
    //fogFactor *= heightFactor;
 
-   vec3 fogColor = vec3(0.4, 0.6, 0.9);
+   vec3 fogColor = vec3(0.8, 0.9, 1.0);
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);
 
    vec3 result = (ambient + diffuse + specular) * color;
