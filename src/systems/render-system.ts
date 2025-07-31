@@ -231,7 +231,7 @@ export class RenderSystem {
             material.shader.program,
             'u_displacmentScale'
           );
-          gl.uniform1f(scaleLocation, water.scale);
+          gl.uniform1f(scaleLocation, water.displacement);
         }
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(

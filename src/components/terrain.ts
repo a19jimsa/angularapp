@@ -2,11 +2,9 @@ import { Component } from './component';
 
 export class Terrain extends Component {
   override type: string = 'Terrain';
-  id: number;
-  coords: Uint8ClampedArray;
-  constructor(id: number, coords: Uint8ClampedArray) {
+  tiling: number = 0;
+  fogPower: number = 0;
+  constructor() {
     super();
-    this.id = id;
-    this.coords = coords;
   }
 }

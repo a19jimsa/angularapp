@@ -18,7 +18,7 @@ import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
-import { FormControl, FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
 import { MathUtils } from 'src/Utils/MathUtils';
@@ -93,6 +93,7 @@ export type Brush = {
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapEditorComponent implements AfterViewInit {
   readonly dialog = inject(MatDialog);
@@ -221,6 +222,12 @@ export class MapEditorComponent implements AfterViewInit {
     this.transform.rotation[2] = value;
   }
 
+  get water(): Water | null {
+    const water = this.ecs.getComponent<Water>(this.meshbrush.entity, 'Water');
+    if (water) return water;
+    return null;
+  }
+
   async ngAfterViewInit() {
     this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
@@ -250,10 +257,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, 0, -100);
           break;
         case 'KeyA':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(-100, 0, 0);
           break;
         case 'KeyD':
-          this.perspectiveCamera.updatePosition(1, 0, 0);
+          this.perspectiveCamera.updatePosition(100, 0, 0);
           break;
         case 'ArrowUp':
           this.perspectiveCamera.updatePosition(0, 100, 0);
@@ -262,10 +269,10 @@ export class MapEditorComponent implements AfterViewInit {
           this.perspectiveCamera.updatePosition(0, -100, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(100, 0, 0);
+          this.perspectiveCamera.updatePosition(1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-100, 0, 0);
+          this.perspectiveCamera.updatePosition(-1, 0, 0);
           break;
       }
     });
@@ -741,7 +748,7 @@ export class MapEditorComponent implements AfterViewInit {
         0
       )
     );
-
+    this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D());
     this.updateSplatmap();
     this.updateMesh();
@@ -785,6 +792,17 @@ export class MapEditorComponent implements AfterViewInit {
       mesh.vertices[i + 100 * 8 + 1] = newValue[index];
       index++;
     }
+  }
+
+  getToolbarComponents() {
+    const list = [];
+    const entity = this.meshbrush.entity;
+    const components = this.ecs.getComponents(entity);
+    for (const component of components) {
+      list.push(component);
+    }
+    console.log(list);
+    return list;
   }
 
   protected createCylinder() {
@@ -868,7 +886,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(10);
+    model.addPlane(50);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -1016,10 +1034,22 @@ export class MapEditorComponent implements AfterViewInit {
     });
   }
 
-  saveMap() {
-    const jsonString = this.ecs.getEcs();
-    localStorage.setItem('map', jsonString);
+  saveEntity() {
+    const blob = new Blob(
+      [JSON.stringify(this.ecs.getComponents(this.meshbrush.entity))],
+      {
+        type: 'application/json',
+      }
+    );
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'world';
+    a.click();
+
+    URL.revokeObjectURL(url); // Städa upp
   }
 
-  loadMap() {}
+  loadEntity() {}
 }

@@ -1,4 +1,4 @@
-attribute vec4 a_position;
+attribute vec3 a_position;
 attribute vec2 a_texcoord;
 attribute vec3 a_normal;
 
@@ -12,22 +12,23 @@ varying float v_height;
 varying vec3 v_normal;
 varying float v_depth;
 varying float v_fogDistance;
-varying vec3 v_worldSpace;
+varying vec4 v_worldSpace;
 varying vec3 v_worldNormal;
 varying vec3 v_cameraPos;
 varying vec3 v_fragPos;
 
 void main() {
-   v_worldSpace = a_position.xyz;
+   v_worldSpace = u_model * vec4(a_position, 1.0);
    v_worldNormal = a_normal;
    v_texcoord = a_texcoord;
    v_height = a_position.y;
    v_normal = a_normal;
    v_depth = a_position.z;
-   vec4 viewPos = u_view * a_position;
+   vec4 viewPos = u_view * vec4(a_position, 1.0);
    vec3 meshPosition = vec3(u_model[3]);
-   v_fogDistance = length(u_cameraPos.z);
    v_cameraPos = u_cameraPos;
+   vec4 position = u_matrix * u_model * vec4(a_position, 1.0);
+   v_fogDistance = length(v_worldSpace.xyz - u_cameraPos);
    v_fragPos = a_position.xyz;
-   gl_Position = u_matrix * u_model * a_position;
+   gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
 }

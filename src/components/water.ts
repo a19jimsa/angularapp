@@ -2,9 +2,9 @@ import { Component } from './component';
 
 export class Water extends Component {
   override type: string = 'Water';
-  scale: number = 0;
-  constructor(scale: number) {
+  displacement: number = 0;
+  constructor(displacement: number) {
     super();
-    this.scale = scale;
+    this.displacement = displacement;
   }
 }

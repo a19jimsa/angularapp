@@ -25,8 +25,8 @@ export class BrushSystem {
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera
   ) {
-    const epsilon = 10;
-    const maxDistance = 1000;
+    const epsilon = 5;
+    const maxDistance = 2000;
     const step = 1;
 
     const viewMatrix = perspectiveCamera.getViewMatrix();
@@ -72,7 +72,7 @@ export class BrushSystem {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, mesh.vertices[j + 3], mesh.vertices[j + 4]);
+            this.treeBrush(ecs, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintImage(
               ecs,
@@ -107,12 +107,15 @@ export class BrushSystem {
               const posX = vx - x;
               const posZ = vz - z;
               if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
-              grass.positions.push(
-                posX * 2 + image.width,
-                vy,
-                posZ * 2 + image.height
-              );
-              grass.amountOfGrass++;
+              const amount = 2;
+              for (let i = 0; i < amount; i++) {
+                grass.positions[grass.amountOfGrass + 0] =
+                  posX * 2 + image.width + 2 - Math.random() * 2;
+                grass.positions[grass.amountOfGrass + 1] = vy * 2;
+                grass.positions[grass.amountOfGrass + 2] =
+                  posZ * 2 + image.height + 2 - Math.random() * 2;
+                grass.amountOfGrass += 3;
+              }
             }
           }
         }
@@ -137,7 +140,7 @@ export class BrushSystem {
           for (let i = -radius; i < meshBrush.radius; i++) {
             if (j * j + i * i <= radius * radius) {
               if (grass.positions.length > grass.maxGrassBuffer) return;
-              grass.positions.push(x * 2 + j * 0.5, y, z * 2 + i * 0.5);
+              //grass.positions.push(x * 2 + j * 0.5, y, z * 2 + i * 0.5);
             }
           }
         }
@@ -145,11 +148,11 @@ export class BrushSystem {
     }
   }
 
-  private treeBrush(ecs: Ecs, u: number, v: number) {
+  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
     for (const entity of ecs.getEntities()) {
       const tree = ecs.getComponent<Tree>(entity, 'Tree');
       if (tree) {
-        tree.positions.push(u * 2, 0, v * 2);
+        tree.positions.push(x * 2, y * 2, z * 2);
         return;
       }
     }
