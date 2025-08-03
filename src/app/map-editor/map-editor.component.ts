@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   inject,
@@ -18,7 +19,7 @@ import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
-import { FormControl, FormGroup, FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
 import { MathUtils } from 'src/Utils/MathUtils';
@@ -50,6 +51,7 @@ import { CreateEntityDialogComponent } from '../create-entity-dialog/create-enti
 import { MatMenuModule } from '@angular/material/menu';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
+import { Component as ECSComponent } from 'src/components/component';
 
 export enum Tools {
   Splatmap,
@@ -144,7 +146,9 @@ export class MapEditorComponent implements AfterViewInit {
 
   animationSystem: AnimationSystem = new AnimationSystem();
 
-  constructor() {
+  componentsList: ECSComponent[] = new Array();
+
+  constructor(private cdr: ChangeDetectorRef) {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
@@ -269,10 +273,10 @@ export class MapEditorComponent implements AfterViewInit {
       const speed = 10;
       switch (event.code) {
         case 'KeyW':
-          this.perspectiveCamera.updatePosition(0, 0, 100);
+          this.perspectiveCamera.updatePosition(0, 100, 0);
           break;
         case 'KeyS':
-          this.perspectiveCamera.updatePosition(0, 0, -100);
+          this.perspectiveCamera.updatePosition(0, -100, 0);
           break;
         case 'KeyA':
           this.perspectiveCamera.updatePosition(-100, 0, 0);
@@ -280,17 +284,23 @@ export class MapEditorComponent implements AfterViewInit {
         case 'KeyD':
           this.perspectiveCamera.updatePosition(100, 0, 0);
           break;
+        case 'KeyQ':
+          this.perspectiveCamera.updatePosition(0, 0, -100);
+          break;
+        case 'KeyE':
+          this.perspectiveCamera.updatePosition(0, 0, 100);
+          break;
         case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 100, 0);
+          this.perspectiveCamera.updatePosition(0, 0.1, 0);
           break;
         case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -100, 0);
+          this.perspectiveCamera.updatePosition(0, -0.1, 0);
           break;
         case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(1, 0, 0);
+          this.perspectiveCamera.updatePosition(0.1, 0, 0);
           break;
         case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-1, 0, 0);
+          this.perspectiveCamera.updatePosition(-0.1, 0, 0);
           break;
       }
     });
@@ -356,6 +366,7 @@ export class MapEditorComponent implements AfterViewInit {
     if (transform) {
       this.transform = transform;
     }
+    this.getToolbarComponents();
   }
 
   changeBrushImage(id: number) {
@@ -533,7 +544,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.meshbrush.image = smallRoundBrushImage;
 
     const grassModel = new Model();
-    grassModel.addGrass(0, 0, 0);
+    grassModel.addGrass();
 
     const grassMesh = new MeshRenderer(
       gl,
@@ -622,6 +633,7 @@ export class MapEditorComponent implements AfterViewInit {
     }
 
     this.createCharacter(shader, characterImage, characterSlot);
+    this.cdr.detectChanges();
     this.loop();
   }
 
@@ -828,14 +840,16 @@ export class MapEditorComponent implements AfterViewInit {
     }
   }
 
-  get getToolbarComponents() {
+  getToolbarComponents() {
     const list = [];
     const entity = this.meshbrush.entity;
     const components = this.ecs.getComponents(entity);
+    if (components.length === 0) return;
     for (const component of components) {
       list.push(component);
     }
-    return list;
+    this.componentsList = list;
+    console.log(list);
   }
 
   protected createCylinder() {

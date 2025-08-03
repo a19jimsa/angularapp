@@ -14,7 +14,7 @@ varying vec2 v_texcoord;
 
 void main() {
    vec2 tileSize = vec2(1.0 / 2.0, 1.0 / 1.0);
-   vec2 uv_heightMap = fract(a_texcoord + vec2(0.0, -0.1 * u_time)) * (tileSize) + vec2(1.0, 0.0) * tileSize;
+   vec2 uv_heightMap = fract(a_texcoord + vec2(0.0, -u_time)) * (tileSize) + vec2(1.0, 0.0) * tileSize;
    float displacementScale = u_displacmentScale;
    float displacement = texture2D(u_texture, uv_heightMap).r * displacementScale;
    vec4 displacedPosition = a_position + vec4(0, displacement, 0, 0);

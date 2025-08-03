@@ -184,11 +184,11 @@ export class Model {
     this.indices.push(...indices);
   }
 
-  addGrass(vx: number, vy: number, vz: number) {
+  addGrass() {
     const width = 2; // 1 quad i bredd
-    const height = 5; // 5 quads i höjd
+    const height = 10; // 5 quads i höjd
     const sizeX = 1; // bredd på hela strået
-    const sizeY = 2; // höjd på hela strået
+    const sizeY = 10; // höjd på hela strået
     for (let y = 0; y <= height; y++) {
       const v = y / height;
       const posY = v * sizeY;

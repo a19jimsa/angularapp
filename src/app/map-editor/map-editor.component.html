@@ -35,7 +35,7 @@
       <mat-card style="min-height: 800px">
         <mat-card-header>
           <mat-card-title-group>
-            <mat-card-title>Scene</mat-card-title>
+            <mat-card-title>Toolbox</mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
@@ -96,13 +96,53 @@
               </div>
             </mat-expansion-panel>
 
-            @for (item of getToolbarComponents; track $index) { @if(item ===
-            terrain){
+            @for (item of componentsList; track $index) { @if(item === terrain){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title>{{ item.type }} </mat-panel-title>
                 <mat-panel-description
                   ><mat-icon>landscape_2</mat-icon></mat-panel-description
+                >
+              </mat-expansion-panel-header>
+              <div class="d-flex flex-column justify-content-center">
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >Tiling</label
+                  >
+                  <label class="example-value-label">{{
+                    terrain.tiling
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="0.1" step="0.001">
+                  <input matSliderThumb [(ngModel)]="terrain.tiling" />
+                </mat-slider>
+                <div class="example-label-container">
+                  <label id="example-name-label" class="example-name-label"
+                    >FogPower</label
+                  >
+                  <label class="example-value-label">{{
+                    terrain.fogPower
+                  }}</label>
+                </div>
+                <mat-slider min="0" max="0.1" step="0.0001">
+                  <input matSliderThumb [(ngModel)]="terrain.fogPower" />
+                </mat-slider>
+
+                <mat-form-field class="w-100">
+                  <mat-label>Mesh Quads</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    (click)="changeVertices($event)"
+                  />
+                </mat-form-field>
+              </div>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Brushes </mat-panel-title>
+                <mat-panel-description
+                  ><mat-icon>brush</mat-icon></mat-panel-description
                 >
               </mat-expansion-panel-header>
               <h5>Brushes</h5>
@@ -156,43 +196,15 @@
                 <mat-slider min="0" max="1" step="0.1" discrete>
                   <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
                 </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Tiling</label
-                  >
-                  <label class="example-value-label">{{
-                    terrain.tiling
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="0.1" step="0.001">
-                  <input matSliderThumb [(ngModel)]="terrain.tiling" />
-                </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >FogPower</label
-                  >
-                  <label class="example-value-label">{{
-                    terrain.fogPower
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="0.1" step="0.0001">
-                  <input matSliderThumb [(ngModel)]="terrain.fogPower" />
-                </mat-slider>
               </div>
-              <mat-form-field class="w-100">
-                <mat-label>Mesh Quads</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  (click)="changeVertices($event)"
-                />
-              </mat-form-field>
             </mat-expansion-panel>
             } @if(item.type.includes("Splatmap")){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title> {{ item.type }} </mat-panel-title>
-                <mat-panel-description> </mat-panel-description>
+                <mat-panel-description
+                  ><mat-icon>palette</mat-icon></mat-panel-description
+                >
               </mat-expansion-panel-header>
               <div class="d-flex flex-row">
                 <div>
