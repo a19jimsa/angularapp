@@ -745,10 +745,10 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   protected createTerrainWithSplatmap() {
-    const width = 512;
-    const height = 512;
+    const width = 256;
+    const height = 256;
     const model = new Model();
-    model.addPlane(100);
+    model.addPlane(50);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
@@ -984,7 +984,7 @@ export class MapEditorComponent implements AfterViewInit {
 
   loop() {
     //FPS
-    //console.log(Math.floor(performance.now() / 1000));
+    console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
     requestAnimationFrame(() => this.loop());
