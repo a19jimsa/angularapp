@@ -202,7 +202,7 @@ export class RenderSystem {
         const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
         const instanceCount = grass.positions.length / 3; // en xyz per strå
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(grass.positions));
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, grass.positions);
         gl.drawElementsInstanced(
           gl.TRIANGLES,
           indexCountPerBlade, // hur många index beskriver ETT strå
@@ -289,6 +289,7 @@ export class RenderSystem {
         gl.bindVertexArray(mesh.vao);
         const instanceCount = tree.positions.length / 3; // en xyz per träd
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
+        //Optimize this later
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(tree.positions));
         gl.drawElementsInstanced(
           gl.TRIANGLES,

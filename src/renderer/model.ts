@@ -186,9 +186,9 @@ export class Model {
 
   addGrass() {
     const width = 2; // 1 quad i bredd
-    const height = 10; // 5 quads i höjd
+    const height = 5; // 5 quads i höjd
     const sizeX = 1; // bredd på hela strået
-    const sizeY = 10; // höjd på hela strået
+    const sizeY = 3; // höjd på hela strået
     for (let y = 0; y <= height; y++) {
       const v = y / height;
       const posY = v * sizeY;
@@ -197,7 +197,6 @@ export class Model {
       for (let x = 0; x <= width; x++) {
         const u = x / width;
         const posX = (u - 0.5) * rowWidth;
-
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
         this.vertices.push(1, 0, 0); // normal framåt
@@ -260,16 +259,18 @@ export class Model {
   }
 
   addPlane(quads: number) {
+    const width = 1000;
+    const length = 1000;
     this.vertices = [];
     this.indices = [];
 
     // Vertices
     for (let z = 0; z <= quads; z++) {
       const v = z / quads;
-      const posZ = v * 1000;
+      const posZ = v * length;
       for (let x = 0; x <= quads; x++) {
         const u = x / quads;
-        const posX = u * 1000;
+        const posX = u * width;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
         this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
