@@ -803,28 +803,33 @@ export class MapEditorComponent implements AfterViewInit {
     const splatmap = this.ecs.getComponent<Splatmap>(activeEntity, 'Splatmap');
     if (mesh && transform3D && splatmap) {
       this.makeTerrainSeamless(mesh);
-      const newEntity = this.ecs.createEntity();
-      //Add splatmap too terrain entity
-      this.ecs.addComponent<Splatmap>(newEntity, splatmap);
-      //Add material component to entity
-      this.ecs.addComponent(
-        newEntity,
-        new Material(
-          this.splatmapShader1,
-          this.texture1.getTexture('textureMap'),
-          this.texture1.getSlot('textureMap')
-        )
+      const newVertices = [...mesh.vertices];
+      const newIndices = [...mesh.indices];
+      for (let i = 0; i < mesh.vertices.length; i += 8) {
+        const x = mesh.vertices[i + 0] + 1000;
+        const y = mesh.vertices[i + 1];
+        const z = mesh.vertices[i + 2];
+        const u = mesh.vertices[i + 3];
+        const v = mesh.vertices[i + 4];
+        const normal1 = mesh.vertices[i + 6];
+        const normal2 = mesh.vertices[i + 7];
+        const normal3 = mesh.vertices[i + 8];
+        newVertices.push(x, y, z, u, v, normal1, normal2, normal3);
+      }
+      for (let i = 0; i < mesh.indices.length; i++) {
+        newIndices.push(mesh.indices[i] + mesh.vertices.length / 8);
+      }
+      const newMesh = new MeshRenderer(
+        this.gl,
+        new Float32Array(newVertices),
+        new Uint16Array(newIndices),
+        this.splatmapShader1
       );
-      this.ecs.addComponent<Mesh>(newEntity, mesh);
-      this.ecs.addComponent<Transform3D>(
-        newEntity,
-        new Transform3D(
-          transform3D.translate[0] - 1000,
-          transform3D.translate[1],
-          transform3D.translate[2]
-        )
-      );
-      this.ecs.addComponent<Name>(newEntity, new Name('Terrain' + newEntity));
+
+      const adjacentMesh = new Mesh(newMesh.vao);
+      this.ecs.removeComponent(this.meshbrush.entity, 'Mesh');
+      this.ecs.addComponent<Mesh>(this.meshbrush.entity, adjacentMesh);
+      console.log(adjacentMesh);
     }
   }
 

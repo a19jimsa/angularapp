@@ -14,10 +14,12 @@ varying float v_height;
 varying vec3 v_instancePositions;
 
 void main() {
-    float noise = texture2D(u_texture, a_instancePositions.xz).r;
-    float sway = sin(u_time + (a_instancePositions.x + noise) * 0.1) * a_position.y / 2.0;
+    float noise = texture2D(u_texture, a_instancePositions.xz * 0.01).r;
+    float sway = sin(u_time * 0.1 + (a_instancePositions.x + noise) * 0.1);
+    float swayz = sin(u_time * 0.1 + (a_instancePositions.z + noise) * 0.1);
     vec3 displaced = a_position;
-    displaced.x += sway;
+    displaced.x += sway * (a_position.y / 2.0);
+    displaced.z += swayz * (a_position.y / 2.0);
     v_height = a_position.y;
     v_texcoord = a_texcoord;
     v_instancePositions = a_instancePositions;
