@@ -805,8 +805,8 @@ export class MapEditorComponent implements AfterViewInit {
       this.makeTerrainSeamless(mesh);
       const newVertices = [...mesh.vertices];
       const newIndices = [...mesh.indices];
-      for (let i = 0; i < mesh.vertices.length; i += 8) {
-        const x = mesh.vertices[i + 0] + 1000;
+      for (let i = 0; i < mesh.vertices.length / mesh.id; i += 8) {
+        const x = mesh.vertices[i + 0] + 1000 * mesh.id;
         const y = mesh.vertices[i + 1];
         const z = mesh.vertices[i + 2];
         const u = mesh.vertices[i + 3];
@@ -816,20 +816,26 @@ export class MapEditorComponent implements AfterViewInit {
         const normal3 = mesh.vertices[i + 8];
         newVertices.push(x, y, z, u, v, normal1, normal2, normal3);
       }
-      for (let i = 0; i < mesh.indices.length; i++) {
+
+      for (let i = 0; i < mesh.indices.length / mesh.id; i++) {
         newIndices.push(mesh.indices[i] + mesh.vertices.length / 8);
       }
-      const newMesh = new MeshRenderer(
+      const meshRenderer = new MeshRenderer(
         this.gl,
         new Float32Array(newVertices),
         new Uint16Array(newIndices),
         this.splatmapShader1
       );
-
-      const adjacentMesh = new Mesh(newMesh.vao);
+      const adjacentMesh = new Mesh(meshRenderer.vao);
       this.ecs.removeComponent(this.meshbrush.entity, 'Mesh');
-      this.ecs.addComponent<Mesh>(this.meshbrush.entity, adjacentMesh);
-      console.log(adjacentMesh);
+      const newMesh = this.ecs.addComponent<Mesh>(
+        this.meshbrush.entity,
+        adjacentMesh
+      );
+      console.log(newVertices.length);
+      mesh.id++;
+      if (newMesh === null) throw new Error('Could not add id to mesh!');
+      newMesh.id = mesh.id;
     }
   }
 

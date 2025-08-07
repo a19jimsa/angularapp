@@ -10,6 +10,8 @@ export class Mesh extends Component {
   //To be used later for different stride and offset in vertices
   stride: number = 8;
   offset: number = 4;
+  //Starts with 1 then add when more meshes are copied in to distinguish correct offset not to add to many meshes.
+  id: number = 1;
 
   constructor(vao: VertexArrayBuffer) {
     super();
