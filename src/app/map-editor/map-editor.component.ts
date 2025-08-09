@@ -632,16 +632,12 @@ export class MapEditorComponent implements AfterViewInit {
       this.sceneObjects.add(name);
     }
 
-    this.createCharacter(shader, characterImage, characterSlot);
+    this.createCharacter(shader, characterImage);
     this.cdr.detectChanges();
     this.loop();
   }
 
-  private createCharacter(
-    shader: Shader,
-    image: HTMLImageElement,
-    slot: number
-  ) {
+  private createCharacter(shader: Shader, image: HTMLImageElement) {
     const model = new Model();
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i];
@@ -671,7 +667,11 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
     this.ecs.addComponent<Material>(
       entity,
-      new Material(shader, this.texture1.getTexture('character'), slot)
+      new Material(
+        shader,
+        this.texture1.getTexture('character'),
+        this.texture1.getSlot('character')
+      )
     );
     this.ecs.addComponent<Name>(entity, new Name('Player'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
@@ -745,10 +745,10 @@ export class MapEditorComponent implements AfterViewInit {
   }
 
   protected createTerrainWithSplatmap() {
-    const width = 256;
-    const height = 256;
+    const width = 128;
+    const height = 128;
     const model = new Model();
-    model.addPlane(50);
+    model.addPlane(100);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
@@ -784,7 +784,7 @@ export class MapEditorComponent implements AfterViewInit {
       new Material(
         this.splatmapShader1,
         this.texture1.getTexture('textureMap'),
-        0
+        this.texture1.getSlot('textureMap')
       )
     );
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());

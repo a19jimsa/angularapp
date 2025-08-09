@@ -13,6 +13,7 @@ import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
+import { Skeleton } from 'src/components/skeleton';
 
 export class RenderSystem {
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
@@ -98,6 +99,7 @@ export class RenderSystem {
       );
       const water = ecs.getComponent<Water>(entity, 'Water');
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
@@ -236,11 +238,11 @@ export class RenderSystem {
         );
         if (transform3D) {
           const modelMatrix = mat4.create();
-          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           const uModelLocation = gl.getUniformLocation(
             material.shader.program,
             'u_model'
@@ -311,11 +313,11 @@ export class RenderSystem {
         );
         if (transform3D) {
           const modelMatrix = mat4.create();
-          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           const uModelLocation = gl.getUniformLocation(
             material.shader.program,
             'u_model'
@@ -334,12 +336,18 @@ export class RenderSystem {
         }
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);
+        if (skeleton !== null) {
+          gl.disable(gl.DEPTH_TEST);
+        }
         gl.drawElements(
           gl.TRIANGLES,
           mesh.indices.length,
           gl.UNSIGNED_SHORT,
           0
         );
+        if (skeleton !== null) {
+          gl.enable(gl.DEPTH_TEST);
+        }
         gl.bindVertexArray(null);
       }
     }
