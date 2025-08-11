@@ -3,14 +3,14 @@ precision mediump float;
 varying vec2 v_texcoord;
 varying float v_height;
 varying vec3 v_instancePositions;
+varying float v_random_Id;
 
 uniform sampler2D u_texture;
 uniform float u_time;
 
 void main() {
     float scale = 0.8;
-    float texColor = texture2D(u_texture, vec2(v_instancePositions.xz)).r;
-    float blend = smoothstep(0.1, 0.8, texColor);
+    float blend = smoothstep(0.1, 0.5, v_random_Id);
     vec3 color = mix(vec3(0.2, 0.4, 0.2), vec3(0.2, 0.8, 0.2), blend);
     vec3 finalColor = mix(vec3(0.2, 0.4, 0.2), color, v_height / 2.0); 
     //gl_FragColor = texColor;
