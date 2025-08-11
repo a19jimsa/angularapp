@@ -107,18 +107,17 @@ export class BrushSystem {
               const posX = vx - x;
               const posZ = vz - z;
               if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
-              const amount = 2;
-              for (let i = 0; i < amount; i++) {
-                grass.positions[grass.amountOfGrass + 0] =
-                  posX * 2 + image.width + 2 - Math.random() * 2;
-                grass.positions[grass.amountOfGrass + 1] = vy * 2;
-                grass.positions[grass.amountOfGrass + 2] =
-                  posZ * 2 + image.height + 2 - Math.random() * 2;
-                grass.amountOfGrass += 3;
-              }
+              grass.positions[grass.amountOfGrass + 0] =
+                posX * 2 + image.width + 2 - Math.random() * 2;
+              grass.positions[grass.amountOfGrass + 1] = vy * 2;
+              grass.positions[grass.amountOfGrass + 2] =
+                posZ * 2 + image.height + 2 - Math.random() * 2;
+              grass.positions[grass.amountOfGrass + 3] = grass.id;
+              grass.amountOfGrass += 4;
             }
           }
         }
+        grass.id++;
         return;
       }
     }

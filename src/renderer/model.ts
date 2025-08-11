@@ -193,7 +193,6 @@ export class Model {
       const v = y / height;
       const posY = v * sizeY;
       const rowWidth = sizeX * (1.0 - v); // 100% till 0%
-
       for (let x = 0; x <= width; x++) {
         const u = x / width;
         const posX = (u - 0.5) * rowWidth;

@@ -25,18 +25,21 @@ export class RenderSystem {
       console.error('Coudn not create buffer!');
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vao.vertexBuffer.buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(amount * 3),
-      gl.DYNAMIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(amount), gl.DYNAMIC_DRAW);
     const location = gl.getAttribLocation(
       mesh.shader.program,
       'a_instancePositions'
     );
-    gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 4 * 4, 0);
     gl.enableVertexAttribArray(location);
     gl.vertexAttribDivisor(location, 1); // ← per‑instans
+    const idLocation = gl.getAttribLocation(
+      mesh.shader.program,
+      'a_instanceID'
+    );
+    gl.vertexAttribPointer(idLocation, 1, gl.FLOAT, false, 4 * 4, 3 * 4);
+    gl.enableVertexAttribArray(idLocation);
+    gl.vertexAttribDivisor(idLocation, 1);
     gl.useProgram(null);
     mesh.vao.unbind();
     return mesh;
@@ -202,7 +205,7 @@ export class RenderSystem {
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
         gl.bindVertexArray(mesh.vao);
         const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
-        const instanceCount = grass.positions.length / 3; // en xyz per strå
+        const instanceCount = grass.positions.length / 4; // en xyz per strå + instance id
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, grass.positions);
         gl.drawElementsInstanced(
