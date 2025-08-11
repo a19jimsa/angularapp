@@ -113,11 +113,11 @@ export class BrushSystem {
               grass.positions[grass.amountOfGrass + 2] =
                 posZ * 2 + image.height + 2 - Math.random() * 2;
               grass.positions[grass.amountOfGrass + 3] = grass.id;
+              grass.id++;
               grass.amountOfGrass += 4;
             }
           }
         }
-        grass.id++;
         return;
       }
     }

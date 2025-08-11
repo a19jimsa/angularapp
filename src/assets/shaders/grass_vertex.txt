@@ -30,19 +30,32 @@ vec3 rotateX(float angle, vec3 pos){
     );
 }
 
+vec3 rotateZ(float angle, vec3 pos){
+    float c = cos(angle);
+    float s = sin(angle);
+
+    // Rotera kring Y-axeln (normals riktning ändras också)
+    
+    return vec3(
+        pos.x * c - pos.y * s,
+        pos.x * s + pos.y * c,
+        pos.z
+    );
+}
+
 void main() {
     float noise = texture2D(u_texture, a_instancePositions.xz * 0.1).r;
-    float sway = sin(u_time * 0.1 + (a_instancePositions.x + noise) * 0.1);
-    float swayz = sin(u_time * 0.1 + (a_instancePositions.z + noise) * 0.1);
+    float sway = sin(u_time * 0.2 + (a_instancePositions.x + noise) * 0.1);
     vec3 displaced = a_position;
-    displaced.x += sway * (a_position.y / 2.0);
-    displaced.z += swayz * (a_position.y / 2.0);
     v_height = a_position.y;
     v_texcoord = a_texcoord;
     v_instancePositions = a_instancePositions;
     // Slumpa en vinkel mellan 0 och 2π
     float angle = hash(a_instanceID) * 6.28318530718;
-    vec3 rotatedPos = rotateX(angle, displaced);
+    vec3 rotatedPos = rotateX(angle, a_position);
 
-    gl_Position = u_matrix * (vec4(rotatedPos, 1.0) + vec4(a_instancePositions, 1.0));
+    float bend = a_position.y * (0.2 + sway);
+    vec3 newPos = rotateZ(bend * 0.2, rotatedPos);
+
+    gl_Position = u_matrix * (vec4(newPos, 1.0) + vec4(a_instancePositions, 1.0));
 }
