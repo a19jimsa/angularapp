@@ -258,6 +258,11 @@ export class RenderSystem {
             'u_displacmentScale'
           );
           gl.uniform1f(scaleLocation, water.displacement);
+          const tilingLocation = gl.getUniformLocation(
+            material.shader.program,
+            'u_tiling'
+          );
+          gl.uniform1f(tilingLocation, water.tiling);
         }
         gl.bindVertexArray(mesh.vao);
         gl.drawElements(

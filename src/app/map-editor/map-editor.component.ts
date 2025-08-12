@@ -407,10 +407,13 @@ export class MapEditorComponent implements AfterViewInit {
       'water_vertex.txt',
       'water_fragment.txt'
     );
+
     const grassShader = new Shader(gl);
     await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
+
     const treeShader = new Shader(gl);
     await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
+
     this.whirlwindShader = new Shader(gl);
     await this.whirlwindShader.initShaders(
       'vfx_vertex.txt',
@@ -558,8 +561,8 @@ export class MapEditorComponent implements AfterViewInit {
       grassEntity,
       new Material(
         grassShader,
-        this.texture1.getTexture('noise'),
-        this.texture1.getSlot('noise')
+        this.texture1.getTexture('whirlwind'),
+        this.texture1.getSlot('whirlwind')
       )
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
@@ -963,7 +966,7 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(0));
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-    this.ecs.addComponent<Water>(entity, new Water(20));
+    this.ecs.addComponent<Water>(entity, new Water());
     console.log('Created Water!!!');
   }
 

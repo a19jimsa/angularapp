@@ -4,6 +4,7 @@ import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
+import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
@@ -66,7 +67,7 @@ export class BrushSystem {
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (dist < epsilon) {
           if (meshBrush.type === ToolBrush.Height) {
-            this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, transform3D);
+            this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
             this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
@@ -118,6 +119,7 @@ export class BrushSystem {
             }
           }
         }
+        console.log(grass.amountOfGrass);
         return;
       }
     }
@@ -385,13 +387,19 @@ export class BrushSystem {
     x: number,
     y: number,
     z: number,
-    transform3D: Transform3D
+    ecs: Ecs
   ) {
     const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) return;
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     const fallOff = meshBrush.fallOff;
+    const transform3D = ecs.getComponent<Transform3D>(
+      meshBrush.entity,
+      'Transform3D'
+    );
+    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+    if (!transform3D || terrain) return;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
