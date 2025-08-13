@@ -399,7 +399,7 @@ export class BrushSystem {
       'Transform3D'
     );
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!transform3D || terrain) return;
+    if (!transform3D || !terrain) return;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
