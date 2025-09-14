@@ -210,7 +210,7 @@ export class AnimationCreatorComponent
   }
 
   drawBackground() {
-    const gridSize = 10 * this.scale.x;
+    const gridSize = 10;
     if (gridSize <= 0) return;
     for (let y = 0; y < this.canvasHeight; y += gridSize) {
       for (let x = 0; x < this.canvasWidth; x += gridSize) {
@@ -407,6 +407,7 @@ export class AnimationCreatorComponent
     for (const bone of this.bones) {
       this.ctx.save();
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
+      this.ctx.scale(this.scale.x, this.scale.y);
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = 'blue';
       this.ctx.beginPath();
@@ -508,13 +509,16 @@ export class AnimationCreatorComponent
     const bones = this.bones.sort((a, b) => a.order - b.order);
     for (const bone of bones) {
       this.ctx.save();
+
       //Draw sprites
       this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
+      //Scale according to canvas scale
+      this.ctx.scale(this.scale.x, this.scale.y);
       this.ctx.translate(bone.position.x, bone.position.y);
       this.ctx.rotate(
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
       );
-      this.ctx.scale(bone.scale.x * this.scale.x, bone.scale.y * this.scale.y);
+      this.ctx.scale(bone.scale.x, bone.scale.y);
       this.ctx.translate(-bone.position.x, -bone.position.y);
       this.ctx.drawImage(
         this.spriteSheet,
@@ -580,10 +584,9 @@ export class AnimationCreatorComponent
     if (!this.activeBone) return;
     this.ctx.save();
     this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.position.x,
-      this.canvasHeight / 2 + this.activeBone.position.y
+      this.canvasWidth / 2 + this.activeBone.position.x * this.scale.x,
+      this.canvasHeight / 2 + this.activeBone.position.y * this.scale.y
     );
-    this.ctx.scale(this.scale.x, this.scale.y);
     this.ctx.lineWidth = 3;
 
     this.ctx.strokeStyle = 'green';
@@ -613,10 +616,11 @@ export class AnimationCreatorComponent
       if (!this.isMouseOverJoint()) {
         this.activeBone = null;
       }
+      console.log('Is over joint');
       this.isMouseDown = false;
     });
     this.canvas.nativeElement.addEventListener('mousemove', (event) => {
-      if (!this.isMouseDown) return;
+      //if (!this.isMouseDown) return;
       this.mousePos.x =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mousePos.y =
@@ -649,7 +653,8 @@ export class AnimationCreatorComponent
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
       //this.camera.y += event.deltaY / 10;
-      const value = event.deltaY / 100;
+      const value = event.deltaY / 1000;
+      if (value === 0) return;
       this.scale.x += value;
       this.scale.y += value;
     });
@@ -720,13 +725,6 @@ export class AnimationCreatorComponent
 
     this.sortKeyframes();
     this.filteredKeyframes = this.keyframes;
-  }
-
-  mouseClick() {
-    if (this.activeBone) {
-      this.activeBone.position.x = this.mousePos.x - this.canvasWidth / 2;
-      this.activeBone.position.y = this.mousePos.y - this.canvasHeight / 2;
-    }
   }
 
   drawDebug() {
@@ -877,12 +875,11 @@ export class AnimationCreatorComponent
   }
 
   isMouseOverJoint(): boolean {
-    const mousePosx = this.mouseDown.x - this.canvasWidth / 2;
-    const mousePosy = this.mouseDown.y - this.canvasHeight / 2;
+    const mousePosx = this.mousePos.x - this.canvasWidth / 2 / this.scale.x;
+    const mousePosy = this.mousePos.y - this.canvasHeight / 2 / this.scale.y;
     for (const bone of this.bones) {
-      console.log(bone);
       const distance = bone.position.dist(new Vec(mousePosx, mousePosy));
-      if (distance <= 10) {
+      if (distance <= 20) {
         this.activateBone(bone.id);
         return true;
       }
