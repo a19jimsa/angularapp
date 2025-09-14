@@ -420,5 +420,247 @@
       "scale": { "x": 1, "y": 1 },
       "clip": { "x": 292.015625, "y": 157 }
     }
+  ],
+  "attack": [
+    {
+      "position": { "x": -299.9006459996826, "y": 160.44296083015166 },
+      "time": 0,
+      "angle": 0,
+      "name": "foot-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341.03125, "startY": 335, "endX": 105, "endY": 56 }
+    },
+    {
+      "position": { "x": -301.77777358233567, "y": 153.18424234296418 },
+      "time": 0.5,
+      "angle": 0,
+      "name": "foot-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341.03125, "startY": 335, "endX": 105, "endY": 56 }
+    },
+    {
+      "position": { "x": -299.9006459996826, "y": 160.44296083015166 },
+      "time": 1,
+      "angle": 0,
+      "name": "foot-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 341.03125, "startY": 335, "endX": 105, "endY": 56 }
+    },
+    {
+      "position": { "x": -120.09183308272902, "y": -64.10237994135879 },
+      "time": 0,
+      "angle": 4.0480000000024035,
+      "name": "front-leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 428.03125, "startY": 408, "endX": 144, "endY": 148 }
+    },
+    {
+      "position": { "x": -54.05021927644245, "y": 47.41157554939184 },
+      "time": 0.5,
+      "angle": 88,
+      "name": "front-leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 428.03125, "startY": 408, "endX": 144, "endY": 148 }
+    },
+    {
+      "position": { "x": -120.09183308272902, "y": -64.10237994135879 },
+      "time": 1,
+      "angle": 4.0480000000024035,
+      "name": "front-leg",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 428.03125, "startY": 408, "endX": 144, "endY": 148 }
+    },
+    {
+      "position": { "x": -31.31679311739302, "y": -44.102572963465335 },
+      "time": 0,
+      "angle": -36.30400000000141,
+      "name": "front-leg-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 290.03125, "startY": 477, "endX": 84, "endY": 75 }
+    },
+    {
+      "position": { "x": -119.51014110725971, "y": 110.62548726116057 },
+      "time": 0.5,
+      "angle": -78,
+      "name": "front-leg-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 290.03125, "startY": 477, "endX": 84, "endY": 75 }
+    },
+    {
+      "position": { "x": -31.31679311739302, "y": -44.102572963465335 },
+      "time": 1,
+      "angle": -36.30400000000141,
+      "name": "front-leg-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 290.03125, "startY": 477, "endX": 84, "endY": 75 }
+    },
+    {
+      "position": { "x": -211.16343807691769, "y": -189.15093506140107 },
+      "time": 0,
+      "angle": 44,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.03125, "startY": 565, "endX": 355, "endY": 282 }
+    },
+    {
+      "position": { "x": -45.18155490687093, "y": -107.03105187622424 },
+      "time": 0.5,
+      "angle": 44,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.03125, "startY": 565, "endX": 355, "endY": 282 }
+    },
+    {
+      "position": { "x": -211.16343807691769, "y": -189.15093506140107 },
+      "time": 1,
+      "angle": 44,
+      "name": "head",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 400.03125, "startY": 565, "endX": 355, "endY": 282 }
+    },
+    {
+      "position": { "x": -239.81634380769177, "y": 56.68490649385989 },
+      "time": 0,
+      "angle": 201,
+      "name": "leg-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 182.03125, "startY": 328, "endX": 105, "endY": 105 }
+    },
+    {
+      "position": { "x": -223.21815549068708, "y": 64.89689481237758 },
+      "time": 0.5,
+      "angle": 186,
+      "name": "leg-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 182.03125, "startY": 328, "endX": 105, "endY": 105 }
+    },
+    {
+      "position": { "x": -239.81634380769177, "y": 56.68490649385989 },
+      "time": 1,
+      "angle": 201,
+      "name": "leg-back",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 182.03125, "startY": 328, "endX": 105, "endY": 105 }
+    },
+    {
+      "position": { "x": -266.73056501211397, "y": 108.06218451595278 },
+      "time": 0,
+      "angle": 4.695999999998591,
+      "name": "leg-back-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 190.03125, "startY": 475, "endX": 59, "endY": 81 }
+    },
+    {
+      "position": { "x": -268.92277919987697, "y": 100.60526038126577 },
+      "time": 0.5,
+      "angle": -20,
+      "name": "leg-back-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 190.03125, "startY": 475, "endX": 59, "endY": 81 }
+    },
+    {
+      "position": { "x": -266.73056501211397, "y": 108.06218451595278 },
+      "time": 1,
+      "angle": 4.695999999998591,
+      "name": "leg-back-lower",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 190.03125, "startY": 475, "endX": 59, "endY": 81 }
+    },
+    {
+      "position": { "x": 32.82468437778974, "y": -72.13596135543399 },
+      "time": 0,
+      "angle": -20,
+      "name": "right-foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 471.03125, "startY": 339, "endX": 109, "endY": 53 }
+    },
+    {
+      "position": { "x": -88.77482378173383, "y": 159.8122768382333 },
+      "time": 0.5,
+      "angle": -24,
+      "name": "right-foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 471.03125, "startY": 339, "endX": 109, "endY": 53 }
+    },
+    {
+      "position": { "x": 32.82468437778974, "y": -72.13596135543399 },
+      "time": 1,
+      "angle": -20,
+      "name": "right-foot",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 471.03125, "startY": 339, "endX": 109, "endY": 53 }
+    },
+    {
+      "position": { "x": -243, "y": 84 },
+      "time": 0,
+      "angle": -83.35199999999864,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 2.03125, "startY": -19, "endX": 350, "endY": 333 }
+    },
+    {
+      "position": { "x": -243, "y": 84 },
+      "time": 0.5,
+      "angle": -44,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 2.03125, "startY": -19, "endX": 350, "endY": 333 }
+    },
+    {
+      "position": { "x": -243, "y": 84 },
+      "time": 1,
+      "angle": -83.35199999999864,
+      "name": "root",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 2.03125, "startY": -19, "endX": 350, "endY": 333 }
+    },
+    {
+      "position": { "x": -223.8980628461506, "y": -79.89056103684064 },
+      "time": 0,
+      "angle": 92,
+      "name": "spine",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0, "startY": 0, "endX": 0, "endY": 0 }
+    },
+    {
+      "position": { "x": -124.30893294412256, "y": -30.618631125734552 },
+      "time": 0.5,
+      "angle": 92,
+      "name": "spine",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0, "startY": 0, "endX": 0, "endY": 0 }
+    },
+    {
+      "position": { "x": -223.8980628461506, "y": -79.89056103684064 },
+      "time": 1,
+      "angle": 92,
+      "name": "spine",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0, "startY": 0, "endX": 0, "endY": 0 }
+    },
+    {
+      "position": { "x": -236.63268761538353, "y": 29.369812987719783 },
+      "time": 0,
+      "angle": 258.7120000000011,
+      "name": "tail",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0.03125, "startY": 329, "endX": 134, "endY": 242 }
+    },
+    {
+      "position": { "x": -203.4363109813742, "y": 45.79378962475515 },
+      "time": 0.5,
+      "angle": 295,
+      "name": "tail",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0.03125, "startY": 329, "endX": 134, "endY": 242 }
+    },
+    {
+      "position": { "x": -236.63268761538353, "y": 29.369812987719783 },
+      "time": 1,
+      "angle": 258.7120000000011,
+      "name": "tail",
+      "scale": { "x": 1, "y": 1 },
+      "clip": { "startX": 0.03125, "startY": 329, "endX": 134, "endY": 242 }
+    }
   ]
 }

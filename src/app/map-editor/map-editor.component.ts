@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   model,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -97,7 +98,7 @@ export type Brush = {
   styleUrl: './map-editor.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MapEditorComponent implements AfterViewInit {
+export class MapEditorComponent implements AfterViewInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   @ViewChild('canvas', { static: true })
   canvas!: ElementRef<HTMLCanvasElement>;
@@ -114,6 +115,8 @@ export class MapEditorComponent implements AfterViewInit {
   isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
+
+  gameId: number = 0;
 
   meshbrush: Brush = {
     radius: 5,
@@ -152,6 +155,10 @@ export class MapEditorComponent implements AfterViewInit {
     this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
+  }
+
+  ngOnDestroy(): void {
+    cancelAnimationFrame(this.gameId);
   }
 
   get translateX() {
@@ -429,7 +436,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const characterImage = await this.texture1.loadTexture(
-      '/assets/textures/104085.png'
+      '/assets/textures/character-animation.png'
     );
 
     const waterImage = await this.texture1.loadTexture(
@@ -456,7 +463,7 @@ export class MapEditorComponent implements AfterViewInit {
     );
 
     const tree = await this.texture1.loadTexture(
-      'assets/textures/tree_texture.png'
+      'assets/textures/irongolem.png'
     );
 
     const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
@@ -581,7 +588,7 @@ export class MapEditorComponent implements AfterViewInit {
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
-    this.createTree(treeShader, treeSlot);
+    this.createTree(treeShader);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -679,17 +686,14 @@ export class MapEditorComponent implements AfterViewInit {
     this.ecs.addComponent<Name>(entity, new Name('Player'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     const playerSkeleton = new Skeleton(
-      'assets/sprites/88022.png',
+      '/assets/textures/character-animation.jpg',
       'playerAnimations'
     );
     playerSkeleton.bones = Loader.getBones('skeleton');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     if (!skeleton) return;
     skeleton.image = image;
-    skeleton.keyframes = ResourceManager.getAnimation(
-      skeleton.resource,
-      'running'
-    );
+    skeleton.keyframes = ResourceManager.getAnimation(skeleton.resource, 'run');
     skeleton.animationDuration =
       skeleton.keyframes[skeleton.keyframes.length - 1].time;
     skeleton.startTime = performance.now();
@@ -751,7 +755,7 @@ export class MapEditorComponent implements AfterViewInit {
     const width = 128;
     const height = 128;
     const model = new Model();
-    model.addPlane(100);
+    model.addPlane(50);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
@@ -970,11 +974,11 @@ export class MapEditorComponent implements AfterViewInit {
     console.log('Created Water!!!');
   }
 
-  private createTree(shader: Shader, slot: number) {
+  private createTree(shader: Shader) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addTree(0, 20);
+    model.addTree(0, 10);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -998,10 +1002,10 @@ export class MapEditorComponent implements AfterViewInit {
 
   loop() {
     //FPS
-    console.log(Math.floor(performance.now() / 1000));
+    //console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
-    requestAnimationFrame(() => this.loop());
+    this.gameId = requestAnimationFrame(() => this.loop());
   }
 
   updateMesh() {

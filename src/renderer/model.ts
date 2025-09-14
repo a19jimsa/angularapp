@@ -286,7 +286,6 @@ export class Model {
         this.indices.push(i + 1, i + quads + 1, i + quads + 2);
       }
     }
-    console.log(this.vertices);
   }
 
   addCylinder() {

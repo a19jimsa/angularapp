@@ -75,6 +75,7 @@ export class AnimationCreatorComponent
   elapsedTime: number = 0;
 
   camera: Vec = new Vec(0, 0);
+  scale: Vec = new Vec(1, 1);
 
   lengthSliderValue: number = 0;
   rotationSliderValue: number = 0;
@@ -209,7 +210,8 @@ export class AnimationCreatorComponent
   }
 
   drawBackground() {
-    const gridSize = 50;
+    const gridSize = 10 * this.scale.x;
+    if (gridSize <= 0) return;
     for (let y = 0; y < this.canvasHeight; y += gridSize) {
       for (let x = 0; x < this.canvasWidth; x += gridSize) {
         // Växla mellan två färger beroende på position
@@ -272,7 +274,10 @@ export class AnimationCreatorComponent
 
   drawSpritesheet() {
     if (!this.showSpritesheet) return;
+    this.ctx.save();
+    this.ctx.scale(this.scale.x, this.scale.y);
     this.ctx.drawImage(this.spriteSheet, this.camera.x, this.camera.y);
+    this.ctx.restore();
   }
 
   onFileSelected(event: any) {
@@ -509,7 +514,7 @@ export class AnimationCreatorComponent
       this.ctx.rotate(
         MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
       );
-      this.ctx.scale(bone.scale.x, bone.scale.y);
+      this.ctx.scale(bone.scale.x * this.scale.x, bone.scale.y * this.scale.y);
       this.ctx.translate(-bone.position.x, -bone.position.y);
       this.ctx.drawImage(
         this.spriteSheet,
@@ -531,10 +536,10 @@ export class AnimationCreatorComponent
     this.ctx.strokeStyle = 'red';
     this.ctx.lineWidth = 1;
     this.ctx.rect(
-      this.mouseDown.x,
-      this.mouseDown.y,
-      this.mousePos.x - this.mouseDown.x,
-      this.mousePos.y - this.mouseDown.y
+      this.mouseDown.x * this.scale.x,
+      this.mouseDown.y * this.scale.y,
+      (this.mousePos.x - this.mouseDown.x) * this.scale.x,
+      (this.mousePos.y - this.mouseDown.y) * this.scale.y
     );
     this.ctx.stroke();
   }
@@ -578,6 +583,7 @@ export class AnimationCreatorComponent
       this.canvasWidth / 2 + this.activeBone.position.x,
       this.canvasHeight / 2 + this.activeBone.position.y
     );
+    this.ctx.scale(this.scale.x, this.scale.y);
     this.ctx.lineWidth = 3;
 
     this.ctx.strokeStyle = 'green';
@@ -615,6 +621,8 @@ export class AnimationCreatorComponent
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mousePos.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
+      this.mousePos.x /= this.scale.x;
+      this.mousePos.y /= this.scale.y;
     });
     this.canvas.nativeElement.addEventListener('mousedown', (event) => {
       this.mouseDown.x =
@@ -622,6 +630,8 @@ export class AnimationCreatorComponent
       this.mouseDown.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = true;
+      this.mouseDown.x /= this.scale.x;
+      this.mouseDown.y /= this.scale.y;
     });
     this.canvas.nativeElement.addEventListener('mouseup', (event) => {
       this.mouseUp.x =
@@ -629,6 +639,8 @@ export class AnimationCreatorComponent
       this.mouseUp.y =
         event.clientY - bound.top - this.canvas.nativeElement.clientTop;
       this.isMouseDown = false;
+      this.mouseUp.x /= this.scale.x;
+      this.mouseUp.y /= this.scale.y;
       this.animation.startX = this.mouseDown.x - this.camera.x;
       this.animation.startY = this.mouseDown.y - this.camera.y;
       this.animation.endX = this.mouseUp.x - this.mouseDown.x;
@@ -636,7 +648,10 @@ export class AnimationCreatorComponent
     });
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      this.camera.y += event.deltaY / 10;
+      //this.camera.y += event.deltaY / 10;
+      const value = event.deltaY / 100;
+      this.scale.x += value;
+      this.scale.y += value;
     });
 
     addEventListener('keydown', (event) => {
