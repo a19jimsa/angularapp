@@ -616,11 +616,10 @@ export class AnimationCreatorComponent
       if (!this.isMouseOverJoint()) {
         this.activeBone = null;
       }
-      console.log('Is over joint');
       this.isMouseDown = false;
     });
     this.canvas.nativeElement.addEventListener('mousemove', (event) => {
-      //if (!this.isMouseDown) return;
+      if (!this.isMouseDown) return;
       this.mousePos.x =
         event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
       this.mousePos.y =
@@ -759,6 +758,7 @@ export class AnimationCreatorComponent
       0,
       180
     );
+
     let dialogRef = this.dialog.open(BoneDialogComponent, {
       width: '600px',
       height: '400px',
@@ -879,7 +879,7 @@ export class AnimationCreatorComponent
     const mousePosy = this.mousePos.y - this.canvasHeight / 2 / this.scale.y;
     for (const bone of this.bones) {
       const distance = bone.position.dist(new Vec(mousePosx, mousePosy));
-      if (distance <= 20) {
+      if (distance <= 10) {
         this.activateBone(bone.id);
         return true;
       }

@@ -436,7 +436,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const characterImage = await this.texture1.loadTexture(
-      '/assets/textures/character-animation.png'
+      '/assets/textures/104085.png'
     );
 
     const waterImage = await this.texture1.loadTexture(
@@ -463,7 +463,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const tree = await this.texture1.loadTexture(
-      'assets/textures/irongolem.png'
+      'assets/textures/gianotgreen.png'
     );
 
     const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
