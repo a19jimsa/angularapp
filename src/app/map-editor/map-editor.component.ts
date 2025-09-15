@@ -313,7 +313,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     });
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      console.log(event.deltaY);
       this.perspectiveCamera.rotateX(event.deltaY / 50);
     });
 
@@ -436,7 +435,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const characterImage = await this.texture1.loadTexture(
-      '/assets/textures/104085.png'
+      '/assets/textures/character-animation.png'
     );
 
     const waterImage = await this.texture1.loadTexture(
@@ -463,7 +462,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const tree = await this.texture1.loadTexture(
-      'assets/textures/gianotgreen.png'
+      'assets/textures/irongolem.png'
     );
 
     const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
@@ -684,7 +683,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       )
     );
     this.ecs.addComponent<Name>(entity, new Name('Player'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 10, 950));
     const playerSkeleton = new Skeleton(
       '/assets/textures/character-animation.jpg',
       'playerAnimations'
@@ -1005,7 +1004,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //console.log(Math.floor(performance.now() / 1000));
     this.update();
     this.draw();
-    this.gameId = requestAnimationFrame(() => this.loop());
   }
 
   updateMesh() {
@@ -1040,7 +1038,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
             bone.position.y - bone.pivot.y,
             bone.endX,
             bone.endY,
-            i
+            i * 0.1
           );
         }
         mesh.vertices = new Float32Array(model.vertices);
@@ -1117,4 +1115,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   loadEntity() {}
+
+  gameMode() {
+    this.loop();
+    this.gameId = requestAnimationFrame(() => this.gameMode());
+  }
+
+  editorMode() {
+    
+  }
 }

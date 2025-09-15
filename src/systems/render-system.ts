@@ -344,18 +344,12 @@ export class RenderSystem {
         }
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);
-        if (skeleton !== null) {
-          gl.disable(gl.DEPTH_TEST);
-        }
         gl.drawElements(
           gl.TRIANGLES,
           mesh.indices.length,
           gl.UNSIGNED_SHORT,
           0
         );
-        if (skeleton !== null) {
-          gl.enable(gl.DEPTH_TEST);
-        }
         gl.bindVertexArray(null);
       }
     }
