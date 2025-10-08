@@ -3,7 +3,6 @@ import { Skeleton } from 'src/components/skeleton';
 import { States } from 'src/components/state';
 import { Ecs } from 'src/core/ecs';
 import { ResourceManager } from 'src/core/resource-manager';
-import { MathUtils } from 'src/Utils/MathUtils';
 
 export class StateSystem {
   update(ecs: Ecs) {

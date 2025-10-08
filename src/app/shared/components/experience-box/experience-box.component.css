@@ -1,0 +1,14 @@
+li {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul {
+  margin: 0px;
+  padding: 0px;
+}
+
+.editable {
+  display: inline;
+  width: 100%;
+}

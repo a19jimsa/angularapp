@@ -1,0 +1,33 @@
+<mat-card class="p-2">
+  @for (item of qualifictions; track $index) {
+  <div class="row">
+    <div class="col-8" contenteditable="true">
+      <i [class]="item.icon"></i> {{ item.text }}
+    </div>
+    <div class="col-4">
+      @if (item.stars === 1) {
+      <i class="bi bi-star-fill"></i><i class="bi bi-star"></i
+      ><i class="bi bi-star"></i><i class="bi bi-star"></i
+      ><i class="bi bi-star"></i>
+      } @if (item.stars === 2) {
+      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star"></i><i class="bi bi-star"></i
+      ><i class="bi bi-star"></i>
+      } @if (item.stars === 3) {
+      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star-fill"></i><i class="bi bi-star"></i
+      ><i class="bi bi-star"></i>
+      } @if (item.stars === 4) {
+      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star"></i>
+      } @if (item.stars === 5) {
+      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
+      ><i class="bi bi-star-fill"></i>
+      }
+    </div>
+  </div>
+  }
+  <button matButton (click)="addQualifiction()">Add Qualification</button>
+</mat-card>

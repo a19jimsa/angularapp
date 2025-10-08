@@ -153,7 +153,7 @@ export class BrushSystem {
     for (const entity of ecs.getEntities()) {
       const tree = ecs.getComponent<Tree>(entity, 'Tree');
       if (tree) {
-        tree.positions.push(x * 2, y * 2, z * 2);
+        tree.positions.push(x * 2, y * 2, z * 2, 0);
         return;
       }
     }

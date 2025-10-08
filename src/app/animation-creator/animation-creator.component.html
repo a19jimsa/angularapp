@@ -191,6 +191,15 @@
               type="number"
             />
           </mat-form-field>
+          <mat-form-field class="w-100">
+            <mat-label>Length</mat-label>
+            <input
+              matInput
+              [disabled]="activeKeyframe === null"
+              [(ngModel)]="activeKeyframe.length"
+              type="number"
+            />
+          </mat-form-field>
           }
         </mat-card-content>
       </mat-card>
@@ -199,7 +208,6 @@
       <mat-card appearance="outlined" class="h-100">
         <mat-card-header>
           <mat-card-title>Canvas</mat-card-title>
-
           <mat-card-subtitle>
             <mat-card-title-group>
               <mat-slide-toggle [(ngModel)]="showSpritesheet"
@@ -526,7 +534,7 @@
         class="d-flex flex-row justify-content-center h-100"
       >
         <mat-card-content>
-          @if(activeBone !== null){
+          @if(activeBone){
           <mat-label>Length:</mat-label>
           <mat-slider [step]="1" [max]="500" discrete="true">
             <input matSliderThumb [(ngModel)]="lengthSliderValue" #slider />
@@ -557,6 +565,9 @@
             <input matSliderThumb [(ngModel)]="activeBone.scale.y" #slider />
           </mat-slider>
           <button mat-button (click)="inactivateBone()">inactivate bone</button>
+          <button matButton (click)="addClothesToBone()">
+            Add Clothes to bone
+          </button>
           }
         </mat-card-content>
       </mat-card>

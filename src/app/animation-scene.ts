@@ -105,7 +105,7 @@ export class AnimationScene {
 
     this.animationSystem = new AnimationSystem();
     this.movementSystem = new MovementSystem();
-    this.controllerSystem = new ControllerSystem(this.mouseHandler);
+    this.controllerSystem = new ControllerSystem();
     this.cameraSystem = new CameraSystem();
     this.attackSystem = new AttackSystem();
     this.deadSystem = new DeadSystem();
@@ -192,7 +192,7 @@ export class AnimationScene {
 
     //TODO Add sprites to resource manager instead
     const playerSkeleton = new Skeleton(
-      'assets/sprites/88022.png',
+      'assets/sprites/character-animation.png',
       'playerAnimations'
     );
     const dragonSkeleton = new Skeleton(

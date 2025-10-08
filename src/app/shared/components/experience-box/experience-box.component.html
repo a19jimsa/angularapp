@@ -1,0 +1,25 @@
+<mat-card class="mb-2">
+  <div class="row p-2">
+    <div class="col-5" contenteditable="true">Date...</div>
+    <div class="col-7">
+      <div contenteditable="true">Experience...</div>
+      <div contenteditable="true">Company...</div>
+      <ul>
+        @for (experience of experienceList; track $index) {
+        <li>
+          <i class="bi bi-arrow-right"></i>
+          <div class="editable" contenteditable="true"> Sample text...</div>
+        </li>
+        @if (editable) {
+        <button matButton (click)="removeExperience($index)">Remove</button>
+        } }
+      </ul>
+      @if (editable) {
+      <button matButton (click)="addExperience()">Add Experience</button>
+      }
+    </div>
+  </div>
+  @if (editable) {
+  <button matButton (click)="finish()">Finish</button>
+  }
+</mat-card>

@@ -7,6 +7,7 @@ export type ClipAnimation = {
 
 export type Keyframe = {
   position: Vec;
+  length: number;
   scale: Vec;
   time: number;
   name: string;
@@ -125,7 +126,6 @@ export class AnimationCreatorComponent
   animationFiles: string[] = new Array();
   activeAnimations: Animation | undefined;
 
-  skeletonBones: string[] = new Array();
   skeletonFiles: string[] = new Array();
 
   ngAfterViewInit(): void {
@@ -433,6 +433,7 @@ export class AnimationCreatorComponent
     for (const bone of this.filteredBones) {
       const keyframe: Keyframe = {
         position: new Vec(bone.position.x, bone.position.y),
+        length: bone.length,
         time: this.keyframeSliderValue,
         angle: bone.rotation,
         name: bone.id,
@@ -448,6 +449,13 @@ export class AnimationCreatorComponent
     }
     this.sortKeyframes();
     this.filteredKeyframes = this.keyframes;
+    this.addKeyframestoActiveState();
+  }
+
+  addKeyframestoActiveState() {
+    if (this.activeState !== '' && this.activeAnimations) {
+      this.activeAnimations[this.activeState] = this.filteredKeyframes;
+    }
   }
 
   sortKeyframes() {
@@ -724,6 +732,7 @@ export class AnimationCreatorComponent
 
     this.sortKeyframes();
     this.filteredKeyframes = this.keyframes;
+    this.addKeyframestoActiveState();
   }
 
   drawDebug() {
@@ -898,6 +907,18 @@ export class AnimationCreatorComponent
     );
   }
 
+  addClothesToBone() {
+    for (const bone of this.bones) {
+      if (this.activeBone!.id === bone.id) {
+        bone.endX = this.animation.endX;
+        bone.endY = this.animation.endY;
+        bone.startX = this.animation.startX;
+        bone.startY = this.animation.startY;
+        return;
+      }
+    }
+  }
+
   runAnimation() {
     if (this.keyframes.length === 0) return;
     this.activeBone = null;
@@ -942,6 +963,11 @@ export class AnimationCreatorComponent
             bone.scale.y = MathUtils.interpolateKeyframe(
               keyFrame.scale.y,
               this.keyframes[i + 1].scale.y,
+              progress
+            );
+            bone.length = MathUtils.interpolateKeyframe(
+              keyFrame.length,
+              this.keyframes[i + 1].length,
               progress
             );
             bone.startX = keyFrame.clip.startX;

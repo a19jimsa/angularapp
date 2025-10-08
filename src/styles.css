@@ -8,9 +8,3 @@ body {
   background: var(--mat-sys-background);
   color: var(--mat-sys-on-surface);
 }
-
-button[mat-icon-button] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}

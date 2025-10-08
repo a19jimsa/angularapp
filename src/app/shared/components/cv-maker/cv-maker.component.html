@@ -1,0 +1,47 @@
+<div class="container border" style="width: 210mm; height: 297mm">
+  <div class="row h-100">
+    <aside class="col-4 background p-2">
+      <div class="row">
+        <h4>OM MIG</h4>
+        <div>fewfew</div>
+      </div>
+      <div class="row">
+        <h4>Image</h4>
+        <div>fewfew</div>
+      </div>
+      <div class="row">
+        <h4>PERSONLIGT</h4>
+        <div>fewfew</div>
+      </div>
+      <div class="row">
+        <h4>INTRESSEN</h4>
+        <div>fewfew</div>
+      </div>
+      <div class="row">
+        <h4>SPRÅK</h4>
+        <div>fewfew</div>
+      </div>
+    </aside>
+    <article class="col-8">
+      <div class="text-center"><h1 contenteditable="true">Header</h1></div>
+      <h2 contenteditable="true"><i class="bi bi-gear"></i> Work experience</h2>
+      @for (item of experienceBoxes; track $index) {
+      <app-experience-box></app-experience-box>
+
+      }
+      <h2 contenteditable="true">
+        <i class="bi bi-mortarboard"></i> Education
+      </h2>
+      @for (item of educationBoxes; track $index) {
+      <app-experience-box></app-experience-box>
+
+      }
+      <app-qualification-box></app-qualification-box>
+    </article>
+  </div>
+</div>
+<mat-card class="toolbox">
+  <h1>Toolbox</h1>
+  <button matButton (click)="addExperience()">Add Experience</button>
+  <button matButton (click)="addEducation()">Add Education</button>
+</mat-card>

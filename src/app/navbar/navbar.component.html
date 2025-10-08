@@ -1,7 +1,6 @@
 <nav>
   <mat-toolbar class="d-flex justify-content-between">
     @if (!isMobile()) {
-
     <div>
       <a mat-button routerLink="/">Jimmydev.se</a>
       <a mat-button routerLink="/chess">Chess</a>
@@ -20,6 +19,7 @@
       <a mat-button routerLink="/animation">Game Engine</a>
       <a mat-button routerLink="/creator">Animation Creator</a>
       <a mat-button routerLink="/editor">Map Editor</a>
+      <a mat-button routerLink="/cv-maker">CV/PB Maker</a>
     </div>
     }@else {
     <button mat-icon-button extended (click)="snav.toggle()">

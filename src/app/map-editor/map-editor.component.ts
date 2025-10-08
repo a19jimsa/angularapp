@@ -53,6 +53,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
 import { Component as ECSComponent } from 'src/components/component';
+import { JsonPipe } from '@angular/common';
+import { ControllerSystem } from 'src/systems/controller-system';
+import { MovementSystem } from 'src/systems/movement-system';
+import { Controlable } from 'src/components/controlable';
+import { Player } from 'src/components/player';
 
 export enum Tools {
   Splatmap,
@@ -118,6 +123,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   gameId: number = 0;
 
+  play: boolean = false;
+
   meshbrush: Brush = {
     radius: 5,
     strength: 1,
@@ -134,6 +141,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   //All systems in editor
   renderSystem: RenderSystem = new RenderSystem();
   brushSystem: BrushSystem = new BrushSystem();
+  controllerSystem: ControllerSystem = new ControllerSystem();
+  movementSystem: MovementSystem = new MovementSystem();
 
   brushToolsImages: HTMLImageElement[] = new Array();
 
@@ -268,7 +277,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.addEventListeners();
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
-    console.log(ResourceManager.getAnimations());
     // await Loader.loadAllShader();
     // await Loader.loadAllTextures();
     this.bones = Loader.getBones('skeleton');
@@ -277,7 +285,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   addEventListeners() {
     document.addEventListener('keydown', (event) => {
-      const speed = 10;
+      if (this.play) return;
       switch (event.code) {
         case 'KeyW':
           this.perspectiveCamera.updatePosition(0, 100, 0);
@@ -461,8 +469,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/skybox/back.bmp'
     );
 
-    const tree = await this.texture1.loadTexture(
-      'assets/textures/irongolem.png'
+    const tree = await this.texture1.loadTexture('assets/textures/trees.png');
+
+    const frogImage = await this.texture1.loadTexture(
+      'assets/textures/frog-enemy.png'
     );
 
     const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
@@ -508,6 +518,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       noise,
       noise.width,
       noise.height
+    );
+
+    const frogSlot = this.texture1.createAndBindTexture(
+      'frogman',
+      frogImage,
+      frogImage.width,
+      frogImage.height
     );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
@@ -587,7 +604,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
-    this.createTree(treeShader);
+    this.createTree(treeShader, tree);
 
     this.setupSkybox(shader2, skyboxTexture!);
 
@@ -642,6 +659,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     this.createCharacter(shader, characterImage);
+    this.createFrog(shader, frogImage);
     this.cdr.detectChanges();
     this.loop();
   }
@@ -683,16 +701,102 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       )
     );
     this.ecs.addComponent<Name>(entity, new Name('Player'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 10, 950));
+    const transform3D = this.ecs.addComponent<Transform3D>(
+      entity,
+      new Transform3D(500, 10, 950)
+    );
+    transform3D!.scale[0] = 0.2;
+    transform3D!.scale[1] = 0.2;
+    transform3D!.scale[2] = 0.2;
+    transform3D!.rotation[2] = 3.1;
     const playerSkeleton = new Skeleton(
       '/assets/textures/character-animation.jpg',
       'playerAnimations'
     );
     playerSkeleton.bones = Loader.getBones('skeleton');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
+    this.ecs.addComponent<Controlable>(
+      entity,
+      new Controlable(new Vec(0, 0), 0, false)
+    );
+    this.ecs.addComponent<Player>(entity, new Player());
+    this.ecs.addComponent<Transform>(
+      entity,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
     if (!skeleton) return;
     skeleton.image = image;
-    skeleton.keyframes = ResourceManager.getAnimation(skeleton.resource, 'run');
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      'idle'
+    );
+    skeleton.animationDuration =
+      skeleton.keyframes[skeleton.keyframes.length - 1].time;
+    skeleton.startTime = performance.now();
+  }
+
+  createFrog(shader: Shader, image: HTMLImageElement) {
+    const model = new Model();
+    let i = 0;
+    for (const bone of Loader.getBones('frogman')) {
+      i++;
+      model.addSquares(
+        image.width,
+        image.height,
+        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+        bone.pivot,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        bone.position.x - bone.pivot.x - bone.endX / 2,
+        bone.position.y - bone.pivot.y,
+        bone.endX,
+        bone.endY,
+        i
+      );
+    }
+    const entity = this.ecs.createEntity();
+    const mesh = new MeshRenderer(
+      this.gl,
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+      shader
+    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Material>(
+      entity,
+      new Material(
+        shader,
+        this.texture1.getTexture('frogman'),
+        this.texture1.getSlot('frogman')
+      )
+    );
+    this.ecs.addComponent<Name>(entity, new Name('Frogman'));
+    const transform3D = this.ecs.addComponent<Transform3D>(
+      entity,
+      new Transform3D(550, 3, 950)
+    );
+    transform3D!.scale[0] = 0.2;
+    transform3D!.scale[1] = 0.2;
+    transform3D!.scale[2] = 0.2;
+    transform3D!.rotation[2] = 3.1;
+    const playerSkeleton = new Skeleton(
+      '/assets/textures/frog-enemy.jpg',
+      'frogAnimations'
+    );
+    playerSkeleton.bones = Loader.getBones('frogman');
+    const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
+    this.ecs.addComponent<Transform>(
+      entity,
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+    );
+    if (!skeleton) return;
+    skeleton.image = image;
+    skeleton.keyframes = ResourceManager.getAnimation(
+      skeleton.resource,
+      'idle'
+    );
     skeleton.animationDuration =
       skeleton.keyframes[skeleton.keyframes.length - 1].time;
     skeleton.startTime = performance.now();
@@ -973,11 +1077,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     console.log('Created Water!!!');
   }
 
-  private createTree(shader: Shader) {
+  private createTree(shader: Shader, image: HTMLImageElement) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addTree(0, 10);
+    model.addTree(image.width / 10, image.height / 10);
     const mesh = new MeshRenderer(
       this.gl,
       new Float32Array(model.vertices),
@@ -1002,8 +1106,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   loop() {
     //FPS
     //console.log(Math.floor(performance.now() / 1000));
-    this.update();
+    if (this.play) {
+      this.gameMode();
+    } else {
+      this.update();
+      this.updateMesh();
+    }
     this.draw();
+    this.gameId = requestAnimationFrame(() => this.loop());
   }
 
   updateMesh() {
@@ -1047,9 +1157,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    this.animationSystem.update(this.ecs);
-    this.updateMesh();
-    this.updateBatch();
     if (this.isMouseDown && this.isMouseMoved) {
       this.brushSystem.update(
         this.meshbrush,
@@ -1115,13 +1222,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   loadEntity() {}
+  editorMode() {}
 
   gameMode() {
-    this.loop();
-    this.gameId = requestAnimationFrame(() => this.gameMode());
+    this.updateMesh();
+    this.updateBatch();
+    this.animationSystem.update(this.ecs);
+    this.controllerSystem.update(this.ecs);
+    // this.movementSystem.update(this.ecs);
   }
 
-  editorMode() {
-    
+  togglePlay() {
+    this.play = !this.play;
   }
 }

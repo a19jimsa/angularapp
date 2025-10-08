@@ -19,6 +19,7 @@ import { BoneAnimationComponent } from './bone-animation/bone-animation.componen
 import { AnimationCreatorComponent } from './animation-creator/animation-creator.component';
 import { CommonModule } from '@angular/common';
 import { MapEditorComponent } from './map-editor/map-editor.component';
+import { CvMakerComponent } from './shared/components/cv-maker/cv-maker.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -39,6 +40,7 @@ const routes: Routes = [
   { path: 'animation', component: BoneAnimationComponent },
   { path: 'creator', component: AnimationCreatorComponent },
   { path: 'editor', component: MapEditorComponent },
+  { path: 'cv-maker', component: CvMakerComponent },
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true }), CommonModule],

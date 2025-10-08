@@ -2,7 +2,6 @@ import { Player } from 'src/components/player';
 import { Controlable } from '../components/controlable';
 import { Transform } from '../components/transform';
 import { Ecs } from '../core/ecs';
-import { MouseHandler } from 'src/app/mouse-handler';
 import { Inventory } from 'src/components/inventory';
 
 export type KeysPressed = {
@@ -32,7 +31,7 @@ export class ControllerSystem {
     inventory: false,
   };
 
-  constructor(private mouseHandler: MouseHandler) {
+  constructor() {
     console.log('Skapade controller');
     window.addEventListener('keydown', (event) => {
       if (event.code === 'KeyA') {
@@ -92,12 +91,6 @@ export class ControllerSystem {
   }
 
   update(ecs: Ecs) {
-    if (this.mouseHandler.isMouseDown) {
-      this.keysPressed.attack = true;
-    } else if (this.mouseHandler.isMouseUp) {
-      this.keysPressed.attack = false;
-    }
-
     for (const entity of ecs.getEntities()) {
       const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const controlable = ecs.getComponent<Controlable>(entity, 'Controlable');
@@ -114,7 +107,6 @@ export class ControllerSystem {
       const inventory = ecs.getComponent<Inventory>(entity, 'Inventory');
       if (inventory) {
         if (this.isPressed.has('KeyI') && !this.wasPressed.has('KeyI')) {
-          console.log(this.keysPressed.inventory);
           inventory.show = !inventory.show;
           this.wasPressed.add('KeyI');
         }

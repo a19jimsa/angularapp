@@ -9,9 +9,8 @@ varying float v_fogDistance;
 
 void main() {
     vec4 texColor = texture2D(u_texture, v_texcoord);
-    if(texColor.a < 0.9) {
+    if(texColor.a < 0.1)
         discard;
-    }
     float fogFactor = 1.0 - exp(-v_fogDistance * 0.0005);
     vec3 fogColor = vec3(0.5, 0.6, 0.75);
     float alpha = 1.0;
