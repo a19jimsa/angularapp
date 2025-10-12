@@ -1,30 +1,17 @@
-import { Component, input, Input } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { Component, inject } from '@angular/core';
 import { MatCard } from '@angular/material/card';
+import { ExperienceService } from '../../services/experience.service';
 
 @Component({
   selector: 'app-experience-box',
-  imports: [MatCard, MatButton],
+  imports: [MatCard],
   templateUrl: './experience-box.component.html',
   styleUrl: './experience-box.component.css',
 })
 export class ExperienceBoxComponent {
-  @Input() experienceList: string[] = new Array();
-  public editable: boolean = true;
+  private service = inject(ExperienceService);
 
-  ngOnInit() {
-    this.experienceList.push('Hej');
-  }
-
-  addExperience() {
-    this.experienceList.push('value');
-  }
-
-  removeExperience(index: number) {
-    this.experienceList.splice(index, 1);
-  }
-
-  finish() {
-    this.editable = !this.editable;
+  get experiences() {
+    return this.service.experienceList;
   }
 }

@@ -24,24 +24,39 @@
     </aside>
     <article class="col-8">
       <div class="text-center"><h1 contenteditable="true">Header</h1></div>
-      <h2 contenteditable="true"><i class="bi bi-gear"></i> Work experience</h2>
-      @for (item of experienceBoxes; track $index) {
       <app-experience-box></app-experience-box>
-
-      }
-      <h2 contenteditable="true">
-        <i class="bi bi-mortarboard"></i> Education
-      </h2>
-      @for (item of educationBoxes; track $index) {
-      <app-experience-box></app-experience-box>
-
-      }
+      <app-education-box></app-education-box>
       <app-qualification-box></app-qualification-box>
     </article>
   </div>
 </div>
 <mat-card class="toolbox">
   <h1>Toolbox</h1>
-  <button matButton (click)="addExperience()">Add Experience</button>
-  <button matButton (click)="addEducation()">Add Education</button>
+
+  <form [formGroup]="experienceForm" class="border">
+    <mat-form-field>
+      <mat-label>Date</mat-label>
+      <input matInput type="text" formControlName="date" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Company name or school</mat-label>
+      <input matInput type="text" formControlName="companyName" />
+    </mat-form-field>
+    <div formArrayName="experienceList">
+      <button matButton (click)="addExperience()">
+        + Add another experience
+      </button>
+      @for (item of experiences.controls; track $index; let i = $index) {
+      <mat-form-field>
+        <mat-label>Experience {{ i }}</mat-label>
+        <input matInput type="text" [formControlName]="i" />
+      </mat-form-field>
+      }
+    </div>
+
+    <button type="submit" matButton (click)="onSubmit()">Skicka</button>
+  </form>
+  <mat-checkbox [(ngModel)]="education" name="education"
+    >Education?</mat-checkbox
+  >{{ education | json }}
 </mat-card>
