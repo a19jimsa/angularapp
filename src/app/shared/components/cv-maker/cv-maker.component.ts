@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { MatCard } from '@angular/material/card';
+import { MatCard, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { ExperienceBoxComponent } from '../experience-box/experience-box.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,6 +10,8 @@ import { MatInput } from '@angular/material/input';
 import {
   FormArray,
   FormBuilder,
+  FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -17,6 +19,13 @@ import {
 import { ExperienceService } from '../../services/experience.service';
 import { EducationService } from '../../services/education.service';
 import { EducationBoxComponent } from '../education-box/education-box.component';
+import {
+  Qualification,
+  QualificationService,
+} from '../../services/qualification.service';
+import { Personal, PersonalService } from '../../services/personal.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { PbComponent } from '../pb/pb.component';
 
 export type Experience = {
   date: string;
@@ -30,7 +39,6 @@ export type Experience = {
     ExperienceBoxComponent,
     MatCard,
     MatButtonModule,
-    QualificationBoxComponent,
     MatFormField,
     MatLabel,
     MatInput,
@@ -39,15 +47,20 @@ export type Experience = {
     MatCheckboxModule,
     JsonPipe,
     EducationBoxComponent,
+    QualificationBoxComponent,
+    MatCardHeader,
+    MatCardTitle,
+    MatSlideToggle,
+    PbComponent,
   ],
   templateUrl: './cv-maker.component.html',
   styleUrl: './cv-maker.component.css',
 })
 export class CvMakerComponent {
-  public experienceBoxes: number[] = new Array();
-  public educationBoxes: number[] = new Array();
   private experienceService = inject(ExperienceService);
   private educationService = inject(EducationService);
+  private qualificationService = inject(QualificationService);
+  private personalService = inject(PersonalService);
   //INJECT FORMBUILDER AND ADD REACTIVE FORM
   private formBuilder = inject(FormBuilder);
   experienceForm = this.formBuilder.group({
@@ -56,14 +69,44 @@ export class CvMakerComponent {
     experienceList: this.formBuilder.array([this.formBuilder.control('')]),
   });
 
+  public personalForm = this.formBuilder.group<Personal>({
+    name: '',
+    linkedin: '',
+    phone: '',
+    mail: '',
+    homepage: '',
+    githublink: '',
+    exam: '',
+  });
+
   education: boolean = false;
+
+  isCv: boolean = true;
+  showToolbox: boolean = true;
+
+  public icon = '';
+  public text = '';
+  public stars = 0;
 
   get experiences() {
     return this.experienceForm.get('experienceList') as FormArray;
   }
 
+  get personalInfo() {
+    return this.personalService.personInfo;
+  }
+
   addExperience() {
     this.experiences.push(this.formBuilder.control(''));
+  }
+
+  addQualification() {
+    const qualification: Qualification = {
+      icon: this.icon,
+      text: this.text,
+      stars: this.stars,
+    };
+    this.qualificationService.addToList(qualification);
   }
 
   onSubmit() {
@@ -75,5 +118,14 @@ export class CvMakerComponent {
       this.experienceService.addExperience(experienceItem);
     }
     this.experienceForm.reset();
+  }
+
+  removeExperienceBox(id: number) {
+    this.experiences.removeAt(id);
+  }
+
+  addPersonalInfo() {
+    const personalInfo = this.personalForm.value as Personal;
+    this.personalService.changeInfo(personalInfo);
   }
 }

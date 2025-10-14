@@ -1,62 +1,188 @@
-<div class="container border" style="width: 210mm; height: 297mm">
+<div class="container-fluid" style="width: 210mm; height: 297mm">
   <div class="row h-100">
     <aside class="col-4 background p-2">
       <div class="row">
         <h4>OM MIG</h4>
-        <div>fewfew</div>
-      </div>
-      <div class="row">
-        <h4>Image</h4>
-        <div>fewfew</div>
+        <div contenteditable="true">fewfew</div>
       </div>
       <div class="row">
         <h4>PERSONLIGT</h4>
-        <div>fewfew</div>
+        <div>
+          <ul>
+            <li><i class="bi bi-person-fill"></i> {{ personalInfo.name }}</li>
+            <li>
+              <i class="bi bi-telephone-fill"></i> {{ personalInfo.phone }}
+            </li>
+            <li>
+              <i class="bi bi-envelope-at-fill"></i>
+              <a href="mailto:{{ personalInfo.mail }}" target="_blank">
+                {{ personalInfo.mail }}</a
+              >
+            </li>
+            <li>
+              <i class="bi bi-linkedin"></i
+              ><a href="{{ personalInfo.linkedin }}" target="_blank">
+                LinkedIn</a
+              >
+            </li>
+            <li>
+              <i class="bi bi-house-fill"></i>
+              <a
+                href="https://www.{{ personalInfo.homepage }}/"
+                target="_blank"
+              >
+                {{ personalInfo.homepage }}</a
+              >
+            </li>
+            <li>
+              <i class="bi bi-github"></i>
+              <a
+                href="https://github.com/{{ personalInfo.githublink }}/"
+                target="_blank"
+              >
+                Github</a
+              >
+            </li>
+            <li>
+              <i class="bi bi-mortarboard-fill"></i>
+              <a href="{{ personalInfo.exam }}" target="_blank">
+                Examensarbete</a
+              >
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="row">
         <h4>INTRESSEN</h4>
-        <div>fewfew</div>
+        <div>
+          <ul>
+            <li contenteditable="true">Programmering</li>
+            <li contenteditable="true">Fotboll</li>
+            <li contenteditable="true">Träning</li>
+            <li contenteditable="true">Datorer</li>
+          </ul>
+        </div>
       </div>
       <div class="row">
         <h4>SPRÅK</h4>
-        <div>fewfew</div>
+        <div>
+          <ul>
+            <li contenteditable="true">Svenska</li>
+            <li contenteditable="true">Engelska</li>
+            <li contenteditable="true">Spanska</li>
+          </ul>
+        </div>
       </div>
     </aside>
     <article class="col-8">
       <div class="text-center"><h1 contenteditable="true">Header</h1></div>
+      @if (isCv) {
       <app-experience-box></app-experience-box>
       <app-education-box></app-education-box>
       <app-qualification-box></app-qualification-box>
+      } @if (!isCv) {
+      <app-pb></app-pb>
+      }
     </article>
   </div>
 </div>
-<mat-card class="toolbox">
-  <h1>Toolbox</h1>
-
-  <form [formGroup]="experienceForm" class="border">
-    <mat-form-field>
-      <mat-label>Date</mat-label>
-      <input matInput type="text" formControlName="date" />
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Company name or school</mat-label>
-      <input matInput type="text" formControlName="companyName" />
-    </mat-form-field>
-    <div formArrayName="experienceList">
+@if (showToolbox) {
+<div class="toolbox">
+  <h1 class="text-center">Toolbox</h1>
+  <mat-slide-toggle [(ngModel)]="isCv"
+    >Slide Toggle Checked: {{ isCv }}</mat-slide-toggle
+  >
+  {{ isCv | json }}
+  <mat-card class="mb-2">
+    <mat-card-header>
+      <mat-card-title>Add Experience</mat-card-title>
+    </mat-card-header>
+    <form [formGroup]="experienceForm">
+      <mat-form-field>
+        <mat-label>Date</mat-label>
+        <input matInput type="text" formControlName="date" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Company name or school</mat-label>
+        <input matInput type="text" formControlName="companyName" />
+      </mat-form-field>
+      <div formArrayName="experienceList">
+        <div>Experiences</div>
+        @for (item of experiences.controls; track $index; let i = $index) {
+        <mat-form-field>
+          <mat-label>Experience {{ i }}</mat-label>
+          <input matInput type="text" [formControlName]="i" />
+        </mat-form-field>
+        <button matButton (click)="removeExperienceBox(i)">Remove</button>
+        }
+      </div>
       <button matButton (click)="addExperience()">
         + Add another experience
       </button>
-      @for (item of experiences.controls; track $index; let i = $index) {
-      <mat-form-field>
-        <mat-label>Experience {{ i }}</mat-label>
-        <input matInput type="text" [formControlName]="i" />
-      </mat-form-field>
-      }
-    </div>
 
-    <button type="submit" matButton (click)="onSubmit()">Skicka</button>
-  </form>
-  <mat-checkbox [(ngModel)]="education" name="education"
-    >Education?</mat-checkbox
-  >{{ education | json }}
-</mat-card>
+      <button type="submit" matButton (click)="onSubmit()">Skicka</button>
+    </form>
+    <mat-checkbox [(ngModel)]="education" name="education"
+      >Education?</mat-checkbox
+    >{{ education | json }}
+  </mat-card>
+  <mat-card class="mb-2">
+    <mat-card-header>
+      <mat-card-title>Add Qualification</mat-card-title>
+    </mat-card-header>
+    <mat-form-field>
+      <mat-label>Icon</mat-label>
+      <input matInput type="text" [(ngModel)]="icon" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Text</mat-label>
+      <input matInput type="text" [(ngModel)]="text" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Stars</mat-label>
+      <input matInput type="number" [(ngModel)]="stars" />
+    </mat-form-field>
+    <button matButton (click)="addQualification()">Add Qualification</button>
+  </mat-card>
+  <mat-card>
+    <form [formGroup]="personalForm" (ngSubmit)="addPersonalInfo()">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>LinkedIn</mat-label>
+        <input matInput type="text" formControlName="linkedin" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Phone</mat-label>
+        <input matInput type="text" formControlName="phone" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Mail</mat-label>
+        <input matInput type="text" formControlName="mail" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Webpage</mat-label>
+        <input matInput type="text" formControlName="homepage" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Github</mat-label>
+        <input matInput type="text" formControlName="githublink" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Exam</mat-label>
+        <input matInput type="text" formControlName="exam" />
+      </mat-form-field>
+      <button matButton="elevated" type="submit">Submit</button>
+    </form>
+  </mat-card>
+  <button
+    matButton="elevated"
+    (click)="showToolbox = !showToolbox"
+    class="w-100"
+  >
+    Finish CV/PB
+  </button>
+</div>
+}
