@@ -1,6 +1,5 @@
 import { Mesh } from 'src/components/mesh';
 import { Ecs } from '../core/ecs';
-import { Transform } from 'src/components/transform';
 import { Material } from 'src/components/material';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
@@ -8,21 +7,26 @@ import { Skybox } from 'src/components/skybox';
 import { mat4, vec3 } from 'gl-matrix';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Grass } from 'src/components/grass';
-import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
 import { Skeleton } from 'src/components/skeleton';
+import { BatchRenderer } from 'src/renderer/batch-renderer';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class RenderSystem {
+  constructor(gl: WebGL2RenderingContext) {
+    BatchRenderer.init(gl);
+  }
+
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
     mesh.shader.use();
     mesh.vao.bind();
     const buffer = gl.createBuffer();
     mesh.vao.vertexBuffer.buffer = buffer!;
     if (!mesh.vao.vertexBuffer.buffer) {
-      console.error('Coudn not create buffer!');
+      console.error('Couldnt not create buffer!');
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vao.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(amount), gl.DYNAMIC_DRAW);
@@ -45,6 +49,39 @@ export class RenderSystem {
     return mesh;
   }
 
+  drawBatch(ecs: Ecs, camera: PerspectiveCamera) {
+    BatchRenderer.begin();
+    for (const entity of ecs.getEntities()) {
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      if (skeleton && transform3D) {
+        const bones = skeleton.bones.sort((a, b) => a.order - b.order);
+        for (let i = 0; i < bones.length; i++) {
+          const bone = bones[i];
+          BatchRenderer.addQuads(
+            skeleton.image.width,
+            skeleton.image.height,
+            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+            bone.pivot,
+            bone.startX,
+            bone.startY,
+            bone.endX,
+            bone.endY,
+            bone.position.x - bone.pivot.x - bone.endX / 2,
+            bone.position.y - bone.pivot.y,
+            bone.endX,
+            bone.endY,
+            i * 0.1,
+            transform3D.translate[0],
+            transform3D.translate[1],
+            transform3D.translate[2]
+          );
+        }
+      }
+    }
+    BatchRenderer.end(camera);
+  }
+
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
@@ -55,6 +92,8 @@ export class RenderSystem {
     // Clear the canvas AND the depth buffer.
     gl.clearColor(0, 0, 0, 0); // Viktigt! Gör hela canvasen transparent
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    this.drawBatch(ecs, camera);
 
     for (const entity of ecs.getEntities()) {
       const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
@@ -89,20 +128,16 @@ export class RenderSystem {
 
     for (const entity of ecs.getEntities()) {
       //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
-      const transform = ecs.getComponent<Transform>(entity, 'Transform');
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
-      const tree = ecs.getComponent<Tree>(entity, 'Tree');
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
-      const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
       const animatedTexture = ecs.getComponent<AnimatedTexture>(
         entity,
         'AnimatedTexture'
       );
       const water = ecs.getComponent<Water>(entity, 'Water');
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
@@ -272,43 +307,6 @@ export class RenderSystem {
           0
         );
         gl.bindVertexArray(null);
-      } else if (mesh && material && tree) {
-        gl.useProgram(material.shader.program);
-        const location = gl.getUniformLocation(
-          material.shader.program,
-          'u_matrix'
-        );
-        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
-        const textureLocation = gl.getUniformLocation(
-          material.shader.program,
-          'u_texture'
-        );
-        gl.uniform1i(textureLocation, material.slot);
-        gl.activeTexture(gl.TEXTURE0 + material.slot);
-        gl.bindTexture(gl.TEXTURE_2D, material.texture);
-        const timeLocation = gl.getUniformLocation(
-          material.shader.program,
-          'u_time'
-        );
-        const viewLocation = gl.getUniformLocation(
-          material.shader.program,
-          'u_view'
-        );
-        gl.uniformMatrix4fv(viewLocation, false, camera.getViewMatrix());
-        gl.uniform1f(timeLocation, performance.now() * 0.001);
-        gl.bindVertexArray(mesh.vao);
-        const instanceCount = tree.positions.length / 3; // en xyz per träd
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
-        //Optimize this later
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(tree.positions));
-        gl.drawElementsInstanced(
-          gl.TRIANGLES,
-          6,
-          gl.UNSIGNED_SHORT,
-          0,
-          instanceCount
-        );
-        gl.bindVertexArray(null);
       } else if (mesh && material) {
         gl.useProgram(material.shader.program);
         const location = gl.getUniformLocation(
@@ -351,6 +349,9 @@ export class RenderSystem {
           0
         );
         gl.bindVertexArray(null);
+      } else if (mesh) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, mesh.vertices);
       }
     }
   }

@@ -1,8 +1,3 @@
-import { Shader } from './shader';
-import { Texture } from './texture';
-import { PerspectiveCamera } from './perspective-camera';
-import { OrtographicCamera } from './orthographic-camera';
-import { VertexArrayBuffer } from './vertex-array-buffer';
 import { mat4, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
 

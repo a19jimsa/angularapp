@@ -58,6 +58,9 @@ import { ControllerSystem } from 'src/systems/controller-system';
 import { MovementSystem } from 'src/systems/movement-system';
 import { Controlable } from 'src/components/controlable';
 import { Player } from 'src/components/player';
+import { BatchRenderer } from 'src/renderer/batch-renderer';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export enum Tools {
   Splatmap,
@@ -98,6 +101,7 @@ export type Brush = {
     MatRadioModule,
     MatSelectModule,
     MatMenuModule,
+    //JsonPipe,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -111,7 +115,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   width: number = 0;
   height: number = 0;
   perspectiveCamera: PerspectiveCamera;
-  orthoCamera: OrtographicCamera;
+  //orthoCamera: OrtographicCamera;
   texture1!: Texture;
   mousePos = vec3.create();
   bones: Bone[] = new Array();
@@ -139,7 +143,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   ecs: Ecs;
   //All systems in editor
-  renderSystem: RenderSystem = new RenderSystem();
+  renderSystem!: RenderSystem;
   brushSystem: BrushSystem = new BrushSystem();
   controllerSystem: ControllerSystem = new ControllerSystem();
   movementSystem: MovementSystem = new MovementSystem();
@@ -147,10 +151,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   brushToolsImages: HTMLImageElement[] = new Array();
 
   selectedShader: string = 'default';
-
-  splatmapShader1!: Shader;
-  waterShader!: Shader;
-  whirlwindShader!: Shader;
 
   sceneObjects: Set<Name> = new Set<Name>();
 
@@ -161,7 +161,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   componentsList: ECSComponent[] = new Array();
 
   constructor(private cdr: ChangeDetectorRef) {
-    this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
+    //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
   }
@@ -273,13 +273,39 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.height = this.canvas.nativeElement.height;
     this.gl.canvas.width = 1920;
     this.gl.canvas.height = 1080;
-    this.texture1 = new Texture(this.gl);
     this.addEventListeners();
+
+    ShaderManager.setGl(this.gl);
+    TextureManager.setGl(this.gl);
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
+    await ShaderManager.load(
+      'batch',
+      'batch2d_vertex.txt',
+      'batch2d_fragment.txt'
+    );
+    await ShaderManager.load('grass', 'grass_vertex.txt', 'grass_fragment.txt');
+    await ShaderManager.load(
+      'skybox',
+      'skybox_vertex.txt',
+      'skybox_fragment.txt'
+    );
+    await ShaderManager.load('basic', 'basic_vertex.txt', 'basic_fragment.txt');
+    await ShaderManager.load(
+      'splatmap',
+      'image_vertex.txt',
+      'image_fragment.txt'
+    );
+    await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
+    await ShaderManager.load('image', 'imageVS.txt', 'imageFS.txt');
+
+    const tree = await TextureManager.loadTexture('/assets/textures/tree.png');
+    TextureManager.createAndBindTexture('batch', tree, tree.width, tree.height);
+    //Make this in the future... soon!
     // await Loader.loadAllShader();
     // await Loader.loadAllTextures();
     this.bones = Loader.getBones('skeleton');
+    this.renderSystem = new RenderSystem(this.gl);
     await this.init();
   }
 
@@ -405,122 +431,85 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async init() {
     const gl = this.gl;
-    const shader = new Shader(gl);
-    await shader.initShaders('imageVS.txt', 'imageFS.txt');
-    this.splatmapShader1 = new Shader(gl);
-    await this.splatmapShader1.initShaders(
-      'image_vertex.txt',
-      'image_fragment.txt'
-    );
-    const shader2 = new Shader(gl);
-    await shader2.initShaders('skybox_vertex.txt', 'skybox_fragment.txt');
-    const basicShader = new Shader(gl);
-    await basicShader.initShaders('basic_vertex.txt', 'basic_fragment.txt');
-    this.waterShader = new Shader(gl);
-    await this.waterShader.initShaders(
-      'water_vertex.txt',
-      'water_fragment.txt'
-    );
 
-    const grassShader = new Shader(gl);
-    await grassShader.initShaders('grass_vertex.txt', 'grass_fragment.txt');
-
-    const treeShader = new Shader(gl);
-    await treeShader.initShaders('tree_vertex.txt', 'tree_fragment.txt');
-
-    this.whirlwindShader = new Shader(gl);
-    await this.whirlwindShader.initShaders(
-      'vfx_vertex.txt',
-      'vfx_fragment.txt'
-    );
-
-    const whirlwindTexture = await this.texture1.loadTexture(
+    const whirlwindTexture = await TextureManager.loadTexture(
       '/assets/textures/whirlwind_map.jpg'
     );
 
-    const textureMapImage = await this.texture1.loadTexture(
+    const textureMapImage = await TextureManager.loadTexture(
       '/assets/textures/texture_map.jpg'
     );
 
-    const characterImage = await this.texture1.loadTexture(
+    const characterImage = await TextureManager.loadTexture(
       '/assets/textures/character-animation.png'
     );
 
-    const waterImage = await this.texture1.loadTexture(
+    const waterImage = await TextureManager.loadTexture(
       '/assets/textures/water_texture.jpg'
     );
 
-    const skybox1 = await this.texture1.loadTexture(
+    const skybox1 = await TextureManager.loadTexture(
       'assets/textures/skybox/right.bmp'
     );
-    const skybox2 = await this.texture1.loadTexture(
+    const skybox2 = await TextureManager.loadTexture(
       'assets/textures/skybox/left.bmp'
     );
-    const skybox3 = await this.texture1.loadTexture(
+    const skybox3 = await TextureManager.loadTexture(
       'assets/textures/skybox/top.bmp'
     );
-    const skybox4 = await this.texture1.loadTexture(
+    const skybox4 = await TextureManager.loadTexture(
       'assets/textures/skybox/bottom.bmp'
     );
-    const skybox5 = await this.texture1.loadTexture(
+    const skybox5 = await TextureManager.loadTexture(
       'assets/textures/skybox/front.bmp'
     );
-    const skybox6 = await this.texture1.loadTexture(
+    const skybox6 = await TextureManager.loadTexture(
       'assets/textures/skybox/back.bmp'
     );
 
-    const tree = await this.texture1.loadTexture('assets/textures/trees.png');
-
-    const frogImage = await this.texture1.loadTexture(
+    const frogImage = await TextureManager.loadTexture(
       'assets/textures/frog-enemy.png'
     );
 
-    const noise = await this.texture1.loadTexture('assets/textures/noise.jpg');
+    const noise = await TextureManager.loadTexture('assets/textures/noise.jpg');
 
-    // const spriteSlot = this.texture1.createAndBindTexture(sprite, sprite.width, sprite.height);
-    const slot = this.texture1.createAndBindTexture(
+    // const spriteSlot = TextureManager.createAndBindTexture(sprite, sprite.width, sprite.height);
+    const slot = TextureManager.createAndBindTexture(
       'textureMap',
       textureMapImage,
       textureMapImage.width,
       textureMapImage.height
     );
 
-    const whirlwindSlot = this.texture1.createAndBindTexture(
+    const whirlwindSlot = TextureManager.createAndBindTexture(
       'whirlwind',
       whirlwindTexture,
       whirlwindTexture.width,
       whirlwindTexture.height
     );
 
-    const treeSlot = this.texture1.createAndBindTexture(
-      'tree',
-      tree,
-      tree.width,
-      tree.height
-    );
-
-    const characterSlot = this.texture1.createAndBindTexture(
+    const characterSlot = TextureManager.createAndBindTexture(
       'character',
       characterImage,
       characterImage.width,
       characterImage.height
     );
 
-    const waterSlot = this.texture1.createAndBindTexture(
+    const waterSlot = TextureManager.createAndBindTexture(
       'water',
       waterImage,
       waterImage.width,
       waterImage.height
     );
 
-    const noiseSlot = this.texture1.createAndBindTexture(
+    const noiseSlot = TextureManager.createAndBindTexture(
       'noise',
       noise,
       noise.width,
       noise.height
     );
 
-    const frogSlot = this.texture1.createAndBindTexture(
+    const frogSlot = TextureManager.createAndBindTexture(
       'frogman',
       frogImage,
       frogImage.width,
@@ -528,33 +517,33 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const skyboxImages = [skybox1, skybox2, skybox3, skybox4, skybox5, skybox6];
-    const skyboxTexture = this.texture1.loadSkybox(skyboxImages);
+    const skyboxTexture = TextureManager.loadSkybox(skyboxImages);
 
-    const smokeBrushImage = await this.texture1.loadTexture(
+    const smokeBrushImage = await TextureManager.loadTexture(
       'assets/textures/smoke_brush.jpg'
     );
 
-    const starBrushImage = await this.texture1.loadTexture(
+    const starBrushImage = await TextureManager.loadTexture(
       'assets/textures/star_brush.jpg'
     );
 
-    const terrainBrushImage = await this.texture1.loadTexture(
+    const terrainBrushImage = await TextureManager.loadTexture(
       'assets/textures/terrain_brush.jpg'
     );
 
-    const roundBrushImage = await this.texture1.loadTexture(
+    const roundBrushImage = await TextureManager.loadTexture(
       'assets/textures/round_brush.jpg'
     );
 
-    const smallRoundBrushImage = await this.texture1.loadTexture(
+    const smallRoundBrushImage = await TextureManager.loadTexture(
       'assets/textures/round_brush_small.jpg'
     );
 
-    const smallBrushImage = await this.texture1.loadTexture(
+    const smallBrushImage = await TextureManager.loadTexture(
       'assets/textures/small_brush.jpg'
     );
 
-    // const strokeBrushImage = await this.texture1.loadTexture(
+    // const strokeBrushImage = await TextureManager.loadTexture(
     //   'assets/textures/stroke_brush.jpg'
     // );
 
@@ -576,16 +565,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       gl,
       new Float32Array(grassModel.vertices),
       new Uint16Array(grassModel.indices),
-      grassShader
+      ShaderManager.getShader('grass')
     );
 
     const grassEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
       grassEntity,
       new Material(
-        grassShader,
-        this.texture1.getTexture('whirlwind'),
-        this.texture1.getSlot('whirlwind')
+        ShaderManager.getShader('grass'),
+        TextureManager.getTexture('whirlwind'),
+        TextureManager.getSlot('whirlwind')
       )
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
@@ -604,9 +593,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
-    this.createTree(treeShader, tree);
 
-    this.setupSkybox(shader2, skyboxTexture!);
+    this.setupSkybox(ShaderManager.getShader('skybox'), skyboxTexture!);
 
     // Kamera-position
     const viewMatrix = this.perspectiveCamera.getViewMatrix();
@@ -638,7 +626,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //     0,
     //   ]),
     //   new Uint16Array([0, 1, 2]),
-    //   this.texture1.getTexture(0),
+    //   TextureManager.getTexture(0),
     //   shader3
     // );
 
@@ -648,7 +636,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //   gl,
     //   new Float32Array(pivotModel.vertices),
     //   new Uint16Array(pivotModel.indices),
-    //   this.texture1.getTexture(0),
+    //   TextureManager.getTexture(0),
     //   shader3
     // );
     //Add all entities with names to the scene list to display them in the scene list
@@ -658,48 +646,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.sceneObjects.add(name);
     }
 
-    this.createCharacter(shader, characterImage);
-    this.createFrog(shader, frogImage);
+    this.createCharacter(characterImage);
+    this.createFrog(frogImage);
+
     this.cdr.detectChanges();
     this.loop();
   }
 
-  private createCharacter(shader: Shader, image: HTMLImageElement) {
-    const model = new Model();
-    for (let i = 0; i < this.bones.length; i++) {
-      const bone = this.bones[i];
-      model.addSquares(
-        image.width,
-        image.height,
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-        bone.pivot,
-        bone.startX,
-        bone.startY,
-        bone.endX,
-        bone.endY,
-        bone.position.x - bone.pivot.x - bone.endX / 2,
-        bone.position.y - bone.pivot.y,
-        bone.endX,
-        bone.endY,
-        i
-      );
-    }
+  private createCharacter(image: HTMLImageElement) {
     const entity = this.ecs.createEntity();
-    const mesh = new MeshRenderer(
-      this.gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      shader
-    );
-    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
-    this.ecs.addComponent<Material>(
-      entity,
-      new Material(
-        shader,
-        this.texture1.getTexture('character'),
-        this.texture1.getSlot('character')
-      )
-    );
     this.ecs.addComponent<Name>(entity, new Name('Player'));
     const transform3D = this.ecs.addComponent<Transform3D>(
       entity,
@@ -735,43 +690,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     skeleton.startTime = performance.now();
   }
 
-  createFrog(shader: Shader, image: HTMLImageElement) {
-    const model = new Model();
-    let i = 0;
-    for (const bone of Loader.getBones('frogman')) {
-      i++;
-      model.addSquares(
-        image.width,
-        image.height,
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-        bone.pivot,
-        bone.startX,
-        bone.startY,
-        bone.endX,
-        bone.endY,
-        bone.position.x - bone.pivot.x - bone.endX / 2,
-        bone.position.y - bone.pivot.y,
-        bone.endX,
-        bone.endY,
-        i
-      );
-    }
+  createFrog(image: HTMLImageElement) {
     const entity = this.ecs.createEntity();
-    const mesh = new MeshRenderer(
-      this.gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      shader
-    );
-    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
-    this.ecs.addComponent<Material>(
-      entity,
-      new Material(
-        shader,
-        this.texture1.getTexture('frogman'),
-        this.texture1.getSlot('frogman')
-      )
-    );
     this.ecs.addComponent<Name>(entity, new Name('Frogman'));
     const transform3D = this.ecs.addComponent<Transform3D>(
       entity,
@@ -814,9 +734,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
       if (material && splatmap) {
         if (event.value === 'default') {
-          material.shader = this.splatmapShader1;
+          material.shader = ShaderManager.getShader('splatmap');
         } else if (event.value === 'shader1') {
-          material.shader = this.splatmapShader1;
+          material.shader = ShaderManager.getShader('splatmap');
         }
       }
     }
@@ -868,10 +788,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
-      this.splatmapShader1
+      ShaderManager.getShader('splatmap')
     );
     this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
-    const splatmap = this.texture1.createAndBindTexture(
+    const splatmap = TextureManager.createAndBindTexture(
       'splatmap',
       null,
       width,
@@ -883,7 +803,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Splatmap(
         width,
         height,
-        this.texture1.getTexture('splatmap'),
+        TextureManager.getTexture('splatmap'),
         splatmap
       )
     );
@@ -892,9 +812,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent(
       newEntity,
       new Material(
-        this.splatmapShader1,
-        this.texture1.getTexture('textureMap'),
-        this.texture1.getSlot('textureMap')
+        ShaderManager.getShader('splatmap'),
+        TextureManager.getTexture('textureMap'),
+        TextureManager.getSlot('textureMap')
       )
     );
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
@@ -934,7 +854,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.gl,
         new Float32Array(newVertices),
         new Uint16Array(newIndices),
-        this.splatmapShader1
+        ShaderManager.getShader('splatmap')
       );
       const adjacentMesh = new Mesh(meshRenderer.vao);
       this.ecs.removeComponent(this.meshbrush.entity, 'Mesh');
@@ -982,15 +902,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       gl,
       new Float32Array(cylinderModel.vertices),
       new Uint16Array(cylinderModel.indices),
-      this.whirlwindShader
+      ShaderManager.getShader('splatmap')
     );
 
     this.ecs.addComponent<Material>(
       effectEntity,
       new Material(
-        this.whirlwindShader,
-        this.texture1.getTexture('whirlwind')!,
-        this.texture1.getSlot('whirlwind')
+        ShaderManager.getShader('splatmap'),
+        TextureManager.getTexture('whirlwind')!,
+        TextureManager.getSlot('whirlwind')
       )
     );
 
@@ -1020,30 +940,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
     this.ecs.addComponent<Material>(
       entity,
-      new Material(shader, this.texture1.getTexture('textureMap')!, slot)
+      new Material(shader, TextureManager.getTexture('textureMap')!, slot)
     );
     console.log('Created Mesh!!!');
-  }
-
-  public changeVertices(event: Event) {
-    if (this.meshbrush.entity) {
-      const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
-      if (mesh) {
-        const model = new Model();
-        model.addPlane(50);
-        const newmesh = new MeshRenderer(
-          this.gl,
-          new Float32Array(model.vertices),
-          new Uint16Array(model.indices),
-          this.splatmapShader1
-        );
-        this.ecs.removeComponent<Mesh>(this.meshbrush.entity, 'Mesh');
-        this.ecs.addComponent<Mesh>(
-          this.meshbrush.entity,
-          new Mesh(newmesh.vao)
-        );
-      }
-    }
   }
 
   protected createWater() {
@@ -1059,15 +958,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
-      this.waterShader
+      ShaderManager.getShader('water')
     );
     this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
     this.ecs.addComponent<Material>(
       entity,
       new Material(
-        this.waterShader,
-        this.texture1.getTexture('water'),
-        this.texture1.getSlot('water')
+        ShaderManager.getShader('water'),
+        TextureManager.getTexture('water'),
+        TextureManager.getSlot('water')
       )
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(0));
@@ -1075,32 +974,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
     console.log('Created Water!!!');
-  }
-
-  private createTree(shader: Shader, image: HTMLImageElement) {
-    const entity = this.ecs.createEntity();
-    const model = new Model();
-    //Change later in runtime with some parameters in UI
-    model.addTree(image.width / 10, image.height / 10);
-    const mesh = new MeshRenderer(
-      this.gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      shader
-    );
-
-    this.ecs.addComponent<Material>(
-      entity,
-      new Material(
-        shader,
-        this.texture1.getTexture('tree')!,
-        this.texture1.getSlot('tree')
-      )
-    );
-    this.ecs.addComponent<Tree>(entity, new Tree());
-    const newTreeMesh = this.renderSystem.createBatch(this.gl, mesh, 1000);
-    this.ecs.addComponent<Mesh>(entity, new Mesh(newTreeMesh.vao));
-    console.log('Created tree!');
   }
 
   loop() {
@@ -1122,36 +995,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       if (mesh) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.buffer);
         this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, mesh.vertices);
-      }
-    }
-  }
-
-  updateBatch() {
-    for (const entity of this.ecs.getEntities()) {
-      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
-      const skeleton = this.ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (mesh && skeleton) {
-        const model = new Model();
-        const bones = skeleton.bones.sort((a, b) => a.order - b.order);
-        for (let i = 0; i < bones.length; i++) {
-          const bone = bones[i];
-          model.addSquares(
-            skeleton.image.width,
-            skeleton.image.height,
-            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-            bone.pivot,
-            bone.startX,
-            bone.startY,
-            bone.endX,
-            bone.endY,
-            bone.position.x - bone.pivot.x - bone.endX / 2,
-            bone.position.y - bone.pivot.y,
-            bone.endX,
-            bone.endY,
-            i * 0.1
-          );
-        }
-        mesh.vertices = new Float32Array(model.vertices);
       }
     }
   }
@@ -1225,8 +1068,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   editorMode() {}
 
   gameMode() {
-    this.updateMesh();
-    this.updateBatch();
+    this.updateMesh(); //Add to some system in future
     this.animationSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
     // this.movementSystem.update(this.ecs);

@@ -26,7 +26,7 @@ export class Scene {
   mouseHandler: MouseHandler;
   cameraSystem = new CameraSystem();
   collisionSystem = new CollisionSystem();
-  renderSystem = new RenderSystem();
+  //renderSystem = new RenderSystem();
   rotationSystem = new RotationSystem();
   controlSystem = new ControlSystem();
   movementSystem = new MovementSystem();
