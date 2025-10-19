@@ -14,6 +14,9 @@ import { Terrain } from 'src/components/terrain';
 import { Skeleton } from 'src/components/skeleton';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { Batch } from 'src/components/batch';
+import { TextureManager } from 'src/resource-manager/texture-manager';
+import { Vec } from 'src/app/vec';
 
 export class RenderSystem {
   constructor(gl: WebGL2RenderingContext) {
@@ -52,32 +55,58 @@ export class RenderSystem {
   drawBatch(ecs: Ecs, camera: PerspectiveCamera) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      if (skeleton && transform3D) {
-        const bones = skeleton.bones.sort((a, b) => a.order - b.order);
-        for (let i = 0; i < bones.length; i++) {
-          const bone = bones[i];
+      const batch = ecs.getComponent<Batch>(entity, 'Batch');
+      if (batch) {
+        for (let i = 0; i < batch.positions.length; i++) {
+          const positions = batch.positions[i].positions;
           BatchRenderer.addQuads(
-            skeleton.image.width,
-            skeleton.image.height,
-            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-            bone.pivot,
-            bone.startX,
-            bone.startY,
-            bone.endX,
-            bone.endY,
-            bone.position.x - bone.pivot.x - bone.endX / 2,
-            bone.position.y - bone.pivot.y,
-            bone.endX,
-            bone.endY,
-            i * 0.1,
-            transform3D.translate[0],
-            transform3D.translate[1],
-            transform3D.translate[2]
+            100,
+            100,
+            0,
+            new Vec(1, 1),
+            0,
+            0,
+            100,
+            100,
+            0,
+            0,
+            100,
+            100,
+            0,
+            positions[0],
+            positions[1],
+            positions[2],
+            batch.positions[i].slot
           );
         }
       }
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      // if (skeleton && transform3D) {
+      //   const bones = skeleton.bones.sort((a, b) => a.order - b.order);
+      //   for (let i = 0; i < bones.length; i++) {
+      //     const bone = bones[i];
+      //     BatchRenderer.addQuads(
+      //       skeleton.image.width,
+      //       skeleton.image.height,
+      //       MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+      //       bone.pivot,
+      //       bone.startX,
+      //       bone.startY,
+      //       bone.endX,
+      //       bone.endY,
+      //       bone.position.x - bone.pivot.x - bone.endX / 2,
+      //       bone.position.y - bone.pivot.y,
+      //       bone.endX,
+      //       bone.endY,
+      //       i * 0.1,
+      //       transform3D.translate[0],
+      //       transform3D.translate[1],
+      //       transform3D.translate[2],
+      //       3
+      //     );
+      //   }
+      // }
     }
     BatchRenderer.end(camera);
   }
@@ -141,15 +170,11 @@ export class RenderSystem {
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, material.texture);
         const texLocation = gl.getUniformLocation(
           material.shader.program,
           'u_texture'
         );
-        gl.uniform1i(texLocation, 0);
-        gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
-        gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
+        gl.uniform1i(texLocation, TextureManager.getSlot('textureMap'));
         const splatmapLocation = gl.getUniformLocation(
           material.shader.program,
           'u_splatmap'
@@ -236,8 +261,6 @@ export class RenderSystem {
           'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
-        gl.activeTexture(gl.TEXTURE0 + material.slot);
-        gl.bindTexture(gl.TEXTURE_2D, material.texture);
         gl.bindVertexArray(mesh.vao);
         const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
         const instanceCount = grass.positions.length / 4; // en xyz per strå + instance id
@@ -263,8 +286,6 @@ export class RenderSystem {
           'u_texture'
         );
         gl.uniform1i(textureLocation, material.slot);
-        gl.activeTexture(gl.TEXTURE0 + material.slot);
-        gl.bindTexture(gl.TEXTURE_2D, material.texture);
         const timeLocation = gl.getUniformLocation(
           material.shader.program,
           'u_time'
@@ -337,8 +358,6 @@ export class RenderSystem {
             'u_texture'
           );
           gl.uniform1i(textureLocation, material.slot);
-          gl.activeTexture(gl.TEXTURE0 + material.slot);
-          gl.bindTexture(gl.TEXTURE_2D, material.texture);
         }
         gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
         gl.bindVertexArray(mesh.vao);

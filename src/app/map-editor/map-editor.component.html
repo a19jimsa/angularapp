@@ -1,7 +1,7 @@
-<div class="container-fluid" style="height: 850px">
+<div class="container-fluid">
   <div class="row">
-    <div class="col-1 overflow-auto" style="min-height: 800px">
-      <mat-card class="h-100 d-flex flex-column justify-content-between">
+    <div class="col-1 overflow-auto">
+      <mat-card class="h-100 d-flex flex-column justify-content-between p-2">
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Scene</mat-card-title>
@@ -10,12 +10,14 @@
         </mat-card-header>
         <mat-card-content class="h-100 d-flex flex-column">
           @for (item of ecs.getEntities(); track $index) {
-          <button mat-button="filled" (click)="changeActiveEntity(item)">
+          <button matButton (click)="changeActiveEntity(item)">
             {{ getSceneObjectName(item) }}
           </button>
           }</mat-card-content
         >
-        <button mat-button [matMenuTriggerFor]="animals">Add to scene</button>
+        <button matButton="tonal" [matMenuTriggerFor]="animals">
+          Add to scene
+        </button>
         <mat-menu #animals="matMenu">
           <button mat-menu-item (click)="createWater()">Water</button>
           <button mat-menu-item (click)="createTerrainWithSplatmap()">
@@ -28,11 +30,24 @@
         </mat-menu>
       </mat-card>
     </div>
-    <div class="col-9">
+    <div class="col-8">
       <canvas #canvas></canvas>
+      <div class="d-flex align-items-center justify-content-center">
+        @if(!play){
+        <button matFab extended (click)="togglePlay()">
+          <mat-icon>play_arrow</mat-icon>
+          Play
+        </button>
+        }@else {
+        <button matFab extended (click)="togglePlay()">
+          <mat-icon>stop_arrow</mat-icon>
+          Stop
+        </button>
+        }
+      </div>
     </div>
-    <div class="col-2 overflow-auto" style="height: 800px">
-      <mat-card style="min-height: 800px">
+    <div class="col-3 overflow-auto">
+      <mat-card class="h-100 d-flex flex-column justify-content-between p-2">
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Toolbox</mat-card-title>
@@ -294,27 +309,26 @@
             </mat-expansion-panel>
             }}
           </mat-accordion>
-          <button mat-button>Add Component</button>
         </mat-card-content>
+        <mat-card-footer></mat-card-footer>
+        <button mat-button>Add Component</button>
       </mat-card>
     </div>
   </div>
   <div class="row mt-2">
     <div class="col-12">
       <mat-card>
-        <mat-card-header></mat-card-header>
+        <mat-card-header><h2>Assets</h2></mat-card-header>
         <mat-card-content>
-          <div class="d-flex justify-content-center">
-            @if(!play){
-            <button matFab extended (click)="togglePlay()">
-              <mat-icon>play_arrow</mat-icon>
-              Play
-            </button>
-            }@else {
-            <button matFab extended (click)="togglePlay()">
-              <mat-icon>stop_arrow</mat-icon>
-              Stop
-            </button>
+          <div
+            class="d-flex align-items-center flex-wrap overflow-auto"
+            style="height: 150px"
+          >
+            @for (image of images; track $index) {
+            <img
+              src="{{ image.src }}"
+              style="object-fit: contain; width: 150px; height: 150px"
+            />
             }
           </div>
         </mat-card-content>

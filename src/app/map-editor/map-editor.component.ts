@@ -61,6 +61,7 @@ import { Player } from 'src/components/player';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { Batch } from 'src/components/batch';
 
 export enum Tools {
   Splatmap,
@@ -74,6 +75,11 @@ export enum ToolBrush {
   Splat,
 }
 
+export type Asset = {
+  name: string;
+  src: string;
+};
+
 export type Brush = {
   radius: number;
   strength: number;
@@ -84,6 +90,7 @@ export type Brush = {
   entity: Entity;
   negative: boolean;
   fallOff: number;
+  textureSlot: number;
 };
 
 @Component({
@@ -129,6 +136,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   play: boolean = false;
 
+  images: Asset[] = new Array();
+
   meshbrush: Brush = {
     radius: 5,
     strength: 1,
@@ -139,6 +148,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     entity: -1,
     negative: false,
     fallOff: 0,
+    textureSlot: 0,
   };
 
   ecs: Ecs;
@@ -299,11 +309,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('image', 'imageVS.txt', 'imageFS.txt');
 
-    const tree = await TextureManager.loadTexture('/assets/textures/tree.png');
-    TextureManager.createAndBindTexture('batch', tree, tree.width, tree.height);
-    //Make this in the future... soon!
-    // await Loader.loadAllShader();
-    // await Loader.loadAllTextures();
+    const tree = await TextureManager.loadTexture('/assets/sprites/tree.png');
+    TextureManager.createAndBindTexture('tree', tree, tree.width, tree.height);
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.gl);
     await this.init();
@@ -431,7 +438,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async init() {
     const gl = this.gl;
-
     const whirlwindTexture = await TextureManager.loadTexture(
       '/assets/textures/whirlwind_map.jpg'
     );
@@ -472,6 +478,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const noise = await TextureManager.loadTexture('assets/textures/noise.jpg');
+
+    for (const textureName of TextureManager.getNames()) {
+      const image = TextureManager.getImage(textureName);
+      this.images.push({ name: textureName, src: image.src });
+    }
 
     // const spriteSlot = TextureManager.createAndBindTexture(sprite, sprite.width, sprite.height);
     const slot = TextureManager.createAndBindTexture(
@@ -520,27 +531,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const skyboxTexture = TextureManager.loadSkybox(skyboxImages);
 
     const smokeBrushImage = await TextureManager.loadTexture(
-      'assets/textures/smoke_brush.jpg'
+      'assets/brushes/smoke_brush.jpg'
     );
 
     const starBrushImage = await TextureManager.loadTexture(
-      'assets/textures/star_brush.jpg'
+      'assets/brushes/star_brush.jpg'
     );
 
     const terrainBrushImage = await TextureManager.loadTexture(
-      'assets/textures/terrain_brush.jpg'
+      'assets/brushes/terrain_brush.jpg'
     );
 
     const roundBrushImage = await TextureManager.loadTexture(
-      'assets/textures/round_brush.jpg'
+      'assets/brushes/round_brush.jpg'
     );
 
     const smallRoundBrushImage = await TextureManager.loadTexture(
-      'assets/textures/round_brush_small.jpg'
+      'assets/brushes/round_brush_small.jpg'
     );
 
     const smallBrushImage = await TextureManager.loadTexture(
-      'assets/textures/small_brush.jpg'
+      'assets/brushes/small_brush.jpg'
     );
 
     // const strokeBrushImage = await TextureManager.loadTexture(
@@ -648,6 +659,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.createCharacter(characterImage);
     this.createFrog(frogImage);
+    this.createBatch();
 
     this.cdr.detectChanges();
     this.loop();
@@ -924,6 +936,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
 
     this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
+  }
+
+  protected createBatch() {
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent<Name>(entity, new Name('Batch'));
+    this.ecs.addComponent<Batch>(entity, new Batch());
   }
 
   protected createMesh(shader: Shader, slot: number) {

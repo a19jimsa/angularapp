@@ -1,6 +1,7 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Entity } from 'src/app/entity';
 import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
+import { Batch, BatchType } from 'src/components/batch';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
@@ -73,7 +74,7 @@ export class BrushSystem {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, vx, vy, vz);
+            this.batchBrush(ecs, vx, vy, vz, meshBrush);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintImage(
               ecs,
@@ -149,11 +150,22 @@ export class BrushSystem {
     }
   }
 
-  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
+  private batchBrush(
+    ecs: Ecs,
+    x: number,
+    y: number,
+    z: number,
+    meshBrush: Brush
+  ) {
     for (const entity of ecs.getEntities()) {
-      const tree = ecs.getComponent<Tree>(entity, 'Tree');
-      if (tree) {
-        tree.positions.push(x * 2, y * 2, z * 2, 0);
+      const batch = ecs.getComponent<Batch>(entity, 'Batch');
+      if (batch) {
+        const batchItem: BatchType = {
+          positions: vec3.fromValues(x, y, z),
+          slot: meshBrush.textureSlot,
+        };
+        batch.positions.push(batchItem);
+        console.log('Added batch item');
         return;
       }
     }

@@ -8,3 +8,10 @@ canvas {
   display: flex;
   justify-content: space-between;
 }
+
+.gallery {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto;
+  width: 150px;
+  height: 150px;
+}

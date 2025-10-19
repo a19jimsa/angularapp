@@ -2,7 +2,7 @@ import { Manager } from './manager';
 
 export class TextureManager extends Manager {
   private static textureMap = new Map<string, WebGLTexture>();
-  private static images = new Set<HTMLImageElement>();
+  private static images = new Map<string, HTMLImageElement>();
   public static setGl(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
@@ -17,7 +17,6 @@ export class TextureManager extends Manager {
         reject(new Error('Failed to load image ' + path));
       };
       image.src = path;
-      this.images.add(image);
     });
   }
 
@@ -94,14 +93,14 @@ export class TextureManager extends Manager {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
     if (!texture) {
-      new Error('Could not create texture');
-      return -1;
+      throw new Error('Could not create texture');
     }
     //Much better!
     const slot = this.textureMap.size;
     this.textureMap.set(name, texture);
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    if (image) {
+      this.images.set(name, image);
+    }
     return slot;
   }
 
@@ -172,11 +171,27 @@ export class TextureManager extends Manager {
 
   static override bind(name: string) {
     const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.textureMap.get(name)!);
+    const texture = this.textureMap.get(name);
+    if (!texture) throw new Error('Cannon bind texture ' + name);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
   }
 
   static unbind() {
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  static getImage(key: string) {
+    const name = this.images.get(key);
+    if (!name) throw new Error('Cannot find texture with key' + key);
+    return name;
+  }
+
+  static getNames() {
+    return this.textureMap.keys();
+  }
+
+  static getTextures() {
+    return this.textureMap.entries();
   }
 }
