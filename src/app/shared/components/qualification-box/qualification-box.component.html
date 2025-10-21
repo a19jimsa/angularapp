@@ -2,10 +2,10 @@
 <mat-card class="p-2">
   @for (item of qualifications; track $index) {
   <div class="row">
-    <div class="col-8" contenteditable="true">
+    <div class="col-5" contenteditable="true">
       <i [class]="item.icon"></i> {{ item.text }}
     </div>
-    <div class="col-3">
+    <div class="col-4">
       @if (item.stars === 1) {
       <i class="bi bi-star-fill"></i><i class="bi bi-star"></i
       ><i class="bi bi-star"></i><i class="bi bi-star"></i
@@ -27,9 +27,6 @@
       ><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
       ><i class="bi bi-star-fill"></i>
       }
-    </div>
-    <div class="col-1">
-      <button matButton (click)="removeQualifiction($index)">Remove</button>
     </div>
   </div>
   }

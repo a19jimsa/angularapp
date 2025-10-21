@@ -12,3 +12,7 @@ ul {
   display: inline;
   width: 100%;
 }
+
+.profession {
+  opacity: 70%;
+}

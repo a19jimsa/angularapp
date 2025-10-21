@@ -29,6 +29,7 @@ import { PbComponent } from '../pb/pb.component';
 
 export type Experience = {
   date: string;
+  profession: string;
   companyName: string;
   experienceList: string[];
 };
@@ -66,8 +67,24 @@ export class CvMakerComponent {
   experienceForm = this.formBuilder.group({
     date: ['', Validators.required],
     companyName: ['', Validators.required],
+    profession: ['', Validators.required],
     experienceList: this.formBuilder.array([this.formBuilder.control('')]),
   });
+
+  ngOnInit() {
+    const experience = localStorage.getItem('experience');
+    const education = localStorage.getItem('education');
+    const personal = localStorage.getItem('personal');
+    if (experience) {
+      this.experienceService.experienceList.push(...JSON.parse(experience));
+    }
+    if (education) {
+      this.educationService.educationList.push(...JSON.parse(education));
+    }
+    if (personal) {
+      this.personalService.personInfo = JSON.parse(personal);
+    }
+  }
 
   public personalForm = this.formBuilder.group<Personal>({
     name: '',
@@ -114,8 +131,16 @@ export class CvMakerComponent {
     console.log(experienceItem);
     if (this.education) {
       this.educationService.addEducation(experienceItem);
+      localStorage.setItem(
+        'education',
+        JSON.stringify(this.educationService.educationList)
+      );
     } else {
       this.experienceService.addExperience(experienceItem);
+      localStorage.setItem(
+        'experience',
+        JSON.stringify(this.experienceService.experienceList)
+      );
     }
     this.experienceForm.reset();
   }
@@ -127,5 +152,6 @@ export class CvMakerComponent {
   addPersonalInfo() {
     const personalInfo = this.personalForm.value as Personal;
     this.personalService.changeInfo(personalInfo);
+    localStorage.setItem('personal', JSON.stringify(personalInfo));
   }
 }

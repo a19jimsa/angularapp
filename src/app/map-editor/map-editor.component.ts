@@ -123,7 +123,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   height: number = 0;
   perspectiveCamera: PerspectiveCamera;
   //orthoCamera: OrtographicCamera;
-  texture1!: Texture;
   mousePos = vec3.create();
   bones: Bone[] = new Array();
   angle = 0;

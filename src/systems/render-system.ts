@@ -82,31 +82,31 @@ export class RenderSystem {
       }
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      // if (skeleton && transform3D) {
-      //   const bones = skeleton.bones.sort((a, b) => a.order - b.order);
-      //   for (let i = 0; i < bones.length; i++) {
-      //     const bone = bones[i];
-      //     BatchRenderer.addQuads(
-      //       skeleton.image.width,
-      //       skeleton.image.height,
-      //       MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-      //       bone.pivot,
-      //       bone.startX,
-      //       bone.startY,
-      //       bone.endX,
-      //       bone.endY,
-      //       bone.position.x - bone.pivot.x - bone.endX / 2,
-      //       bone.position.y - bone.pivot.y,
-      //       bone.endX,
-      //       bone.endY,
-      //       i * 0.1,
-      //       transform3D.translate[0],
-      //       transform3D.translate[1],
-      //       transform3D.translate[2],
-      //       3
-      //     );
-      //   }
-      // }
+      if (skeleton && transform3D) {
+        const bones = skeleton.bones.sort((a, b) => a.order - b.order);
+        for (let i = 0; i < bones.length; i++) {
+          const bone = bones[i];
+          BatchRenderer.addQuads(
+            skeleton.image.width,
+            skeleton.image.height,
+            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+            bone.pivot,
+            bone.startX,
+            bone.startY,
+            bone.endX,
+            bone.endY,
+            bone.position.x - bone.pivot.x - bone.endX / 2,
+            bone.position.y - bone.pivot.y,
+            bone.endX,
+            bone.endY,
+            i * 0.1,
+            transform3D.translate[0],
+            transform3D.translate[1],
+            transform3D.translate[2],
+            3
+          );
+        }
+      }
     }
     BatchRenderer.end(camera);
   }

@@ -9,12 +9,14 @@
   width: 500px;
 }
 
-ul {
-  list-style-type: none;
-}
-
 a {
   color: var(--sys-primary-color);
   list-style-type: none;
   text-decoration: none;
+}
+
+.none-decoration {
+  list-style-type: none;
+  text-decoration: none;
+  padding: 0px;
 }
