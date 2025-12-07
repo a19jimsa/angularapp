@@ -9,22 +9,23 @@ import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
+import { MouseHandler } from 'src/core/mouse-handler';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class BrushSystem {
   update(
     meshBrush: Brush,
     ecs: Ecs,
-    mousePos: vec3,
+    mouse: MouseHandler,
     perspectiveCamera: PerspectiveCamera
   ) {
-    this.pickVertex(ecs, meshBrush, mousePos, perspectiveCamera);
+    this.pickVertex(ecs, meshBrush, mouse, perspectiveCamera);
   }
 
   private pickVertex(
     ecs: Ecs,
     meshBrush: Brush,
-    mousePos: vec3,
+    mouse: MouseHandler,
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 10;
@@ -47,15 +48,15 @@ export class BrushSystem {
       'Transform3D'
     );
     const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-    if (pivot) {
+    if (pivot && transform3D) {
       const pos1 = vec3.create();
       for (let i = 0; i < maxDistance; i += step) {
-        vec3.scaleAndAdd(pos1, rayOrigin, mousePos, i); // pos = origin + dir * i
+        vec3.scaleAndAdd(pos1, rayOrigin, mouse.mousePosition, i); // pos = origin + dir * i
         //8 Stride change later to make it get from the mesh stride, offset etc.
         for (let j = 0; j < pivot.vertices.length; j += 3) {
-          const vx = pivot.vertices[j];
-          const vy = pivot.vertices[j + 1];
-          const vz = pivot.vertices[j + 2];
+          const vx = pivot.vertices[j] + pivot.position[0];
+          const vy = pivot.vertices[j + 1] + pivot.position[1];
+          const vz = pivot.vertices[j + 2] + pivot.position[2];
           // Calculate distance between vertex positions and raycaster's position.
           const dx = vx - pos1[0];
           const dy = vy - pos1[1];
@@ -64,7 +65,17 @@ export class BrushSystem {
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
           if (dist < epsilon) {
             console.log('Clicked on pivot!!!');
-            return;
+            //Create drag system with mouse!
+            if (j === 3) {
+              transform3D.translate[0] += 1;
+              pivot.position[0] += 1;
+            } else if (j === 9) {
+              transform3D.translate[1] += 1;
+              pivot.position[1] += 1;
+            } else if (j === 15) {
+              transform3D.translate[2] += 1;
+              pivot.position[2] += 1;
+            }
           }
         }
       }
@@ -73,7 +84,7 @@ export class BrushSystem {
     if (!mesh || !transform3D) return;
     const pos = vec3.create();
     for (let i = 0; i < maxDistance; i += step) {
-      vec3.scaleAndAdd(pos, rayOrigin, mousePos, i); // pos = origin + dir * i
+      vec3.scaleAndAdd(pos, rayOrigin, mouse.mousePosition, i); // pos = origin + dir * i
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx =

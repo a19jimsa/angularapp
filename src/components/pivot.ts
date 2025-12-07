@@ -3,7 +3,7 @@ import { Component } from './component';
 
 export class Pivot extends Component {
   override type: string = 'Pivot';
-  position: vec3 = vec3.fromValues(0, 0, 0);
+  position: vec3 = vec3.fromValues(500, 0, 500);
   vertices: Float32Array;
   colors: Float32Array;
 

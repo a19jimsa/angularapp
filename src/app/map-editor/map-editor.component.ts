@@ -963,11 +963,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     if (this.mouseHandler.isMouseDown) {
-      const position = this.mouseHandler.calculateRayCast();
+      this.mouseHandler.mousePosition = this.mouseHandler.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
-        position,
+        this.mouseHandler,
         this.perspectiveCamera
       );
       this.isMouseMoved = false;

@@ -216,16 +216,12 @@ export class RenderSystem {
         );
         const modelMatrix = mat4.create();
 
-        transform3D.translate[0] += 500;
-        transform3D.translate[2] += 500;
-        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+        mat4.translate(modelMatrix, modelMatrix, pivot.position);
         mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
         mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
         mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
         mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
         gl.uniformMatrix4fv(model, false, modelMatrix);
-        transform3D.translate[0] -= 500;
-        transform3D.translate[2] -= 500;
 
         // Draw lines (2 punkter per linje)
         gl.drawArrays(gl.LINES, 0, 6); // 3 linjer * 2 punkter

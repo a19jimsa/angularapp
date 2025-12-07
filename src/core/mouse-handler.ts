@@ -5,9 +5,9 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 export class MouseHandler {
   private canvas: ElementRef<HTMLCanvasElement>;
   private camera: PerspectiveCamera;
-  public isMouseDown: boolean = true;
+  public isMouseDown: boolean = false;
   public isMouseMoved: boolean = false;
-  private mousePosition = vec3.fromValues(0, 0, 0);
+  public mousePosition = vec3.fromValues(0, 0, 0);
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     camera: PerspectiveCamera
@@ -27,7 +27,7 @@ export class MouseHandler {
     // Musposition
     const start = origin;
     const end = vec3.create();
-    vec3.scaleAndAdd(end, start, this.position, 500);
+    vec3.scaleAndAdd(end, start, this.mousePosition, 500);
 
     this.canvas.nativeElement.addEventListener(
       'mousemove',
@@ -51,10 +51,6 @@ export class MouseHandler {
     );
   }
 
-  get position(): vec3 {
-    return this.mousePosition;
-  }
-
   onMouseDrag(e: MouseEvent) {
     if (this.isMouseDown) {
     }
@@ -68,8 +64,8 @@ export class MouseHandler {
     const rect = this.canvas.nativeElement.getBoundingClientRect();
     const x = e.x - rect.left;
     const y = e.y - rect.top;
-    this.position[0] = x;
-    this.position[1] = y;
+    this.mousePosition[0] = x;
+    this.mousePosition[1] = y;
   }
 
   onMouseLeave(e: MouseEvent) {
@@ -88,8 +84,8 @@ export class MouseHandler {
   //Return mouseRay vector 3
   calculateRayCast() {
     const rect = this.canvas.nativeElement.getBoundingClientRect();
-    const x = this.position[0];
-    const y = this.position[1];
+    const x = this.mousePosition[0];
+    const y = this.mousePosition[1];
     const clipX = (x / rect.width) * 2 - 1;
     const clipY = (y / rect.height) * -2 + 1;
     const normalizedPos = vec2.fromValues(clipX, clipY);
