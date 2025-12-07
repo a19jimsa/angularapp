@@ -17,10 +17,13 @@ import { MathUtils } from 'src/Utils/MathUtils';
 import { Batch } from 'src/components/batch';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Vec } from 'src/app/vec';
+import { Pivot } from 'src/components/pivot';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
 
 export class RenderSystem {
   constructor(gl: WebGL2RenderingContext) {
     BatchRenderer.init(gl);
+    //Same with renderer later!!! Now everything is rendered in the system, like it is a renderer...
   }
 
   createBatch(gl: WebGL2RenderingContext, mesh: MeshRenderer, amount: number) {
@@ -167,6 +170,66 @@ export class RenderSystem {
       );
       const water = ecs.getComponent<Water>(entity, 'Water');
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
+      const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
+      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+
+      if (pivot) {
+        gl.useProgram(ShaderManager.getShader('debug').program);
+        // Skapa VBO
+        const vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pivot.vertices, gl.STATIC_DRAW);
+
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pivot.colors, gl.STATIC_DRAW);
+
+        const positionLoc = gl.getAttribLocation(
+          ShaderManager.getShader('debug').program,
+          'a_position'
+        );
+
+        const aColorLoc = gl.getAttribLocation(
+          ShaderManager.getShader('debug').program,
+          'a_color'
+        );
+
+        // bind vertex
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLoc);
+
+        // // bind color
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.vertexAttribPointer(aColorLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aColorLoc);
+
+        const location = gl.getUniformLocation(
+          ShaderManager.getShader('debug').program,
+          'u_matrix'
+        );
+        gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
+
+        const model = gl.getUniformLocation(
+          ShaderManager.getShader('debug').program,
+          'u_model'
+        );
+        const modelMatrix = mat4.create();
+
+        transform3D.translate[0] += 500;
+        transform3D.translate[2] += 500;
+        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+        gl.uniformMatrix4fv(model, false, modelMatrix);
+        transform3D.translate[0] -= 500;
+        transform3D.translate[2] -= 500;
+
+        // Draw lines (2 punkter per linje)
+        gl.drawArrays(gl.LINES, 0, 6); // 3 linjer * 2 punkter
+      }
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
@@ -219,10 +282,7 @@ export class RenderSystem {
           cameraMatrix[14]
         );
         gl.uniform3fv(cameraLocation, cameraPos);
-        const transform3D = ecs.getComponent<Transform3D>(
-          entity,
-          'Transform3D'
-        );
+
         if (transform3D) {
           const model = gl.getUniformLocation(
             material.shader.program,

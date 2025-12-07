@@ -1,7 +1,6 @@
 attribute vec4 a_position;
  
 uniform mat4 u_matrix;
-uniform mat4 u_modelmatrix;
  
 varying vec2 v_texcoord;
  

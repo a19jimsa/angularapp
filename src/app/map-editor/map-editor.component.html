@@ -35,19 +35,6 @@
     </div>
     <div class="col-8">
       <canvas #canvas></canvas>
-      <div class="d-flex align-items-center justify-content-center">
-        @if(!play){
-        <button matFab extended (click)="togglePlay()">
-          <mat-icon>play_arrow</mat-icon>
-          Play
-        </button>
-        }@else {
-        <button matFab extended (click)="togglePlay()">
-          <mat-icon>stop_arrow</mat-icon>
-          Stop
-        </button>
-        }
-      </div>
     </div>
     <div class="col-3">
       <mat-card
@@ -167,6 +154,9 @@
                 </button>
                 <button mat-fab (click)="changeTool('height')">
                   <mat-icon>landscape</mat-icon>
+                </button>
+                <button mat-fab (click)="changeTool('pivot')">
+                  <mat-icon>pivot</mat-icon>
                 </button>
               </div>
               @for (item of brushToolsImages; track $index) {

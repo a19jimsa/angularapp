@@ -4,10 +4,10 @@ import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
 import { Batch, BatchType } from 'src/components/batch';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
+import { Pivot } from 'src/components/pivot';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
-import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
@@ -46,6 +46,30 @@ export class BrushSystem {
       meshBrush.entity,
       'Transform3D'
     );
+    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+    if (pivot) {
+      const pos1 = vec3.create();
+      for (let i = 0; i < maxDistance; i += step) {
+        vec3.scaleAndAdd(pos1, rayOrigin, mousePos, i); // pos = origin + dir * i
+        //8 Stride change later to make it get from the mesh stride, offset etc.
+        for (let j = 0; j < pivot.vertices.length; j += 3) {
+          const vx = pivot.vertices[j];
+          const vy = pivot.vertices[j + 1];
+          const vz = pivot.vertices[j + 2];
+          // Calculate distance between vertex positions and raycaster's position.
+          const dx = vx - pos1[0];
+          const dy = vy - pos1[1];
+          const dz = vz - pos1[2];
+          //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          if (dist < epsilon) {
+            console.log('Clicked on pivot!!!');
+            return;
+          }
+        }
+      }
+    }
+
     if (!mesh || !transform3D) return;
     const pos = vec3.create();
     for (let i = 0; i < maxDistance; i += step) {

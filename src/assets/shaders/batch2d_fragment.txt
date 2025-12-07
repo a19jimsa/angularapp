@@ -17,5 +17,7 @@ void main() {
     }else if(index == 3){
         color = texture2D(u_textures[3], v_texcoord);
     }
+    if(color.a < 0.9)
+        discard;
     gl_FragColor = color;
 }

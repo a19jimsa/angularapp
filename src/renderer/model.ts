@@ -215,13 +215,6 @@ export class Model {
     }
   }
 
-  addBatchSquare(){
-    const position = [
-      
-    ]
-
-  }
-
   addTree(width: number, height: number) {
     //xyz,uv,normals
     const z = 0;

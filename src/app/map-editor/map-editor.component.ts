@@ -57,6 +57,7 @@ import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Batch } from 'src/components/batch';
 import { MouseHandler } from 'src/core/mouse-handler';
+import { Pivot } from 'src/components/pivot';
 
 export enum Tools {
   Splatmap,
@@ -68,6 +69,7 @@ export enum ToolBrush {
   Grass,
   Trees,
   Splat,
+  Pivot,
 }
 
 export type Asset = {
@@ -284,25 +286,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     TextureManager.setGl(this.gl);
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
-    await ShaderManager.load(
-      'batch',
-      'batch2d_vertex.txt',
-      'batch2d_fragment.txt'
-    );
-    await ShaderManager.load('grass', 'grass_vertex.txt', 'grass_fragment.txt');
-    await ShaderManager.load(
-      'skybox',
-      'skybox_vertex.txt',
-      'skybox_fragment.txt'
-    );
-    await ShaderManager.load('basic', 'basic_vertex.txt', 'basic_fragment.txt');
-    await ShaderManager.load(
-      'splatmap',
-      'image_vertex.txt',
-      'image_fragment.txt'
-    );
-    await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
-    await ShaderManager.load('image', 'imageVS.txt', 'imageFS.txt');
+    await this.loadAllShaders();
 
     const tree = await TextureManager.loadTexture('/assets/sprites/tree.png');
     TextureManager.createAndBindTexture('tree', tree, tree.width, tree.height);
@@ -368,6 +352,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  async loadAllShaders() {
+    await ShaderManager.load(
+      'batch',
+      'batch2d_vertex.txt',
+      'batch2d_fragment.txt'
+    );
+    await ShaderManager.load('grass', 'grass_vertex.txt', 'grass_fragment.txt');
+    await ShaderManager.load(
+      'skybox',
+      'skybox_vertex.txt',
+      'skybox_fragment.txt'
+    );
+    await ShaderManager.load('basic', 'basic_vertex.txt', 'basic_fragment.txt');
+    await ShaderManager.load(
+      'splatmap',
+      'image_vertex.txt',
+      'image_fragment.txt'
+    );
+    await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
+    await ShaderManager.load('image', 'imageVS.txt', 'imageFS.txt');
+    await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
+  }
+
   changeActiveEntity(entity: Entity) {
     this.meshbrush.entity = entity;
     const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
@@ -390,6 +397,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.type = ToolBrush.Height;
     } else if (name === 'splat') {
       this.meshbrush.type = ToolBrush.Splat;
+    } else if (name === 'pivot') {
+      this.meshbrush.type = ToolBrush.Pivot;
     }
   }
 
@@ -550,7 +559,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       )
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
-
     const grass = this.ecs.addComponent<Grass>(grassEntity, new Grass());
     if (grass) {
       const newMesh = this.renderSystem.createBatch(
@@ -587,15 +595,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //   shader3
     // );
 
-    // const pivotModel = new Model();
-    // pivotModel.addPivot();
-    // this.pivotMesh = new MeshRenderer(
-    //   gl,
-    //   new Float32Array(pivotModel.vertices),
-    //   new Uint16Array(pivotModel.indices),
-    //   TextureManager.getTexture(0),
-    //   shader3
-    // );
     //Add all entities with names to the scene list to display them in the scene list
     for (const entity of this.ecs.getEntities()) {
       const name = this.ecs.getComponent<Name>(entity, 'Name');
@@ -605,7 +604,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // this.createCharacter(characterImage);
     // this.createFrog(frogImage);
-    // this.createBatch();
+    this.createBatch();
 
     this.cdr.detectChanges();
     this.loop();
@@ -739,6 +738,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(50);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
+    this.ecs.addComponent<Pivot>(newEntity, new Pivot());
     //Add mesh component to entity
     //Check if entity exists as parameter and make a copy of the other terrain
 
@@ -820,7 +820,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.meshbrush.entity,
         adjacentMesh
       );
-      console.log(newVertices.length);
       mesh.id++;
       if (newMesh === null) throw new Error('Could not add id to mesh!');
       newMesh.id = mesh.id;
@@ -848,7 +847,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       list.push(component);
     }
     this.componentsList = list;
-    console.log(list);
   }
 
   protected createCylinder() {
@@ -966,7 +964,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   update() {
     if (this.mouseHandler.isMouseDown) {
       const position = this.mouseHandler.calculateRayCast();
-      console.log(position);
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,

@@ -165,10 +165,10 @@ export class BatchRenderer {
     const texHeight = height;
 
     const u0 = sx / texWidth;
-    const v0 = sy / texHeight;
+    const v0 = 1 - sy / texHeight;
 
     const u1 = (sx + sw) / texWidth;
-    const v1 = (sy + sh) / texHeight;
+    const v1 = 1 - (sy + sh) / texHeight;
 
     const x0 = dx;
     const y0 = dy;
