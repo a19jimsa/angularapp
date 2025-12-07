@@ -2,14 +2,14 @@
 <mat-card class="mb-2">
   <div class="row p-2">
     @for (item of educations; track $index) {
-    <div class="col-5" contenteditable="true">{{ item.date }}</div>
+    <div class="col-5" contenteditable="true"> {{ item.date }}</div>
     <div class="col-7">
       <div>{{ item.companyName }}</div>
       <ul>
         @for (experience of item.experienceList; track $index) {
         <li>
           <i class="bi bi-arrow-right"></i>
-          <div class="editable" contenteditable="true">{{ experience }}</div>
+          <div class="editable" contenteditable="true"> {{ experience }}</div>
         </li>
         }
       </ul>

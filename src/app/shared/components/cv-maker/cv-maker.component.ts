@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { MatCard, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent } from '@angular/material/card';
 import { ExperienceBoxComponent } from '../experience-box/experience-box.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -53,7 +53,8 @@ export type Experience = {
     MatCardTitle,
     MatSlideToggle,
     PbComponent,
-  ],
+    MatCardContent
+],
   templateUrl: './cv-maker.component.html',
   styleUrl: './cv-maker.component.css',
 })
@@ -70,6 +71,7 @@ export class CvMakerComponent {
     profession: ['', Validators.required],
     experienceList: this.formBuilder.array([this.formBuilder.control('')]),
   });
+  spriteSheet = new Image();
 
   ngOnInit() {
     const experience = localStorage.getItem('experience');
@@ -153,5 +155,19 @@ export class CvMakerComponent {
     const personalInfo = this.personalForm.value as Personal;
     this.personalService.changeInfo(personalInfo);
     localStorage.setItem('personal', JSON.stringify(personalInfo));
+  }
+
+  onFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.spriteSheet.onload = () => {};
+        this.spriteSheet.src = reader.result as string;
+        console.log(this.spriteSheet.src);
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

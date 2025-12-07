@@ -16,14 +16,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { Shader } from 'src/renderer/shader';
-import { Texture } from 'src/renderer/texture';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
-import { OrtographicCamera } from 'src/renderer/orthographic-camera';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { Model } from 'src/renderer/model';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Ecs } from 'src/core/ecs';
@@ -39,7 +36,6 @@ import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Grass } from 'src/components/grass';
 import { Transform } from 'src/components/transform';
 import { Vec } from '../vec';
-import { Tree } from 'src/components/tree';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
 import { Name } from 'src/components/name';
@@ -53,15 +49,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
 import { Component as ECSComponent } from 'src/components/component';
-import { JsonPipe } from '@angular/common';
 import { ControllerSystem } from 'src/systems/controller-system';
 import { MovementSystem } from 'src/systems/movement-system';
 import { Controlable } from 'src/components/controlable';
 import { Player } from 'src/components/player';
-import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Batch } from 'src/components/batch';
+import { MouseHandler } from 'src/core/mouse-handler';
 
 export enum Tools {
   Splatmap,
@@ -123,7 +118,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   height: number = 0;
   perspectiveCamera: PerspectiveCamera;
   //orthoCamera: OrtographicCamera;
-  mousePos = vec3.create();
+  mouseHandler!: MouseHandler;
   bones: Bone[] = new Array();
   angle = 0;
   isMouseDown: boolean = false;
@@ -283,6 +278,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.gl.canvas.width = 1920;
     this.gl.canvas.height = 1080;
     this.addEventListeners();
+    this.mouseHandler = new MouseHandler(this.canvas, this.perspectiveCamera);
 
     ShaderManager.setGl(this.gl);
     TextureManager.setGl(this.gl);
@@ -358,40 +354,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.canvas.nativeElement.addEventListener('mouseleave', (e) => {
       this.isMouseDown = false;
-    });
-
-    this.canvas.nativeElement.addEventListener('mousemove', (e) => {
-      const rect = this.canvas.nativeElement.getBoundingClientRect();
-      const x = e.x - rect.left;
-      const y = e.y - rect.top;
-      const clipX = (x / rect.width) * 2 - 1;
-      const clipY = (y / rect.height) * -2 + 1;
-      const normalizedPos = vec2.fromValues(clipX, clipY);
-      const clipCoords = vec4.fromValues(
-        normalizedPos[0],
-        normalizedPos[1],
-        -1,
-        1
-      );
-      const invertedProjectionMatrix = mat4.create();
-      mat4.invert(
-        invertedProjectionMatrix,
-        this.perspectiveCamera.getProjectionMatrix()
-      );
-      const eyeCoords = vec4.fromValues(0, 0, 0, 0);
-      vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
-      const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
-      const invertedView = mat4.create();
-      mat4.invert(invertedView, this.perspectiveCamera.getViewMatrix());
-      const rayWorld = vec4.fromValues(0, 0, 0, 0);
-      vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
-      const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
-      vec3.normalize(mouseRay, mouseRay);
-      this.mousePos[0] = mouseRay[0];
-      this.mousePos[1] = mouseRay[1];
-      this.mousePos[2] = mouseRay[2];
-      //console.log(this.mousePos, invertedView);
-      this.isMouseMoved = true;
     });
 
     this.canvas.nativeElement.addEventListener('mousedown', (e) => {
@@ -606,21 +568,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.setupSkybox(ShaderManager.getShader('skybox'), skyboxTexture!);
 
-    // Kamera-position
-    const viewMatrix = this.perspectiveCamera.getViewMatrix();
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, viewMatrix);
-    const origin = vec3.fromValues(
-      invertedView[12],
-      invertedView[13],
-      invertedView[14]
-    );
-
-    // Musposition
-    const start = origin;
-    const end = vec3.create();
-    vec3.scaleAndAdd(end, start, this.mousePos, 500);
-
     // this.debugMesh = new MeshRenderer(
     //   gl,
     //   new Float32Array([
@@ -656,9 +603,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.sceneObjects.add(name);
     }
 
-    this.createCharacter(characterImage);
-    this.createFrog(frogImage);
-    this.createBatch();
+    // this.createCharacter(characterImage);
+    // this.createFrog(frogImage);
+    // this.createBatch();
 
     this.cdr.detectChanges();
     this.loop();
@@ -1017,11 +964,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.isMouseDown && this.isMouseMoved) {
+    if (this.mouseHandler.isMouseDown) {
+      const position = this.mouseHandler.calculateRayCast();
+      console.log(position);
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
-        this.mousePos,
+        position,
         this.perspectiveCamera
       );
       this.isMouseMoved = false;

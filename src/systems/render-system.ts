@@ -96,14 +96,14 @@ export class RenderSystem {
             bone.endX,
             bone.endY,
             bone.position.x - bone.pivot.x - bone.endX / 2,
-            bone.position.y - bone.pivot.y,
+            -bone.position.y + bone.pivot.y,
             bone.endX,
             bone.endY,
             i * 0.1,
             transform3D.translate[0],
             transform3D.translate[1],
             transform3D.translate[2],
-            3
+            TextureManager.getSlot('character')
           );
         }
       }

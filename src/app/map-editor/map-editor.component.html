@@ -1,7 +1,10 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-1 overflow-auto">
-      <mat-card class="h-100 d-flex flex-column justify-content-between p-2">
+      <mat-card
+        class="d-flex flex-column justify-content-between p-2"
+        style="height: 600px"
+      >
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Scene</mat-card-title>
@@ -46,15 +49,18 @@
         }
       </div>
     </div>
-    <div class="col-3 overflow-auto">
-      <mat-card class="h-100 d-flex flex-column justify-content-between p-2">
+    <div class="col-3">
+      <mat-card
+        style="height: 600px"
+        class="d-flex flex-column justify-content-between p-2"
+      >
         <mat-card-header>
           <mat-card-title-group>
             <mat-card-title>Toolbox</mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
-        <mat-card-content class="h-100 d-flex flex-column">
+        <mat-card-content class="d-flex flex-column h-100 overflow-auto">
           <mat-accordion class="example-headers-align" multi>
             <mat-expansion-panel>
               <mat-expansion-panel-header>

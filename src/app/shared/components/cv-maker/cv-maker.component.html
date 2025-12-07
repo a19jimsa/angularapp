@@ -2,6 +2,10 @@
   <div class="row h-100">
     <aside class="col-4 background p-2">
       <div class="row">
+        <input type="file" (change)="onFileSelected($event)" />
+        <img [src]="spriteSheet.src" style="border-radius: 50%" />
+      </div>
+      <div class="row">
         <h4>OM MIG</h4>
         <div contenteditable="true">fewfew</div>
       </div>
@@ -93,93 +97,99 @@
     >Slide Toggle Checked: {{ isCv }}</mat-slide-toggle
   >
   {{ isCv | json }}
-  <mat-card class="mb-2">
+  <mat-card class="mb-2 p-2">
     <mat-card-header>
       <mat-card-title>Add Experience</mat-card-title>
     </mat-card-header>
-    <form [formGroup]="experienceForm">
-      <mat-form-field>
-        <mat-label>Date</mat-label>
-        <input matInput type="text" formControlName="date" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Profession</mat-label>
-        <input matInput type="text" formControlName="profession" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Company name or school</mat-label>
-        <input matInput type="text" formControlName="companyName" />
-      </mat-form-field>
-      <div formArrayName="experienceList">
-        <div>Experiences</div>
-        @for (item of experiences.controls; track $index; let i = $index) {
+    <mat-card-content>
+      <form [formGroup]="experienceForm">
         <mat-form-field>
-          <mat-label>Experience {{ i }}</mat-label>
-          <input matInput type="text" [formControlName]="i" />
+          <mat-label>Date</mat-label>
+          <input matInput type="text" formControlName="date" />
         </mat-form-field>
-        <button matButton (click)="removeExperienceBox(i)">Remove</button>
-        }
-      </div>
-      <button matButton (click)="addExperience()">
-        + Add another experience
-      </button>
+        <mat-form-field>
+          <mat-label>Profession</mat-label>
+          <input matInput type="text" formControlName="profession" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Company name or school</mat-label>
+          <input matInput type="text" formControlName="companyName" />
+        </mat-form-field>
+        <div formArrayName="experienceList">
+          <div>Experiences</div>
+          @for (item of experiences.controls; track $index; let i = $index) {
+          <mat-form-field>
+            <mat-label>Experience {{ i }}</mat-label>
+            <input matInput type="text" [formControlName]="i" />
+          </mat-form-field>
+          <button matButton (click)="removeExperienceBox(i)">Remove</button>
+          }
+        </div>
+        <button matButton (click)="addExperience()">
+          + Add another experience
+        </button>
 
-      <button type="submit" matButton (click)="onSubmit()">Skicka</button>
-    </form>
-    <mat-checkbox [(ngModel)]="education" name="education"
-      >Education?</mat-checkbox
-    >{{ education | json }}
+        <button type="submit" matButton (click)="onSubmit()">Skicka</button>
+      </form>
+      <mat-checkbox [(ngModel)]="education" name="education"
+        >Education?</mat-checkbox
+      >{{ education | json }}
+    </mat-card-content>
   </mat-card>
   <mat-card class="mb-2">
     <mat-card-header>
       <mat-card-title>Add Qualification</mat-card-title>
     </mat-card-header>
-    <mat-form-field>
-      <mat-label>Icon</mat-label>
-      <input matInput type="text" [(ngModel)]="icon" />
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Text</mat-label>
-      <input matInput type="text" [(ngModel)]="text" />
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Stars</mat-label>
-      <input matInput type="number" [(ngModel)]="stars" />
-    </mat-form-field>
-    <button matButton (click)="addQualification()">Add Qualification</button>
+    <mat-card-content>
+      <mat-form-field>
+        <mat-label>Icon</mat-label>
+        <input matInput type="text" [(ngModel)]="icon" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Text</mat-label>
+        <input matInput type="text" [(ngModel)]="text" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Stars</mat-label>
+        <input matInput type="number" [(ngModel)]="stars" />
+      </mat-form-field>
+      <button matButton (click)="addQualification()">Add Qualification</button>
+    </mat-card-content>
   </mat-card>
   <mat-card>
-    <form [formGroup]="personalForm" (ngSubmit)="addPersonalInfo()">
-      <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input matInput type="text" formControlName="name" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>LinkedIn</mat-label>
-        <input matInput type="text" formControlName="linkedin" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Phone</mat-label>
-        <input matInput type="text" formControlName="phone" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Mail</mat-label>
-        <input matInput type="text" formControlName="mail" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Webpage</mat-label>
-        <input matInput type="text" formControlName="homepage" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Github</mat-label>
-        <input matInput type="text" formControlName="githublink" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Exam</mat-label>
-        <input matInput type="text" formControlName="exam" />
-      </mat-form-field>
-      <button matButton="elevated" type="submit">Submit</button>
-    </form>
+    <mat-card-content>
+      <form [formGroup]="personalForm" (ngSubmit)="addPersonalInfo()">
+        <mat-form-field>
+          <mat-label>Name</mat-label>
+          <input matInput type="text" formControlName="name" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>LinkedIn</mat-label>
+          <input matInput type="text" formControlName="linkedin" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Phone</mat-label>
+          <input matInput type="text" formControlName="phone" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Mail</mat-label>
+          <input matInput type="text" formControlName="mail" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Webpage</mat-label>
+          <input matInput type="text" formControlName="homepage" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Github</mat-label>
+          <input matInput type="text" formControlName="githublink" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Exam</mat-label>
+          <input matInput type="text" formControlName="exam" />
+        </mat-form-field>
+        <button matButton="elevated" type="submit">Submit</button>
+      </form>
+    </mat-card-content>
   </mat-card>
   <button
     matButton="elevated"

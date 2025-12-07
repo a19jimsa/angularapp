@@ -67,5 +67,4 @@ export class MouseHandler {
   handleDragMovement(event: MouseEvent) {
     console.log(event);
   }
-  
 }
