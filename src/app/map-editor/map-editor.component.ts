@@ -123,8 +123,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   mouseHandler!: MouseHandler;
   bones: Bone[] = new Array();
   angle = 0;
-  isMouseDown: boolean = false;
-  isMouseMoved: boolean = false;
   splatColor = 'red';
   tool: Tools = 0;
 
@@ -334,21 +332,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.canvas.nativeElement.addEventListener('wheel', (event) => {
       this.perspectiveCamera.rotateX(event.deltaY / 50);
-    });
-
-    this.canvas.nativeElement.addEventListener('mouseleave', (e) => {
-      this.isMouseDown = false;
-    });
-
-    this.canvas.nativeElement.addEventListener('mousedown', (e) => {
-      //console.log(this.perspectiveCamera.position);
-      const invertedMatrix = mat4.create();
-      mat4.invert(invertedMatrix, this.perspectiveCamera.getViewMatrix());
-      this.isMouseDown = true;
-    });
-
-    this.canvas.nativeElement.addEventListener('mouseup', (e) => {
-      this.isMouseDown = false;
     });
   }
 
@@ -962,15 +945,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.mouseHandler.isMouseDown) {
-      this.mouseHandler.mousePosition = this.mouseHandler.calculateRayCast();
+    if (this.mouseHandler.getIsMouseDown) {
+      this.mouseHandler.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
         this.mouseHandler,
         this.perspectiveCamera
       );
-      this.isMouseMoved = false;
       this.updateSplatmap();
     }
   }

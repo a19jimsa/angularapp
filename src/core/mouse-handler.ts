@@ -2,12 +2,26 @@ import { ElementRef } from '@angular/core';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
+type IsSelected = {
+  select: boolean;
+  element: number;
+};
+
 export class MouseHandler {
   private canvas: ElementRef<HTMLCanvasElement>;
   private camera: PerspectiveCamera;
-  public isMouseDown: boolean = false;
-  public isMouseMoved: boolean = false;
-  public mousePosition = vec3.fromValues(0, 0, 0);
+  private lastX = 0;
+  private lastY = 0;
+  private deltaX = 0;
+  private deltaY = 0;
+  private dragX = 0;
+  private dragY = 0;
+  public isSelected: IsSelected = { select: false, element: -1 };
+  private isDragging: boolean = false;
+  private isMouseDown: boolean = false;
+  private isMouseMoved: boolean = false;
+  private isClicked: boolean = false;
+  private mousePosition = vec3.fromValues(0, 0, 0);
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     camera: PerspectiveCamera
@@ -34,8 +48,12 @@ export class MouseHandler {
       this.onMouseMove.bind(this)
     );
     this.canvas.nativeElement.addEventListener(
+      'mouseenter',
+      this.onMouseEnter.bind(this)
+    );
+    this.canvas.nativeElement.addEventListener(
       'mouseleave',
-      this.onMouseOut.bind(this)
+      this.onMouseLeave.bind(this)
     );
     this.canvas.nativeElement.addEventListener(
       'mousedown',
@@ -46,38 +64,84 @@ export class MouseHandler {
       this.onMouseReleased.bind(this)
     );
     this.canvas.nativeElement.addEventListener(
-      'drag',
-      this.onMouseDrag.bind(this)
+      'click',
+      this.onMouseClick.bind(this)
     );
   }
 
-  onMouseDrag(e: MouseEvent) {
-    if (this.isMouseDown) {
-    }
+  get getIsMouseDown() {
+    return this.isMouseDown;
   }
 
-  onMouseOut(e: MouseEvent) {
+  get getMousePosition() {
+    return this.mousePosition;
+  }
+
+  get getDragging() {
+    return this.isDragging;
+  }
+
+  get getDeltaX() {
+    return this.deltaX;
+  }
+
+  get getDeltaY() {
+    return this.deltaY;
+  }
+
+  get clicked() {
+    return this.isClicked;
+  }
+
+  private onMouseClick(e: MouseEvent) {
+    this.isClicked = true;
+  }
+
+  private onMouseEnter(e: MouseEvent) {
     this.isMouseDown = false;
+    this.isMouseMoved = false;
   }
 
-  onMouseMove(e: MouseEvent) {
+  private onMouseMove(e: MouseEvent) {
     const rect = this.canvas.nativeElement.getBoundingClientRect();
     const x = e.x - rect.left;
     const y = e.y - rect.top;
     this.mousePosition[0] = x;
     this.mousePosition[1] = y;
+    if (this.isMouseDown) {
+      this.deltaX = x - this.lastX;
+      this.deltaY = y - this.lastY;
+      this.lastX = x;
+      this.lastY = y;
+      this.isDragging = true;
+    }
   }
 
-  onMouseLeave(e: MouseEvent) {
-    this.isMouseDown = true;
-  }
-
-  onMousePressed(e: MouseEvent) {
-    this.isMouseDown = true;
-  }
-
-  onMouseReleased(e: MouseEvent) {
+  private onMouseLeave(e: MouseEvent) {
     this.isMouseDown = false;
+    this.isDragging = false;
+    this.isSelected = { select: false, element: -1 };
+  }
+
+  private onMousePressed(e: MouseEvent) {
+    if (this.isMouseDown) return;
+    const rect = this.canvas.nativeElement.getBoundingClientRect();
+    const x = e.x - rect.left;
+    const y = e.y - rect.top;
+    this.mousePosition[0] = x;
+    this.mousePosition[1] = y;
+    this.lastX = x;
+    this.lastY = y;
+    this.deltaX = 0;
+    this.deltaY = 0;
+    this.isMouseDown = true;
+  }
+
+  private onMouseReleased(e: MouseEvent) {
+    this.isMouseDown = false;
+    this.isDragging = false;
+    this.isClicked = false;
+    this.isSelected = { select: false, element: -1 };
   }
 
   //Calculate RayCast from mousePosition of canvas
@@ -106,6 +170,8 @@ export class MouseHandler {
     vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
     const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
     vec3.normalize(mouseRay, mouseRay);
-    return mouseRay;
+    this.mousePosition[0] = mouseRay[0];
+    this.mousePosition[1] = mouseRay[1];
+    this.mousePosition[2] = mouseRay[2];
   }
 }

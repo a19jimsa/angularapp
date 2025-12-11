@@ -49,9 +49,12 @@ export class BrushSystem {
     );
     const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
     if (pivot && transform3D) {
-      const pos1 = vec3.create();
       for (let i = 0; i < maxDistance; i += step) {
-        vec3.scaleAndAdd(pos1, rayOrigin, mouse.mousePosition, i); // pos = origin + dir * i
+        if (mouse.isSelected.select) {
+          break;
+        }
+        const pos1 = vec3.create();
+        vec3.scaleAndAdd(pos1, rayOrigin, mouse.getMousePosition, i); // pos = origin + dir * i
         //8 Stride change later to make it get from the mesh stride, offset etc.
         for (let j = 0; j < pivot.vertices.length; j += 3) {
           const vx = pivot.vertices[j] + pivot.position[0];
@@ -64,27 +67,36 @@ export class BrushSystem {
           //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
           if (dist < epsilon) {
-            console.log('Clicked on pivot!!!');
             //Create drag system with mouse!
             if (j === 3) {
-              transform3D.translate[0] += 1;
-              pivot.position[0] += 1;
+              mouse.isSelected = { select: true, element: j };
+              break;
             } else if (j === 9) {
-              transform3D.translate[1] += 1;
-              pivot.position[1] += 1;
+              mouse.isSelected = { select: true, element: j };
+              break;
             } else if (j === 15) {
-              transform3D.translate[2] += 1;
-              pivot.position[2] += 1;
+              mouse.isSelected = { select: true, element: j };
+              break;
             }
           }
         }
       }
+      if (mouse.isSelected.element === 3) {
+        pivot.position[0] += mouse.getDeltaX;
+        transform3D.translate[0] += mouse.getDeltaX;
+      } else if (mouse.isSelected.element === 9) {
+        pivot.position[1] -= mouse.getDeltaY;
+        transform3D.translate[1] -= mouse.getDeltaY;
+      } else if (mouse.isSelected.element === 15) {
+        pivot.position[2] += mouse.getDeltaY;
+        transform3D.translate[2] += mouse.getDeltaY;
+      }
     }
 
     if (!mesh || !transform3D) return;
-    const pos = vec3.create();
     for (let i = 0; i < maxDistance; i += step) {
-      vec3.scaleAndAdd(pos, rayOrigin, mouse.mousePosition, i); // pos = origin + dir * i
+      const pos = vec3.create();
+      vec3.scaleAndAdd(pos, rayOrigin, mouse.getMousePosition, i); // pos = origin + dir * i
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx =

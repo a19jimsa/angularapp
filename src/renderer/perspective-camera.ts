@@ -35,6 +35,10 @@ export class PerspectiveCamera {
     console.log('Skapade kamera');
   }
 
+  get Position() {
+    return this.position;
+  }
+
   rotateZ(angle: number) {
     this.rotation += angle;
 
