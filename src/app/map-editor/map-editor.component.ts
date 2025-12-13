@@ -16,7 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { Shader } from 'src/renderer/shader';
-import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
@@ -58,6 +57,27 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Batch } from 'src/components/batch';
 import { MouseHandler } from 'src/core/mouse-handler';
 import { Pivot } from 'src/components/pivot';
+import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
+
+type IsSelected = {
+  select: boolean;
+  element: number;
+};
+
+export type Mouse = {
+  x: number;
+  y: number;
+  lastX: number;
+  lastY: number;
+  deltaX: number;
+  deltaY: number;
+  dir: vec3;
+  dragging: boolean;
+  pressed: boolean;
+  moving: boolean;
+  released: boolean;
+  isSelected: IsSelected;
+};
 
 export enum Tools {
   Splatmap,
@@ -125,6 +145,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   angle = 0;
   splatColor = 'red';
   tool: Tools = 0;
+
+  mouse: Mouse = {
+    x: 0,
+    y: 0,
+    pressed: false,
+    moving: false,
+    dragging: false,
+    dir: vec3.fromValues(0, 0, 0),
+    released: true,
+    isSelected: {
+      select: false,
+      element: 0,
+    },
+    lastX: 0,
+    lastY: 0,
+    deltaX: 0,
+    deltaY: 0,
+  };
 
   gameId: number = 0;
 
@@ -927,6 +965,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.play) {
       this.gameMode();
     } else {
+      this.input();
       this.update();
       this.updateMesh();
     }
@@ -934,6 +973,37 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.gameId = requestAnimationFrame(() => this.loop());
   }
 
+  input() {
+    this.mouse.x = this.mouseHandler.getMousePosition[0];
+    this.mouse.y = this.mouseHandler.getMousePosition[1];
+
+    if (this.mouseHandler.getIsMouseDown) {
+      this.mouse.pressed = true;
+    } else {
+      this.mouse.pressed = false;
+      this.mouse.isSelected = { select: false, element: -1 };
+    }
+
+    if (
+      this.mouse.pressed &&
+      this.mouse.lastX === this.mouse.x &&
+      this.mouse.lastY === this.mouse.y
+    ) {
+      this.mouse.deltaX = 0;
+      this.mouse.deltaY = 0;
+      this.mouse.dragging = false;
+    } else {
+      console.log('Dragging is true');
+      this.mouse.deltaX = this.mouse.lastX - this.mouse.x;
+      this.mouse.deltaY = this.mouse.lastY - this.mouse.y;
+
+      this.mouse.dragging = true;
+    }
+    this.mouse.lastX = this.mouse.x;
+    this.mouse.lastY = this.mouse.y;
+  }
+
+  //Not here! All gl should be done in renderer!
   updateMesh() {
     for (const entity of this.ecs.getEntities()) {
       const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
@@ -945,18 +1015,54 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.mouseHandler.getIsMouseDown) {
-      this.mouseHandler.calculateRayCast();
+    if (this.mouse.pressed) {
+      this.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
-        this.mouseHandler,
+        this.mouse,
         this.perspectiveCamera
       );
       this.updateSplatmap();
     }
   }
 
+  //Calculate RayCast from mousePosition of canvas
+  //Return mouseRay vector 3
+  calculateRayCast() {
+    const rect = this.canvas.nativeElement.getBoundingClientRect();
+    const x = this.mouse.x;
+    const y = this.mouse.y;
+    //Between local space -1 - +1
+    const clipX = (x / rect.width) * 2 - 1;
+    const clipY = (y / rect.height) * -2 + 1;
+    const normalizedPos = vec2.fromValues(clipX, clipY);
+    const clipCoords = vec4.fromValues(
+      normalizedPos[0],
+      normalizedPos[1],
+      -1,
+      1
+    );
+    const invertedProjectionMatrix = mat4.create();
+    mat4.invert(
+      invertedProjectionMatrix,
+      this.perspectiveCamera.getProjectionMatrix()
+    );
+    const eyeCoords = vec4.fromValues(0, 0, 0, 0);
+    vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
+    const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
+    const invertedView = mat4.create();
+    mat4.invert(invertedView, this.perspectiveCamera.getViewMatrix());
+    const rayWorld = vec4.fromValues(0, 0, 0, 0);
+    vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
+    const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
+    vec3.normalize(mouseRay, mouseRay);
+    this.mouse.dir[0] = mouseRay[0];
+    this.mouse.dir[1] = mouseRay[1];
+    this.mouse.dir[2] = mouseRay[2];
+  }
+
+  //Do not do here, only update splatmap coords not send to gl texture 2d...
   updateSplatmap() {
     const ecs = this.ecs;
     const gl = this.gl;

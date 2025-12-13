@@ -1,6 +1,9 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { Entity } from 'src/app/entity';
-import { Brush, ToolBrush } from 'src/app/map-editor/map-editor.component';
+import {
+  Brush,
+  Mouse,
+  ToolBrush,
+} from 'src/app/map-editor/map-editor.component';
 import { Batch, BatchType } from 'src/components/batch';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
@@ -9,14 +12,13 @@ import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
-import { MouseHandler } from 'src/core/mouse-handler';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
 export class BrushSystem {
   update(
     meshBrush: Brush,
     ecs: Ecs,
-    mouse: MouseHandler,
+    mouse: Mouse,
     perspectiveCamera: PerspectiveCamera
   ) {
     this.pickVertex(ecs, meshBrush, mouse, perspectiveCamera);
@@ -25,7 +27,7 @@ export class BrushSystem {
   private pickVertex(
     ecs: Ecs,
     meshBrush: Brush,
-    mouse: MouseHandler,
+    mouse: Mouse,
     perspectiveCamera: PerspectiveCamera
   ) {
     const epsilon = 10;
@@ -54,7 +56,7 @@ export class BrushSystem {
           break;
         }
         const pos1 = vec3.create();
-        vec3.scaleAndAdd(pos1, rayOrigin, mouse.getMousePosition, i); // pos = origin + dir * i
+        vec3.scaleAndAdd(pos1, rayOrigin, mouse.dir, i); // pos = origin + dir * i
         //8 Stride change later to make it get from the mesh stride, offset etc.
         for (let j = 0; j < pivot.vertices.length; j += 3) {
           const vx = pivot.vertices[j] + pivot.position[0];
@@ -81,22 +83,25 @@ export class BrushSystem {
           }
         }
       }
-      if (mouse.isSelected.element === 3) {
-        pivot.position[0] += mouse.getDeltaX;
-        transform3D.translate[0] += mouse.getDeltaX;
-      } else if (mouse.isSelected.element === 9) {
-        pivot.position[1] -= mouse.getDeltaY;
-        transform3D.translate[1] -= mouse.getDeltaY;
-      } else if (mouse.isSelected.element === 15) {
-        pivot.position[2] += mouse.getDeltaY;
-        transform3D.translate[2] += mouse.getDeltaY;
+
+      if (mouse.isSelected.select) {
+        if (mouse.isSelected.element === 3) {
+          pivot.position[0] -= mouse.deltaX;
+          transform3D.translate[0] -= mouse.deltaX;
+        } else if (mouse.isSelected.element === 9) {
+          pivot.position[1] += mouse.deltaY;
+          transform3D.translate[1] += mouse.deltaY;
+        } else if (mouse.isSelected.element === 15) {
+          pivot.position[2] -= mouse.deltaY * 2;
+          transform3D.translate[2] -= mouse.deltaY * 2;
+        }
       }
     }
 
     if (!mesh || !transform3D) return;
     for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
-      vec3.scaleAndAdd(pos, rayOrigin, mouse.getMousePosition, i); // pos = origin + dir * i
+      vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
       //8 Stride change later to make it get from the mesh stride, offset etc.
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx =
@@ -167,7 +172,6 @@ export class BrushSystem {
             }
           }
         }
-        console.log(grass.amountOfGrass);
         return;
       }
     }

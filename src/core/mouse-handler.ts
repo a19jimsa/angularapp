@@ -2,26 +2,26 @@ import { ElementRef } from '@angular/core';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 
-type IsSelected = {
-  select: boolean;
-  element: number;
-};
-
 export class MouseHandler {
   private canvas: ElementRef<HTMLCanvasElement>;
   private camera: PerspectiveCamera;
-  private lastX = 0;
-  private lastY = 0;
+  private timer: any;
+  public lastX = 0;
+  public lastY = 0;
+  public previousX = 0;
+  public previousY = 0;
   private deltaX = 0;
   private deltaY = 0;
   private dragX = 0;
   private dragY = 0;
-  public isSelected: IsSelected = { select: false, element: -1 };
+
+  private isMoving: boolean = false;
   private isDragging: boolean = false;
   private isMouseDown: boolean = false;
   private isMouseMoved: boolean = false;
   private isClicked: boolean = false;
   private mousePosition = vec3.fromValues(0, 0, 0);
+  private direction = vec3.fromValues(0, 0, 0);
   constructor(
     canvas: ElementRef<HTMLCanvasElement>,
     camera: PerspectiveCamera
@@ -93,13 +93,23 @@ export class MouseHandler {
     return this.isClicked;
   }
 
+  get mouseDirection() {
+    return this.direction;
+  }
+
+  get moving() {
+    return this.isMoving;
+  }
+
   private onMouseClick(e: MouseEvent) {
     this.isClicked = true;
+    console.log('Mouse clicked');
   }
 
   private onMouseEnter(e: MouseEvent) {
     this.isMouseDown = false;
     this.isMouseMoved = false;
+    console.log('Mouse enter canvas');
   }
 
   private onMouseMove(e: MouseEvent) {
@@ -108,70 +118,22 @@ export class MouseHandler {
     const y = e.y - rect.top;
     this.mousePosition[0] = x;
     this.mousePosition[1] = y;
-    if (this.isMouseDown) {
-      this.deltaX = x - this.lastX;
-      this.deltaY = y - this.lastY;
-      this.lastX = x;
-      this.lastY = y;
-      this.isDragging = true;
-    }
   }
 
   private onMouseLeave(e: MouseEvent) {
-    this.isMouseDown = false;
+    console.log('Mouse leaved canvas');
     this.isDragging = false;
-    this.isSelected = { select: false, element: -1 };
+    this.isMouseDown = false;
+    this.isMoving = false;
   }
 
   private onMousePressed(e: MouseEvent) {
-    if (this.isMouseDown) return;
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
-    const x = e.x - rect.left;
-    const y = e.y - rect.top;
-    this.mousePosition[0] = x;
-    this.mousePosition[1] = y;
-    this.lastX = x;
-    this.lastY = y;
-    this.deltaX = 0;
-    this.deltaY = 0;
+    console.log('Mouse is pressed');
     this.isMouseDown = true;
   }
 
   private onMouseReleased(e: MouseEvent) {
+    console.log('Mouse press is released');
     this.isMouseDown = false;
-    this.isDragging = false;
-    this.isClicked = false;
-    this.isSelected = { select: false, element: -1 };
-  }
-
-  //Calculate RayCast from mousePosition of canvas
-  //Return mouseRay vector 3
-  calculateRayCast() {
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
-    const x = this.mousePosition[0];
-    const y = this.mousePosition[1];
-    const clipX = (x / rect.width) * 2 - 1;
-    const clipY = (y / rect.height) * -2 + 1;
-    const normalizedPos = vec2.fromValues(clipX, clipY);
-    const clipCoords = vec4.fromValues(
-      normalizedPos[0],
-      normalizedPos[1],
-      -1,
-      1
-    );
-    const invertedProjectionMatrix = mat4.create();
-    mat4.invert(invertedProjectionMatrix, this.camera.getProjectionMatrix());
-    const eyeCoords = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
-    const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, this.camera.getViewMatrix());
-    const rayWorld = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
-    const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
-    vec3.normalize(mouseRay, mouseRay);
-    this.mousePosition[0] = mouseRay[0];
-    this.mousePosition[1] = mouseRay[1];
-    this.mousePosition[2] = mouseRay[2];
   }
 }
