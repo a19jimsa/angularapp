@@ -2,7 +2,7 @@ import { Manager } from './manager';
 
 export class TextureManager extends Manager {
   private static textureMap = new Map<string, WebGLTexture>();
-  private static images = new Map<string, HTMLImageElement>();
+  private static images = new Map<number, HTMLImageElement>();
   public static setGl(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
@@ -81,12 +81,12 @@ export class TextureManager extends Manager {
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MIN_FILTER,
-      this.gl.NEAREST
+      this.gl.LINEAR
     );
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MAG_FILTER,
-      this.gl.NEAREST
+      this.gl.LINEAR
     );
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -99,7 +99,7 @@ export class TextureManager extends Manager {
     const slot = this.textureMap.size;
     this.textureMap.set(name, texture);
     if (image) {
-      this.images.set(name, image);
+      this.images.set(slot, image);
     }
     return slot;
   }
@@ -181,10 +181,14 @@ export class TextureManager extends Manager {
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
-  static getImage(key: string) {
-    const name = this.images.get(key);
-    if (!name) throw new Error('Cannot find texture with key' + key);
-    return name;
+  static getImage(index: number) {
+    const image = this.images.get(index);
+    if (!image) throw new Error('Cannot find texture with index ' + index);
+    return image;
+  }
+
+  static getImages() {
+    return this.images;
   }
 
   static getNames() {

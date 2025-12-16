@@ -20,6 +20,7 @@ export class MouseHandler {
   private isMouseDown: boolean = false;
   private isMouseMoved: boolean = false;
   private isClicked: boolean = false;
+  private isReleased: boolean = false;
   private mousePosition = vec3.fromValues(0, 0, 0);
   private direction = vec3.fromValues(0, 0, 0);
   constructor(
@@ -101,6 +102,10 @@ export class MouseHandler {
     return this.isMoving;
   }
 
+  get released() {
+    return this.isReleased;
+  }
+
   private onMouseClick(e: MouseEvent) {
     this.isClicked = true;
     console.log('Mouse clicked');
@@ -130,10 +135,12 @@ export class MouseHandler {
   private onMousePressed(e: MouseEvent) {
     console.log('Mouse is pressed');
     this.isMouseDown = true;
+    this.isReleased = false;
   }
 
   private onMouseReleased(e: MouseEvent) {
     console.log('Mouse press is released');
     this.isMouseDown = false;
+    this.isReleased = true;
   }
 }

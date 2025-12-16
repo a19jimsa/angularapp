@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-1 overflow-auto">
+    <div class="col-1">
       <mat-card
         class="d-flex flex-column justify-content-between p-2"
         style="height: 600px"
@@ -11,7 +11,7 @@
             <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
-        <mat-card-content class="h-100 d-flex flex-column">
+        <mat-card-content class="h-100 d-flex flex-column overflow-auto">
           @for (item of ecs.getEntities(); track $index) {
           <button matButton (click)="changeActiveEntity(item)">
             {{ getSceneObjectName(item) }}
@@ -30,6 +30,7 @@
             Adjacent Terrain
           </button>
           <button mat-menu-item (click)="createCylinder()">Cylinder</button>
+          <button mat-menu-item (click)="createLightSource()">Light</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -200,7 +201,7 @@
                 </mat-slider>
               </div>
             </mat-expansion-panel>
-            } @if(item.type.includes("Splatmap")){
+            }@if(item.type.includes("Splatmap")){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title> {{ item.type }} </mat-panel-title>
@@ -322,6 +323,7 @@
           >
             @for (image of images; track $index) {
             <img
+              (click)="setBrushTextureSlot($index)"
               src="{{ image.src }}"
               style="object-fit: contain; width: 150px; height: 150px"
             />

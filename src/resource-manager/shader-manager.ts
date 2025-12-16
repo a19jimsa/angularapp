@@ -1,3 +1,4 @@
+import { vec3 } from 'gl-matrix';
 import { Shader } from 'src/renderer/shader';
 import { Manager } from 'src/resource-manager/manager';
 
@@ -79,5 +80,11 @@ export class ShaderManager extends Manager {
     const shader = this.shaders.get(key);
     if (!shader) throw new Error('Cannot find shader');
     return shader;
+  }
+
+  public static setVec3(name: string, value: vec3){
+    const shader = this.getShader(name);
+    shader
+    
   }
 }

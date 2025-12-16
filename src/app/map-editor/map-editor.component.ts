@@ -5,7 +5,6 @@ import {
   Component,
   ElementRef,
   inject,
-  model,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -54,10 +53,10 @@ import { Controlable } from 'src/components/controlable';
 import { Player } from 'src/components/player';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { Batch } from 'src/components/batch';
 import { MouseHandler } from 'src/core/mouse-handler';
 import { Pivot } from 'src/components/pivot';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
+import { Light } from 'src/components/light';
 
 type IsSelected = {
   select: boolean;
@@ -74,6 +73,8 @@ export type Mouse = {
   dir: vec3;
   dragging: boolean;
   pressed: boolean;
+  isDown: boolean;
+  clicked: boolean;
   moving: boolean;
   released: boolean;
   isSelected: IsSelected;
@@ -162,13 +163,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     lastY: 0,
     deltaX: 0,
     deltaY: 0,
+    clicked: false,
+    isDown: false,
   };
 
   gameId: number = 0;
 
   play: boolean = false;
-
-  images: Asset[] = new Array();
 
   meshbrush: Brush = {
     radius: 5,
@@ -308,6 +309,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  get images() {
+    return Array.from(TextureManager.getImages().values());
+  }
+
+  setBrushTextureSlot(index: number) {
+    console.log(index);
+    this.meshbrush.textureSlot = index;
+  }
+
   async ngAfterViewInit() {
     this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
     if (!this.gl) throw Error('Webgl2 not supported');
@@ -326,6 +336,31 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const tree = await TextureManager.loadTexture('/assets/sprites/tree.png');
     TextureManager.createAndBindTexture('tree', tree, tree.width, tree.height);
+    const tree3 = await TextureManager.loadTexture('/assets/sprites/tree3.png');
+    TextureManager.createAndBindTexture(
+      'tree3',
+      tree3,
+      tree3.width,
+      tree3.height
+    );
+    const enemy1 = await TextureManager.loadTexture(
+      '/assets/sprites/irongolem.png'
+    );
+    TextureManager.createAndBindTexture(
+      'enemy1',
+      enemy1,
+      enemy1.width,
+      enemy1.height
+    );
+    const enemy2 = await TextureManager.loadTexture(
+      '/assets/sprites/gianotgreen.png'
+    );
+    TextureManager.createAndBindTexture(
+      'enemy2',
+      enemy2,
+      enemy2.width,
+      enemy2.height
+    );
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.gl);
     await this.init();
@@ -397,10 +432,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   changeActiveEntity(entity: Entity) {
+    this.ecs.removeComponent<Pivot>(this.meshbrush.entity, 'Pivot');
     this.meshbrush.entity = entity;
     const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
     if (transform) {
       this.transform = transform;
+      this.ecs.addComponent<Pivot>(
+        entity,
+        new Pivot(
+          transform.translate[0],
+          transform.translate[1],
+          transform.translate[2]
+        )
+      );
     }
     this.getToolbarComponents();
   }
@@ -469,11 +513,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const noise = await TextureManager.loadTexture('assets/textures/noise.jpg');
-
-    for (const textureName of TextureManager.getNames()) {
-      const image = TextureManager.getImage(textureName);
-      this.images.push({ name: textureName, src: image.src });
-    }
 
     // const spriteSlot = TextureManager.createAndBindTexture(sprite, sprite.width, sprite.height);
     const slot = TextureManager.createAndBindTexture(
@@ -625,7 +664,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // this.createCharacter(characterImage);
     // this.createFrog(frogImage);
-    this.createBatch();
 
     this.cdr.detectChanges();
     this.loop();
@@ -739,6 +777,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       skyboxEntity,
       new Skybox(skyboxMesh.vao, shader, texture!)
     );
+    //Should be in renderer not here!
     shader.use();
     gl.bindVertexArray(skyboxMesh.vao.vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, skyboxMesh.vao.vertexBuffer.buffer);
@@ -759,7 +798,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(50);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
-    this.ecs.addComponent<Pivot>(newEntity, new Pivot());
     //Add mesh component to entity
     //Check if entity exists as parameter and make a copy of the other terrain
 
@@ -903,10 +941,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
   }
 
-  protected createBatch() {
+  createLightSource() {
     const entity = this.ecs.createEntity();
-    this.ecs.addComponent<Name>(entity, new Name('Batch'));
-    this.ecs.addComponent<Batch>(entity, new Batch());
+    this.ecs.addComponent<Name>(entity, new Name('Light'));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<Light>(entity, new Light());
   }
 
   protected createMesh(shader: Shader, slot: number) {
@@ -923,7 +962,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
     this.ecs.addComponent<Material>(
       entity,
-      new Material(shader, TextureManager.getTexture('textureMap')!, slot)
+      new Material(shader, TextureManager.getTexture('textureMap'), slot)
     );
     console.log('Created Mesh!!!');
   }
@@ -979,25 +1018,39 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     if (this.mouseHandler.getIsMouseDown) {
       this.mouse.pressed = true;
+      this.mouse.released = false;
     } else {
       this.mouse.pressed = false;
+      this.mouse.released = true;
       this.mouse.isSelected = { select: false, element: -1 };
     }
 
+    if (this.mouse.pressed && !this.mouse.isDown) {
+      console.log('Mouse is clicked once');
+      this.mouse.clicked = true;
+      this.mouse.isDown = true;
+    } else {
+      this.mouse.clicked = false;
+    }
+
+    if (this.mouse.released) {
+      this.mouse.isDown = false;
+    }
+
+    //Dragging
     if (
       this.mouse.pressed &&
-      this.mouse.lastX === this.mouse.x &&
-      this.mouse.lastY === this.mouse.y
+      (Math.floor(this.mouse.lastX) !== Math.floor(this.mouse.x) ||
+        Math.floor(this.mouse.lastY) !== Math.floor(this.mouse.y))
     ) {
-      this.mouse.deltaX = 0;
-      this.mouse.deltaY = 0;
-      this.mouse.dragging = false;
-    } else {
       console.log('Dragging is true');
+      this.mouse.dragging = true;
       this.mouse.deltaX = this.mouse.lastX - this.mouse.x;
       this.mouse.deltaY = this.mouse.lastY - this.mouse.y;
-
-      this.mouse.dragging = true;
+    } else {
+      this.mouse.dragging = false;
+      this.mouse.deltaX = 0;
+      this.mouse.deltaY = 0;
     }
     this.mouse.lastX = this.mouse.x;
     this.mouse.lastY = this.mouse.y;
@@ -1015,7 +1068,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.mouse.pressed) {
+    if (this.mouse.clicked) {
       this.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
@@ -1098,22 +1151,22 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  saveEntity() {
-    const blob = new Blob(
-      [JSON.stringify(this.ecs.getComponents(this.meshbrush.entity))],
-      {
-        type: 'application/json',
-      }
-    );
-    const url = URL.createObjectURL(blob);
+  // saveEntity() {
+  //   const blob = new Blob(
+  //     [JSON.stringify(this.ecs.getComponents(this.meshbrush.entity))],
+  //     {
+  //       type: 'application/json',
+  //     }
+  //   );
+  //   const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'world';
-    a.click();
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = 'world';
+  //   a.click();
 
-    URL.revokeObjectURL(url); // Städa upp
-  }
+  //   URL.revokeObjectURL(url); // Städa upp
+  // }
 
   loadEntity() {}
   editorMode() {}

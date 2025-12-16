@@ -14,11 +14,12 @@ import { Terrain } from 'src/components/terrain';
 import { Skeleton } from 'src/components/skeleton';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { MathUtils } from 'src/Utils/MathUtils';
-import { Batch } from 'src/components/batch';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Vec } from 'src/app/vec';
 import { Pivot } from 'src/components/pivot';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
+import { BatchRenderable } from 'src/components/batch-renderable';
+import { Light } from 'src/components/light';
 
 export class RenderSystem {
   constructor(gl: WebGL2RenderingContext) {
@@ -58,33 +59,34 @@ export class RenderSystem {
   drawBatch(ecs: Ecs, camera: PerspectiveCamera) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
-      const batch = ecs.getComponent<Batch>(entity, 'Batch');
-      if (batch) {
-        for (let i = 0; i < batch.positions.length; i++) {
-          const positions = batch.positions[i].positions;
-          BatchRenderer.addQuads(
-            100,
-            100,
-            0,
-            new Vec(1, 1),
-            0,
-            0,
-            100,
-            100,
-            0,
-            0,
-            100,
-            100,
-            0,
-            positions[0],
-            positions[1],
-            positions[2],
-            batch.positions[i].slot
-          );
-        }
-      }
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      const batchRenderable = ecs.getComponent<BatchRenderable>(
+        entity,
+        'BatchRenderable'
+      );
+
+      if (batchRenderable && transform3D) {
+        BatchRenderer.addQuads(
+          batchRenderable.width,
+          batchRenderable.height,
+          0,
+          new Vec(1, 1),
+          0,
+          0,
+          batchRenderable.width,
+          batchRenderable.height,
+          0,
+          0,
+          batchRenderable.width,
+          batchRenderable.height,
+          transform3D.translate[0],
+          transform3D.translate[1],
+          transform3D.translate[2],
+          batchRenderable.textureSlot
+        );
+      }
+
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (skeleton && transform3D) {
         const bones = skeleton.bones.sort((a, b) => a.order - b.order);
         for (let i = 0; i < bones.length; i++) {
@@ -102,16 +104,32 @@ export class RenderSystem {
             -bone.position.y + bone.pivot.y,
             bone.endX,
             bone.endY,
-            i * 0.1,
             transform3D.translate[0],
             transform3D.translate[1],
             transform3D.translate[2],
-            TextureManager.getSlot('character')
+            batchRenderable.textureSlot
           );
         }
       }
     }
     BatchRenderer.end(camera);
+  }
+
+  getLightSources(ecs: Ecs): Light | null {
+    let light: Light | null = null;
+    for (const entity of ecs.getEntities()) {
+      light = ecs.getComponent<Light>(entity, 'Light');
+      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      if (light && transform3D) {
+        light.position = vec3.fromValues(
+          transform3D.translate[0],
+          transform3D.translate[1],
+          transform3D.translate[2]
+        );
+        return light;
+      }
+    }
+    return light;
   }
 
   update(ecs: Ecs, gl: WebGL2RenderingContext, camera: PerspectiveCamera) {
@@ -172,8 +190,9 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      const light = this.getLightSources(ecs);
 
-      if (pivot) {
+      if (pivot && transform3D) {
         gl.useProgram(ShaderManager.getShader('debug').program);
         // Skapa VBO
         const vertexBuffer = gl.createBuffer();
@@ -229,6 +248,11 @@ export class RenderSystem {
 
       if (mesh && material && splatmap) {
         gl.useProgram(material.shader.program);
+        if (light) {
+          console.log('found light!');
+          material.shader.setVec3('u_lightPos', light.color);
+          material.shader.setVec3('u_lightColor', light.color);
+        }
         const texLocation = gl.getUniformLocation(
           material.shader.program,
           'u_texture'
@@ -285,7 +309,6 @@ export class RenderSystem {
             'u_model'
           );
           const modelMatrix = mat4.create();
-
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);

@@ -4,6 +4,7 @@ import { Shader } from './shader';
 import { Vec } from 'src/app/vec';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { mat4 } from 'gl-matrix';
 
 export class BatchRenderer {
   private static gl: WebGL2RenderingContext;
@@ -153,7 +154,6 @@ export class BatchRenderer {
     dy: number,
     dw: number,
     dh: number,
-    order: number,
     translateX: number,
     translateY: number,
     translateZ: number,
@@ -184,7 +184,7 @@ export class BatchRenderer {
       // top-left
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
       (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u0,
       v0,
       textureIndex,
@@ -192,7 +192,7 @@ export class BatchRenderer {
       // top-right
       (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
       (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u1,
       v0,
       textureIndex,
@@ -200,7 +200,7 @@ export class BatchRenderer {
       // bottom-right
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
       (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u1,
       v1,
       textureIndex,
@@ -209,7 +209,7 @@ export class BatchRenderer {
       // top-left (igen)
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
       (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u0,
       v0,
       textureIndex,
@@ -217,7 +217,7 @@ export class BatchRenderer {
       // bottom-right (igen)
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
       (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u1,
       v1,
       textureIndex,
@@ -225,7 +225,7 @@ export class BatchRenderer {
       // bottom-left
       (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
       (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      order + translateZ,
+      translateZ,
       u0,
       v1,
       textureIndex,

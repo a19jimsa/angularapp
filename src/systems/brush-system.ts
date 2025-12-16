@@ -4,7 +4,7 @@ import {
   Mouse,
   ToolBrush,
 } from 'src/app/map-editor/map-editor.component';
-import { Batch, BatchType } from 'src/components/batch';
+import { BatchRenderable } from 'src/components/batch-renderable';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Pivot } from 'src/components/pivot';
@@ -13,6 +13,7 @@ import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class BrushSystem {
   update(
@@ -69,6 +70,7 @@ export class BrushSystem {
           //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
           if (dist < epsilon) {
+            console.log('Hitted vertex');
             //Create drag system with mouse!
             if (j === 3) {
               mouse.isSelected = { select: true, element: j };
@@ -84,7 +86,8 @@ export class BrushSystem {
         }
       }
 
-      if (mouse.isSelected.select) {
+      if (mouse.isSelected.select && mouse.dragging) {
+        console.log('IS selected' + mouse.isSelected.select);
         if (mouse.isSelected.element === 3) {
           pivot.position[0] -= mouse.deltaX;
           transform3D.translate[0] -= mouse.deltaX;
@@ -126,7 +129,7 @@ export class BrushSystem {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.batchBrush(ecs, vx, vy, vz, meshBrush);
+            this.treeBrush(ecs, vx, vy, vz, meshBrush);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintImage(
               ecs,
@@ -201,25 +204,23 @@ export class BrushSystem {
     }
   }
 
-  private batchBrush(
+  private treeBrush(
     ecs: Ecs,
     x: number,
     y: number,
     z: number,
     meshBrush: Brush
   ) {
-    for (const entity of ecs.getEntities()) {
-      const batch = ecs.getComponent<Batch>(entity, 'Batch');
-      if (batch) {
-        const batchItem: BatchType = {
-          positions: vec3.fromValues(x, y, z),
-          slot: meshBrush.textureSlot,
-        };
-        batch.positions.push(batchItem);
-        console.log('Added batch item');
-        return;
-      }
-    }
+    const tree = ecs.createEntity();
+    ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
+    ecs.addComponent<BatchRenderable>(
+      tree,
+      new BatchRenderable(
+        TextureManager.getImage(meshBrush.textureSlot).width / 10,
+        TextureManager.getImage(meshBrush.textureSlot).height / 10,
+        meshBrush.textureSlot
+      )
+    );
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {

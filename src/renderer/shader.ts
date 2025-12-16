@@ -29,4 +29,8 @@ export class Shader {
     const location = this.gl.getUniformLocation(program, name);
     this.gl.uniform1i(location, x);
   }
+
+  setVec3(name: string, value: vec3) {
+    this.gl.uniform3fv(this.getUniformLocation(name), value);
+  }
 }
