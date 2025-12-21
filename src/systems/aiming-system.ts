@@ -20,9 +20,8 @@ export class AimingSystem {
         (e: { id: string }) => e.id === 'torso'
       );
       if (!torso) return;
-      const newPosition = transform.position
-        .plus(torso.position)
-        .minus(camera.position);
+      const newPosition = transform.position.plus(torso.position);
+      //.minus(camera.position);
       const hypotenuse = newPosition.dist(this.mouseHandler.position);
       const adjacent = this.mouseHandler.position.x - newPosition.x;
       const angleRadians = Math.acos(Math.abs(adjacent) / hypotenuse);
@@ -33,8 +32,7 @@ export class AimingSystem {
 
       if (torso) {
         if (
-          this.mouseHandler.position.x <
-          transform.position.x - camera.position.x
+          this.mouseHandler.position.x < transform.position.x // - camera.position.x
         ) {
           torso.rotation = deegrees;
           skeleton.flip = true;

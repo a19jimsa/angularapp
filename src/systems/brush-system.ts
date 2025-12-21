@@ -60,9 +60,9 @@ export class BrushSystem {
         vec3.scaleAndAdd(pos1, rayOrigin, mouse.dir, i); // pos = origin + dir * i
         //8 Stride change later to make it get from the mesh stride, offset etc.
         for (let j = 0; j < pivot.vertices.length; j += 3) {
-          const vx = pivot.vertices[j] + pivot.position[0];
-          const vy = pivot.vertices[j + 1] + pivot.position[1];
-          const vz = pivot.vertices[j + 2] + pivot.position[2];
+          const vx = pivot.vertices[j] + transform3D.translate[0];
+          const vy = pivot.vertices[j + 1] + transform3D.translate[1];
+          const vz = pivot.vertices[j + 2] + transform3D.translate[2];
           // Calculate distance between vertex positions and raycaster's position.
           const dx = vx - pos1[0];
           const dy = vy - pos1[1];
@@ -89,13 +89,10 @@ export class BrushSystem {
       if (mouse.isSelected.select && mouse.dragging) {
         console.log('IS selected' + mouse.isSelected.select);
         if (mouse.isSelected.element === 3) {
-          pivot.position[0] -= mouse.deltaX;
           transform3D.translate[0] -= mouse.deltaX;
         } else if (mouse.isSelected.element === 9) {
-          pivot.position[1] += mouse.deltaY;
           transform3D.translate[1] += mouse.deltaY;
         } else if (mouse.isSelected.element === 15) {
-          pivot.position[2] -= mouse.deltaY * 2;
           transform3D.translate[2] -= mouse.deltaY * 2;
         }
       }
@@ -447,7 +444,7 @@ export class BrushSystem {
 
   private heightBrush(
     meshBrush: Brush,
-    vertices: Float32Array,
+    vertices: number[],
     x: number,
     y: number,
     z: number,

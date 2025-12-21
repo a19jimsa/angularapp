@@ -39,6 +39,12 @@ export class PerspectiveCamera {
     return this.position;
   }
 
+  set SetPosition(position: vec3) {
+    this.position[0] = position[0];
+    this.position[1] = position[1];
+    this.position[2] = position[2];
+  }
+
   rotateZ(angle: number) {
     this.rotation += angle;
 

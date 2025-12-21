@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
 import { Model } from 'src/renderer/model';
-import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Ecs } from 'src/core/ecs';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
@@ -57,6 +56,9 @@ import { MouseHandler } from 'src/core/mouse-handler';
 import { Pivot } from 'src/components/pivot';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { Light } from 'src/components/light';
+import { Renderer } from 'src/renderer/renderer';
+import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { BatchRenderer } from 'src/renderer/batch-renderer';
 
 type IsSelected = {
   select: boolean;
@@ -135,17 +137,28 @@ export type Brush = {
 export class MapEditorComponent implements AfterViewInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   @ViewChild('canvas', { static: true })
-  canvas!: ElementRef<HTMLCanvasElement>;
-  gl!: WebGL2RenderingContext;
+  canvasRef!: ElementRef<HTMLCanvasElement>;
+  canvas!: HTMLCanvasElement;
   width: number = 0;
   height: number = 0;
-  perspectiveCamera: PerspectiveCamera;
-  //orthoCamera: OrtographicCamera;
   mouseHandler!: MouseHandler;
   bones: Bone[] = new Array();
   angle = 0;
   splatColor = 'red';
   tool: Tools = 0;
+  ecs: Ecs;
+  //All systems in editor
+  renderSystem!: RenderSystem;
+  brushSystem: BrushSystem = new BrushSystem();
+  controllerSystem: ControllerSystem = new ControllerSystem();
+  movementSystem: MovementSystem = new MovementSystem();
+  brushToolsImages: HTMLImageElement[] = new Array();
+  selectedShader: string = 'default';
+  sceneObjects: Set<Name> = new Set<Name>();
+  transform: Transform3D = new Transform3D(0, 0, 0);
+  animationSystem: AnimationSystem = new AnimationSystem();
+  componentsList: ECSComponent[] = new Array();
+  editorCamera: PerspectiveCamera;
 
   mouse: Mouse = {
     x: 0,
@@ -184,28 +197,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     textureSlot: 0,
   };
 
-  ecs: Ecs;
-  //All systems in editor
-  renderSystem!: RenderSystem;
-  brushSystem: BrushSystem = new BrushSystem();
-  controllerSystem: ControllerSystem = new ControllerSystem();
-  movementSystem: MovementSystem = new MovementSystem();
-
-  brushToolsImages: HTMLImageElement[] = new Array();
-
-  selectedShader: string = 'default';
-
-  sceneObjects: Set<Name> = new Set<Name>();
-
-  transform: Transform3D = new Transform3D(0, 0, 0);
-
-  animationSystem: AnimationSystem = new AnimationSystem();
-
-  componentsList: ECSComponent[] = new Array();
-
   constructor(private cdr: ChangeDetectorRef) {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
-    this.perspectiveCamera = new PerspectiveCamera(1920, 1080);
+    this.editorCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
   }
 
@@ -313,23 +307,37 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return Array.from(TextureManager.getImages().values());
   }
 
+  get material(): Material | null {
+    const material = this.ecs.getComponent<Material>(
+      this.meshbrush.entity,
+      'Material'
+    );
+    if (material) return material;
+    return null;
+  }
+
+  get light(): Light | null {
+    const light = this.ecs.getComponent<Light>(this.meshbrush.entity, 'Light');
+    if (light) return light;
+    return null;
+  }
+
   setBrushTextureSlot(index: number) {
     console.log(index);
     this.meshbrush.textureSlot = index;
   }
 
   async ngAfterViewInit() {
-    this.gl = this.canvas.nativeElement.getContext('webgl2', { depth: true })!;
-    if (!this.gl) throw Error('Webgl2 not supported');
-    this.width = this.canvas.nativeElement.width;
-    this.height = this.canvas.nativeElement.height;
-    this.gl.canvas.width = 1920;
-    this.gl.canvas.height = 1080;
-    this.addEventListeners();
-    this.mouseHandler = new MouseHandler(this.canvas, this.perspectiveCamera);
+    //Must do this first! INIT canvas! after viewinit
+    this.canvas = this.canvasRef.nativeElement;
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
 
-    ShaderManager.setGl(this.gl);
-    TextureManager.setGl(this.gl);
+    console.log(this.canvas);
+    this.mouseHandler = new MouseHandler(this.canvas, this.editorCamera);
+    Renderer.create(this.canvas, this.editorCamera);
+    ShaderManager.setGl(Renderer.getGL);
+    TextureManager.setGl(Renderer.getGL);
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
     await this.loadAllShaders();
@@ -362,50 +370,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       enemy2.height
     );
     this.bones = Loader.getBones('skeleton');
-    this.renderSystem = new RenderSystem(this.gl);
+    this.renderSystem = new RenderSystem(this.editorCamera);
     await this.init();
-  }
-
-  addEventListeners() {
-    document.addEventListener('keydown', (event) => {
-      if (this.play) return;
-      switch (event.code) {
-        case 'KeyW':
-          this.perspectiveCamera.updatePosition(0, 100, 0);
-          break;
-        case 'KeyS':
-          this.perspectiveCamera.updatePosition(0, -100, 0);
-          break;
-        case 'KeyA':
-          this.perspectiveCamera.updatePosition(-100, 0, 0);
-          break;
-        case 'KeyD':
-          this.perspectiveCamera.updatePosition(100, 0, 0);
-          break;
-        case 'KeyQ':
-          this.perspectiveCamera.updatePosition(0, 0, -100);
-          break;
-        case 'KeyE':
-          this.perspectiveCamera.updatePosition(0, 0, 100);
-          break;
-        case 'ArrowUp':
-          this.perspectiveCamera.updatePosition(0, 0.1, 0);
-          break;
-        case 'ArrowDown':
-          this.perspectiveCamera.updatePosition(0, -0.1, 0);
-          break;
-        case 'ArrowRight':
-          this.perspectiveCamera.updatePosition(0.1, 0, 0);
-          break;
-        case 'ArrowLeft':
-          this.perspectiveCamera.updatePosition(-0.1, 0, 0);
-          break;
-      }
-    });
-
-    this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      this.perspectiveCamera.rotateX(event.deltaY / 50);
-    });
   }
 
   async loadAllShaders() {
@@ -429,6 +395,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('image', 'imageVS.txt', 'imageFS.txt');
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
+    await ShaderManager.load('lamp', 'lamp_vertex.txt', 'lamp_fragment.txt');
   }
 
   changeActiveEntity(entity: Entity) {
@@ -437,14 +404,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
     if (transform) {
       this.transform = transform;
-      this.ecs.addComponent<Pivot>(
-        entity,
-        new Pivot(
-          transform.translate[0],
-          transform.translate[1],
-          transform.translate[2]
-        )
-      );
+      this.ecs.addComponent<Pivot>(entity, new Pivot());
     }
     this.getToolbarComponents();
   }
@@ -472,7 +432,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async init() {
-    const gl = this.gl;
     const whirlwindTexture = await TextureManager.loadTexture(
       '/assets/textures/whirlwind_map.jpg'
     );
@@ -602,39 +561,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const grassModel = new Model();
     grassModel.addGrass();
 
-    const grassMesh = new MeshRenderer(
-      gl,
-      new Float32Array(grassModel.vertices),
-      new Uint16Array(grassModel.indices),
-      ShaderManager.getShader('grass')
-    );
-
     const grassEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
       grassEntity,
-      new Material(
-        ShaderManager.getShader('grass'),
-        TextureManager.getTexture('whirlwind'),
-        TextureManager.getSlot('whirlwind')
-      )
+      new Material('grass', TextureManager.getSlot('whirlwind'))
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
     const grass = this.ecs.addComponent<Grass>(grassEntity, new Grass());
-    if (grass) {
-      const newMesh = this.renderSystem.createBatch(
-        gl,
-        grassMesh,
-        grass.maxGrassBuffer
-      );
-      this.ecs.addComponent<Mesh>(grassEntity, new Mesh(newMesh.vao));
-    }
 
     this.createTerrainWithSplatmap();
 
     // this.createWater(waterShader, 4, 0, 0.1);
     // this.createWater(waterShader, 4, 50, 0.1);
 
-    this.setupSkybox(ShaderManager.getShader('skybox'), skyboxTexture!);
+    this.setupSkybox(skyboxTexture!);
 
     // this.debugMesh = new MeshRenderer(
     //   gl,
@@ -750,45 +690,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       const splatmap = this.ecs.getComponent<Splatmap>(entity, 'Splatmap');
       if (material && splatmap) {
         if (event.value === 'default') {
-          material.shader = ShaderManager.getShader('splatmap');
+          material.shader = 'splatmap';
         } else if (event.value === 'shader1') {
-          material.shader = ShaderManager.getShader('splatmap');
+          material.shader = 'splatmap';
         }
       }
     }
   }
 
-  setupSkybox(shader: Shader, texture: WebGLTexture) {
-    const gl = this.gl;
+  setupSkybox(texture: WebGLTexture) {
     //First create model
     const skyboxModel = new Model();
     skyboxModel.addSkybox();
     //Then create mesh
-    const skyboxMesh = new MeshRenderer(
-      gl,
-      new Float32Array(skyboxModel.vertices),
-      new Uint16Array(skyboxModel.indices),
-      shader
-    );
     //Then add to entity!
     const skyboxEntity = this.ecs.createEntity();
     this.ecs.addComponent(skyboxEntity, new Name('Skybox'));
     this.ecs.addComponent(
       skyboxEntity,
-      new Skybox(skyboxMesh.vao, shader, texture!)
+      new Skybox('skybox', TextureManager.getSlot('skybox'))
     );
-    //Should be in renderer not here!
-    shader.use();
-    gl.bindVertexArray(skyboxMesh.vao.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, skyboxMesh.vao.vertexBuffer.buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      skyboxMesh.vao.vertexBuffer.vertices,
-      gl.STATIC_DRAW
-    );
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(0);
-    skyboxMesh.vao.unbind();
   }
 
   protected createTerrainWithSplatmap() {
@@ -800,14 +721,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
     //Check if entity exists as parameter and make a copy of the other terrain
-
-    const backgroundMesh = new MeshRenderer(
-      this.gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      ShaderManager.getShader('splatmap')
+    this.ecs.addComponent(
+      newEntity,
+      new Mesh(model.vertices, model.indices, 1)
     );
-    this.ecs.addComponent(newEntity, new Mesh(backgroundMesh.vao));
     const splatmap = TextureManager.createAndBindTexture(
       'splatmap',
       null,
@@ -828,16 +745,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Add material component to entity
     this.ecs.addComponent(
       newEntity,
-      new Material(
-        ShaderManager.getShader('splatmap'),
-        TextureManager.getTexture('textureMap'),
-        TextureManager.getSlot('textureMap')
-      )
+      new Material('splatmap', TextureManager.getSlot('textureMap'))
     );
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
     this.updateSplatmap();
-    this.updateMesh();
   }
 
   public createAdjacentTerrain() {
@@ -852,8 +764,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.makeTerrainSeamless(mesh);
       const newVertices = [...mesh.vertices];
       const newIndices = [...mesh.indices];
-      for (let i = 0; i < mesh.vertices.length / mesh.id; i += 8) {
-        const x = mesh.vertices[i + 0] + 1000 * mesh.id;
+      for (let i = 0; i < mesh.vertices.length / mesh.meshId; i += 8) {
+        const x = mesh.vertices[i + 0] + 1000 * mesh.meshId;
         const y = mesh.vertices[i + 1];
         const z = mesh.vertices[i + 2];
         const u = mesh.vertices[i + 3];
@@ -864,24 +776,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         newVertices.push(x, y, z, u, v, normal1, normal2, normal3);
       }
 
-      for (let i = 0; i < mesh.indices.length / mesh.id; i++) {
+      for (let i = 0; i < mesh.indices.length / mesh.meshId; i++) {
         newIndices.push(mesh.indices[i] + mesh.vertices.length / 8);
       }
-      const meshRenderer = new MeshRenderer(
-        this.gl,
-        new Float32Array(newVertices),
-        new Uint16Array(newIndices),
-        ShaderManager.getShader('splatmap')
-      );
-      const adjacentMesh = new Mesh(meshRenderer.vao);
+      const adjacentMesh = new Mesh(newVertices, newIndices, 1);
       this.ecs.removeComponent(this.meshbrush.entity, 'Mesh');
       const newMesh = this.ecs.addComponent<Mesh>(
         this.meshbrush.entity,
         adjacentMesh
       );
-      mesh.id++;
+      mesh.meshId++;
       if (newMesh === null) throw new Error('Could not add id to mesh!');
-      newMesh.id = mesh.id;
+      newMesh.meshId = mesh.meshId;
     }
   }
 
@@ -909,24 +815,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected createCylinder() {
-    const gl = this.gl;
     const cylinderModel = new Model();
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
-    const cylinderMesh = new MeshRenderer(
-      gl,
-      new Float32Array(cylinderModel.vertices),
-      new Uint16Array(cylinderModel.indices),
-      ShaderManager.getShader('splatmap')
-    );
 
     this.ecs.addComponent<Material>(
       effectEntity,
-      new Material(
-        ShaderManager.getShader('splatmap'),
-        TextureManager.getTexture('whirlwind')!,
-        TextureManager.getSlot('whirlwind')
-      )
+      new Material('splatmap', TextureManager.getSlot('whirlwind'))
     );
 
     this.ecs.addComponent<AnimatedTexture>(
@@ -938,7 +833,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
 
-    this.ecs.addComponent<Mesh>(effectEntity, new Mesh(cylinderMesh.vao));
+    this.ecs.addComponent<Mesh>(
+      effectEntity,
+      new Mesh(cylinderModel.vertices, cylinderModel.indices, 1)
+    );
   }
 
   createLightSource() {
@@ -946,24 +844,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Light'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Light>(entity, new Light());
+    const model = new Model();
+    model.addPlane(10);
+    this.ecs.addComponent<Mesh>(
+      entity,
+      new Mesh(model.vertices, model.indices, 1)
+    );
   }
 
-  protected createMesh(shader: Shader, slot: number) {
+  protected createMesh(slot: number) {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(10);
-    const mesh = new MeshRenderer(
-      this.gl,
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      shader
-    );
-    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
-    this.ecs.addComponent<Material>(
+    this.ecs.addComponent<Mesh>(
       entity,
-      new Material(shader, TextureManager.getTexture('textureMap'), slot)
+      new Mesh(model.vertices, model.indices, 1)
     );
+    this.ecs.addComponent<Material>(entity, new Material('lamp', slot));
     console.log('Created Mesh!!!');
   }
 
@@ -977,19 +875,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Change later in runtime with some parameters in UI
     model.addPlane(50);
     const mesh = new MeshRenderer(
-      this.gl,
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
-      ShaderManager.getShader('water')
+      'water'
     );
-    this.ecs.addComponent<Mesh>(entity, new Mesh(mesh.vao));
+    this.ecs.addComponent<Mesh>(
+      entity,
+      new Mesh(model.vertices, model.indices, 1)
+    );
     this.ecs.addComponent<Material>(
       entity,
-      new Material(
-        ShaderManager.getShader('water'),
-        TextureManager.getTexture('water'),
-        TextureManager.getSlot('water')
-      )
+      new Material('water', TextureManager.getSlot('water'))
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture(0));
     this.ecs.addComponent<Name>(entity, new Name('Water'));
@@ -1006,7 +902,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     } else {
       this.input();
       this.update();
-      this.updateMesh();
+      //this.updateMesh();
     }
     this.draw();
     this.gameId = requestAnimationFrame(() => this.loop());
@@ -1057,68 +953,34 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   //Not here! All gl should be done in renderer!
-  updateMesh() {
-    for (const entity of this.ecs.getEntities()) {
-      const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
-      if (mesh) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.buffer);
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, mesh.vertices);
-      }
-    }
-  }
+  // updateMesh() {
+  //   const gl = Renderer.getGL;
+  //   for (const entity of this.ecs.getEntities()) {
+  //     const mesh = this.ecs.getComponent<Mesh>(entity, 'Mesh');
+  //     if (mesh) {
+  //       gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
+  //       gl.bufferSubData(gl.ARRAY_BUFFER, 0, mesh.vertices);
+  //     }
+  //   }
+  // }
 
   update() {
-    if (this.mouse.clicked) {
-      this.calculateRayCast();
+    if (this.mouse.dragging) {
+      this.mouse.dir = this.mouseHandler.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
         this.mouse,
-        this.perspectiveCamera
+        this.editorCamera
       );
       this.updateSplatmap();
     }
   }
 
-  //Calculate RayCast from mousePosition of canvas
-  //Return mouseRay vector 3
-  calculateRayCast() {
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
-    const x = this.mouse.x;
-    const y = this.mouse.y;
-    //Between local space -1 - +1
-    const clipX = (x / rect.width) * 2 - 1;
-    const clipY = (y / rect.height) * -2 + 1;
-    const normalizedPos = vec2.fromValues(clipX, clipY);
-    const clipCoords = vec4.fromValues(
-      normalizedPos[0],
-      normalizedPos[1],
-      -1,
-      1
-    );
-    const invertedProjectionMatrix = mat4.create();
-    mat4.invert(
-      invertedProjectionMatrix,
-      this.perspectiveCamera.getProjectionMatrix()
-    );
-    const eyeCoords = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
-    const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, this.perspectiveCamera.getViewMatrix());
-    const rayWorld = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
-    const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
-    vec3.normalize(mouseRay, mouseRay);
-    this.mouse.dir[0] = mouseRay[0];
-    this.mouse.dir[1] = mouseRay[1];
-    this.mouse.dir[2] = mouseRay[2];
-  }
-
   //Do not do here, only update splatmap coords not send to gl texture 2d...
   updateSplatmap() {
+    const gl = Renderer.getGL;
     const ecs = this.ecs;
-    const gl = this.gl;
     for (const entity of ecs.getEntities()) {
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       if (!splatmap) continue;
@@ -1139,7 +1001,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   draw() {
-    this.renderSystem.update(this.ecs, this.gl, this.perspectiveCamera);
+    this.renderSystem.update(this.ecs);
   }
 
   openDialog() {
@@ -1172,7 +1034,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   editorMode() {}
 
   gameMode() {
-    this.updateMesh(); //Add to some system in future
+    //this.updateMesh(); //Add to some system in future
     this.animationSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
     // this.movementSystem.update(this.ecs);

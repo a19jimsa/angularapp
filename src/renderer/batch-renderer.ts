@@ -1,10 +1,9 @@
-import { VertexArrayBuffer } from './vertex-array-buffer';
+import { VertexArray } from './vertex-array';
 import { PerspectiveCamera } from './perspective-camera';
 import { Shader } from './shader';
 import { Vec } from 'src/app/vec';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
-import { TextureManager } from 'src/resource-manager/texture-manager';
-import { mat4 } from 'gl-matrix';
+import { Renderer } from './renderer';
 
 export class BatchRenderer {
   private static gl: WebGL2RenderingContext;
@@ -19,25 +18,23 @@ export class BatchRenderer {
   );
   private static vertexCount: number = 0;
   //Layout of our shader data to GPU
-  private static vertexArrayBuffer: VertexArrayBuffer;
-  private static shader: Shader;
-  private static textureName: string = '';
+  private static verterxArray: VertexArray;
 
-  static init(gl: WebGL2RenderingContext) {
-    this.gl = gl;
-
-    this.vertexArrayBuffer = VertexArrayBuffer.create(
-      gl,
+  static init() {
+    this.gl = Renderer.getGL;
+    const gl = this.gl;
+    this.verterxArray = VertexArray.create(
       this.vbo,
-      new Uint16Array([0, 1, 3, 2])
+      new Uint16Array([0, 1, 3, 2]),
+      ShaderManager.getShader('batch')
     );
-    this.shader = ShaderManager.getShader('batch');
-    this.textureName = 'batch';
-    this.shader.use();
-    this.gl.bindVertexArray(this.vertexArrayBuffer.vao);
-    const vbo = this.vertexArrayBuffer.vertexBuffer.buffer;
+
+    const shader = ShaderManager.getShader('batch');
+    shader.bind();
+    this.verterxArray.bind();
+    const vbo = this.verterxArray.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    const positionLoc = gl.getAttribLocation(this.shader.program, 'a_position');
+    const positionLoc = gl.getAttribLocation(shader.program, 'a_position');
     gl.vertexAttribPointer(
       positionLoc,
       3,
@@ -47,7 +44,7 @@ export class BatchRenderer {
       0
     );
     gl.enableVertexAttribArray(positionLoc);
-    const texLocation = gl.getAttribLocation(this.shader.program, 'a_texcoord');
+    const texLocation = gl.getAttribLocation(shader.program, 'a_texcoord');
     gl.vertexAttribPointer(
       texLocation,
       2,
@@ -58,7 +55,7 @@ export class BatchRenderer {
     );
     gl.enableVertexAttribArray(texLocation);
     const textureIDLocation = gl.getAttribLocation(
-      this.shader.program,
+      shader.program,
       'a_texIndex'
     );
     gl.vertexAttribPointer(
@@ -72,7 +69,7 @@ export class BatchRenderer {
     gl.enableVertexAttribArray(textureIDLocation);
 
     const texturesLocation = gl.getUniformLocation(
-      this.shader.program,
+      shader.program,
       'u_textures'
     );
     gl.uniform1iv(texturesLocation, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
@@ -237,17 +234,18 @@ export class BatchRenderer {
 
   static end(camera: PerspectiveCamera) {
     const gl = this.gl;
-    this.vertexArrayBuffer.bind();
-    gl.useProgram(this.shader.program);
-    const location = gl.getUniformLocation(this.shader.program, 'u_matrix');
+    const shader = ShaderManager.getShader('batch');
+    gl.useProgram(shader.program);
+    this.verterxArray.bind();
+    const location = gl.getUniformLocation(shader.program, 'u_matrix');
     gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexArrayBuffer.vertexBuffer.buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.verterxArray.vertexBuffer.buffer);
     gl.bufferSubData(
       this.gl.ARRAY_BUFFER,
       0,
       this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex)
     );
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
-    this.vertexArrayBuffer.unbind();
+    this.verterxArray.unbind();
   }
 }

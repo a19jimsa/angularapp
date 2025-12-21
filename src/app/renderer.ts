@@ -137,8 +137,8 @@ export class Renderer {
       const [sprite, transform] = components;
       this.ctx.drawImage(
         sprite.image,
-        transform.position.x - this.camera.position.x,
-        transform.position.y - this.camera.position.y
+        transform.position.x, // - this.camera.position.x,
+        transform.position.y // - this.camera.position.y
       );
     });
     this.ctx.restore();
@@ -146,87 +146,87 @@ export class Renderer {
 
   public drawBackground() {
     this.ctx.lineWidth = 1;
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      200,
-      'blue'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      135,
-      'white'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      75,
-      'red'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      25,
-      'white'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      2000 - this.height / 2 - this.camera.position.y,
-      200,
-      'blue'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      2000 - this.height / 2 - this.camera.position.y,
-      135,
-      'white'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      2000 - this.height / 2 - this.camera.position.y,
-      75,
-      'red'
-    );
-    this.drawCircle(
-      this.width / 2 - this.camera.position.x,
-      2000 - this.height / 2 - this.camera.position.y,
-      25,
-      'white'
-    );
-    this.drawLine(this.width / 2, 0, this.width / 2, 2000, 'red', 1);
-    this.drawLine(
-      0 - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      this.width - this.camera.position.x,
-      this.height / 2 - this.camera.position.y,
-      'red',
-      1
-    );
-    this.drawLine(
-      0 - this.camera.position.x,
-      600 - this.camera.position.y,
-      this.width - this.camera.position.x,
-      600 - this.camera.position.y,
-      'red',
-      10
-    );
-    this.drawLine(
-      0 - this.camera.position.x,
-      1400 - this.camera.position.y,
-      this.width - this.camera.position.x,
-      1400 - this.camera.position.y,
-      'red',
-      10
-    );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   200,
+    //   'blue'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   135,
+    //   'white'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   75,
+    //   'red'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   25,
+    //   'white'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   2000 - this.height / 2 - this.camera.position.y,
+    //   200,
+    //   'blue'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   2000 - this.height / 2 - this.camera.position.y,
+    //   135,
+    //   'white'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   2000 - this.height / 2 - this.camera.position.y,
+    //   75,
+    //   'red'
+    // );
+    // this.drawCircle(
+    //   this.width / 2 - this.camera.position.x,
+    //   2000 - this.height / 2 - this.camera.position.y,
+    //   25,
+    //   'white'
+    // );
+    // this.drawLine(this.width / 2, 0, this.width / 2, 2000, 'red', 1);
+    // this.drawLine(
+    //   0 - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   this.width - this.camera.position.x,
+    //   this.height / 2 - this.camera.position.y,
+    //   'red',
+    //   1
+    // );
+    // this.drawLine(
+    //   0 - this.camera.position.x,
+    //   600 - this.camera.position.y,
+    //   this.width - this.camera.position.x,
+    //   600 - this.camera.position.y,
+    //   'red',
+    //   10
+    // );
+    // this.drawLine(
+    //   0 - this.camera.position.x,
+    //   1400 - this.camera.position.y,
+    //   this.width - this.camera.position.x,
+    //   1400 - this.camera.position.y,
+    //   'red',
+    //   10
+    // );
   }
 
   public drawSpeedControl(position: Vec, drawTo: Vec) {
     this.ctx.strokeStyle = 'green';
     this.ctx.beginPath();
     this.ctx.moveTo(
-      position.x - this.camera.position.x,
-      position.y - this.camera.position.y
+      position.x, // - this.camera.position.x,
+      position.y // - this.camera.position.y
     );
     this.ctx.lineTo(drawTo.x, drawTo.y);
     this.ctx.stroke();
@@ -234,8 +234,8 @@ export class Renderer {
 
   public render(position: Vec, color: string, radius: number, angle: number) {
     this.drawCurlingStone(
-      position.x - this.camera.position.x,
-      position.y - this.camera.position.y,
+      position.x, // - this.camera.position.x,
+      position.y, // - this.camera.position.y,
       radius,
       color,
       angle
@@ -259,8 +259,8 @@ export class Renderer {
       for (let i = 0; i < skeleton.bones.length; i++) {
         this.ctx.save();
         this.ctx.translate(
-          transform.position.x - this.camera.position.x,
-          transform.position.y - this.camera.position.y
+          transform.position.x, // - this.camera.position.x,
+          transform.position.y // - this.camera.position.y
         );
         if (skeleton.flip) {
           this.ctx.scale(-1, 1);
@@ -358,8 +358,8 @@ export class Renderer {
       if (hitBox) {
         this.ctx.fillStyle = 'red';
         this.ctx.fillRect(
-          hitBox.position.x - this.camera.position.x,
-          hitBox.position.y - this.camera.position.y,
+          hitBox.position.x, // - this.camera.position.x,
+          hitBox.position.y, // - this.camera.position.y,
           hitBox.width,
           hitBox.height
         );
@@ -372,8 +372,8 @@ export class Renderer {
     const sprite = ecs.getComponent<Sprite>(entity, 'Sprite');
     const transform = ecs.getComponent<Transform>(entity, 'Transform');
     if (!weapon || !sprite) return;
-    const screenX = transform.position.x - this.camera.position.x;
-    const screenY = transform.position.y - this.camera.position.y;
+    const screenX = transform.position.x; // - this.camera.position.x;
+    const screenY = transform.position.y; // - this.camera.position.y;
     this.ctx.save();
     this.ctx.translate(screenX, screenY);
     this.ctx.rotate(MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2);
@@ -394,8 +394,8 @@ export class Renderer {
       const projectile = ecs.getComponent<Projectile>(entity, 'Projectile');
       const sprite = ecs.getComponent<Sprite>(entity, 'Sprite');
       if (!transform || !weapon || !projectile || !sprite) continue;
-      const screenX = transform.position.x - this.camera.position.x;
-      const screenY = transform.position.y - this.camera.position.y;
+      const screenX = transform.position.x; // - this.camera.position.x;
+      const screenY = transform.position.y; // - this.camera.position.y;
       this.ctx.save();
       this.ctx.translate(screenX, screenY);
       this.ctx.rotate(
@@ -417,8 +417,8 @@ export class Renderer {
       const hurtBox = ecs.getComponent<HurtBox>(entity, 'HurtBox');
       if (hurtBox) {
         this.ctx.fillRect(
-          hurtBox.position.x - this.camera.position.x,
-          hurtBox.position.y - this.camera.position.y,
+          hurtBox.position.x, // - this.camera.position.x,
+          hurtBox.position.y, // - this.camera.position.y,
           hurtBox.width,
           hurtBox.height
         );
@@ -453,9 +453,8 @@ export class Renderer {
       const [transform, skeleton, camera] = components;
       const torso = skeleton.bones.find((e) => e.id === 'torso');
       if (!torso) return;
-      const newPosition = transform.position
-        .plus(torso.position)
-        .minus(camera.position);
+      const newPosition = transform.position.plus(torso.position);
+      //.minus(camera.position);
       const hypotenuse = newPosition.dist(mouseHandler.position);
       const adjacent = mouseHandler.position.x - newPosition.x;
       const angleRadians = Math.acos(adjacent / hypotenuse);
@@ -503,8 +502,8 @@ export class Renderer {
       const [effect] = components;
       if (!effect.isAlive) return;
       for (const sprite of effect.sprites) {
-        const screenX = effect.position.x - this.camera.position.x;
-        const screenY = effect.position.y - this.camera.position.y;
+        const screenX = effect.position.x; // - this.camera.position.x;
+        const screenY = effect.position.y; // - this.camera.position.y;
 
         this.ctx.save();
 

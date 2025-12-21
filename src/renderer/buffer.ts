@@ -4,6 +4,7 @@ export interface Buffer {
   setData(): void;
 }
 
+//VBO
 export class VertexBuffer implements Buffer {
   vertices: Float32Array;
   buffer: WebGLBuffer | null;
@@ -20,6 +21,7 @@ export class VertexBuffer implements Buffer {
   unbind(): void {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
+
   setData(): void {
     throw new Error('Method not implemented.');
   }
@@ -32,6 +34,7 @@ export class VertexBuffer implements Buffer {
   }
 }
 
+//IBO
 export class IndexBuffer {
   buffer: WebGLBuffer | null;
   indices: Uint16Array;

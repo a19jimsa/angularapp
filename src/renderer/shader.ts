@@ -9,20 +9,22 @@ export class Shader {
     this.program = program;
   }
 
-  use() {
+  //Use program
+  bind() {
     this.gl.useProgram(this.program);
   }
 
+  unbind() {
+    this.gl.useProgram(null);
+  }
+
   getUniformLocation(name: string) {
-    this.use();
+    if (!this.program) throw new Error('Program is not defined!');
     return this.gl.getUniformLocation(this.program!, name);
   }
 
-  uploadUniformMat4(name: string, matrix: mat4) {
-    this.use();
-    const location = this.gl.getUniformLocation(this.program!, name);
-    if (!location) return;
-    this.gl.uniformMatrix4fv(location, false, matrix);
+  setUniformMat4(name: string, matrix: mat4) {
+    this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix);
   }
 
   setInt(program: WebGLProgram, name: string, x: number) {
@@ -32,5 +34,13 @@ export class Shader {
 
   setVec3(name: string, value: vec3) {
     this.gl.uniform3fv(this.getUniformLocation(name), value);
+  }
+
+  setFloat(name: string, value: number) {
+    this.gl.uniform1f(this.getUniformLocation(name), value);
+  }
+
+  setMaterialTexture(name: string, slot: number) {
+    this.gl.uniform1i(this.getUniformLocation(name), slot);
   }
 }

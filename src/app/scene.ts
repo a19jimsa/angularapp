@@ -6,7 +6,6 @@ import { RenderSystem } from '../systems/render-system';
 import { CameraSystem } from '../systems/camera-system';
 import { Transform } from '../components/transform';
 import { Vec } from './vec';
-import { Render } from '../components/render';
 import { Camera } from '../components/camera';
 import { ControlSystem } from '../systems/control-system';
 import { Controlable } from '../components/controlable';
@@ -61,7 +60,6 @@ export class Scene {
       player,
       new Transform(new Vec(this.canvasWidth / 2, 30), new Vec(0, 0), 20)
     );
-    this.ecs.addComponent<Render>(player, new Render('yellow'));
     this.ecs.addComponent<Camera>(player, new Camera());
 
     this.ecs.addComponent<Controlable>(
@@ -78,14 +76,12 @@ export class Scene {
         20
       )
     );
-    this.ecs.addComponent<Render>(enemy, new Render('blue'));
     for (let i = 0; i < 10; i++) {
       var entity = this.ecs.createEntity();
       this.ecs.addComponent<Transform>(
         entity,
         new Transform(new Vec((1 + i) * 50, 1750), new Vec(0, 0), 20)
       );
-      this.ecs.addComponent<Render>(entity, new Render('red'));
     }
 
     this.ecs.addComponent<Rotation>(player, new Rotation());

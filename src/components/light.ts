@@ -10,13 +10,15 @@ enum LightType {
 export class Light extends Component {
   override type: string = 'Light';
   lightType: LightType;
-  color: vec3;
-  position: vec3;
+  ambient: vec3;
+  diffuse: vec3;
+  specular: vec3;
 
   constructor() {
     super();
     this.lightType = 0;
-    this.color = vec3.fromValues(1, 1, 1);
-    this.position = vec3.fromValues(0, 0, 0);
+    this.ambient = vec3.fromValues(1, 1, 1);
+    this.diffuse = vec3.fromValues(1, 1, 1);
+    this.specular = vec3.fromValues(1, 1, 1);
   }
 }

@@ -3,13 +3,11 @@ import { Component } from './component';
 
 export class Pivot extends Component {
   override type: string = 'Pivot';
-  position: vec3 = vec3.fromValues(0, 0, 0);
   vertices: Float32Array;
   colors: Float32Array;
 
-  constructor(x: number, y: number, z: number) {
+  constructor() {
     super();
-    this.position = vec3.fromValues(x, y, z);
     this.vertices = new Float32Array([
       // X-axis
       0, 0, 0, 100, 0, 0,
