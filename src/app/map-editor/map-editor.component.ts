@@ -14,8 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { Shader } from 'src/renderer/shader';
-import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader';
 import { Bone } from 'src/components/bone';
@@ -59,6 +57,7 @@ import { Light } from 'src/components/light';
 import { Renderer } from 'src/renderer/renderer';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
 
 type IsSelected = {
   select: boolean;
@@ -336,7 +335,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     console.log(this.canvas);
     this.mouseHandler = new MouseHandler(this.canvas, this.editorCamera);
     Renderer.create(this.canvas, this.editorCamera);
-    ShaderManager.setGl(Renderer.getGL);
     TextureManager.setGl(Renderer.getGL);
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
@@ -723,7 +721,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Check if entity exists as parameter and make a copy of the other terrain
     this.ecs.addComponent(
       newEntity,
-      new Mesh(model.vertices, model.indices, 1)
+      new Mesh(model.vertices, model.indices, MeshManager.getindex())
     );
     const splatmap = TextureManager.createAndBindTexture(
       'splatmap',
@@ -749,7 +747,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
-    this.updateSplatmap();
+    const vertexArray = MeshManager.addMesh(model.vertices, model.indices);
+    console.log(vertexArray);
   }
 
   public createAdjacentTerrain() {
@@ -837,6 +836,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       effectEntity,
       new Mesh(cylinderModel.vertices, cylinderModel.indices, 1)
     );
+    const vertex = MeshManager.addMesh(
+      cylinderModel.vertices,
+      cylinderModel.indices
+    );
+    console.log(vertex);
   }
 
   createLightSource() {
@@ -848,8 +852,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(10);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 1)
+      new Mesh(model.vertices, model.indices, MeshManager.getindex())
     );
+    const vertex = MeshManager.addMesh(model.vertices, model.indices);
+    console.log(vertex);
   }
 
   protected createMesh(slot: number) {
@@ -859,10 +865,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(10);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 1)
+      new Mesh(model.vertices, model.indices, MeshManager.getindex())
     );
     this.ecs.addComponent<Material>(entity, new Material('lamp', slot));
-    console.log('Created Mesh!!!');
+    const vertex = MeshManager.addMesh(model.vertices, model.indices);
+    console.log(vertex);
   }
 
   protected createWater() {
@@ -874,14 +881,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(50);
-    const mesh = new MeshRenderer(
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-      'water'
-    );
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 1)
+      new Mesh(model.vertices, model.indices, MeshManager.getindex())
     );
     this.ecs.addComponent<Material>(
       entity,
@@ -891,7 +893,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
-    console.log('Created Water!!!');
+    const vertex = MeshManager.addMesh(model.vertices, model.indices);
+    console.log(vertex);
   }
 
   loop() {

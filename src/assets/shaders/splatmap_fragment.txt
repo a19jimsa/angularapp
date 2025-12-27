@@ -9,7 +9,6 @@ varying float v_fogDistance;
 uniform sampler2D u_texture;
 uniform sampler2D u_splatmap;
 uniform float u_time;
-uniform u_
 
 void main() {
     vec2 pixelResolution = vec2(6144, 2048);

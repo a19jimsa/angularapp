@@ -20,6 +20,8 @@ import { Entity } from 'src/app/entity';
 import { Renderer } from 'src/renderer/renderer';
 import { Grass } from 'src/components/grass';
 import { VertexArray } from 'src/renderer/vertex-array';
+import { MeshRenderer } from 'src/renderer/mesh-renderer';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -29,7 +31,22 @@ export class RenderSystem {
     BatchRenderer.init();
   }
 
+  private onUpdate(ecs: Ecs) {
+    for (const entity of ecs.getEntities()) {
+      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
+      if (!mesh) continue;
+      if (MeshManager.getMesh(mesh.meshId)) continue;
+      const meshRenderer = new MeshRenderer(Renderer.getGL);
+      const vertexArray = new VertexArray(
+        new Float32Array(mesh.vertices),
+        new Uint16Array(mesh.indices)
+      );
+      meshRenderer.setupMesh(vertexArray);
+    }
+  }
+
   private drawBatch(ecs: Ecs) {
+    this.onUpdate(ecs);
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
@@ -88,8 +105,8 @@ export class RenderSystem {
     BatchRenderer.end(this.camera);
   }
 
-  private getLightSources(ecs: Ecs): Entity {
-    let light: Entity | null = -1;
+  private getLightSources(ecs: Ecs): Entity | null {
+    let light: Entity | null = null;
     for (const entity of ecs.getEntities()) {
       light = ecs.getComponent<Light>(entity, 'Light');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
@@ -101,15 +118,18 @@ export class RenderSystem {
   }
 
   public update(ecs: Ecs) {
+    Renderer.begin();
     this.drawBatch(ecs);
 
+    const gl = Renderer.getGL;
     // for (const entity of ecs.getEntities()) {
     //   const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
     //   if (skybox) {
     //     gl.depthMask(false);
     //     gl.depthFunc(gl.LEQUAL);
-    //     gl.useProgram(skybox.shader.program);
-    //     gl.bindVertexArray(skybox.vao.vao);
+    //     const shader = ShaderManager.getShader(skybox.shader);
+    //     shader.bind();
+    //     gl.bindVertexArray(skybox.shader);
     //     const matrix = mat4.create();
     //     mat4.copy(matrix, this.camera.getViewMatrix());
     //     matrix[12] = 0;
@@ -121,14 +141,12 @@ export class RenderSystem {
     //       this.camera.getProjectionMatrix(),
     //       matrix
     //     );
-    //     skybox.shader.uploadUniformMat4('u_matrix', perspectiveMatrix);
-    //     const textureLocation = gl.getUniformLocation(
-    //       skybox.shader.program,
-    //       'u_texture'
-    //     );
-    //     gl.uniform1i(textureLocation, 0);
+    //     shader.setMaterialTexture('u_matrix', skybox.slot);
     //     gl.activeTexture(gl.TEXTURE0);
-    //     gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox.texture);
+    //     gl.bindTexture(
+    //       gl.TEXTURE_CUBE_MAP,
+    //       TextureManager.getTexture(skybox.shader)
+    //     );
     //     gl.drawArrays(gl.TRIANGLES, 0, 36);
     //     gl.bindVertexArray(null);
     //     gl.depthMask(true);
@@ -153,158 +171,107 @@ export class RenderSystem {
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
       const lightEntity = this.getLightSources(ecs);
-      const light = ecs.getComponent<Light>(lightEntity, 'Light');
-      const lightPos = ecs.getComponent<Transform3D>(
-        lightEntity,
-        'Transform3D'
-      );
+      let light = null;
+      let lightPos = null;
+      if (lightEntity) {
+        light = ecs.getComponent<Light>(lightEntity, 'Light');
+        lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
+      }
 
-      if (pivot && transform3D && material) {
-        ShaderManager.getShader(material.shader).bind();
-        // Skapa VBO gärna nåpgon annan stans
+      if (pivot && transform3D) {
+        ShaderManager.getShader('debug').bind();
+        //Skapa VBO gärna nåpgon annan stans
 
-        // const vertexBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        // gl.bufferData(gl.ARRAY_BUFFER, pivot.vertices, gl.STATIC_DRAW);
+        const vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pivot.vertices, gl.STATIC_DRAW);
 
-        // const colorBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        // gl.bufferData(gl.ARRAY_BUFFER, pivot.colors, gl.STATIC_DRAW);
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pivot.colors, gl.STATIC_DRAW);
 
-        // const positionLoc = gl.getAttribLocation(
-        //   ShaderManager.getShader('debug').program,
-        //   'a_position'
-        // );
+        const positionLoc = gl.getAttribLocation(
+          ShaderManager.getShader('debug').program,
+          'a_position'
+        );
 
-        // const aColorLoc = gl.getAttribLocation(
-        //   ShaderManager.getShader('debug').program,
-        //   'a_color'
-        // );
+        const aColorLoc = gl.getAttribLocation(
+          ShaderManager.getShader('debug').program,
+          'a_color'
+        );
 
-        // // bind vertex
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        // gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
-        // gl.enableVertexAttribArray(positionLoc);
+        // bind vertex
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLoc);
 
-        // // // bind color
-        // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        // gl.vertexAttribPointer(aColorLoc, 3, gl.FLOAT, false, 0, 0);
-        // gl.enableVertexAttribArray(aColorLoc);
+        // // bind color
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.vertexAttribPointer(aColorLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aColorLoc);
 
-        // const location = gl.getUniformLocation(
-        //   ShaderManager.getShader('debug').program,
-        //   'u_matrix'
-        // );
-        // gl.uniformMatrix4fv(
-        //   location,
-        //   false,
-        //   this.camera.getViewProjectionMatrix()
-        // );
+        const location = gl.getUniformLocation(
+          ShaderManager.getShader('debug').program,
+          'u_matrix'
+        );
+        gl.uniformMatrix4fv(
+          location,
+          false,
+          this.camera.getViewProjectionMatrix()
+        );
 
-        // const model = gl.getUniformLocation(
-        //   ShaderManager.getShader('debug').program,
-        //   'u_model'
-        // );
-        //   const modelMatrix = mat4.create();
+        const model = gl.getUniformLocation(
+          ShaderManager.getShader('debug').program,
+          'u_model'
+        );
+        const modelMatrix = mat4.create();
+        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+        gl.uniformMatrix4fv(model, false, modelMatrix);
 
-        //   mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-        //   mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-        //   mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-        //   mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-        //   mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-        //   gl.uniformMatrix4fv(model, false, modelMatrix);
+        // Draw lines (2 punkter per linje)
+        gl.drawArrays(gl.LINES, 0, 6); // 3 linjer * 2 punkter
+      }
 
-        //   // Draw lines (2 punkter per linje)
-        //   gl.drawArrays(gl.LINES, 0, 6); // 3 linjer * 2 punkter
-        // }
-
-        if (mesh && material && splatmap) {
-          ShaderManager.getShader(material.shader).bind();
-          const shader = ShaderManager.getShader(material.shader);
-
-          if (light && lightPos) {
-            shader.setVec3('light.position', lightPos.translate);
-            shader.setVec3('light.ambient', light.ambient);
-            shader.setVec3('light.diffuse', light.diffuse);
-          }
-
-          shader.setVec3('material.ambient', material.ambient);
-          shader.setVec3('material.diffuse', material.diffuse);
-          shader.setVec3('material.specular', material.specular);
-          shader.setFloat('material.shininess', material.shininess);
-          shader.setMaterialTexture('u_splatmap', material.slot);
-
-          if (terrain) {
-            shader.setFloat('u_tiling', terrain.tiling);
-            shader.setFloat('u_fogPower', terrain.fogPower);
-          }
-          shader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix()
-          );
-          shader.setFloat('u_time', performance.now() * 0.001);
-          shader.setUniformMat4('u_view', this.camera.getViewMatrix());
-          const cameraMatrix = mat4.invert(
-            mat4.create(),
-            this.camera.getViewMatrix()
-          );
-          const cameraPos = vec3.fromValues(
-            cameraMatrix[12],
-            cameraMatrix[13],
-            cameraMatrix[14]
-          );
-          shader.setVec3('u_cameraPos', cameraPos);
-
-          if (transform3D) {
-            const modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-            mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-            mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-            mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-            mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-            shader.setUniformMat4('u_model', modelMatrix);
-
-            //Renderer.drawIndexed(mesh.meshId);
-          }
-        } else if (mesh && material && grass) {
-          const shader = ShaderManager.getShader(material.shader);
-          shader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix()
-          );
-          shader.setFloat('u_time', performance.now() * 0.001);
-          shader.setMaterialTexture('u_texture', material.slot);
-          Renderer.drawInstancing();
-        } else if (mesh && material && animatedTexture) {
-          const shader = ShaderManager.getShader(material.shader);
-
-          shader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix()
-          );
-          shader.setMaterialTexture('u_texture', material.slot);
-          shader.setFloat('u_time', performance.now() * animatedTexture.speed);
-          const transform3D = ecs.getComponent<Transform3D>(
-            entity,
-            'Transform3D'
-          );
-          if (transform3D) {
-            const modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-            mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-            mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-            mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-            mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-            shader.setUniformMat4('u_model', modelMatrix);
-          }
-          if (water) {
-            shader.setFloat('u_displacmentScale', water.displacement);
-            shader.setFloat('u_tiling', water.tiling);
-          }
-          //Renderer.drawIndexed(mesh.id);
+      if (mesh && material && splatmap) {
+        const shader = ShaderManager.getShader(material.shader);
+        shader.bind();
+        if (light && lightPos) {
+          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.ambient', light.ambient);
+          shader.setVec3('light.diffuse', light.diffuse);
         }
+
+        shader.setVec3('material.ambient', material.ambient);
+        shader.setVec3('material.diffuse', material.diffuse);
+        shader.setVec3('material.specular', material.specular);
+        shader.setFloat('material.shininess', material.shininess);
+        shader.setMaterialTexture('u_splatmap', splatmap.slot);
+
+        if (terrain) {
+          shader.setFloat('u_tiling', terrain.tiling);
+          shader.setFloat('u_fogPower', terrain.fogPower);
+        }
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix()
+        );
+        shader.setFloat('u_time', performance.now() * 0.001);
+        shader.setUniformMat4('u_view', this.camera.getViewMatrix());
+        const cameraMatrix = mat4.invert(
+          mat4.create(),
+          this.camera.getViewMatrix()
+        );
+        const cameraPos = vec3.fromValues(
+          cameraMatrix[12],
+          cameraMatrix[13],
+          cameraMatrix[14]
+        );
+        shader.setVec3('u_cameraPos', cameraPos);
         if (transform3D) {
-          const shader = ShaderManager.getShader(material.shader);
           const modelMatrix = mat4.create();
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
@@ -313,7 +280,47 @@ export class RenderSystem {
           mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           shader.setUniformMat4('u_model', modelMatrix);
         }
-        //Renderer.drawIndexed();
+        const vao = MeshManager.getMesh(mesh.meshId);
+        console.log(vao);
+        Renderer.drawIndexed(vao);
+      } else if (mesh && material && grass) {
+        const shader = ShaderManager.getShader(material.shader);
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix()
+        );
+        shader.setFloat('u_time', performance.now() * 0.001);
+        shader.setMaterialTexture('u_texture', material.slot);
+        Renderer.drawInstancing();
+      } else if (mesh && material && animatedTexture) {
+        const shader = ShaderManager.getShader(material.shader);
+        shader.bind();
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix()
+        );
+        shader.setMaterialTexture('u_texture', material.slot);
+        shader.setFloat('u_time', performance.now() * animatedTexture.speed);
+        const transform3D = ecs.getComponent<Transform3D>(
+          entity,
+          'Transform3D'
+        );
+        if (transform3D) {
+          const modelMatrix = mat4.create();
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+          mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          shader.setUniformMat4('u_model', modelMatrix);
+        }
+        if (water) {
+          shader.setFloat('u_displacmentScale', water.displacement);
+          shader.setFloat('u_tiling', water.tiling);
+        }
+        MeshManager.getMesh(0);
+        const vao = MeshManager.getMesh(mesh.meshId);
+        Renderer.drawIndexed(vao);
       }
     }
   }

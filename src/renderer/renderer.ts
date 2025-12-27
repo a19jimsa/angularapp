@@ -1,14 +1,15 @@
+import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { PerspectiveCamera } from './perspective-camera';
-import { Shader } from './shader';
+import { VertexArray } from './vertex-array';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
   private static canvas: HTMLCanvasElement;
+  private index: number = 0;
 
   static create(canvas: HTMLCanvasElement, camera: PerspectiveCamera) {
     const gl = canvas.getContext('webgl2');
     if (!gl) throw new Error('Webgl2 Not supported');
-
     Renderer.gl = gl;
     Renderer.canvas = canvas;
     Renderer.setupGL();
@@ -17,6 +18,11 @@ export class Renderer {
   public static get getGL() {
     if (!this.gl) throw new Error('GL is not set');
     return Renderer.gl;
+  }
+
+  public static bindShader(shaderName: string) {
+    const shader = ShaderManager.getShader(shaderName);
+    this.gl.useProgram(shader);
   }
 
   public static drawInstancing() {
@@ -37,25 +43,39 @@ export class Renderer {
 
   private static setupGL() {
     const gl = Renderer.gl;
+    Renderer.canvas.width = 1920;
+    Renderer.canvas.height = 1080;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  }
+
+  static begin() {
     // Clear the canvas AND the depth buffer.
-    gl.clearColor(0, 0, 0, 0); // Viktigt! Gör hela canvasen transparent
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen transparent
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
 
-  static drawIndexed(id: string) {
-    const count = 0;
-    this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.FLOAT, 0);
+  static drawIndexed(vertexArray: VertexArray | undefined) {
+    if (!vertexArray) return;
+    vertexArray.bind();
+    const count = vertexArray.indexBuffer.getCount();
+    console.log('Draw');
+    this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0);
+    vertexArray.unbind();
   }
 
-  static drawLines(id: number) {
+  static drawLines(verterxArray: VertexArray) {
+    verterxArray.bind();
     this.gl.drawArrays(this.gl.LINES, 0, 6);
   }
+
+  static end(camera: PerspectiveCamera) {}
+
+  static drawSkybox() {}
 
   // private createBatch(
   //   gl: WebGL2RenderingContext,

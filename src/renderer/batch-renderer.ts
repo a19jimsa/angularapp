@@ -1,6 +1,5 @@
 import { VertexArray } from './vertex-array';
 import { PerspectiveCamera } from './perspective-camera';
-import { Shader } from './shader';
 import { Vec } from 'src/app/vec';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { Renderer } from './renderer';
@@ -18,21 +17,20 @@ export class BatchRenderer {
   );
   private static vertexCount: number = 0;
   //Layout of our shader data to GPU
-  private static verterxArray: VertexArray;
+  private static vertexArray: VertexArray;
 
   static init() {
     this.gl = Renderer.getGL;
     const gl = this.gl;
-    this.verterxArray = VertexArray.create(
+    this.vertexArray = VertexArray.create(
       this.vbo,
-      new Uint16Array([0, 1, 3, 2]),
-      ShaderManager.getShader('batch')
+      new Uint16Array([0, 1, 3, 2])
     );
 
     const shader = ShaderManager.getShader('batch');
     shader.bind();
-    this.verterxArray.bind();
-    const vbo = this.verterxArray.vertexBuffer.buffer;
+    this.vertexArray.bind();
+    const vbo = this.vertexArray.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     const positionLoc = gl.getAttribLocation(shader.program, 'a_position');
     gl.vertexAttribPointer(
@@ -235,17 +233,17 @@ export class BatchRenderer {
   static end(camera: PerspectiveCamera) {
     const gl = this.gl;
     const shader = ShaderManager.getShader('batch');
-    gl.useProgram(shader.program);
-    this.verterxArray.bind();
-    const location = gl.getUniformLocation(shader.program, 'u_matrix');
-    gl.uniformMatrix4fv(location, false, camera.getViewProjectionMatrix());
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.verterxArray.vertexBuffer.buffer);
+    shader.bind();
+    this.vertexArray.bind();
+    shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexArray.vertexBuffer.buffer);
     gl.bufferSubData(
       this.gl.ARRAY_BUFFER,
       0,
       this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex)
     );
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
-    this.verterxArray.unbind();
+    this.vertexArray.unbind();
+    shader.unbind();
   }
 }

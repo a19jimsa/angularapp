@@ -8,12 +8,12 @@ export class Mesh extends Component {
   stride: number = 8;
   offset: number = 4;
   //Starts with 1 then add when more meshes are copied in to distinguish correct offset not to add to many meshes.
-  meshId: number;
+  meshId: number = 0;
 
-  constructor(vertices: number[], indices: number[], id: number) {
+  constructor(vertices: number[], indices: number[], meshId: number) {
     super();
     this.vertices = vertices;
     this.indices = indices;
-    this.meshId = id;
+    this.meshId = meshId;
   }
 }

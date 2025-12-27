@@ -1,34 +1,35 @@
-attribute vec3 a_position;
-attribute vec2 a_texcoord;
-attribute vec3 a_normal;
+#version 300 es
+layout(location = 0) in vec4 a_position;
+layout(location = 1) in vec2 a_texcoord;
+layout(location = 2) in vec3 a_normal;
 
 uniform mat4 u_matrix;
 uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform mat4 u_model;
 
-varying vec2 v_texcoord;
-varying float v_height;
-varying vec3 v_normal;
-varying float v_depth;
-varying float v_fogDistance;
-varying vec4 v_worldSpace;
-varying vec3 v_worldNormal;
-varying vec3 v_cameraPos;
-varying vec3 v_fragPos;
+out vec2 v_texcoord;
+out float v_height;
+out vec3 v_normal;
+out float v_depth;
+out float v_fogDistance;
+out vec4 v_worldSpace;
+out vec3 v_worldNormal;
+out vec3 v_cameraPos;
+out vec3 v_fragPos;
 
 void main() {
-   v_worldSpace = u_model * vec4(a_position, 1.0);
+   v_worldSpace = u_model * a_position, 1.0;
    v_worldNormal = a_normal;
    v_texcoord = a_texcoord;
    v_height = a_position.y;
    v_normal = a_normal;
    v_depth = a_position.z;
-   vec4 viewPos = u_view * vec4(a_position, 1.0);
+   vec4 viewPos = u_view * a_position;
    vec3 meshPosition = vec3(u_model[3]);
    v_cameraPos = u_cameraPos;
-   vec4 position = u_matrix * u_model * vec4(a_position, 1.0);
+   vec4 position = u_matrix * u_model * a_position;
    v_fogDistance = length(v_worldSpace.xyz - u_cameraPos);
    v_fragPos = a_position.xyz;
-   gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
+   gl_Position = u_matrix * u_model * a_position;
 }
