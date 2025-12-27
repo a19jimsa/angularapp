@@ -22,6 +22,7 @@ import { Grass } from 'src/components/grass';
 import { VertexArray } from 'src/renderer/vertex-array';
 import { MeshRenderer } from 'src/renderer/mesh-renderer';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -45,8 +46,43 @@ export class RenderSystem {
     }
   }
 
+  private checkDirty(ecs: Ecs) {
+    const gl = Renderer.getGL;
+    for (const entity of ecs.getEntities()) {
+      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
+      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
+      if (!mesh) continue;
+      const vao = MeshManager.getMesh(mesh.meshId);
+      if (vao && mesh.dirty) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, vao.vertexBuffer.buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(mesh.vertices));
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        mesh.dirty = false;
+      }
+      if (!splatmap) continue;
+      if (splatmap.dirty) {
+        console.log('Splatmap is dirty');
+        gl.activeTexture(gl.TEXTURE0 + 10);
+        gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture('splatmap'));
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          0,
+          0,
+          splatmap.width,
+          splatmap.height,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          splatmap.coords
+        );
+        splatmap.dirty = false;
+      }
+    }
+  }
+
   private drawBatch(ecs: Ecs) {
     this.onUpdate(ecs);
+    this.checkDirty(ecs);
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
@@ -249,7 +285,8 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTexture('u_splatmap', splatmap.slot);
+        shader.setMaterialTexture('u_texture', 4);
+        shader.setMaterialTexture('u_splatmap', 10);
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);
@@ -281,7 +318,6 @@ export class RenderSystem {
           shader.setUniformMat4('u_model', modelMatrix);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
-        console.log(vao);
         Renderer.drawIndexed(vao);
       } else if (mesh && material && grass) {
         const shader = ShaderManager.getShader(material.shader);
@@ -318,7 +354,6 @@ export class RenderSystem {
           shader.setFloat('u_displacmentScale', water.displacement);
           shader.setFloat('u_tiling', water.tiling);
         }
-        MeshManager.getMesh(0);
         const vao = MeshManager.getMesh(mesh.meshId);
         Renderer.drawIndexed(vao);
       }

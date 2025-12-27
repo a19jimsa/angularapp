@@ -565,33 +565,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Material('grass', TextureManager.getSlot('whirlwind'))
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
-    const grass = this.ecs.addComponent<Grass>(grassEntity, new Grass());
-
-    this.createTerrainWithSplatmap();
-
-    // this.createWater(waterShader, 4, 0, 0.1);
-    // this.createWater(waterShader, 4, 50, 0.1);
-
-    this.setupSkybox(skyboxTexture!);
-
-    // this.debugMesh = new MeshRenderer(
-    //   gl,
-    //   new Float32Array([
-    //     start[0],
-    //     start[1],
-    //     start[2],
-    //     0,
-    //     0,
-    //     start[0],
-    //     start[1],
-    //     start[2],
-    //     0,
-    //     0,
-    //   ]),
-    //   new Uint16Array([0, 1, 2]),
-    //   TextureManager.getTexture(0),
-    //   shader3
-    // );
+    this.ecs.addComponent<Grass>(grassEntity, new Grass());
 
     //Add all entities with names to the scene list to display them in the scene list
     for (const entity of this.ecs.getEntities()) {
@@ -599,9 +573,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       if (!name) continue;
       this.sceneObjects.add(name);
     }
-
-    // this.createCharacter(characterImage);
-    // this.createFrog(frogImage);
 
     this.cdr.detectChanges();
     this.loop();
@@ -718,7 +689,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     //Add mesh component to entity
-    //Check if entity exists as parameter and make a copy of the other terrain
     this.ecs.addComponent(
       newEntity,
       new Mesh(model.vertices, model.indices, MeshManager.getindex())
@@ -729,22 +699,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       width,
       height
     );
-    //Add splatmap too terrain entity
-    this.ecs.addComponent<Splatmap>(
+    console.log(splatmap);
+    //Add splatmap to terrain entity
+    const newSplatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(
-        width,
-        height,
-        TextureManager.getTexture('splatmap'),
-        splatmap
-      )
+      new Splatmap(width, height, splatmap)
     );
+    console.log(newSplatmap);
 
+    if (TextureManager.getSlot('textureMap') !== 4) {
+      alert('Wrong');
+    }
     //Add material component to entity
     this.ecs.addComponent(
       newEntity,
       new Material('splatmap', TextureManager.getSlot('textureMap'))
     );
+
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
     const vertexArray = MeshManager.addMesh(model.vertices, model.indices);
@@ -976,30 +947,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.mouse,
         this.editorCamera
       );
-      this.updateSplatmap();
     }
-  }
-
-  //Do not do here, only update splatmap coords not send to gl texture 2d...
-  updateSplatmap() {
-    const gl = Renderer.getGL;
-    const ecs = this.ecs;
-    for (const entity of ecs.getEntities()) {
-      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
-      if (!splatmap) continue;
-      gl.activeTexture(gl.TEXTURE0 + splatmap.slot);
-      gl.bindTexture(gl.TEXTURE_2D, splatmap.texture);
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        splatmap.width,
-        splatmap.height,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        splatmap.coords
-      );
+    if (this.mouse.clicked) {
+      console.log(TextureManager.getTextures());
     }
   }
 

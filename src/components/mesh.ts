@@ -9,6 +9,7 @@ export class Mesh extends Component {
   offset: number = 4;
   //Starts with 1 then add when more meshes are copied in to distinguish correct offset not to add to many meshes.
   meshId: number = 0;
+  dirty: boolean = false;
 
   constructor(vertices: number[], indices: number[], meshId: number) {
     super();

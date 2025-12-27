@@ -51,52 +51,52 @@ export class BrushSystem {
       'Transform3D'
     );
     const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-    if (pivot && transform3D) {
-      for (let i = 0; i < maxDistance; i += step) {
-        if (mouse.isSelected.select) {
-          break;
-        }
-        const pos1 = vec3.create();
-        vec3.scaleAndAdd(pos1, rayOrigin, mouse.dir, i); // pos = origin + dir * i
-        //8 Stride change later to make it get from the mesh stride, offset etc.
-        for (let j = 0; j < pivot.vertices.length; j += 3) {
-          const vx = pivot.vertices[j] + transform3D.translate[0];
-          const vy = pivot.vertices[j + 1] + transform3D.translate[1];
-          const vz = pivot.vertices[j + 2] + transform3D.translate[2];
-          // Calculate distance between vertex positions and raycaster's position.
-          const dx = vx - pos1[0];
-          const dy = vy - pos1[1];
-          const dz = vz - pos1[2];
-          //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          if (dist < epsilon) {
-            console.log('Hitted vertex');
-            //Create drag system with mouse!
-            if (j === 3) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 9) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 15) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            }
-          }
-        }
-      }
+    // if (pivot && transform3D) {
+    //   for (let i = 0; i < maxDistance; i += step) {
+    //     if (mouse.isSelected.select) {
+    //       break;
+    //     }
+    //     const pos1 = vec3.create();
+    //     vec3.scaleAndAdd(pos1, rayOrigin, mouse.dir, i); // pos = origin + dir * i
+    //     //8 Stride change later to make it get from the mesh stride, offset etc.
+    //     for (let j = 0; j < pivot.vertices.length; j += 3) {
+    //       const vx = pivot.vertices[j] + transform3D.translate[0];
+    //       const vy = pivot.vertices[j + 1] + transform3D.translate[1];
+    //       const vz = pivot.vertices[j + 2] + transform3D.translate[2];
+    //       // Calculate distance between vertex positions and raycaster's position.
+    //       const dx = vx - pos1[0];
+    //       const dy = vy - pos1[1];
+    //       const dz = vz - pos1[2];
+    //       //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
+    //       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    //       if (dist < epsilon) {
+    //         console.log('Hitted vertex');
+    //         //Create drag system with mouse!
+    //         if (j === 3) {
+    //           mouse.isSelected = { select: true, element: j };
+    //           break;
+    //         } else if (j === 9) {
+    //           mouse.isSelected = { select: true, element: j };
+    //           break;
+    //         } else if (j === 15) {
+    //           mouse.isSelected = { select: true, element: j };
+    //           break;
+    //         }
+    //       }
+    //     }
+    //   }
 
-      if (mouse.isSelected.select && mouse.dragging) {
-        console.log('IS selected' + mouse.isSelected.select);
-        if (mouse.isSelected.element === 3) {
-          transform3D.translate[0] -= mouse.deltaX;
-        } else if (mouse.isSelected.element === 9) {
-          transform3D.translate[1] += mouse.deltaY;
-        } else if (mouse.isSelected.element === 15) {
-          transform3D.translate[2] -= mouse.deltaY * 2;
-        }
-      }
-    }
+    //   if (mouse.isSelected.select && mouse.dragging) {
+    //     console.log('IS selected' + mouse.isSelected.select);
+    //     if (mouse.isSelected.element === 3) {
+    //       transform3D.translate[0] -= mouse.deltaX;
+    //     } else if (mouse.isSelected.element === 9) {
+    //       transform3D.translate[1] += mouse.deltaY;
+    //     } else if (mouse.isSelected.element === 15) {
+    //       transform3D.translate[2] -= mouse.deltaY * 2;
+    //     }
+    //   }
+    // }
 
     if (!mesh || !transform3D) return;
     for (let i = 0; i < maxDistance; i += step) {
@@ -325,6 +325,7 @@ export class BrushSystem {
               255
             );
           }
+          splatmap.dirty = true;
         }
       }
       return;
@@ -460,7 +461,8 @@ export class BrushSystem {
       'Transform3D'
     );
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!transform3D || !terrain) return;
+    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    if (!transform3D || !terrain || !mesh) return;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
@@ -488,6 +490,7 @@ export class BrushSystem {
           }
           vertices[i + 1] += influence;
         }
+        mesh.dirty = true;
       }
     }
   }

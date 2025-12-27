@@ -53,8 +53,12 @@ export class TextureManager extends Manager {
   ): number {
     const gl = this.gl;
     const texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + this.textureMap.size);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    if (!texture) {
+      throw new Error('Could not create texture');
+    }
+    const slot = this.textureMap.size;
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     if (image instanceof HTMLImageElement) {
       gl.texImage2D(
         gl.TEXTURE_2D,
@@ -73,7 +77,7 @@ export class TextureManager extends Manager {
         height,
         0, // border
         gl.RGBA, // format
-        gl.UNSIGNED_BYTE, // type
+        gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
         null
       );
     }
@@ -92,65 +96,11 @@ export class TextureManager extends Manager {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
-    if (!texture) {
-      throw new Error('Could not create texture');
-    }
-    //Much better!
-    const slot = this.textureMap.size;
     this.textureMap.set(name, texture);
     if (image) {
       this.images.set(slot, image);
     }
     return slot;
-  }
-
-  static createNormalMap(
-    name: string,
-    data: Uint8Array,
-    image: HTMLImageElement,
-    slot: number
-  ) {
-    const gl = this.gl;
-    const texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureMap.get(name)!);
-
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      image.width,
-      image.height,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      data
-    );
-
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MIN_FILTER,
-      this.gl.LINEAR
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MAG_FILTER,
-      this.gl.LINEAR
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_S,
-      this.gl.REPEAT
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_T,
-      this.gl.REPEAT
-    );
-    this.gl.generateMipmap(this.gl.TEXTURE_2D);
-    //Push texture for later use... maybe use a map?=??? better than random position and rely on slot?=???
-    //Much better!
-    this.textureMap.set(name, texture!);
   }
 
   static getTexture(name: string) {

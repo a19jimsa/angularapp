@@ -2,17 +2,12 @@ import { Component } from './component';
 
 export class Splatmap extends Component {
   override type: string = 'Splatmap';
-  coords = new Uint8ClampedArray();
+  coords: Uint8ClampedArray;
   width: number;
   height: number;
-  slot: number;
-  texture: WebGLTexture;
-  constructor(
-    width: number,
-    height: number,
-    texture: WebGLTexture,
-    slot: number
-  ) {
+  dirty: boolean = true;
+  slot: number = 0;
+  constructor(width: number, height: number, slot: number) {
     super();
     this.width = width;
     this.height = height;
@@ -21,6 +16,5 @@ export class Splatmap extends Component {
       this.coords[i + 0] = 255;
     }
     this.slot = slot;
-    this.texture = texture;
   }
 }

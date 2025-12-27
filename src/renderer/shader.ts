@@ -45,9 +45,6 @@ export class Shader {
   setMaterialTexture(name: string, slot: number) {
     const gl = this.gl;
     const loc = this.getUniformLocation(name);
-
-    gl.activeTexture(gl.TEXTURE0 + slot); // välj slot
-    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(name)); // bind texture
     gl.uniform1i(loc, slot); // koppla uniform till samma slot
   }
 }

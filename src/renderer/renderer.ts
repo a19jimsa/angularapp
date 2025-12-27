@@ -63,12 +63,12 @@ export class Renderer {
     if (!vertexArray) return;
     vertexArray.bind();
     const count = vertexArray.indexBuffer.getCount();
-    console.log('Draw');
     this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0);
     vertexArray.unbind();
   }
 
-  static drawLines(verterxArray: VertexArray) {
+  static drawLines(verterxArray: VertexArray | undefined) {
+    if (!verterxArray) return;
     verterxArray.bind();
     this.gl.drawArrays(this.gl.LINES, 0, 6);
   }
