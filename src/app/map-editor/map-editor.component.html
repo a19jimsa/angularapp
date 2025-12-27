@@ -156,6 +156,9 @@
                 <button mat-fab (click)="changeTool('height')">
                   <mat-icon>landscape</mat-icon>
                 </button>
+                <button mat-fab (click)="changeTool('pivot')">
+                  <mat-icon>pivot</mat-icon>
+                </button>
               </div>
               @for (item of brushToolsImages; track $index) {
               <button (click)="changeBrushImage($index)">

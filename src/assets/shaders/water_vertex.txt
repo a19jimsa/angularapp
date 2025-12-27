@@ -10,8 +10,12 @@ uniform float u_time;
 uniform float u_displacmentScale;
 uniform float u_tiling;
 uniform sampler2D u_texture;
+uniform vec3 u_cameraPos;
 
 varying vec2 v_texcoord;
+varying vec3 v_normal;
+varying vec3 v_fragPos;
+varying vec3 v_cameraPos;
 
 void main() {
    vec2 tileSize = vec2(1.0 / 2.0, 1.0 / 1.0);
@@ -21,4 +25,7 @@ void main() {
    vec4 displacedPosition = a_position + vec4(0, displacement, 0, 0);
    gl_Position = u_matrix * u_model * displacedPosition;
    v_texcoord = a_texcoord;
+   v_normal = a_normal;
+   v_fragPos = a_position.xyz;
+   v_cameraPos = u_cameraPos;
 }

@@ -331,11 +331,36 @@ export class RenderSystem {
       } else if (mesh && material && animatedTexture) {
         const shader = ShaderManager.getShader(material.shader);
         shader.bind();
+        if (light && lightPos) {
+          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.ambient', light.ambient);
+          shader.setVec3('light.diffuse', light.diffuse);
+        }
+
+        shader.setVec3('material.ambient', material.ambient);
+        shader.setVec3('material.diffuse', material.diffuse);
+        shader.setVec3('material.specular', material.specular);
+        shader.setFloat('material.shininess', material.shininess);
+        shader.setMaterialTexture('u_texture', material.slot);
+
+        if (terrain) {
+          shader.setFloat('u_tiling', terrain.tiling);
+          shader.setFloat('u_fogPower', terrain.fogPower);
+        }
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix()
         );
-        shader.setMaterialTexture('u_texture', material.slot);
+        const cameraMatrix = mat4.invert(
+          mat4.create(),
+          this.camera.getViewMatrix()
+        );
+        const cameraPos = vec3.fromValues(
+          cameraMatrix[12],
+          cameraMatrix[13],
+          cameraMatrix[14]
+        );
+        shader.setVec3('u_cameraPos', cameraPos);
         shader.setFloat('u_time', performance.now() * animatedTexture.speed);
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
