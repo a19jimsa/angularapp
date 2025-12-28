@@ -10,7 +10,6 @@ import { ResourceManager } from 'src/core/resource-manager';
 import { States } from 'src/components/state';
 import { Damage } from 'src/components/damage';
 import { DamageState } from './damage-state';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { RollState } from './roll-state';
 
 export class RunningState extends StateMachine {

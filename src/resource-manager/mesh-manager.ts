@@ -15,15 +15,12 @@ export class MeshManager {
     mesh.setupMesh(vertexArray);
     this.vaos.set(this.index, vertexArray);
     console.log('Added mesh' + this.index);
+    const index = this.index;
     this.index++;
-    return vertexArray;
+    return index;
   }
 
   public static getMesh(index: number) {
     return this.vaos.get(index);
-  }
-
-  public static getindex() {
-    return this.index;
   }
 }

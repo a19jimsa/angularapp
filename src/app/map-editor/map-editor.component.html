@@ -58,47 +58,47 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>X</mat-label>
                   <input matInput type="number" [(ngModel)]="translateX" />
                 </mat-form-field>
 
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Y</mat-label>
                   <input matInput type="number" [(ngModel)]="translateY" />
                 </mat-form-field>
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Z</mat-label>
                   <input matInput type="number" [(ngModel)]="translateZ" />
                 </mat-form-field>
               </div>
               <div class="row">
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>X</mat-label>
                   <input matInput type="number" [(ngModel)]="scaleX" />
                 </mat-form-field>
 
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Y</mat-label>
                   <input matInput type="number" [(ngModel)]="scaleY" />
                 </mat-form-field>
 
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Z</mat-label>
                   <input matInput type="number" [(ngModel)]="scaleZ" />
                 </mat-form-field>
               </div>
 
               <div class="row">
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>X</mat-label>
                   <input matInput type="number" [(ngModel)]="rotateX" />
                 </mat-form-field>
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Y</mat-label>
                   <input matInput type="number" [(ngModel)]="rotateY" />
                 </mat-form-field>
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Z</mat-label>
                   <input matInput type="number" [(ngModel)]="rotateZ" />
                 </mat-form-field>
@@ -206,11 +206,11 @@
               <mat-expansion-panel-header>
                 <mat-panel-title> Material </mat-panel-title>
                 <mat-panel-description>
-                  <mat-icon>box</mat-icon>
+                  <mat-icon>texture</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient X</mat-label>
                   <input
                     matInput
@@ -221,8 +221,7 @@
                     [(ngModel)]="material.ambient[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient Y</mat-label>
                   <input
                     matInput
@@ -233,7 +232,7 @@
                     [(ngModel)]="material.ambient[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient Z</mat-label>
                   <input
                     matInput
@@ -246,8 +245,8 @@
                 </mat-form-field>
               </div>
               <div class="row">
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient X</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse X</mat-label>
                   <input
                     matInput
                     type="number"
@@ -257,9 +256,8 @@
                     [(ngModel)]="material.diffuse[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Y</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse Y</mat-label>
                   <input
                     matInput
                     type="number"
@@ -269,8 +267,8 @@
                     [(ngModel)]="material.diffuse[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Z</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse Z</mat-label>
                   <input
                     matInput
                     type="number"
@@ -283,8 +281,8 @@
               </div>
 
               <div class="row">
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient X</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular X</mat-label>
                   <input
                     matInput
                     type="number"
@@ -294,9 +292,8 @@
                     [(ngModel)]="material.specular[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Y</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular Y</mat-label>
                   <input
                     matInput
                     type="number"
@@ -306,8 +303,8 @@
                     [(ngModel)]="material.specular[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Z</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular Z</mat-label>
                   <input
                     matInput
                     type="number"
@@ -317,6 +314,9 @@
                     [(ngModel)]="material.specular[2]"
                   />
                 </mat-form-field>
+                <mat-slider min="30" max="64" step="1" discrete>
+                  <input matSliderThumb [(ngModel)]="material.shininess" />
+                </mat-slider>
               </div>
             </mat-expansion-panel>
             } @if(item === light){
@@ -324,11 +324,11 @@
               <mat-expansion-panel-header>
                 <mat-panel-title> Light </mat-panel-title>
                 <mat-panel-description>
-                  <mat-icon>box</mat-icon>
+                  <mat-icon>light_mode</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient X</mat-label>
                   <input
                     matInput
@@ -339,8 +339,7 @@
                     [(ngModel)]="light.ambient[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient Y</mat-label>
                   <input
                     matInput
@@ -351,7 +350,7 @@
                     [(ngModel)]="light.ambient[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
+                <mat-form-field class="col-4">
                   <mat-label>Ambient Z</mat-label>
                   <input
                     matInput
@@ -364,8 +363,8 @@
                 </mat-form-field>
               </div>
               <div class="row">
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient X</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse X</mat-label>
                   <input
                     matInput
                     type="number"
@@ -375,9 +374,8 @@
                     [(ngModel)]="light.diffuse[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Y</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse Y</mat-label>
                   <input
                     matInput
                     type="number"
@@ -387,8 +385,8 @@
                     [(ngModel)]="light.diffuse[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Z</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Diffuse Z</mat-label>
                   <input
                     matInput
                     type="number"
@@ -401,8 +399,8 @@
               </div>
 
               <div class="row">
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient X</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular X</mat-label>
                   <input
                     matInput
                     type="number"
@@ -412,9 +410,8 @@
                     [(ngModel)]="light.specular[0]"
                   />
                 </mat-form-field>
-
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Y</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular Y</mat-label>
                   <input
                     matInput
                     type="number"
@@ -424,8 +421,8 @@
                     [(ngModel)]="light.specular[1]"
                   />
                 </mat-form-field>
-                <mat-form-field class="w-100">
-                  <mat-label>Ambient Z</mat-label>
+                <mat-form-field class="col-4">
+                  <mat-label>Specular Z</mat-label>
                   <input
                     matInput
                     type="number"

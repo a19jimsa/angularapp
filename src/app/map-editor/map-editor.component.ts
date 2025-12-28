@@ -56,8 +56,9 @@ import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { Light } from 'src/components/light';
 import { Renderer } from 'src/renderer/renderer';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
-import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { Key, KeyboardHandler } from 'src/core/keyboard-handler';
+import { Keyboard } from 'src/core/keyboard';
 
 type IsSelected = {
   select: boolean;
@@ -141,6 +142,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   width: number = 0;
   height: number = 0;
   mouseHandler!: MouseHandler;
+  keyboard = new Keyboard();
   bones: Bone[] = new Array();
   angle = 0;
   splatColor = 'red';
@@ -333,7 +335,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.height = this.canvas.height;
 
     console.log(this.canvas);
-    this.mouseHandler = new MouseHandler(this.canvas, this.editorCamera);
+    this.mouseHandler = new MouseHandler(this.canvas);
     Renderer.create(this.canvas, this.editorCamera);
     TextureManager.setGl(Renderer.getGL);
     await Loader.loadAllBones();
@@ -688,10 +690,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(50);
     const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
+    const index = MeshManager.addMesh(model.vertices, model.indices);
     //Add mesh component to entity
     this.ecs.addComponent(
       newEntity,
-      new Mesh(model.vertices, model.indices, MeshManager.getindex())
+      new Mesh(model.vertices, model.indices, index)
     );
     const splatmap = TextureManager.createAndBindTexture(
       'splatmap',
@@ -718,8 +721,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
-    const vertexArray = MeshManager.addMesh(model.vertices, model.indices);
-    console.log(vertexArray);
   }
 
   public createAdjacentTerrain() {
@@ -821,12 +822,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Light>(entity, new Light());
     const model = new Model();
     model.addPlane(10);
+    const index = MeshManager.addMesh(model.vertices, model.indices);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, MeshManager.getindex())
+      new Mesh(model.vertices, model.indices, index)
     );
-    const vertex = MeshManager.addMesh(model.vertices, model.indices);
-    console.log(vertex);
   }
 
   protected createMesh(slot: number) {
@@ -834,13 +834,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(10);
+    const index = MeshManager.addMesh(model.vertices, model.indices);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, MeshManager.getindex())
+      new Mesh(model.vertices, model.indices, index)
     );
     this.ecs.addComponent<Material>(entity, new Material('lamp', slot));
-    const vertex = MeshManager.addMesh(model.vertices, model.indices);
-    console.log(vertex);
   }
 
   protected createWater() {
@@ -852,9 +851,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(50);
+    const index = MeshManager.addMesh(model.vertices, model.indices);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, MeshManager.getindex())
+      new Mesh(model.vertices, model.indices, index)
     );
     this.ecs.addComponent<Material>(
       entity,
@@ -864,8 +864,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
-    const vertex = MeshManager.addMesh(model.vertices, model.indices);
-    console.log(vertex);
   }
 
   loop() {
@@ -924,6 +922,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
     this.mouse.lastX = this.mouse.x;
     this.mouse.lastY = this.mouse.y;
+
+    if (this.keyboard.isKeyPressed('w')) {
+      console.log('w is pressed');
+    }
   }
 
   //Not here! All gl should be done in renderer!
@@ -940,7 +942,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     if (this.mouse.dragging) {
-      this.mouse.dir = this.mouseHandler.calculateRayCast();
+      this.mouse.dir = this.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
         this.ecs,
@@ -995,5 +997,38 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   togglePlay() {
     this.play = !this.play;
+  }
+
+  //Calculate RayCast from mousePosition of canvas
+  //Return mouseRay vector 3
+  public calculateRayCast() {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = this.mouse.x;
+    const y = this.mouse.y;
+    //Between local space -1 - +1
+    const clipX = (x / rect.width) * 2 - 1;
+    const clipY = (y / rect.height) * -2 + 1;
+    const normalizedPos = vec2.fromValues(clipX, clipY);
+    const clipCoords = vec4.fromValues(
+      normalizedPos[0],
+      normalizedPos[1],
+      -1,
+      1
+    );
+    const invertedProjectionMatrix = mat4.create();
+    mat4.invert(
+      invertedProjectionMatrix,
+      this.editorCamera.getProjectionMatrix()
+    );
+    const eyeCoords = vec4.fromValues(0, 0, 0, 0);
+    vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
+    const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
+    const invertedView = mat4.create();
+    mat4.invert(invertedView, this.editorCamera.getViewMatrix());
+    const rayWorld = vec4.fromValues(0, 0, 0, 0);
+    vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
+    const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
+    vec3.normalize(mouseRay, mouseRay);
+    return mouseRay;
   }
 }
