@@ -28,8 +28,7 @@ void main() {
    vec4 viewPos = u_view * a_position;
    vec3 meshPosition = vec3(u_model[3]);
    v_cameraPos = u_cameraPos;
-   vec4 position = u_matrix * u_model * a_position;
    v_fogDistance = length(v_worldSpace.xyz - u_cameraPos);
-   v_fragPos = a_position.xyz;
+   v_fragPos = v_worldSpace.xyz;
    gl_Position = u_matrix * u_model * a_position;
 }

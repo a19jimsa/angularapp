@@ -568,6 +568,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<AnimatedTexture>(grassEntity, new AnimatedTexture(0));
     this.ecs.addComponent<Grass>(grassEntity, new Grass());
+    this.ecs.addComponent<Name>(grassEntity, new Name('Grass'));
 
     //Add all entities with names to the scene list to display them in the scene list
     for (const entity of this.ecs.getEntities()) {
@@ -926,6 +927,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.keyboard.isKeyPressed('w')) {
       console.log('w is pressed');
     }
+
+    this.cameraMovement();
   }
 
   //Not here! All gl should be done in renderer!
@@ -1030,5 +1033,28 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
     vec3.normalize(mouseRay, mouseRay);
     return mouseRay;
+  }
+
+  private cameraMovement() {
+    const speed = 1;
+
+    let moveX = 0;
+    let moveY = 0;
+    let moveZ = 0;
+
+    if (this.keyboard.isKeyPressed('w')) moveZ -= speed;
+    if (this.keyboard.isKeyPressed('s')) moveZ += speed;
+
+    if (this.keyboard.isKeyPressed('a')) moveX -= speed;
+    if (this.keyboard.isKeyPressed('d')) moveX += speed;
+
+    // Flyga upp/ner med space/shift om du vill
+    if (this.keyboard.isKeyPressed(' ')) moveY += speed;
+    if (this.keyboard.isKeyPressed('Shift')) moveY -= speed;
+
+    // Uppdatera kameran (om något ändrats)
+    if (moveX !== 0 || moveY !== 0 || moveZ !== 0) {
+      this.editorCamera.updatePosition(moveX, moveY, moveZ);
+    }
   }
 }
