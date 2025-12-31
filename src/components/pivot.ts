@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix';
 import { Component } from './component';
 
 export class Pivot extends Component {

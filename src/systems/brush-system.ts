@@ -217,9 +217,9 @@ export class BrushSystem {
     ecs.addComponent<BatchRenderable>(
       tree,
       new BatchRenderable(
-        TextureManager.getImage(meshBrush.textureSlot).width / 10,
-        TextureManager.getImage(meshBrush.textureSlot).height / 10,
-        meshBrush.textureSlot
+        TextureManager.getImage(meshBrush.imageName).width,
+        TextureManager.getImage(meshBrush.imageName).height,
+        meshBrush.imageName
       )
     );
   }

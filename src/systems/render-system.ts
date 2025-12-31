@@ -62,8 +62,8 @@ export class RenderSystem {
       if (!splatmap) continue;
       if (splatmap.dirty) {
         console.log('Splatmap is dirty');
-        gl.activeTexture(gl.TEXTURE0 + 10);
-        gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture('splatmap'));
+        gl.activeTexture(gl.TEXTURE0 + TextureManager.getSlot(splatmap.slot));
+        gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(splatmap.slot));
         gl.texSubImage2D(
           gl.TEXTURE_2D,
           0,
@@ -108,7 +108,7 @@ export class RenderSystem {
           transform3D.translate[0],
           transform3D.translate[1],
           transform3D.translate[2],
-          batchRenderable.textureSlot
+          TextureManager.getSlot(batchRenderable.texture)
         );
       }
 
@@ -133,7 +133,7 @@ export class RenderSystem {
             transform3D.translate[0],
             transform3D.translate[1],
             transform3D.translate[2],
-            batchRenderable.textureSlot
+            6
           );
         }
       }
@@ -155,42 +155,10 @@ export class RenderSystem {
 
   public update(ecs: Ecs) {
     Renderer.begin();
+    Renderer.drawSkybox();
     this.drawBatch(ecs);
 
     const gl = Renderer.getGL;
-    // for (const entity of ecs.getEntities()) {
-    //   const skybox = ecs.getComponent<Skybox>(entity, 'Skybox');
-    //   if (skybox) {
-    //     gl.depthMask(false);
-    //     gl.depthFunc(gl.LEQUAL);
-    //     const shader = ShaderManager.getShader(skybox.shader);
-    //     shader.bind();
-    //     gl.bindVertexArray(skybox.shader);
-    //     const matrix = mat4.create();
-    //     mat4.copy(matrix, this.camera.getViewMatrix());
-    //     matrix[12] = 0;
-    //     matrix[13] = 0;
-    //     matrix[14] = 0;
-    //     const perspectiveMatrix = mat4.create();
-    //     mat4.multiply(
-    //       perspectiveMatrix,
-    //       this.camera.getProjectionMatrix(),
-    //       matrix
-    //     );
-    //     shader.setMaterialTexture('u_matrix', skybox.slot);
-    //     gl.activeTexture(gl.TEXTURE0);
-    //     gl.bindTexture(
-    //       gl.TEXTURE_CUBE_MAP,
-    //       TextureManager.getTexture(skybox.shader)
-    //     );
-    //     gl.drawArrays(gl.TRIANGLES, 0, 36);
-    //     gl.bindVertexArray(null);
-    //     gl.depthMask(true);
-    //     gl.depthFunc(gl.LESS);
-    //     gl.colorMask(true, true, true, true);
-    //     break;
-    //   }
-    // }
 
     for (const entity of ecs.getEntities()) {
       //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
@@ -280,13 +248,12 @@ export class RenderSystem {
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
         }
-
         shader.setVec3('material.ambient', material.ambient);
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTexture('u_texture', 4);
-        shader.setMaterialTexture('u_splatmap', 10);
+        shader.setMaterialTexture('u_texture', material.slot);
+        shader.setMaterialTexture('u_splatmap', splatmap.slot);
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);

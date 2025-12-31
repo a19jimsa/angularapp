@@ -4,12 +4,12 @@ export class BatchRenderable extends Component {
   override type: string = 'BatchRenderable';
   width: number;
   height: number;
-  textureSlot: number;
+  texture: string;
 
-  constructor(width: number, height: number, textureSlot: number) {
+  constructor(width: number, height: number, texture: string) {
     super();
     this.width = width;
     this.height = height;
-    this.textureSlot = textureSlot;
+    this.texture = texture;
   }
 }

@@ -17,6 +17,18 @@ void main() {
     }else if(index == 3){
         color = texture2D(u_textures[3], v_texcoord);
     }
+    else if(index == 4){
+        color = texture2D(u_textures[4], v_texcoord);
+    }
+    else if(index == 5){
+        color = texture2D(u_textures[5], v_texcoord);
+    }
+    else if(index == 6){
+        color = texture2D(u_textures[6], v_texcoord);
+    }
+    else if(index == 7){
+        color = texture2D(u_textures[7], v_texcoord);
+    }
     if(color.a < 0.9)
         discard;
     gl_FragColor = color;

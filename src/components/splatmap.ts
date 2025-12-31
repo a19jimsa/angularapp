@@ -6,8 +6,8 @@ export class Splatmap extends Component {
   width: number;
   height: number;
   dirty: boolean = true;
-  slot: number = 0;
-  constructor(width: number, height: number, slot: number) {
+  slot: string;
+  constructor(width: number, height: number, slot: string) {
     super();
     this.width = width;
     this.height = height;

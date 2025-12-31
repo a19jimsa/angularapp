@@ -42,9 +42,13 @@ export class Shader {
     this.gl.uniform1f(this.getUniformLocation(name), value);
   }
 
-  setMaterialTexture(name: string, slot: number) {
+  setMaterialTexture(name: string, slotName: string) {
     const gl = this.gl;
     const loc = this.getUniformLocation(name);
+    const slot = TextureManager.getSlot(slotName);
+    if (slot === -1) {
+      console.log('Slot is wrong!');
+    }
     gl.uniform1i(loc, slot); // koppla uniform till samma slot
   }
 }

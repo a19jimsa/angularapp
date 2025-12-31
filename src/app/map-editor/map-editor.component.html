@@ -468,18 +468,6 @@
                   <div>Your color is: {{ meshbrush.color }}</div>
                 </div>
               </div>
-              <div>Change shader: {{ selectedShader }}</div>
-              <mat-form-field>
-                <mat-label>Shaders</mat-label>
-                <mat-select
-                  [(ngModel)]="selectedShader"
-                  name="shader"
-                  (selectionChange)="changeShader($event)"
-                  ><mat-option value="default">Default</mat-option>
-                  <mat-option value="shader1">Shader 1</mat-option>
-                  <mat-option value="shader2">Shader 2</mat-option></mat-select
-                >
-              </mat-form-field>
             </mat-expansion-panel>
             } @if(item === water){
             <mat-expansion-panel>
@@ -556,8 +544,8 @@
           >
             @for (image of images; track $index) {
             <img
-              (click)="setBrushTextureSlot($index)"
-              src="{{ image.src }}"
+              (click)="setBrushTextureSlot(image[0])"
+              src="{{ image[1].src }}"
               style="object-fit: contain; width: 150px; height: 150px"
             />
             }

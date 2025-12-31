@@ -8,12 +8,10 @@ export class KeyboardHandler {
   }
 
   private onKeyboardDown(event: KeyboardEvent) {
-    console.log(event.key);
     this.pressedKeys.add(event.key);
   }
 
   private onKeyboardUp(event: KeyboardEvent) {
-    console.log(event.key);
     this.pressedKeys.delete(event.key);
   }
 

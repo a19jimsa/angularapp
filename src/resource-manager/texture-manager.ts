@@ -2,12 +2,15 @@ import { Manager } from './manager';
 
 export class TextureManager extends Manager {
   private static textureMap = new Map<string, WebGLTexture>();
-  private static images = new Map<number, HTMLImageElement>();
+  private static images = new Map<string, HTMLImageElement>();
   public static setGl(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
 
-  static async loadTexture(path: string): Promise<HTMLImageElement> {
+  static async loadTexture(
+    name: string,
+    path: string
+  ): Promise<HTMLImageElement> {
     // Load texture
     return new Promise((resolve, reject) => {
       const image = new Image();
@@ -17,12 +20,15 @@ export class TextureManager extends Manager {
         reject(new Error('Failed to load image ' + path));
       };
       image.src = path;
+      this.images.set(name, image);
     });
   }
 
-  static loadSkybox(images: HTMLImageElement[]): WebGLTexture | null {
+  static createAndBindSkybox(images: HTMLImageElement[]): number {
     const gl = this.gl;
     const texture = gl.createTexture();
+    const slot = this.textureMap.size;
+    gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     for (let i = 0; i < images.length; i++) {
       gl.texImage2D(
@@ -42,7 +48,9 @@ export class TextureManager extends Manager {
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-    return texture;
+    this.textureMap.set('skybox', texture);
+    console.log(slot + ' skyboy');
+    return slot;
   }
 
   static createAndBindTexture(
@@ -50,7 +58,7 @@ export class TextureManager extends Manager {
     image: HTMLImageElement | null,
     width: number,
     height: number
-  ): number {
+  ): string {
     const gl = this.gl;
     const texture = gl.createTexture();
     if (!texture) {
@@ -93,14 +101,12 @@ export class TextureManager extends Manager {
       this.gl.LINEAR
     );
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     this.textureMap.set(name, texture);
-    if (image) {
-      this.images.set(slot, image);
-    }
-    return slot;
+    console.log(name + slot);
+    return name;
   }
 
   static getTexture(name: string) {
@@ -122,7 +128,7 @@ export class TextureManager extends Manager {
   static override bind(name: string) {
     const gl = this.gl;
     const texture = this.textureMap.get(name);
-    if (!texture) throw new Error('Cannon bind texture ' + name);
+    if (!texture) throw new Error('Cannot bind texture ' + name);
     gl.bindTexture(gl.TEXTURE_2D, texture);
   }
 
@@ -131,9 +137,9 @@ export class TextureManager extends Manager {
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
-  static getImage(index: number) {
-    const image = this.images.get(index);
-    if (!image) throw new Error('Cannot find texture with index ' + index);
+  static getImage(name: string) {
+    const image = this.images.get(name);
+    if (!image) throw new Error('Cannot find texture with name ' + name);
     return image;
   }
 

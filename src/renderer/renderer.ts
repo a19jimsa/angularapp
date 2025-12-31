@@ -1,17 +1,22 @@
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
+import { mat4 } from 'gl-matrix';
+import { TextureManager } from 'src/resource-manager/texture-manager';
+import { OrtographicCamera } from './orthographic-camera';
+import { Model } from './model';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
   private static canvas: HTMLCanvasElement;
-  private index: number = 0;
+  private static camera: PerspectiveCamera;
 
   static create(canvas: HTMLCanvasElement, camera: PerspectiveCamera) {
     const gl = canvas.getContext('webgl2');
     if (!gl) throw new Error('Webgl2 Not supported');
     Renderer.gl = gl;
     Renderer.canvas = canvas;
+    this.camera = camera;
     Renderer.setupGL();
   }
 
@@ -55,7 +60,7 @@ export class Renderer {
 
   static begin() {
     // Clear the canvas AND the depth buffer.
-    this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen transparent
+    this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen svart
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
 
@@ -73,9 +78,45 @@ export class Renderer {
     this.gl.drawArrays(this.gl.LINES, 0, 6);
   }
 
-  static end(camera: PerspectiveCamera) {}
+  static end(camera: PerspectiveCamera | OrtographicCamera) {}
 
-  static drawSkybox() {}
+  static drawSkybox() {
+    const model = new Model();
+    model.addSkybox();
+    const vertexArray = new VertexArray(
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices)
+    );
+    const gl = this.gl;
+    gl.depthMask(false);
+    gl.depthFunc(gl.LEQUAL);
+    const name = 'skybox';
+    const shader = ShaderManager.getShader('skybox');
+    shader.bind();
+    vertexArray.bind();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      vertexArray.vertexBuffer.vertices,
+      gl.STATIC_DRAW
+    );
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    const matrix = mat4.create();
+    mat4.copy(matrix, this.camera.getViewMatrix());
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    const perspectiveMatrix = mat4.create();
+    mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
+    shader.setUniformMat4('u_matrix', perspectiveMatrix);
+    shader.setMaterialTexture('u_skybox', 'skybox');
+    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    gl.bindVertexArray(null);
+    gl.depthMask(true);
+    gl.depthFunc(gl.LESS);
+    gl.colorMask(true, true, true, true);
+  }
 
   // private createBatch(
   //   gl: WebGL2RenderingContext,
@@ -108,21 +149,5 @@ export class Renderer {
   //   gl.useProgram(null);
   //   mesh.vao.unbind();
   //   return mesh;
-  // }
-
-  // static drawSkybox(shader: Shader) {
-  //   const gl = this.gl;
-  //   //Should be in renderer not here!
-  //   shader.use();
-  //   gl.bindVertexArray(vao.vao);
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, vao.vertexBuffer.buffer);
-  //   gl.bufferData(
-  //     gl.ARRAY_BUFFER,
-  //     vao.vertexBuffer.vertices,
-  //     gl.STATIC_DRAW
-  //   );
-  //   gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-  //   gl.enableVertexAttribArray(0);
-  //   vao.unbind();
   // }
 }

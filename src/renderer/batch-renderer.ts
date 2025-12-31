@@ -65,11 +65,12 @@ export class BatchRenderer {
       5 * Float32Array.BYTES_PER_ELEMENT
     );
     gl.enableVertexAttribArray(textureIDLocation);
-
+    //Send all texturearray ids to shader
     const texturesLocation = gl.getUniformLocation(
       shader.program,
       'u_textures'
     );
+    //Upload textureID
     gl.uniform1iv(texturesLocation, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
   }
 
@@ -79,7 +80,6 @@ export class BatchRenderer {
 
   static addSimpleQuads(width: number, height: number, textureIndex: number) {
     const z = 0;
-
     const vertices = [
       // Triangel 1
       // top-left
