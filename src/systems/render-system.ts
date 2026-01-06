@@ -108,8 +108,11 @@ export class RenderSystem {
           transform3D.translate[0],
           transform3D.translate[1],
           transform3D.translate[2],
+          transform3D.scale[0],
+          transform3D.scale[1],
           TextureManager.getSlot(batchRenderable.texture)
         );
+        console.log(TextureManager.getSlot(batchRenderable.texture));
       }
 
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
@@ -133,6 +136,8 @@ export class RenderSystem {
             transform3D.translate[0],
             transform3D.translate[1],
             transform3D.translate[2],
+            transform3D.scale[0],
+            transform3D.scale[1],
             6
           );
         }

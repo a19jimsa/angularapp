@@ -5,28 +5,23 @@ export class PerspectiveCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
-  private position: vec3 = vec3.fromValues(500, 100, 1200);
+  private cameraPos: vec3 = vec3.fromValues(0, 20, 3);
+  private cameraFront: vec3 = vec3.fromValues(0, 0, -1);
+  private cameraUp: vec3 = vec3.fromValues(0, 1, 0);
   private rotation: number = 0;
-  private target: vec3 = vec3.fromValues(
-    this.position[0],
-    this.position[1],
-    this.position[2] - 100
-  );
-
+  private yaw: number = -90;
+  private pitch: number = 0;
   constructor(width: number, height: number) {
     mat4.perspective(
       this.projectionMatrix,
-      MathUtils.degreesToRadians(40),
+      MathUtils.degreesToRadians(45),
       width / height,
       1,
       10000
     );
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      this.target,
-      vec3.fromValues(0, 1, 0)
-    );
+    const target = vec3.create();
+    vec3.add(target, this.cameraPos, this.cameraFront);
+    mat4.lookAt(this.viewMatrix, this.cameraPos, target, this.cameraUp);
     mat4.multiply(
       this.viewProjectionMatrix,
       this.projectionMatrix,
@@ -36,13 +31,13 @@ export class PerspectiveCamera {
   }
 
   get Position() {
-    return this.position;
+    return this.cameraPos;
   }
 
   set SetPosition(position: vec3) {
-    this.position[0] = position[0];
-    this.position[1] = position[1];
-    this.position[2] = position[2];
+    this.cameraPos[0] = position[0];
+    this.cameraPos[1] = position[1];
+    this.cameraPos[2] = position[2];
   }
 
   rotateZ(angle: number) {
@@ -81,15 +76,15 @@ export class PerspectiveCamera {
     const dirY = Math.sin(targetAngleRadians) * 300;
     const dirZ = -Math.cos(targetAngleRadians) * 300;
 
-    this.target = [
-      this.position[0] + dirX,
-      this.position[1] + dirY,
-      this.position[2] + dirZ,
+    this.cameraFront = [
+      this.cameraPos[0] + dirX,
+      this.cameraPos[1] + dirY,
+      this.cameraPos[2] + dirZ,
     ];
     mat4.lookAt(
       this.viewMatrix,
-      this.position,
-      this.target,
+      this.cameraPos,
+      this.cameraFront,
       vec3.fromValues(0, 1, 0)
     );
     mat4.multiply(
@@ -99,21 +94,43 @@ export class PerspectiveCamera {
     );
   }
 
-  updatePosition(x: number, y: number, z: number) {
-    this.position[0] += x;
-    this.position[1] += y;
-    this.position[2] += z;
+  rotate(xSpeed: number, ySpeed: number) {
+    this.yaw += xSpeed;
+    this.pitch += ySpeed;
+    const front = vec3.create();
+    front[0] =
+      Math.cos(MathUtils.degreesToRadians(this.yaw)) *
+      Math.cos(MathUtils.degreesToRadians(this.pitch));
+    front[1] = Math.sin(MathUtils.degreesToRadians(this.pitch));
+    front[2] =
+      Math.sin(MathUtils.degreesToRadians(this.yaw)) *
+      Math.cos(MathUtils.degreesToRadians(this.pitch));
+    this.cameraFront = vec3.normalize(this.cameraFront, front);
+    this.updateCamera();
+  }
 
-    this.target[0] += x;
-    this.target[1] += y;
-    this.target[2] += z;
+  updatePosition(speedX: number, speedY: number, speedZ: number) {
+    const cameraSpeed = vec3.create();
+    vec3.scale(cameraSpeed, this.cameraFront, speedZ);
+    vec3.add(this.cameraPos, this.cameraPos, cameraSpeed);
 
-    mat4.lookAt(
-      this.viewMatrix,
-      this.position,
-      this.target,
-      vec3.fromValues(0, 1, 0)
-    );
+    const cross = vec3.create();
+    vec3.cross(cross, this.cameraFront, this.cameraUp);
+    vec3.normalize(cross, cross);
+    vec3.scale(cross, cross, speedX);
+    vec3.add(this.cameraPos, this.cameraPos, cross);
+
+    const upMove = vec3.create();
+    vec3.scale(upMove, this.cameraUp, speedY);
+    vec3.add(this.cameraPos, this.cameraPos, upMove);
+
+    this.updateCamera();
+  }
+
+  private updateCamera() {
+    const target = vec3.create();
+    vec3.add(target, this.cameraPos, this.cameraFront);
+    mat4.lookAt(this.viewMatrix, this.cameraPos, target, this.cameraUp);
     mat4.multiply(
       this.viewProjectionMatrix,
       this.projectionMatrix,

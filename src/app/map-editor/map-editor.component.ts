@@ -27,10 +27,9 @@ import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
 import { AnimatedTexture } from 'src/components/animatedTexture';
-import { Grass } from 'src/components/grass';
 import { Transform } from 'src/components/transform';
 import { Vec } from '../vec';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
 import { Name } from 'src/components/name';
 import { Transform3D } from 'src/components/transform3D';
@@ -154,7 +153,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   movementSystem: MovementSystem = new MovementSystem();
   brushToolsImages: HTMLImageElement[] = new Array();
   selectedShader: string = 'default';
-  sceneObjects: Set<Name> = new Set<Name>();
+  sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
   animationSystem: AnimationSystem = new AnimationSystem();
   componentsList: ECSComponent[] = new Array();
@@ -188,7 +187,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     radius: 5,
     strength: 1,
     image: new Image(),
-    type: ToolBrush.Grass,
+    type: ToolBrush.Pivot,
     color: 'red',
     alpha: 1,
     entity: -1,
@@ -343,7 +342,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     console.log(this.canvas);
     this.mouseHandler = new MouseHandler(this.canvas);
     Renderer.create(this.canvas, this.editorCamera);
-    TextureManager.setGl(Renderer.getGL);
+    TextureManager.setGL(Renderer.getGL);
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
     await this.loadAllShaders();
@@ -601,7 +600,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     for (const entity of this.ecs.getEntities()) {
       const name = this.ecs.getComponent<Name>(entity, 'Name');
       if (!name) continue;
-      this.sceneObjects.add(name);
+      if (this.sceneObjects.has(name)) {
+        this.sceneObjects.get(name)!.push(entity); // lägg till i listan
+      } else {
+        this.sceneObjects.set(name, [entity]); // skapa ny lista
+      }
     }
 
     this.cdr.detectChanges();
@@ -800,9 +803,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   createLightSource() {
+    const cameraPosition = this.editorCamera.Position;
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 0, 500));
+    this.ecs.addComponent<Transform3D>(
+      entity,
+      new Transform3D(cameraPosition[0], 0, cameraPosition[2])
+    );
     this.ecs.addComponent<Light>(entity, new Light());
     const model = new Model();
     model.addPlane(10);
@@ -904,6 +911,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.mouse.lastX = this.mouse.x;
     this.mouse.lastY = this.mouse.y;
 
+    if (this.mouse.dragging && this.keyboard.isKeyPressed('Shift')) {
+      const transform = this.ecs.getComponent<Transform3D>(
+        this.meshbrush.entity,
+        'Transform3D'
+      );
+      if (transform) {
+        transform.scale[0] += this.mouse.deltaX * 0.001;
+        transform.scale[2] += this.mouse.deltaY * 0.001;
+      }
+    }
+
     this.cameraMovement();
   }
 
@@ -921,6 +939,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     if (this.mouse.dragging) {
+      const pivot = this.ecs.getComponent<Pivot>(
+        this.meshbrush.entity,
+        'Pivot'
+      );
+      if (!pivot) return;
       this.mouse.dir = this.calculateRayCast();
       this.brushSystem.update(
         this.meshbrush,
@@ -928,9 +951,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.mouse,
         this.editorCamera
       );
-    }
-    if (this.mouse.clicked) {
-      console.log(TextureManager.getTextures());
+    } else if (this.mouse.clicked && !this.mouse.dragging) {
+      if (this.meshbrush.type === ToolBrush.Trees) {
+        this.mouse.dir = this.calculateRayCast();
+        this.brushSystem.update(
+          this.meshbrush,
+          this.ecs,
+          this.mouse,
+          this.editorCamera
+        );
+      }
     }
   }
 
@@ -1013,24 +1043,36 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   private cameraMovement() {
     const speed = 1;
-
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
+    let rotateX = 0;
+    let rotateY = 0;
+    let rotateZ = 0;
 
-    if (this.keyboard.isKeyPressed('w')) moveZ -= speed;
-    if (this.keyboard.isKeyPressed('s')) moveZ += speed;
+    if (this.keyboard.isKeyPressed('w')) moveZ += speed;
+    if (this.keyboard.isKeyPressed('s')) moveZ -= speed;
 
-    if (this.keyboard.isKeyPressed('a')) moveX -= speed;
     if (this.keyboard.isKeyPressed('d')) moveX += speed;
+    if (this.keyboard.isKeyPressed('a')) moveX -= speed;
 
     // Flyga upp/ner med space/shift om du vill
     if (this.keyboard.isKeyPressed(' ')) moveY += speed;
     if (this.keyboard.isKeyPressed('Shift')) moveY -= speed;
 
+    if (this.keyboard.isKeyPressed('e')) rotateX += speed;
+    if (this.keyboard.isKeyPressed('q')) rotateX -= speed;
+
+    if (this.keyboard.isKeyPressed('x')) rotateY += speed;
+    if (this.keyboard.isKeyPressed('z')) rotateY -= speed;
+
     // Uppdatera kameran (om något ändrats)
     if (moveX !== 0 || moveY !== 0 || moveZ !== 0) {
       this.editorCamera.updatePosition(moveX, moveY, moveZ);
+    }
+
+    if (rotateX !== 0 || rotateY !== 0 || rotateZ !== 0) {
+      this.editorCamera.rotate(rotateX, rotateY);
     }
   }
 }

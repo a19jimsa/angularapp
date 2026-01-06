@@ -219,6 +219,7 @@ export class BrushSystem {
       new BatchRenderable(
         TextureManager.getImage(meshBrush.imageName).width,
         TextureManager.getImage(meshBrush.imageName).height,
+        vec3.fromValues(0, 0, 0),
         meshBrush.imageName
       )
     );

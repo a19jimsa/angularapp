@@ -47,7 +47,7 @@ export class Shader {
     const loc = this.getUniformLocation(name);
     const slot = TextureManager.getSlot(slotName);
     if (slot === -1) {
-      console.log('Slot is wrong!');
+      console.log('Slot is wrong!' + name + slotName);
     }
     gl.uniform1i(loc, slot); // koppla uniform till samma slot
   }

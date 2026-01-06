@@ -152,6 +152,8 @@ export class BatchRenderer {
     translateX: number,
     translateY: number,
     translateZ: number,
+    scaleX: number,
+    scaleY: number,
     textureIndex: number
   ) {
     const cos = Math.cos(rotation);
@@ -167,8 +169,8 @@ export class BatchRenderer {
 
     const x0 = dx;
     const y0 = dy;
-    const x1 = dx + dw;
-    const y1 = dy + dh;
+    const x1 = dx + dw * scaleX;
+    const y1 = dy + dh * scaleY;
 
     // Pivot i world-space
     const pivotX = dx + pivot.x + sw / 2;
@@ -178,7 +180,7 @@ export class BatchRenderer {
       // Triangel 1
       // top-left
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
-      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
+      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY * scaleY,
       translateZ,
       u0,
       v0,

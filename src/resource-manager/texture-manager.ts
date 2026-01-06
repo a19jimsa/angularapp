@@ -3,7 +3,8 @@ import { Manager } from './manager';
 export class TextureManager extends Manager {
   private static textureMap = new Map<string, WebGLTexture>();
   private static images = new Map<string, HTMLImageElement>();
-  public static setGl(gl: WebGL2RenderingContext) {
+
+  public static setGL(gl: WebGL2RenderingContext) {
     this.gl = gl;
   }
 
@@ -49,7 +50,6 @@ export class TextureManager extends Manager {
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
     this.textureMap.set('skybox', texture);
-    console.log(slot + ' skyboy');
     return slot;
   }
 
