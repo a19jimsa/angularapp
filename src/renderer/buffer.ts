@@ -1,36 +1,79 @@
-export interface Buffer {
-  bind(): void;
-  unbind(): void;
-  setData(): void;
+import { Renderer } from './renderer';
+
+type BufferElement = {
+  name: string; //aPosition,a_normals etc
+  type: GLenum; // gl.FLOAT, gl.INT, gl.UNSIGNED_BYTE, etc
+  count: number; // antal komponenter, t.ex. 3 för vec3
+  normalized: boolean;
+  offset: number; // byte-offset i vertex-strukturen
+};
+
+export class BufferLayout {
+  public elements: BufferElement[] = [];
+  public stride = 0;
+
+  add(name: string, type: GLenum, count: number, normalized = false) {
+    const offset = this.stride;
+    this.elements.push({
+      name,
+      type,
+      count,
+      normalized,
+      offset,
+    });
+
+    this.stride += count * this.getSizeOfType(type);
+    console.log('Added to buffer element' + type);
+  }
+
+  private getSizeOfType(type: GLenum): number {
+    const gl = Renderer.getGL;
+    switch (type) {
+      case gl.FLOAT:
+        return 4;
+      case gl.INT:
+        return 4;
+      case gl.UNSIGNED_INT:
+        return 4;
+      case gl.SHORT:
+        return 2;
+      case gl.UNSIGNED_SHORT:
+        return 2;
+      case gl.BYTE:
+        return 1;
+      case gl.UNSIGNED_BYTE:
+        return 1;
+      default:
+        throw new Error(`Unknown buffer element type: ${type}`);
+    }
+  }
 }
 
 //VBO
-export class VertexBuffer implements Buffer {
+export class VertexBuffer {
   vertices: Float32Array;
   buffer: WebGLBuffer | null;
-  gl: WebGL2RenderingContext;
-  constructor(gl: WebGL2RenderingContext, vertices: Float32Array) {
-    this.gl = gl;
+  constructor(vertices: Float32Array) {
+    const gl = Renderer.getGL;
     this.vertices = new Float32Array(vertices);
     this.buffer = gl.createBuffer();
   }
 
   bind(): void {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
   }
   unbind(): void {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
   setData(): void {
     throw new Error('Method not implemented.');
   }
 
-  static create(
-    gl: WebGL2RenderingContext,
-    vertices: Float32Array
-  ): VertexBuffer {
-    return new VertexBuffer(gl, vertices);
+  static create(vertices: Float32Array): VertexBuffer {
+    return new VertexBuffer(vertices);
   }
 }
 
@@ -38,18 +81,19 @@ export class VertexBuffer implements Buffer {
 export class IndexBuffer {
   buffer: WebGLBuffer | null;
   indices: Uint16Array;
-  gl: WebGL2RenderingContext;
-  constructor(gl: WebGL2RenderingContext, indices: Uint16Array) {
+  constructor(indices: Uint16Array) {
     this.indices = new Uint16Array(indices);
-    this.gl = gl;
+    const gl = Renderer.getGL;
     this.buffer = gl.createBuffer();
   }
 
   bind(): void {
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
   }
   unbind(): void {
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
   setData(): void {
     throw new Error('Method not implemented.');
@@ -59,7 +103,7 @@ export class IndexBuffer {
     return this.indices.length;
   }
 
-  static create(gl: WebGL2RenderingContext, indices: Uint16Array): IndexBuffer {
-    return new IndexBuffer(gl, indices);
+  static create(indices: Uint16Array): IndexBuffer {
+    return new IndexBuffer(indices);
   }
 }

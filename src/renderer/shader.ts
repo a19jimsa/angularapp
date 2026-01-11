@@ -1,14 +1,17 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { BufferLayout } from './buffer';
 
 export class Shader {
   gl: WebGL2RenderingContext;
   //Can not be null then no shader are loaded into program and exection fails.
   program: WebGLProgram;
-  constructor(program: WebGLProgram) {
+  layout: BufferLayout;
+  constructor(program: WebGLProgram, layout: BufferLayout) {
     this.gl = Renderer.getGL;
     this.program = program;
+    this.layout = layout;
   }
 
   //Use program
@@ -42,13 +45,15 @@ export class Shader {
     this.gl.uniform1f(this.getUniformLocation(name), value);
   }
 
-  setMaterialTexture(name: string, slotName: string) {
+  setMaterialTexture(locationName: string, slotName: string) {
     const gl = this.gl;
-    const loc = this.getUniformLocation(name);
+    const location = this.getUniformLocation(locationName);
     const slot = TextureManager.getSlot(slotName);
     if (slot === -1) {
-      console.log('Slot is wrong!' + name + slotName);
+      console.log('Slot is wrong! ' + slotName);
     }
-    gl.uniform1i(loc, slot); // koppla uniform till samma slot
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(slotName));
+    gl.uniform1i(location, slot); // koppla uniform till samma slot
   }
 }

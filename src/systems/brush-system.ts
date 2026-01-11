@@ -7,12 +7,12 @@ import {
 import { BatchRenderable } from 'src/components/batch-renderable';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
-import { Pivot } from 'src/components/pivot';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class BrushSystem {
@@ -50,60 +50,15 @@ export class BrushSystem {
       meshBrush.entity,
       'Transform3D'
     );
-    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-    if (pivot && transform3D) {
-      for (let i = 0; i < maxDistance; i += step) {
-        if (mouse.isSelected.select) {
-          break;
-        }
-        const pos1 = vec3.create();
-        vec3.scaleAndAdd(pos1, rayOrigin, mouse.dir, i); // pos = origin + dir * i
-        //8 Stride change later to make it get from the mesh stride, offset etc.
-        for (let j = 0; j < pivot.vertices.length; j += 3) {
-          const vx = pivot.vertices[j] + transform3D.translate[0];
-          const vy = pivot.vertices[j + 1] + transform3D.translate[1];
-          const vz = pivot.vertices[j + 2] + transform3D.translate[2];
-          // Calculate distance between vertex positions and raycaster's position.
-          const dx = vx - pos1[0];
-          const dy = vy - pos1[1];
-          const dz = vz - pos1[2];
-          //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          if (dist < epsilon) {
-            console.log('Hitted vertex');
-            //Create drag system with mouse!
-            if (j === 3) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 9) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 15) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            }
-          }
-        }
-      }
-
-      if (mouse.isSelected.select && mouse.dragging) {
-        console.log('IS selected' + mouse.isSelected.select);
-        if (mouse.isSelected.element === 3) {
-          transform3D.translate[0] -= mouse.deltaX;
-        } else if (mouse.isSelected.element === 9) {
-          transform3D.translate[1] += mouse.deltaY;
-        } else if (mouse.isSelected.element === 15) {
-          transform3D.translate[2] -= mouse.deltaY * 2;
-        }
-      }
-    }
 
     if (!mesh || !transform3D) return;
     for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
       //8 Stride change later to make it get from the mesh stride, offset etc.
-      for (let j = 0; j < mesh.vertices.length; j += 8) {
+      const shader = ShaderManager.getShader('splatmap');
+      const stride = shader.layout.stride;
+      for (let j = 0; j < mesh.vertices.length; j += stride / 4) {
         const vx =
           mesh.vertices[j] * transform3D.scale[0] + transform3D.translate[0];
         const vy =
@@ -126,7 +81,7 @@ export class BrushSystem {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
           } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, vx, vy, vz, meshBrush);
+            //this.treeBrush(ecs, vx, vy, vz, meshBrush);
           } else if (meshBrush.type === ToolBrush.Splat) {
             this.paintImage(
               ecs,
@@ -135,15 +90,40 @@ export class BrushSystem {
               mesh.vertices[j + 4]
             );
           } else if (meshBrush.type === ToolBrush.Pivot) {
-            //this.pivotMode();
+            this.pivotMode(ecs, meshBrush, mouse, j);
           }
-          return;
         }
       }
     }
   }
 
-  private pivotMode() {}
+  private pivotMode(ecs: Ecs, meshBrush: Brush, mouse: Mouse, j: number) {
+    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    const transform3D = ecs.getComponent<Transform3D>(
+      meshBrush.entity,
+      'Transform3D'
+    );
+    if (!mesh || !transform3D) return;
+    if (j === 3) {
+      mouse.isSelected = { select: true, element: j };
+    } else if (j === 9) {
+      mouse.isSelected = { select: true, element: j };
+    } else if (j === 15) {
+      mouse.isSelected = { select: true, element: j };
+    }
+
+    if (mouse.isSelected.select && mouse.dragging) {
+      if (mouse.isSelected.element === 3) {
+        transform3D.translate[0] -= mouse.deltaX;
+      } else if (mouse.isSelected.element === 9) {
+        transform3D.translate[1] += mouse.deltaY;
+      } else if (mouse.isSelected.element === 15) {
+        transform3D.translate[2] -= mouse.deltaY * 2;
+      }
+      //Do not go into next  if pivot is active on drag;
+      return;
+    }
+  }
 
   private grassBrushWithImage(
     ecs: Ecs,
@@ -205,25 +185,25 @@ export class BrushSystem {
     }
   }
 
-  private treeBrush(
-    ecs: Ecs,
-    x: number,
-    y: number,
-    z: number,
-    meshBrush: Brush
-  ) {
-    const tree = ecs.createEntity();
-    ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
-    ecs.addComponent<BatchRenderable>(
-      tree,
-      new BatchRenderable(
-        TextureManager.getImage(meshBrush.imageName).width,
-        TextureManager.getImage(meshBrush.imageName).height,
-        vec3.fromValues(0, 0, 0),
-        meshBrush.imageName
-      )
-    );
-  }
+  // private treeBrush(
+  //   ecs: Ecs,
+  //   x: number,
+  //   y: number,
+  //   z: number,
+  //   meshBrush: Brush
+  // ) {
+  //   const tree = ecs.createEntity();
+  //   ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
+  //   ecs.addComponent<BatchRenderable>(
+  //     tree,
+  //     new BatchRenderable(
+  //       TextureManager.getImage(meshBrush.imageName).width,
+  //       TextureManager.getImage(meshBrush.imageName).height,
+  //       vec3.fromValues(0, 0, 0),
+  //       meshBrush.imageName
+  //     )
+  //   );
+  // }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
     //const alpha = meshBrush.alpha;
@@ -468,7 +448,9 @@ export class BrushSystem {
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     if (!transform3D || !terrain || !mesh) return;
-    for (let i = 0; i < vertices.length; i += 8) {
+    const shader = ShaderManager.getShader('splatmap');
+    const stride = shader.layout.stride;
+    for (let i = 0; i < vertices.length; i += stride) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
         vertices[i + 2] * transform3D.scale[2] + transform3D.translate[2];
@@ -495,7 +477,6 @@ export class BrushSystem {
           }
           vertices[i + 1] += influence;
         }
-        mesh.dirty = true;
       }
     }
   }
@@ -515,7 +496,10 @@ export class BrushSystem {
 
   public updateNormals(mesh: Mesh): void {
     // Steg 1: Initiera alla normals till 0
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
+    const shader = ShaderManager.getShader('splatmap');
+    const stride = shader.layout.stride;
+
+    for (let i = 0; i < mesh.vertices.length / stride; i++) {
       mesh.vertices[i * 8 + 5] = 0;
       mesh.vertices[i * 8 + 6] = 0;
       mesh.vertices[i * 8 + 7] = 0;
@@ -526,17 +510,17 @@ export class BrushSystem {
       const i1 = mesh.indices[i + 1];
       const i2 = mesh.indices[i + 2];
 
-      const v0 = mesh.vertices[i0 * 8];
-      const v1 = mesh.vertices[i0 * 8 + 1];
-      const v2 = mesh.vertices[i0 * 8 + 2];
+      const v0 = mesh.vertices[i0 * stride];
+      const v1 = mesh.vertices[i0 * stride + 1];
+      const v2 = mesh.vertices[i0 * stride + 2];
 
-      const v3 = mesh.vertices[i1 * 8];
-      const v4 = mesh.vertices[i1 * 8 + 1];
-      const v5 = mesh.vertices[i1 * 8 + 2];
+      const v3 = mesh.vertices[i1 * stride];
+      const v4 = mesh.vertices[i1 * stride + 1];
+      const v5 = mesh.vertices[i1 * stride + 2];
 
-      const v6 = mesh.vertices[i2 * 8];
-      const v7 = mesh.vertices[i2 * 8 + 1];
-      const v8 = mesh.vertices[i2 * 8 + 2];
+      const v6 = mesh.vertices[i2 * stride];
+      const v7 = mesh.vertices[i2 * stride + 1];
+      const v8 = mesh.vertices[i2 * stride + 2];
 
       const triangleA = vec3.fromValues(v0, v1, v2);
       const triangleB = vec3.fromValues(v3, v4, v5);
@@ -552,23 +536,23 @@ export class BrushSystem {
       vec3.normalize(normal, normal);
       // Skriv normalen till varje vertex i triangeln (flat shading)
       for (const idx of [i0, i1, i2]) {
-        mesh.vertices[idx * 8 + 5] += normal[0];
-        mesh.vertices[idx * 8 + 6] += normal[1];
-        mesh.vertices[idx * 8 + 7] += normal[2];
+        mesh.vertices[idx * stride + 5] += normal[0];
+        mesh.vertices[idx * stride + 6] += normal[1];
+        mesh.vertices[idx * stride + 7] += normal[2];
       }
     }
     // Steg 3: Normalisera normals för varje vertex
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
-      const nx = mesh.vertices[i * 8 + 5];
-      const ny = mesh.vertices[i * 8 + 6];
-      const nz = mesh.vertices[i * 8 + 7];
+    for (let i = 0; i < mesh.vertices.length / stride; i++) {
+      const nx = mesh.vertices[i * stride + 5];
+      const ny = mesh.vertices[i * stride + 6];
+      const nz = mesh.vertices[i * stride + 7];
 
       const normal = vec3.fromValues(nx, ny, nz);
       vec3.normalize(normal, normal);
 
-      mesh.vertices[i * 8 + 5] = normal[0];
-      mesh.vertices[i * 8 + 6] = normal[1];
-      mesh.vertices[i * 8 + 7] = normal[2];
+      mesh.vertices[i * stride + 5] = normal[0];
+      mesh.vertices[i * stride + 6] = normal[1];
+      mesh.vertices[i * stride + 7] = normal[2];
     }
   }
 }

@@ -210,7 +210,16 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <div class="row">
-                <h1>{{ material.slot }}</h1>
+                {{ material.slot }}
+                <button
+                  (click)="
+                    addTextureToMaterial('/assets/textures/texture_map.jpg')
+                  "
+                >
+                  Add Texture
+                </button>
+              </div>
+              <div class="row">
                 <mat-form-field class="col-4">
                   <mat-label>Ambient X</mat-label>
                   <input
@@ -435,14 +444,17 @@
                 </mat-form-field>
               </div>
             </mat-expansion-panel>
-            }@if(item.type.includes("Splatmap")){
+            }@if(item === splatmap){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
-                <mat-panel-title> {{ item.type }} </mat-panel-title>
+                <mat-panel-title> Splatmap </mat-panel-title>
                 <mat-panel-description
                   ><mat-icon>palette</mat-icon></mat-panel-description
                 >
               </mat-expansion-panel-header>
+              <div class="d-flex flex-row">
+                Splatmap slot: {{ splatmap.slot }}
+              </div>
               <div class="d-flex flex-row">
                 <div>
                   <mat-slider min="0" max="1" step="0.1" discrete>
@@ -543,13 +555,13 @@
             class="d-flex align-items-center flex-wrap overflow-auto"
             style="height: 150px"
           >
-            @for (image of images; track $index) {
+            <!-- @for (image of images; track $index) {
             <img
               (click)="setBrushTextureSlot(image[0])"
               src="{{ image[1].src }}"
               style="object-fit: contain; width: 150px; height: 150px"
             />
-            }
+            } -->
           </div>
         </mat-card-content>
       </mat-card>

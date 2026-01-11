@@ -45,8 +45,8 @@ void main() {
     vec3 specular = light.specular * (spec * material.specular);  
 
     vec2 tileSize = vec2(1.0 / 2.0, 1.0 / 1.0);
-    vec2 uv_water1 = fract(v_texcoord * u_tiling + vec2(0.0, u_time)) * tileSize + vec2(0.0, 0.0) * tileSize;
-    vec2 uv_water2 = fract(v_texcoord * u_tiling + vec2(0.0, -u_time)) * tileSize + vec2(1.0, 0.0) * tileSize;
+    vec2 uv_water1 = fract(v_texcoord * u_tiling + vec2(0.0, -u_time)) * tileSize + vec2(0.0, 0.0) * tileSize;
+    vec2 uv_water2 = fract(v_texcoord * u_tiling + vec2(0.0, u_time)) * tileSize + vec2(1.0, 0.0) * tileSize;
     float noiseValue1 = texture2D(u_texture, uv_water1).r; // slå upp från noise-texturen
     float noiseValue2 = texture2D(u_texture, uv_water2).r; // slå upp från noise-texturen
     float alpha = 0.9;

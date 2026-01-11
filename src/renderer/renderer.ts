@@ -2,9 +2,9 @@ import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
 import { mat4 } from 'gl-matrix';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 import { OrtographicCamera } from './orthographic-camera';
 import { Model } from './model';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
@@ -58,50 +58,43 @@ export class Renderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
+  private static setupSkybox() {
+    const model = new Model();
+    model.addSkybox();
+    MeshManager.addMesh(model, 'skybox');
+  }
+
   static begin() {
     // Clear the canvas AND the depth buffer.
     this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen svart
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
 
-  static drawIndexed(vertexArray: VertexArray | undefined) {
-    if (!vertexArray) return;
+  static drawIndexed(vertexArray: VertexArray) {
     vertexArray.bind();
     const count = vertexArray.indexBuffer.getCount();
     this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0);
-    vertexArray.unbind();
   }
 
-  static drawLines(verterxArray: VertexArray | undefined) {
-    if (!verterxArray) return;
-    verterxArray.bind();
-    this.gl.drawArrays(this.gl.LINES, 0, 6);
+  static drawLines(vertexArray: VertexArray) {
+    vertexArray.bind();
+    this.gl.drawElements(
+      this.gl.LINES,
+      vertexArray.indexBuffer.getCount(),
+      this.gl.UNSIGNED_SHORT,
+      0
+    );
   }
 
   static end(camera: PerspectiveCamera | OrtographicCamera) {}
 
-  static drawSkybox() {
-    const model = new Model();
-    model.addSkybox();
-    const vertexArray = new VertexArray(
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices)
-    );
+  static drawSkybox(vertexArray: VertexArray) {
     const gl = this.gl;
     gl.depthMask(false);
     gl.depthFunc(gl.LEQUAL);
-    const name = 'skybox';
     const shader = ShaderManager.getShader('skybox');
     shader.bind();
     vertexArray.bind();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      vertexArray.vertexBuffer.vertices,
-      gl.STATIC_DRAW
-    );
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(0);
     const matrix = mat4.create();
     mat4.copy(matrix, this.camera.getViewMatrix());
     matrix[12] = 0;

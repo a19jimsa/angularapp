@@ -3,7 +3,8 @@ import { Vec } from 'src/app/vec';
 export class Model {
   vertices: number[] = new Array();
   indices: number[] = new Array();
-  normals: number[] = new Array();
+  shaderName: string = '';
+
   constructor() {}
 
   addSkybox() {
@@ -27,8 +28,8 @@ export class Model {
       -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, -1.0,
       -1.0, 1.0, 1.0, -1.0, 1.0,
     ];
-    this.vertices = [-1, -1, 0, 1, -1, 0, 0, 1, 0];
     this.vertices = skyboxVertices;
+    this.shaderName = 'skybox';
   }
 
   addSquares(
@@ -125,55 +126,154 @@ export class Model {
     const i4 = 2 + 4 * multiplier;
     const i5 = 3 + 4 * multiplier;
     this.indices.push(i0, i1, i2, i3, i4, i5);
+    this.shaderName = 'batch2d';
   }
 
   addCube() {
-    const positions: number[] = [
+    // 6 faces × 4 vertices per face = 24 vertices
+    this.vertices = [
       // Front face
-      -10.0, -10.0, 10.0, 0.0, 0.0, 10.0, -10.0, 10.0, 0.0, 0.0, 10.0, 10.0, 10.0, 0.0,
-      0.0, -10.0, 10.0, 10.0, 0.0, 0.0,
+      -10,
+      -10,
+      10, // v0
+      10,
+      -10,
+      10, // v1
+      10,
+      10,
+      10, // v2
+      -10,
+      10,
+      10, // v3
+
       // Back face
-      -10.0, -10.0, -10.0, 0.0, 0.0, -10.0, 10.0, -10.0, 0.0, 0.0, 10.0, 10.0, -10.0,
-      0.0, 0.0, 10.0, -10.0, -10.0, 0.0, 0.0,
+      -10,
+      -10,
+      -10, // v4
+      -10,
+      10,
+      -10, // v5
+      10,
+      10,
+      -10, // v6
+      10,
+      -10,
+      -10, // v7
 
       // Top face
-      -10.0, 10.0, -10.0, 0.0, 0.0, -10.0, 10.0, 10.0, 0.0, 0.0, 10.0, 10.0, 10.0, 0.0,
-      0.0, 10.0, 10.0, -10.0, 0.0, 0.0,
+      -10,
+      10,
+      -10, // v8
+      -10,
+      10,
+      10, // v9
+      10,
+      10,
+      10, // v10
+      10,
+      10,
+      -10, // v11
 
       // Bottom face
-      -10.0, -10.0, -10.0, 0.0, 0.0, 10.0, -10.0, -10.0, 0.0, 0.0, 10.0, -10.0, 10.0,
-      0.0, 0.0, -10.0, -10.0, 10.0, 0.0, 0.0,
+      -10,
+      -10,
+      -10, // v12
+      10,
+      -10,
+      -10, // v13
+      10,
+      -10,
+      10, // v14
+      -10,
+      -10,
+      10, // v15
 
       // Right face
-      10.0, -10.0, -10.0, 0.0, 0.0, 10.0, 10.0, -10.0, 0.0, 0.0, 10.0, 10.0, 10.0, 0.0,
-      0.0, 10.0, -10.0, 10.0, 0.0, 0.0,
+      10,
+      -10,
+      -10, // v16
+      10,
+      10,
+      -10, // v17
+      10,
+      10,
+      10, // v18
+      10,
+      -10,
+      10, // v19
 
       // Left face
-      -10.0, -10.0, -10.0, 0.0, 0.0, -10.0, -10.0, 10.0, 0.0, 0.0, -10.0, 10.0, 10.0,
-      0.0, 0.0, -10.0, 10.0, -10.0, 0.0, 0.0,
-    ] as number[];
-
-    // prettier-ignore
-    const indices = [
-      0,  1,  2,      0,  2,  3,    // front
-      4,  5,  6,      4,  6,  7,    // back
-      8,  9,  10,     8,  10, 11,   // top
-      12, 13, 14,     12, 14, 15,   // bottom
-      16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23,   // left
+      -10,
+      -10,
+      -10, // v20
+      -10,
+      -10,
+      10, // v21
+      -10,
+      10,
+      10, // v22
+      -10,
+      10,
+      -10, // v23
     ];
-    this.vertices = positions;
-    this.indices = indices;
+
+    // 2 triangles per face
+    this.indices = [
+      0,
+      1,
+      2,
+      0,
+      2,
+      3, // Front
+      4,
+      5,
+      6,
+      4,
+      6,
+      7, // Back
+      8,
+      9,
+      10,
+      8,
+      10,
+      11, // Top
+      12,
+      13,
+      14,
+      12,
+      14,
+      15, // Bottom
+      16,
+      17,
+      18,
+      16,
+      18,
+      19, // Right
+      20,
+      21,
+      22,
+      20,
+      22,
+      23, // Left
+    ];
+
+    this.shaderName = 'basic';
   }
 
   addPivot() {
-    const positions = [
-      0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0,
+    const vertices = [
+      // X-axis 3, color 2
+      0, 0, 0, 1, 0, 0, 50, 0, 0, 1, 0, 0,
+      // Y-axis, color 2
+      0, 0, 0, 0, 1, 0, 0, 50, 0, 0, 1, 0,
+      // Z-axis, color 2
+      0, 0, 0, 0, 0, 1, 0, 0, 50, 0, 0, 1,
     ];
+
     const indices = [0, 1, 2, 3, 4, 5];
-    this.vertices.push(...positions);
-    this.indices.push(...indices);
+    this.vertices = vertices;
+    this.indices = indices;
+    this.shaderName = 'debug';
   }
 
   addGrass() {
@@ -205,6 +305,7 @@ export class Model {
       this.indices.push(topRight, bottomRight, topLeft);
       this.indices.push(bottomRight, bottomLeft, topLeft);
     }
+    this.shaderName = 'grass';
   }
 
   addTree(width: number, height: number) {
@@ -247,11 +348,12 @@ export class Model {
     const indices = [0, 3, 1, 1, 3, 2];
     this.vertices = position;
     this.indices = indices;
+    this.shaderName = 'tree';
   }
 
-  addPlane(quads: number) {
-    const width = 1000;
-    const length = 1000;
+  addPlane(quads: number, x: number, z: number) {
+    const width = z;
+    const length = x;
     this.vertices = [];
     this.indices = [];
 
@@ -315,5 +417,6 @@ export class Model {
       // Triangel 2
       this.indices.push(top1, bottom0, bottom1);
     }
+    this.shaderName = 'vfx';
   }
 }

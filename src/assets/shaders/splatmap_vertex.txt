@@ -11,7 +11,7 @@ varying vec3 v_normal;
 varying float v_fogDistance;
 
 void main() {
-   v_texcoord = a_texcoord * 20.0;
+   v_texcoord = a_texcoord * 10.0;
    v_height = a_position.y;
    v_normal = a_normal;
    vec4 viewPos = u_view * a_position;

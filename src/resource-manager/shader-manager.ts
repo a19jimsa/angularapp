@@ -1,12 +1,13 @@
+import { BufferLayout } from 'src/renderer/buffer';
 import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { Manager } from 'src/resource-manager/manager';
 
 export class ShaderManager extends Manager {
   private static shaders: Map<string, Shader> = new Map();
-
   public static async load(
     key: string,
+    bufferLayout: BufferLayout,
     vertexUrl: string,
     fragmentUrl: string
   ) {
@@ -23,7 +24,7 @@ export class ShaderManager extends Manager {
       throw new Error('Cannot create shader from url');
     const program = this.createProgram(vertexShader, fragmentShader);
     if (program) {
-      const shader = new Shader(program);
+      const shader = new Shader(program, bufferLayout);
       this.shaders.set(key, shader);
       console.log('Added shader ' + key);
     } else {

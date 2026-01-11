@@ -5,14 +5,14 @@ import { IndexBuffer, VertexBuffer } from './buffer';
 export class VertexArray {
   vertexBuffer: VertexBuffer;
   indexBuffer: IndexBuffer;
-  vao: WebGLVertexArrayObject;
+  VAO: WebGLVertexArrayObject;
 
   constructor(vertices: Float32Array, indices: Uint16Array) {
     const gl = Renderer.getGL;
-    this.vao = gl.createVertexArray();
+    this.VAO = gl.createVertexArray();
     this.bind();
     //VBO
-    this.vertexBuffer = VertexBuffer.create(gl, vertices);
+    this.vertexBuffer = VertexBuffer.create(vertices);
     this.vertexBuffer.buffer = gl.createBuffer();
     if (!this.vertexBuffer.buffer) {
       console.error('Error vertex');
@@ -21,7 +21,7 @@ export class VertexArray {
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     //IBO
-    this.indexBuffer = IndexBuffer.create(gl, indices);
+    this.indexBuffer = IndexBuffer.create(indices);
     this.indexBuffer.buffer = gl.createBuffer();
     if (!this.indexBuffer.buffer) {
       console.error('Error indices');
@@ -33,11 +33,13 @@ export class VertexArray {
   }
 
   bind() {
-    Renderer.getGL.bindVertexArray(this.vao);
+    const gl = Renderer.getGL;
+    gl.bindVertexArray(this.VAO);
   }
 
   unbind() {
-    Renderer.getGL.bindVertexArray(null);
+    const gl = Renderer.getGL;
+    gl.bindVertexArray(null);
   }
 
   static create(vertices: Float32Array, indices: Uint16Array) {

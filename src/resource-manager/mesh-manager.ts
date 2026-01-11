@@ -1,26 +1,45 @@
-import { MeshRenderer } from 'src/renderer/mesh-renderer';
+import { Model } from 'src/renderer/model';
 import { Renderer } from 'src/renderer/renderer';
 import { VertexArray } from 'src/renderer/vertex-array';
+import { ShaderManager } from './shader-manager';
 
 export class MeshManager {
-  private static vaos = new Map<number, VertexArray>();
-  private static index = 0;
+  private static vertexArrays = new Map<string, VertexArray>();
 
-  public static addMesh(vertices: number[], indices: number[]) {
+  public static addMesh(model: Model, name: string) {
     const vertexArray = new VertexArray(
-      new Float32Array(vertices),
-      new Uint16Array(indices)
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices)
     );
-    const mesh = new MeshRenderer(Renderer.getGL);
-    mesh.setupMesh(vertexArray);
-    this.vaos.set(this.index, vertexArray);
-    console.log('Added mesh' + this.index);
-    const index = this.index;
-    this.index++;
-    return index;
+    this.setupMeshNew(vertexArray, name);
+    this.vertexArrays.set(name, vertexArray);
+    console.log('Added mesh ' + name);
+    console.log(this.vertexArrays);
   }
 
-  public static getMesh(index: number) {
-    return this.vaos.get(index);
+  public static getMesh(index: string) {
+    return this.vertexArrays.get(index);
+  }
+
+  public static setupMeshNew(vao: VertexArray, shaderName: string): void {
+    const gl = Renderer.getGL;
+    vao.bind();
+    let index = 0;
+    const shader = ShaderManager.getShader(shaderName);
+    console.log(shader.layout);
+    for (const element of shader.layout.elements) {
+      gl.vertexAttribPointer(
+        index,
+        element.count,
+        element.type,
+        element.normalized,
+        shader.layout.stride,
+        element.offset
+      );
+      gl.enableVertexAttribArray(index);
+      index++;
+      console.log(index);
+    }
+    vao.unbind();
   }
 }

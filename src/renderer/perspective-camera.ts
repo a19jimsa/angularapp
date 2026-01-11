@@ -5,7 +5,7 @@ export class PerspectiveCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
-  private cameraPos: vec3 = vec3.fromValues(0, 20, 3);
+  private cameraPos: vec3 = vec3.fromValues(500, 10, 1000);
   private cameraFront: vec3 = vec3.fromValues(0, 0, -1);
   private cameraUp: vec3 = vec3.fromValues(0, 1, 0);
   private rotation: number = 0;
@@ -123,12 +123,12 @@ export class PerspectiveCamera {
     const upMove = vec3.create();
     vec3.scale(upMove, this.cameraUp, speedY);
     vec3.add(this.cameraPos, this.cameraPos, upMove);
-
     this.updateCamera();
   }
 
   private updateCamera() {
     const target = vec3.create();
+    console.log(this.cameraPos);
     vec3.add(target, this.cameraPos, this.cameraFront);
     mat4.lookAt(this.viewMatrix, this.cameraPos, target, this.cameraUp);
     mat4.multiply(
@@ -148,5 +148,14 @@ export class PerspectiveCamera {
 
   getProjectionMatrix() {
     return this.projectionMatrix;
+  }
+
+  resetCamera() {
+    this.cameraPos = vec3.fromValues(500, 0, 1000);
+    this.cameraFront = vec3.fromValues(0, 0, -1);
+    this.cameraUp = vec3.fromValues(0, 1, 0);
+    this.yaw = -90;
+    this.pitch = 0;
+    this.updateCamera();
   }
 }
