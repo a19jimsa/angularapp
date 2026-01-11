@@ -50,7 +50,6 @@ import { Player } from 'src/components/player';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { MouseHandler } from 'src/core/mouse-handler';
-import { Pivot } from 'src/components/pivot';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { Light } from 'src/components/light';
 import { Renderer } from 'src/renderer/renderer';
@@ -306,16 +305,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  // get images() {
-  //   let images: [string, HTMLImageElement][] = [];
-  //   for (const texture of TextureManager.getTextures()) {
-  //     try {
-  //       const image = TextureManager.getImage(texture[0]);
-  //       images.push([texture[0], image]);
-  //     } catch (e) {}
-  //   }
-  //   return images;
-  // }
+  get images() {
+    return this.brushToolsImages;
+  }
 
   get material(): Material | null {
     const material = this.ecs.getComponent<Material>(
@@ -357,10 +349,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await Loader.loadAllBones();
     await ResourceManager.loadAllAnimations();
     await this.loadAllShaders();
+    await this.loadAllbrushes();
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.editorCamera);
-    this.createAndBindAllTexture();
-    console.log(TextureManager.getTextures());
     this.init();
   }
 
@@ -464,8 +455,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.transform = transform;
   }
 
-  changeBrushImage(id: number) {
-    this.meshbrush.image = this.brushToolsImages[id];
+  changeBrushImage(image: HTMLImageElement) {
+    this.meshbrush.image = image;
   }
 
   changeTool(name: string) {
@@ -486,59 +477,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.openDialog();
   }
 
-  async loadAllImages() {
-    // await TextureManager.loadTexture(
-    //   'skybox1',
-    //   'assets/textures/skybox/right.bmp'
-    // );
-    // await TextureManager.loadTexture(
-    //   'skybox2',
-    //   'assets/textures/skybox/left.bmp'
-    // );
-    // await TextureManager.loadTexture(
-    //   'skybox3',
-    //   'assets/textures/skybox/top.bmp'
-    // );
-    // await TextureManager.loadTexture(
-    //   'skybox4',
-    //   'assets/textures/skybox/bottom.bmp'
-    // );
-    // await TextureManager.loadTexture(
-    //   'skybox5',
-    //   'assets/textures/skybox/front.bmp'
-    // );
-    // await TextureManager.loadTexture(
-    //   'skybox6',
-    //   'assets/textures/skybox/back.bmp'
-    // );
-
-    // await TextureManager.loadTexture(
-    //   'whirlwind',
-    //   '/assets/textures/whirlwind_map.jpg'
-    // );
-
-    // await TextureManager.loadTexture(
-    //   'textureMap',
-    //   '/assets/textures/texture_map.jpg'
-    // );
-
-    // await TextureManager.loadTexture(
-    //   'characterAnimation',
-    //   '/assets/textures/character-animation.png'
-    // );
-
-    // await TextureManager.loadTexture(
-    //   'water',
-    //   '/assets/textures/water_texture.jpg'
-    // );
-
-    // await TextureManager.loadTexture(
-    //   'frogman',
-    //   'assets/textures/frog-enemy.png'
-    // );
-
-    // await TextureManager.loadTexture('noise', 'assets/textures/noise.jpg');
-
+  async loadAllbrushes() {
     const smokeBrushImage = await TextureManager.loadImage(
       'assets/brushes/smoke_brush.jpg'
     );
@@ -563,15 +502,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/brushes/small_brush.jpg'
     );
 
-    // await TextureManager.loadTexture('tree', '/assets/sprites/tree.png');
-    // await TextureManager.loadTexture('tree3', '/assets/sprites/tree3.png');
-
-    // await TextureManager.loadTexture('golem', '/assets/sprites/irongolem.png');
-    // await TextureManager.loadTexture(
-    //   'greengiant',
-    //   '/assets/sprites/gianotgreen.png'
-    // );
-
     this.brushToolsImages.push(
       smokeBrushImage,
       starBrushImage,
@@ -582,76 +512,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     this.meshbrush.image = smallRoundBrushImage;
-  }
-
-  createAndBindAllTexture() {
-    // const skyboxImages = [
-    //   TextureManager.getImage('skybox1'),
-    //   TextureManager.getImage('skybox2'),
-    //   TextureManager.getImage('skybox3'),
-    //   TextureManager.getImage('skybox4'),
-    //   TextureManager.getImage('skybox5'),
-    //   TextureManager.getImage('skybox6'),
-    // ];
-    // const slot = TextureManager.createAndBindSkybox(skyboxImages);
-    // const textureMap = TextureManager.getImage('textureMap');
-    // TextureManager.createAndBindTexture(
-    //   'textureMap',
-    //   textureMap,
-    //   textureMap.width,
-    //   textureMap.height
-    // );
-    // const whirlwind = TextureManager.getImage('whirlwind');
-    // TextureManager.createAndBindTexture(
-    //   'whirlwind',
-    //   whirlwind,
-    //   whirlwind.width,
-    //   whirlwind.height
-    // );
-    // const water = TextureManager.getImage('water');
-    // TextureManager.createAndBindTexture(
-    //   'water',
-    //   water,
-    //   water.width,
-    //   water.height
-    // );
-    // const noise = TextureManager.getImage('noise');
-    // TextureManager.createAndBindTexture(
-    //   'noise',
-    //   noise,
-    //   noise.width,
-    //   noise.height
-    // );
-    // const frogman = TextureManager.getImage('frogman');
-    // TextureManager.createAndBindTexture(
-    //   'frogman',
-    //   frogman,
-    //   frogman.width,
-    //   frogman.height
-    // );
-    // const tree = TextureManager.getImage('tree');
-    // TextureManager.createAndBindTexture('tree', tree, tree.width, tree.height);
-    // const tree3 = TextureManager.getImage('tree3');
-    // TextureManager.createAndBindTexture(
-    //   'tree3',
-    //   tree3,
-    //   tree3.width,
-    //   tree3.height
-    // );
-    // const golem = TextureManager.getImage('golem');
-    // TextureManager.createAndBindTexture(
-    //   'golem',
-    //   golem,
-    //   golem.width,
-    //   golem.height
-    // );
-    // const greengiant = TextureManager.getImage('greengiant');
-    // TextureManager.createAndBindTexture(
-    //   'greengiant',
-    //   greengiant,
-    //   greengiant.width,
-    //   greengiant.height
-    // );
   }
 
   init() {
@@ -993,7 +853,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         transform.scale[2] += this.mouse.deltaY * 0.001;
       }
     }
-
     this.cameraMovement();
   }
 

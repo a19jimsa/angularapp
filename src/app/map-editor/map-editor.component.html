@@ -160,11 +160,6 @@
                   <mat-icon>pivot</mat-icon>
                 </button>
               </div>
-              @for (item of brushToolsImages; track $index) {
-              <button (click)="changeBrushImage($index)">
-                <img src="{{ item.src }}" width="50" height="50" />
-              </button>
-              }
               <div class="d-flex flex-column justify-content-center">
                 <div class="example-label-container">
                   <label id="example-name-label" class="example-name-label"
@@ -454,6 +449,16 @@
               </mat-expansion-panel-header>
               <div class="d-flex flex-row">
                 Splatmap slot: {{ splatmap.slot }}
+              </div>
+              <div class="d-flex flex-row">
+                @for (image of images; track $index) {
+                <img
+                  [src]="image.src"
+                  (click)="changeBrushImage(image)"
+                  width="50"
+                  height="50"
+                />
+                }
               </div>
               <div class="d-flex flex-row">
                 <div>

@@ -57,8 +57,9 @@ export class RenderSystem {
         'BatchRenderable'
       );
 
-      if (splatmap) {
+      if (splatmap && splatmap.dirty) {
         this.updateSplatmap(splatmap);
+        splatmap.dirty = false;
       }
 
       if (batchRenderable && transform3D) {
