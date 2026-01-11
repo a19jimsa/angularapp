@@ -47,11 +47,21 @@ export class RenderSystem {
     );
   }
 
+  private updateMesh(mesh: Mesh) {
+    const gl = Renderer.getGL;
+    const vao = MeshManager.getMesh(mesh.meshId);
+    if (!vao) throw new Error('Could not get vao');
+    if (!vao.vertexBuffer.buffer) throw new Error('Could not get buffer!');
+    gl.bindBuffer(gl.ARRAY_BUFFER, vao.vertexBuffer.buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(mesh.vertices));
+  }
+
   private drawBatch(ecs: Ecs) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const batchRenderable = ecs.getComponent<BatchRenderable>(
         entity,
         'BatchRenderable'
@@ -60,6 +70,11 @@ export class RenderSystem {
       if (splatmap && splatmap.dirty) {
         this.updateSplatmap(splatmap);
         splatmap.dirty = false;
+      }
+
+      if (mesh) {
+        this.updateMesh(mesh);
+        mesh.dirty = false;
       }
 
       if (batchRenderable && transform3D) {
@@ -190,8 +205,8 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTexture('u_texture', 'texture');
-        shader.setMaterialTexture('u_splatmap', 'splatmap');
+        shader.setMaterialTexture('u_texture', material.slot);
+        shader.setMaterialTexture('u_splatmap', splatmap.slot);
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);
@@ -219,7 +234,7 @@ export class RenderSystem {
         Renderer.drawIndexed(vao);
         shader.unbind();
       } else if (mesh && material && grass) {
-        const shader = ShaderManager.getShader(mesh.meshId);
+        const shader = ShaderManager.getShader(material.shaderId);
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix()
@@ -271,8 +286,8 @@ export class RenderSystem {
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) continue;
         Renderer.drawIndexed(vao);
-      } else if (mesh && transform3D) {
-        const shader = ShaderManager.getShader('basic');
+      } else if (mesh && transform3D && material) {
+        const shader = ShaderManager.getShader(material.shaderId);
         shader.bind();
         const modelMatrix = mat4.create();
         mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
@@ -285,7 +300,7 @@ export class RenderSystem {
           'u_matrix',
           this.camera.getViewProjectionMatrix()
         );
-        const vertexArray = MeshManager.getMesh('basic');
+        const vertexArray = MeshManager.getMesh(mesh.meshId);
         if (!vertexArray) continue;
         Renderer.drawIndexed(vertexArray);
       }

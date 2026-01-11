@@ -606,33 +606,35 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected async createTerrainWithSplatmap() {
+    const newEntity = this.ecs.createEntity();
     const width = 128;
     const height = 128;
     const image = await TextureManager.loadImage(
       '/assets/textures/texture_map.jpg'
     );
+    const name = 'terrainTexture' + newEntity;
     const texture = TextureManager.createAndBindTexture(
-      'texture',
+      name,
       image,
       image.width,
       image.height
     );
+    const splatmap = 'splatmap' + newEntity;
     const splatmapTexture = TextureManager.createAndBindTexture(
-      'splatmap',
+      splatmap,
       null,
       width,
       height
     );
     const model = new Model();
     model.addPlane(50, 1000, 1000);
-    const newEntity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
-    this.ecs.addComponent(newEntity, new Material(texture));
-    MeshManager.addMesh(model, 'splatmap');
+    this.ecs.addComponent(newEntity, new Material(texture, 'splatmap'));
+    MeshManager.addMesh(model, 'splatmap' + newEntity, 'splatmap');
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(model.vertices, model.indices, 'splatmap')
+      new Mesh(model.vertices, model.indices, 'splatmap' + newEntity)
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
@@ -710,11 +712,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
 
-    this.ecs.addComponent<Material>(effectEntity, new Material('whirlwind'));
+    this.ecs.addComponent<Material>(
+      effectEntity,
+      new Material('whirlwind', 'whirlwind')
+    );
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
-    MeshManager.addMesh(cylinderModel, 'cylinder');
+    MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity, 'cylinder');
 
     this.ecs.addComponent<Mesh>(
       effectEntity,
@@ -729,24 +734,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Light>(entity, new Light());
     const model = new Model();
     model.addCube();
-    MeshManager.addMesh(model, 'basic');
-    this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(model.vertices, model.indices, 'basic')
-    );
-  }
 
-  protected createMesh(name: string) {
-    const entity = this.ecs.createEntity();
-    const model = new Model();
-    //Change later in runtime with some parameters in UI
-    model.addPlane(2, 10, 10);
-    MeshManager.addMesh(model, 'lamp');
-    this.ecs.addComponent<Mesh>(
+    const mesh = this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, model.shaderName)
+      new Mesh(model.vertices, model.indices, 'light' + entity)
     );
-    this.ecs.addComponent<Material>(entity, new Material('lamp'));
+    const material = this.ecs.addComponent<Material>(
+      entity,
+      new Material('', 'basic')
+    );
+    MeshManager.addMesh(model, 'light' + entity, 'basic');
   }
 
   protected createWater() {
@@ -755,15 +752,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       entity,
       new Transform(new Vec(0, 0), new Vec(0, 0), 100)
     );
+    this.ecs.addComponent<Material>(entity, new Material('water', 'water'));
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(2, 10, 10);
-    MeshManager.addMesh(model, 'water');
+    MeshManager.addMesh(model, 'water' + entity, 'water');
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'water')
+      new Mesh(model.vertices, model.indices, 'water' + entity)
     );
-    this.ecs.addComponent<Material>(entity, new Material('water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));

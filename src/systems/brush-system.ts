@@ -4,7 +4,6 @@ import {
   Mouse,
   ToolBrush,
 } from 'src/app/map-editor/map-editor.component';
-import { BatchRenderable } from 'src/components/batch-renderable';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
@@ -73,6 +72,7 @@ export class BrushSystem {
           if (meshBrush.type === ToolBrush.Height) {
             this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
             this.updateNormals(mesh);
+            mesh.dirty = true;
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);

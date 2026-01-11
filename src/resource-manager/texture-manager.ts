@@ -52,7 +52,6 @@ export class TextureManager extends Manager {
     height: number
   ) {
     const gl = Renderer.getGL;
-    if (this.textures.has(name)) return name;
     const texture = gl.createTexture();
     if (!texture) {
       throw new Error('Could not create texture');
@@ -88,7 +87,7 @@ export class TextureManager extends Manager {
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if (this.textures.has(name)) throw new Error('Name already exists!');
+
     this.textures.set(name, texture);
     console.log('Added texture to manager by name ' + name);
     return name;

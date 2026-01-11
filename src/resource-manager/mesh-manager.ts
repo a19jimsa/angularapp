@@ -6,15 +6,14 @@ import { ShaderManager } from './shader-manager';
 export class MeshManager {
   private static vertexArrays = new Map<string, VertexArray>();
 
-  public static addMesh(model: Model, name: string) {
+  public static addMesh(model: Model, meshName: string, shaderName: string) {
     const vertexArray = new VertexArray(
       new Float32Array(model.vertices),
       new Uint16Array(model.indices)
     );
-    this.setupMeshNew(vertexArray, name);
-    this.vertexArrays.set(name, vertexArray);
-    console.log('Added mesh ' + name);
-    console.log(this.vertexArrays);
+    this.setupMeshNew(vertexArray, shaderName);
+    this.vertexArrays.set(meshName, vertexArray);
+    console.log('Added mesh ' + meshName);
   }
 
   public static getMesh(index: string) {

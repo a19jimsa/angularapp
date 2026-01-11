@@ -8,8 +8,10 @@ export class Material extends Component {
   diffuse = vec3.fromValues(1, 1, 1);
   specular = vec3.fromValues(1, 1, 1);
   shininess: number = 30;
-  constructor(slot: string) {
+  shaderId: string;
+  constructor(slot: string, shaderId: string) {
     super();
     this.slot = slot;
+    this.shaderId = shaderId;
   }
 }

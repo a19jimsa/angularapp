@@ -61,7 +61,7 @@ export class Renderer {
   private static setupSkybox() {
     const model = new Model();
     model.addSkybox();
-    MeshManager.addMesh(model, 'skybox');
+    MeshManager.addMesh(model, 'skybox', 'skybox');
   }
 
   static begin() {
