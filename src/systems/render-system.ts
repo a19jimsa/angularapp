@@ -144,8 +144,11 @@ export class RenderSystem {
   }
 
   public update(ecs: Ecs) {
-    //Renderer.drawSkybox();
     Renderer.begin();
+    const vertexArray = MeshManager.getMesh('skybox');
+    if (vertexArray) {
+      Renderer.drawSkybox(vertexArray);
+    }
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
       mat4.create(),
@@ -188,7 +191,7 @@ export class RenderSystem {
         const modelMatrix = mat4.create();
         mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
         shader.setUniformMat4('u_model', modelMatrix);
-        const vao = MeshManager.getMesh(mesh.meshId);
+        const vao = MeshManager.getMesh('pivot');
         if (!vao) continue;
         Renderer.drawLines(vao);
         shader.unbind();
@@ -265,7 +268,8 @@ export class RenderSystem {
           this.camera.getViewProjectionMatrix()
         );
         shader.setVec3('u_cameraPos', cameraPos);
-        shader.setFloat('u_time', performance.now() * animatedTexture.speed);
+        shader.setFloat('u_time', performance.now());
+        shader.setFloat('u_animationSpeed', animatedTexture.speed);
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
           'Transform3D'
@@ -282,6 +286,7 @@ export class RenderSystem {
         if (water) {
           shader.setFloat('u_displacmentScale', water.displacement);
           shader.setFloat('u_tiling', water.tiling);
+          shader.setFloat('u_flowSpeed', water.flowSpeed);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) continue;

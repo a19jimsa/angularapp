@@ -58,6 +58,7 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { Keyboard } from 'src/core/keyboard';
 import { BufferLayout } from 'src/renderer/buffer';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
+import { Pivot } from 'src/components/pivot';
 
 type IsSelected = {
   select: boolean;
@@ -352,7 +353,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await this.loadAllbrushes();
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.editorCamera);
-    this.init();
+    await this.init();
   }
 
   async loadAllShaders() {
@@ -434,25 +435,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   changeActiveEntity(newEntity: Entity) {
-    // const entity = this.ecs.createEntity();
-    // this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 0, 500));
-    // this.ecs.addComponent<Name>(entity, new Name('Pivot'));
-    // this.ecs.addComponent<Pivot>(entity, new Pivot());
-    // const pivot = new Model();
-    // pivot.addPivot();
-    // MeshManager.addMesh(pivot, 'debug');
-    // this.ecs.addComponent<Mesh>(
-    //   entity,
-    //   new Mesh(pivot.vertices, pivot.indices, 'debug')
-    // );
-    this.meshbrush.entity = newEntity;
+    this.ecs.addComponent<Pivot>(newEntity, new Pivot());
+    const model = new Model();
+    model.addPivot();
+    MeshManager.addMesh(model, 'pivot', 'debug');
     const transform = this.ecs.getComponent<Transform3D>(
       newEntity,
       'Transform3D'
     );
-    this.getToolbarComponents();
+    this.meshbrush.entity = newEntity;
     if (!transform) return;
     this.transform = transform;
+    this.getToolbarComponents();
   }
 
   changeBrushImage(image: HTMLImageElement) {
@@ -514,7 +508,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.meshbrush.image = smallRoundBrushImage;
   }
 
-  init() {
+  async init() {
     //Add all entities with names to the scene list to display them in the scene list
     for (const entity of this.ecs.getEntities()) {
       const name = this.ecs.getComponent<Name>(entity, 'Name');
@@ -719,12 +713,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
-    MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity, 'cylinder');
-
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(cylinderModel.vertices, cylinderModel.indices, 'cylinder')
+      new Mesh(
+        cylinderModel.vertices,
+        cylinderModel.indices,
+        'cylinder' + effectEntity
+      )
     );
+    MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity, 'whirlwind');
   }
 
   createLightSource() {
@@ -746,20 +743,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addMesh(model, 'light' + entity, 'basic');
   }
 
-  protected createWater() {
+  protected async createWater() {
+    const waterImage = await TextureManager.loadImage(
+      'assets/textures/water_texture.jpg'
+    );
+    const textureSlot = TextureManager.createAndBindTexture(
+      'water',
+      waterImage,
+      waterImage.width,
+      waterImage.height
+    );
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       entity,
       new Transform(new Vec(0, 0), new Vec(0, 0), 100)
     );
-    this.ecs.addComponent<Material>(entity, new Material('water', 'water'));
+    this.ecs.addComponent<Material>(entity, new Material(textureSlot, 'water'));
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(2, 10, 10);
-    MeshManager.addMesh(model, 'water' + entity, 'water');
+    model.addPlane(50, 1000, 1000);
+    MeshManager.addMesh(model, 'water', 'water');
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'water' + entity)
+      new Mesh(model.vertices, model.indices, 'water')
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));

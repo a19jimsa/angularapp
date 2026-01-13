@@ -5,6 +5,7 @@ import { mat4 } from 'gl-matrix';
 import { OrtographicCamera } from './orthographic-camera';
 import { Model } from './model';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
@@ -18,6 +19,7 @@ export class Renderer {
     Renderer.canvas = canvas;
     this.camera = camera;
     Renderer.setupGL();
+    Renderer.setupSkybox();
   }
 
   public static get getGL() {
@@ -58,7 +60,33 @@ export class Renderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
-  private static setupSkybox() {
+  private static async setupSkybox() {
+    const top = await TextureManager.loadImage(
+      '/assets/textures/skybox/top.bmp'
+    );
+    const right = await TextureManager.loadImage(
+      '/assets/textures/skybox/right.bmp'
+    );
+    const left = await TextureManager.loadImage(
+      '/assets/textures/skybox/left.bmp'
+    );
+    const bottom = await TextureManager.loadImage(
+      '/assets/textures/skybox/bottom.bmp'
+    );
+    const front = await TextureManager.loadImage(
+      '/assets/textures/skybox/front.bmp'
+    );
+    const back = await TextureManager.loadImage(
+      '/assets/textures/skybox/back.bmp'
+    );
+    const slot = TextureManager.createAndBindSkybox([
+      top,
+      right,
+      left,
+      bottom,
+      front,
+      back,
+    ]);
     const model = new Model();
     model.addSkybox();
     MeshManager.addMesh(model, 'skybox', 'skybox');
@@ -93,8 +121,8 @@ export class Renderer {
     gl.depthMask(false);
     gl.depthFunc(gl.LEQUAL);
     const shader = ShaderManager.getShader('skybox');
+    if (!shader) return;
     shader.bind();
-    vertexArray.bind();
     const matrix = mat4.create();
     mat4.copy(matrix, this.camera.getViewMatrix());
     matrix[12] = 0;
@@ -103,7 +131,9 @@ export class Renderer {
     const perspectiveMatrix = mat4.create();
     mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
     shader.setUniformMat4('u_matrix', perspectiveMatrix);
-    shader.setMaterialTexture('u_skybox', 'skybox');
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, TextureManager.getTexture('skybox'));
+    vertexArray.bind();
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     gl.bindVertexArray(null);
     gl.depthMask(true);

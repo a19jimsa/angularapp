@@ -25,7 +25,6 @@ export class MeshManager {
     vao.bind();
     let index = 0;
     const shader = ShaderManager.getShader(shaderName);
-    console.log(shader.layout);
     for (const element of shader.layout.elements) {
       gl.vertexAttribPointer(
         index,
@@ -37,7 +36,6 @@ export class MeshManager {
       );
       gl.enableVertexAttribArray(index);
       index++;
-      console.log(index);
     }
     vao.unbind();
   }

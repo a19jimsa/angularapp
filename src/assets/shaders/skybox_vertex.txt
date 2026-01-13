@@ -1,8 +1,9 @@
-attribute vec4 a_position;
+#version 300 es
+layout(location = 0) in vec4 a_position;
 
 uniform mat4 u_matrix;
 
-varying vec3 texCoords;
+out vec3 texCoords;
 
 void main() {
     texCoords = vec3(a_position.x, a_position.y, a_position.z);

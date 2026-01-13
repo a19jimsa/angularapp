@@ -42,6 +42,7 @@ export class TextureManager extends Manager {
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
     this.textures.set('skybox', texture);
+    console.log('Skybox slot is ' + slot);
     return slot;
   }
 

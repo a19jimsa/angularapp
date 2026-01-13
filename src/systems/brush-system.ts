@@ -6,11 +6,13 @@ import {
 } from 'src/app/map-editor/map-editor.component';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
+import { Pivot } from 'src/components/pivot';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
 
 export class BrushSystem {
   update(
@@ -48,11 +50,16 @@ export class BrushSystem {
       'Transform3D'
     );
 
+    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+    if (pivot) {
+      this.movePivot(ecs, meshBrush, mouse, rayOrigin);
+    }
+
     if (!mesh || !transform3D) return;
     for (let i = 0; i < maxDistance; i += step) {
       const pos = vec3.create();
       vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
-      //8 Stride change later to make it get from the mesh stride, offset etc.
+      //8 Stride change later to make it get from the mesh stride, offset etc
       for (let j = 0; j < mesh.vertices.length; j += 8) {
         const vx =
           mesh.vertices[j] * transform3D.scale[0] + transform3D.translate[0];
@@ -79,15 +86,12 @@ export class BrushSystem {
           } else if (meshBrush.type === ToolBrush.Trees) {
             this.treeBrush(ecs, vx, vy, vz, meshBrush);
           } else if (meshBrush.type === ToolBrush.Splat) {
-            console.log('Paint image');
             this.paintImage(
               ecs,
               meshBrush,
               mesh.vertices[j + 3],
               mesh.vertices[j + 4]
             );
-          } else if (meshBrush.type === ToolBrush.Pivot) {
-            //this.pivotMode();
           }
           return;
         }
@@ -95,7 +99,64 @@ export class BrushSystem {
     }
   }
 
-  private pivotMode() {}
+  private movePivot(ecs: Ecs, meshBrush: Brush, mouse: Mouse, rayOrigin: vec3) {
+    const epsilon = 10;
+    const maxDistance = 1000;
+    const step = 1;
+    const transform3D = ecs.getComponent<Transform3D>(
+      meshBrush.entity,
+      'Transform3D'
+    );
+    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    if (transform3D && mesh) {
+      const vertexArray = MeshManager.getMesh('pivot');
+      if (!vertexArray) return;
+      const vertices = vertexArray.vertexBuffer.vertices;
+      console.log(vertices);
+      for (let i = 0; i < maxDistance; i += step) {
+        if (mouse.isSelected.select) {
+          break;
+        }
+        const pos = vec3.create();
+        vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
+        //8 Stride change later to make it get from the mesh stride, offset etc.
+        for (let j = 0; j < vertices.length; j += 6) {
+          const vx = vertices[j] + transform3D.translate[0];
+          const vy = vertices[j + 1] + transform3D.translate[1];
+          const vz = vertices[j + 2] + transform3D.translate[2];
+          // Calculate distance between vertex positions and raycaster's position.
+          const dx = vx - pos[0];
+          const dy = vy - pos[1];
+          const dz = vz - pos[2];
+          //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          if (dist < epsilon) {
+            console.log('Hitted pivot! ' + j);
+            //Create drag system with mouse!
+            if (j === 6) {
+              mouse.isSelected = { select: true, element: j };
+              break;
+            } else if (j === 18) {
+              mouse.isSelected = { select: true, element: j };
+              break;
+            } else if (j === 30) {
+              mouse.isSelected = { select: true, element: j };
+              break;
+            }
+          }
+        }
+      }
+      if (mouse.isSelected.select && mouse.dragging) {
+        if (mouse.isSelected.element === 6) {
+          transform3D.translate[0] -= mouse.deltaX;
+        } else if (mouse.isSelected.element === 18) {
+          transform3D.translate[1] += mouse.deltaY;
+        } else if (mouse.isSelected.element === 30) {
+          transform3D.translate[2] -= mouse.deltaY * 2;
+        }
+      }
+    }
+  }
 
   private grassBrushWithImage(
     ecs: Ecs,

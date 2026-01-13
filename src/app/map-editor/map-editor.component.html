@@ -511,8 +511,15 @@
                   >
                   <label class="example-value-label">{{ water.tiling }}</label>
                 </div>
-                <mat-slider min="1" max="10" step="0.01" discrete>
+                <mat-slider min="0.01" max="10" step="0.01" discrete>
                   <input matSliderThumb [(ngModel)]="water.tiling" />
+                </mat-slider>
+                <label id="example-name-label" class="example-name-label"
+                  >Flow speed</label
+                >
+                <label class="example-value-label">{{ water.flowSpeed }}</label>
+                <mat-slider min="0.0001" max="10" step="0.0001" discrete>
+                  <input matSliderThumb [(ngModel)]="water.flowSpeed" />
                 </mat-slider>
               </div>
             </mat-expansion-panel>
