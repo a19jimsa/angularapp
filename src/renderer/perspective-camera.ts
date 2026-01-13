@@ -97,6 +97,10 @@ export class PerspectiveCamera {
   rotate(xSpeed: number, ySpeed: number) {
     this.yaw += xSpeed;
     this.pitch += ySpeed;
+
+    // Begränsa pitch så kameran inte flipper
+    if (this.pitch > 89.0) this.pitch = 89.0;
+    if (this.pitch < -89.0) this.pitch = -89.0;
     const front = vec3.create();
     front[0] =
       Math.cos(MathUtils.degreesToRadians(this.yaw)) *

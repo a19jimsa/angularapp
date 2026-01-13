@@ -8,7 +8,9 @@ export class MouseHandler {
   public previousY = 0;
   private deltaX = 0;
   private deltaY = 0;
+  private scrollDeltaY = 0;
 
+  private wheelHasMoved: boolean = false;
   private isMoving: boolean = false;
   private isDragging: boolean = false;
   private isMouseDown: boolean = false;
@@ -27,6 +29,7 @@ export class MouseHandler {
     this.canvas.addEventListener('mousedown', this.onMousePressed.bind(this));
     this.canvas.addEventListener('mouseup', this.onMouseReleased.bind(this));
     this.canvas.addEventListener('click', this.onMouseClick.bind(this));
+    this.canvas.addEventListener('wheel', this.onMouseScroll.bind(this));
   }
 
   get getIsMouseDown() {
@@ -65,6 +68,14 @@ export class MouseHandler {
     return this.isReleased;
   }
 
+  get scrollY() {
+    return this.scrollDeltaY;
+  }
+
+  set scrollY(value: number) {
+    this.scrollDeltaY = value;
+  }
+
   private onMouseClick(e: MouseEvent) {
     this.isClicked = true;
     console.log('Mouse clicked');
@@ -101,5 +112,10 @@ export class MouseHandler {
     console.log('Mouse press is released');
     this.isMouseDown = false;
     this.isReleased = true;
+  }
+
+  private onMouseScroll(event: WheelEvent) {
+    console.log(event.deltaY);
+    this.scrollDeltaY = event.deltaY;
   }
 }

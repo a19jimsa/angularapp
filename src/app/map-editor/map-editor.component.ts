@@ -80,6 +80,8 @@ export type Mouse = {
   moving: boolean;
   released: boolean;
   isSelected: IsSelected;
+  scrollDeltaY: number;
+  lastScrollDeltaY: number;
 };
 
 export enum Tools {
@@ -180,6 +182,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     deltaY: 0,
     clicked: false,
     isDown: false,
+    scrollDeltaY: 0,
+    lastScrollDeltaY: 0,
   };
 
   gameId: number = 0;
@@ -974,6 +978,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     if (this.keyboard.isKeyPressed('Escape')) {
       this.editorCamera.resetCamera();
+    }
+
+    if (this.mouseHandler.scrollY < 0) {
+      rotateY -= speed;
+      this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
+      this.mouseHandler.scrollY = 0;
+    } else if (this.mouseHandler.scrollY > 0) {
+      rotateY += speed;
+      this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
+      this.mouseHandler.scrollY = 0;
     }
 
     // Uppdatera kameran (om något ändrats)
