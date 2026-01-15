@@ -5,9 +5,9 @@ import { Manager } from 'src/resource-manager/manager';
 
 export class ShaderManager extends Manager {
   private static shaders: Map<string, Shader> = new Map();
+
   public static async load(
     key: string,
-    bufferLayout: BufferLayout,
     vertexUrl: string,
     fragmentUrl: string
   ) {
@@ -24,11 +24,12 @@ export class ShaderManager extends Manager {
       throw new Error('Cannot create shader from url');
     const program = this.createProgram(vertexShader, fragmentShader);
     if (program) {
-      const shader = new Shader(program, bufferLayout);
+      const shader = new Shader(program);
       this.shaders.set(key, shader);
       console.log('Added shader ' + key);
+      return shader;
     } else {
-      console.error(program);
+      throw new Error('Could not load shader! ' + key);
     }
   }
 

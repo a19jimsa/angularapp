@@ -132,7 +132,7 @@ export class PerspectiveCamera {
 
   private updateCamera() {
     const target = vec3.create();
-    console.log(this.cameraPos);
+
     vec3.add(target, this.cameraPos, this.cameraFront);
     mat4.lookAt(this.viewMatrix, this.cameraPos, target, this.cameraUp);
     mat4.multiply(

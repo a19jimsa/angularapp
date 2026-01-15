@@ -1,4 +1,4 @@
-import { mat4, vec2, vec3 } from 'gl-matrix';
-import { VertexArray } from './vertex-array';
+import { Shader } from './shader';
+import { Renderer } from './renderer';
 
-export abstract class MeshRenderer {}
+export class MeshRenderer {}

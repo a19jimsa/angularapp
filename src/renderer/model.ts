@@ -281,6 +281,7 @@ export class Model {
     const height = 5; // 5 quads i höjd
     const sizeX = 1; // bredd på hela strået
     const sizeY = 3; // höjd på hela strået
+    let index = 0;
     for (let y = 0; y <= height; y++) {
       const v = y / height;
       const posY = v * sizeY;
@@ -291,8 +292,10 @@ export class Model {
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
         this.vertices.push(1, 0, 0); // normal framåt
+        index++;
       }
     }
+    console.log(index);
 
     for (let y = 0; y < height; y++) {
       const i = y * (width + 1); // varje rad har (width + 1) punkter

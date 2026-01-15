@@ -112,7 +112,6 @@ export class BrushSystem {
       const vertexArray = MeshManager.getMesh('pivot');
       if (!vertexArray) return;
       const vertices = vertexArray.vertexBuffer.vertices;
-      console.log(vertices);
       for (let i = 0; i < maxDistance; i += step) {
         if (mouse.isSelected.select) {
           break;
@@ -177,15 +176,13 @@ export class BrushSystem {
             if (r < 200) {
               const posX = vx - x;
               const posZ = vz - z;
-              if (grass.amountOfGrass >= grass.maxGrassBuffer) return;
+              if (grass.amountOfGrass >= 100) return;
               grass.positions[grass.amountOfGrass + 0] =
                 posX * 2 + image.width + 2 - Math.random() * 2;
               grass.positions[grass.amountOfGrass + 1] = vy * 2;
               grass.positions[grass.amountOfGrass + 2] =
                 posZ * 2 + image.height + 2 - Math.random() * 2;
-              grass.positions[grass.amountOfGrass + 3] = grass.id;
-              grass.id++;
-              grass.amountOfGrass += 4;
+              grass.amountOfGrass++;
             }
           }
         }

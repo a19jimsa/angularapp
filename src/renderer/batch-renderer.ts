@@ -30,8 +30,7 @@ export class BatchRenderer {
     const shader = ShaderManager.getShader('batch');
     shader.bind();
     this.vertexArray.bind();
-    const vbo = this.vertexArray.vertexBuffer.buffer;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexArray.vertexBuffer.buffer);
     const positionLoc = gl.getAttribLocation(shader.program, 'a_position');
     gl.vertexAttribPointer(
       positionLoc,
@@ -238,12 +237,14 @@ export class BatchRenderer {
     shader.bind();
     this.vertexArray.bind();
     shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexArray.vertexBuffer.buffer);
+    const buffer = this.vertexArray.vertexBuffer.buffer;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferSubData(
       this.gl.ARRAY_BUFFER,
       0,
       this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex)
     );
+
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
     this.vertexArray.unbind();
     shader.unbind();

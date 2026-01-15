@@ -1,19 +1,13 @@
-
+#version 300 es
 precision mediump float;
 
-varying vec2 v_texcoord;
-varying float v_height;
-varying vec3 v_instancePositions;
-varying float v_random_Id;
-
-uniform sampler2D u_texture;
-uniform float u_time;
+out vec4 FragColor;
 
 void main() {
-    float scale = 0.8;
-    float blend = smoothstep(0.2, 0.8, v_random_Id);
-    vec3 color = mix(vec3(0.0, 0.5, 0.0), vec3(0.3, 0.9, 0.1), blend);
-    vec3 finalColor = mix(vec3(0.0, 0.5, 0.0), color, v_height / 2.0); 
+    //float scale = 0.8;
+    //float blend = smoothstep(0.2, 0.8, v_random_Id);
+    //vec3 color = mix(vec3(0.0, 0.5, 0.0), vec3(0.3, 0.9, 0.1), blend);
+    //vec3 finalColor = mix(vec3(0.0, 0.5, 0.0), color, v_height / 2.0); 
     //gl_FragColor = texColor;
-    gl_FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(1.0);
 }

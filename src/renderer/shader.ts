@@ -4,49 +4,51 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BufferLayout } from './buffer';
 
 export class Shader {
-  gl: WebGL2RenderingContext;
   //Can not be null then no shader are loaded into program and exection fails.
+  //Shader must have program and a layout for buffers.
   program: WebGLProgram;
-  layout: BufferLayout;
-  constructor(program: WebGLProgram, layout: BufferLayout) {
-    this.gl = Renderer.getGL;
+  layouts: BufferLayout[] = [];
+  constructor(program: WebGLProgram) {
     this.program = program;
-    this.layout = layout;
   }
 
   //Use program
   bind() {
-    this.gl.useProgram(this.program);
+    Renderer.getGL.useProgram(this.program);
   }
 
   unbind() {
-    this.gl.useProgram(null);
+    Renderer.getGL.useProgram(null);
   }
 
   getUniformLocation(name: string) {
     if (!this.program) throw new Error('Program is not defined!');
-    return this.gl.getUniformLocation(this.program!, name);
+    return Renderer.getGL.getUniformLocation(this.program!, name);
   }
 
   setUniformMat4(name: string, matrix: mat4) {
-    this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix);
+    Renderer.getGL.uniformMatrix4fv(
+      this.getUniformLocation(name),
+      false,
+      matrix
+    );
   }
 
   setInt(program: WebGLProgram, name: string, x: number) {
-    const location = this.gl.getUniformLocation(program, name);
-    this.gl.uniform1i(location, x);
+    const location = Renderer.getGL.getUniformLocation(program, name);
+    Renderer.getGL.uniform1i(location, x);
   }
 
   setVec3(name: string, value: vec3) {
-    this.gl.uniform3fv(this.getUniformLocation(name), value);
+    Renderer.getGL.uniform3fv(this.getUniformLocation(name), value);
   }
 
   setFloat(name: string, value: number) {
-    this.gl.uniform1f(this.getUniformLocation(name), value);
+    Renderer.getGL.uniform1f(this.getUniformLocation(name), value);
   }
 
   setMaterialTexture(locationName: string, slotName: string) {
-    const gl = this.gl;
+    const gl = Renderer.getGL;
     const location = this.getUniformLocation(locationName);
     const slot = TextureManager.getSlot(slotName);
     if (slot === -1) {

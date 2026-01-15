@@ -5,14 +5,21 @@ type BufferElement = {
   type: GLenum; // gl.FLOAT, gl.INT, gl.UNSIGNED_BYTE, etc
   count: number; // antal komponenter, t.ex. 3 för vec3
   normalized: boolean;
-  offset: number; // byte-offset i vertex-strukturen
+  offset: number; // byte-offset i vertex-strukturen,
+  isInstanced: boolean;
 };
 
 export class BufferLayout {
   public elements: BufferElement[] = [];
   public stride = 0;
 
-  add(name: string, type: GLenum, count: number, normalized = false) {
+  add(
+    name: string,
+    type: GLenum,
+    count: number,
+    normalized = false,
+    isInstanced = false
+  ) {
     const offset = this.stride;
     this.elements.push({
       name,
@@ -20,6 +27,7 @@ export class BufferLayout {
       count,
       normalized,
       offset,
+      isInstanced,
     });
 
     this.stride += count * this.getSizeOfType(type);
@@ -58,16 +66,6 @@ export class VertexBuffer {
     this.vertices = new Float32Array(vertices);
     this.buffer = gl.createBuffer();
   }
-
-  bind(): void {
-    const gl = Renderer.getGL;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-  }
-  unbind(): void {
-    const gl = Renderer.getGL;
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  }
-
   setData(): void {
     throw new Error('Method not implemented.');
   }
@@ -85,15 +83,6 @@ export class IndexBuffer {
     this.indices = new Uint16Array(indices);
     const gl = Renderer.getGL;
     this.buffer = gl.createBuffer();
-  }
-
-  bind(): void {
-    const gl = Renderer.getGL;
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
-  }
-  unbind(): void {
-    const gl = Renderer.getGL;
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
   setData(): void {
     throw new Error('Method not implemented.');

@@ -31,6 +31,7 @@
           </button>
           <button mat-menu-item (click)="createCylinder()">Cylinder</button>
           <button mat-menu-item (click)="createLightSource()">Light</button>
+          <button mat-menu-item (click)="addGrass()">Light</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -523,12 +524,14 @@
                 </mat-slider>
               </div>
             </mat-expansion-panel>
-            } @if(item.type.includes("Tree")){
+            } @if(item === grass){
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title> {{ item.type }} </mat-panel-title>
-                <mat-panel-description> </mat-panel-description>
+                <mat-panel-description>Grass</mat-panel-description>
               </mat-expansion-panel-header>
+              {{ grass.amountOfGrass }}
+              {{ grass.maxGrassBuffer }}
             </mat-expansion-panel>
             } @if(item === animatedTexture){
             <mat-expansion-panel>
@@ -554,7 +557,7 @@
           </mat-accordion>
         </mat-card-content>
         <mat-card-footer></mat-card-footer>
-        <button mat-button>Add Component</button>
+        <button mat-button (click)="addGrass()">Add Component</button>
       </mat-card>
     </div>
   </div>

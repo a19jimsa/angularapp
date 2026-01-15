@@ -32,20 +32,73 @@ export class Renderer {
     this.gl.useProgram(shader);
   }
 
-  public static drawInstancing() {
-    // this.gl.bindVertexArray(mesh.vao);
-    // const indexCountPerBlade = 6 * 5; // 30 om du har 5 quads
-    // const instanceCount = grass.positions.length / 4; // en xyz per strå + instance id
-    // gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
-    // gl.bufferSubData(gl.ARRAY_BUFFER, 0, grass.positions);
-    // gl.drawElementsInstanced(
-    //   gl.TRIANGLES,
-    //   indexCountPerBlade, // hur många index beskriver ETT strå
-    //   gl.UNSIGNED_SHORT, // typ i index‑buffern
-    //   0, // byte‑offset i index‑buffern
-    //   instanceCount
-    // );
-    // gl.bindVertexArray(null);
+  public static drawInstancing(positions: Float32Array) {
+    const gl = Renderer.gl;
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    const model = new Model();
+    model.addCube();
+
+    // --- Mesh VBO ---
+    const meshVBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(model.vertices),
+      gl.STATIC_DRAW
+    );
+
+    const stride = 8 * 4; // 8 floats per vertex * 4 bytes
+    let index = 0;
+
+    // a_position
+    gl.enableVertexAttribArray(index);
+    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, stride, 0);
+    gl.vertexAttribDivisor(index, 0);
+    index++;
+
+    // a_texcoord
+    gl.enableVertexAttribArray(index);
+    gl.vertexAttribPointer(index, 2, gl.FLOAT, false, stride, 3 * 4);
+    gl.vertexAttribDivisor(index, 0);
+    index++;
+
+    // a_normal
+    gl.enableVertexAttribArray(index);
+    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, stride, 5 * 4);
+    gl.vertexAttribDivisor(index, 0);
+    index++;
+
+    // --- Instans VBO ---
+    const instanceVBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, instanceVBO);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(positions),
+      gl.DYNAMIC_DRAW
+    );
+
+    // a_offset (instans-attribut)
+    gl.enableVertexAttribArray(index);
+    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, 3 * 4, 0);
+    gl.vertexAttribDivisor(index, 1); // 1 = per instans
+
+    // --- Bind shader ---
+    const shader = ShaderManager.getShader('grass');
+    console.log(shader);
+    shader.bind();
+    shader.setUniformMat4(
+      'u_matrix',
+      Renderer.camera.getViewProjectionMatrix()
+    );
+    // --- Draw call ---
+    const instanceCount = positions.length / 3;
+    const count = model.vertices.length / 3;
+    console.log(count + instanceCount);
+    gl.drawArraysInstanced(gl.TRIANGLES, 0, count, instanceCount);
+    shader.unbind();
+    gl.bindVertexArray(null);
   }
 
   private static setupGL() {
@@ -89,7 +142,6 @@ export class Renderer {
     ]);
     const model = new Model();
     model.addSkybox();
-    MeshManager.addMesh(model, 'skybox', 'skybox');
   }
 
   static begin() {

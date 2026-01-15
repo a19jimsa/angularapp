@@ -51,8 +51,8 @@ export class RenderSystem {
     const gl = Renderer.getGL;
     const vao = MeshManager.getMesh(mesh.meshId);
     if (!vao) throw new Error('Could not get vao');
-    if (!vao.vertexBuffer.buffer) throw new Error('Could not get buffer!');
-    gl.bindBuffer(gl.ARRAY_BUFFER, vao.vertexBuffer.buffer);
+    const buffer = vao.vertexBuffer.buffer;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(mesh.vertices));
   }
 
@@ -236,15 +236,6 @@ export class RenderSystem {
         if (!vao) continue;
         Renderer.drawIndexed(vao);
         shader.unbind();
-      } else if (mesh && material && grass) {
-        const shader = ShaderManager.getShader(material.shaderId);
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix()
-        );
-        shader.setFloat('u_time', performance.now() * 0.001);
-        shader.setMaterialTexture('u_texture', material.slot);
-        Renderer.drawInstancing();
       } else if (mesh && material && animatedTexture) {
         const shader = ShaderManager.getShader(mesh.meshId);
         shader.bind();
@@ -308,6 +299,9 @@ export class RenderSystem {
         const vertexArray = MeshManager.getMesh(mesh.meshId);
         if (!vertexArray) continue;
         Renderer.drawIndexed(vertexArray);
+      }
+      if (grass) {
+        Renderer.drawInstancing(grass.positions);
       }
     }
   }
