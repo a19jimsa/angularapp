@@ -4,9 +4,9 @@ import { BufferLayout, IndexBuffer, VertexBuffer } from './buffer';
 //VAO
 export class VertexArray {
   vertexBuffer: VertexBuffer;
-  instanceBuffer: VertexBuffer | undefined;
   indexBuffer: IndexBuffer;
   VAO: WebGLVertexArrayObject;
+  instanceBuffer: WebGLBuffer | undefined;
 
   constructor(vertices: Float32Array, indices: Uint16Array) {
     const gl = Renderer.getGL;
@@ -27,47 +27,48 @@ export class VertexArray {
     this.unbind();
   }
 
-  addInstanceBuffer(instanceVertices: Float32Array) {
-    this.bind();
+  addInstanceBuffer(vbl: BufferLayout, instanceVertices: Float32Array) {
+    console.log(vbl);
     const gl = Renderer.getGL;
+    gl.bindVertexArray(this.VAO);
     //Instance VBO
-    this.instanceBuffer = VertexBuffer.create(instanceVertices);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer.buffer);
+    this.instanceBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, instanceVertices, gl.DYNAMIC_DRAW);
+    for (const element of vbl.elements) {
+      gl.enableVertexAttribArray(element.location);
+      {
+        gl.vertexAttribPointer(
+          element.location,
+          element.count,
+          element.type,
+          element.normalized,
+          vbl.stride,
+          element.offset,
+        );
+        gl.vertexAttribDivisor(element.location, 1);
+      }
+    }
     this.unbind();
   }
 
   addBuffer(vbl: BufferLayout) {
     const gl = Renderer.getGL;
-    let index = 0;
     //VertexArraybind
     this.bind();
     for (const element of vbl.elements) {
-      gl.enableVertexAttribArray(index);
-      if (element.isInstanced) {
-        console.log(element.count);
+      gl.enableVertexAttribArray(element.location);
+      {
         gl.vertexAttribPointer(
-          index,
-          element.count,
-          element.type,
-          element.normalized,
-          3 * Float32Array.BYTES_PER_ELEMENT,
-          0
-        );
-        gl.vertexAttribDivisor(index, 1);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-      } else {
-        gl.vertexAttribPointer(
-          index,
+          element.location,
           element.count,
           element.type,
           element.normalized,
           vbl.stride,
-          element.offset
+          element.offset,
         );
-        gl.vertexAttribDivisor(index, 0);
+        gl.vertexAttribDivisor(element.location, 0);
       }
-      index++;
     }
     this.unbind();
   }

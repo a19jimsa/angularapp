@@ -277,7 +277,7 @@ export class Model {
   }
 
   addGrass() {
-    const width = 2; // 1 quad i bredd
+    const width = 1; // 1 quad i bredd
     const height = 5; // 5 quads i höjd
     const sizeX = 1; // bredd på hela strået
     const sizeY = 3; // höjd på hela strået
@@ -295,7 +295,6 @@ export class Model {
         index++;
       }
     }
-    console.log(index);
 
     for (let y = 0; y < height; y++) {
       const i = y * (width + 1); // varje rad har (width + 1) punkter

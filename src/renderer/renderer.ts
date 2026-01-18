@@ -32,73 +32,18 @@ export class Renderer {
     this.gl.useProgram(shader);
   }
 
-  public static drawInstancing(positions: Float32Array) {
-    const gl = Renderer.gl;
-    const vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-
-    const model = new Model();
-    model.addCube();
-
-    // --- Mesh VBO ---
-    const meshVBO = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(model.vertices),
-      gl.STATIC_DRAW
-    );
-
-    const stride = 8 * 4; // 8 floats per vertex * 4 bytes
-    let index = 0;
-
-    // a_position
-    gl.enableVertexAttribArray(index);
-    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, stride, 0);
-    gl.vertexAttribDivisor(index, 0);
-    index++;
-
-    // a_texcoord
-    gl.enableVertexAttribArray(index);
-    gl.vertexAttribPointer(index, 2, gl.FLOAT, false, stride, 3 * 4);
-    gl.vertexAttribDivisor(index, 0);
-    index++;
-
-    // a_normal
-    gl.enableVertexAttribArray(index);
-    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, stride, 5 * 4);
-    gl.vertexAttribDivisor(index, 0);
-    index++;
-
-    // --- Instans VBO ---
-    const instanceVBO = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, instanceVBO);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(positions),
-      gl.DYNAMIC_DRAW
-    );
-
-    // a_offset (instans-attribut)
-    gl.enableVertexAttribArray(index);
-    gl.vertexAttribPointer(index, 3, gl.FLOAT, false, 3 * 4, 0);
-    gl.vertexAttribDivisor(index, 1); // 1 = per instans
-
-    // --- Bind shader ---
-    const shader = ShaderManager.getShader('grass');
-    console.log(shader);
-    shader.bind();
-    shader.setUniformMat4(
-      'u_matrix',
-      Renderer.camera.getViewProjectionMatrix()
-    );
+  public static drawInstancing(vertexArray: VertexArray, count: number) {
+    const gl = Renderer.getGL;
+    vertexArray.bind();
     // --- Draw call ---
-    const instanceCount = positions.length / 3;
-    const count = model.vertices.length / 3;
-    console.log(count + instanceCount);
-    gl.drawArraysInstanced(gl.TRIANGLES, 0, count, instanceCount);
-    shader.unbind();
-    gl.bindVertexArray(null);
+    gl.drawElementsInstanced(
+      gl.TRIANGLES,
+      vertexArray.indexBuffer.getCount(),
+      gl.UNSIGNED_SHORT,
+      0,
+      count, // rita 4 grässtrån
+    );
+    vertexArray.unbind();
   }
 
   private static setupGL() {
@@ -115,22 +60,22 @@ export class Renderer {
 
   private static async setupSkybox() {
     const top = await TextureManager.loadImage(
-      '/assets/textures/skybox/top.bmp'
+      '/assets/textures/skybox/top.bmp',
     );
     const right = await TextureManager.loadImage(
-      '/assets/textures/skybox/right.bmp'
+      '/assets/textures/skybox/right.bmp',
     );
     const left = await TextureManager.loadImage(
-      '/assets/textures/skybox/left.bmp'
+      '/assets/textures/skybox/left.bmp',
     );
     const bottom = await TextureManager.loadImage(
-      '/assets/textures/skybox/bottom.bmp'
+      '/assets/textures/skybox/bottom.bmp',
     );
     const front = await TextureManager.loadImage(
-      '/assets/textures/skybox/front.bmp'
+      '/assets/textures/skybox/front.bmp',
     );
     const back = await TextureManager.loadImage(
-      '/assets/textures/skybox/back.bmp'
+      '/assets/textures/skybox/back.bmp',
     );
     const slot = TextureManager.createAndBindSkybox([
       top,
@@ -162,7 +107,7 @@ export class Renderer {
       this.gl.LINES,
       vertexArray.indexBuffer.getCount(),
       this.gl.UNSIGNED_SHORT,
-      0
+      0,
     );
   }
 

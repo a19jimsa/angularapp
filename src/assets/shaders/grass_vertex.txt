@@ -49,5 +49,5 @@ void main() {
     //float bend = a_position.y * (0.2 + sway);
     //vec3 newPos = rotateZ(bend * 0.2, rotatedPos);
     //gl_Position = u_matrix * (vec4(newPos, 1.0) + vec4(offset, 1.0));
-    gl_Position = u_matrix * vec4(a_position, 1.0);
+    gl_Position = u_matrix * vec4(a_position + a_offset, 1.0);
 }

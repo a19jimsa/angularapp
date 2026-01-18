@@ -21,6 +21,7 @@ import { Renderer } from 'src/renderer/renderer';
 import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { Shader } from 'src/renderer/shader';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -43,7 +44,7 @@ export class RenderSystem {
       splatmap.height,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      splatmap.coords
+      splatmap.coords,
     );
   }
 
@@ -64,7 +65,7 @@ export class RenderSystem {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const batchRenderable = ecs.getComponent<BatchRenderable>(
         entity,
-        'BatchRenderable'
+        'BatchRenderable',
       );
 
       if (splatmap && splatmap.dirty) {
@@ -96,7 +97,7 @@ export class RenderSystem {
           transform3D.translate[2],
           transform3D.scale[0],
           transform3D.scale[1],
-          TextureManager.getSlot(batchRenderable.texture)
+          TextureManager.getSlot(batchRenderable.texture),
         );
       }
 
@@ -123,7 +124,7 @@ export class RenderSystem {
             transform3D.translate[2],
             transform3D.scale[0],
             transform3D.scale[1],
-            6
+            6,
           );
         }
       }
@@ -152,12 +153,12 @@ export class RenderSystem {
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
       mat4.create(),
-      this.camera.getViewMatrix()
+      this.camera.getViewMatrix(),
     );
     const cameraPos = vec3.fromValues(
       cameraMatrix[12],
       cameraMatrix[13],
-      cameraMatrix[14]
+      cameraMatrix[14],
     );
     for (const entity of ecs.getEntities()) {
       //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
@@ -167,7 +168,7 @@ export class RenderSystem {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
       const animatedTexture = ecs.getComponent<AnimatedTexture>(
         entity,
-        'AnimatedTexture'
+        'AnimatedTexture',
       );
       const water = ecs.getComponent<Water>(entity, 'Water');
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
@@ -186,7 +187,7 @@ export class RenderSystem {
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
-          this.camera.getViewProjectionMatrix()
+          this.camera.getViewProjectionMatrix(),
         );
         const modelMatrix = mat4.create();
         mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
@@ -217,7 +218,7 @@ export class RenderSystem {
         }
         shader.setUniformMat4(
           'u_matrix',
-          this.camera.getViewProjectionMatrix()
+          this.camera.getViewProjectionMatrix(),
         );
         shader.setFloat('u_time', performance.now() * 0.001);
         shader.setUniformMat4('u_view', this.camera.getViewMatrix());
@@ -256,14 +257,14 @@ export class RenderSystem {
         }
         shader.setUniformMat4(
           'u_matrix',
-          this.camera.getViewProjectionMatrix()
+          this.camera.getViewProjectionMatrix(),
         );
         shader.setVec3('u_cameraPos', cameraPos);
         shader.setFloat('u_time', performance.now());
         shader.setFloat('u_animationSpeed', animatedTexture.speed);
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
-          'Transform3D'
+          'Transform3D',
         );
         if (transform3D) {
           const modelMatrix = mat4.create();
@@ -294,14 +295,22 @@ export class RenderSystem {
         shader.setUniformMat4('u_model', modelMatrix);
         shader.setUniformMat4(
           'u_matrix',
-          this.camera.getViewProjectionMatrix()
+          this.camera.getViewProjectionMatrix(),
         );
         const vertexArray = MeshManager.getMesh(mesh.meshId);
         if (!vertexArray) continue;
         Renderer.drawIndexed(vertexArray);
-      }
-      if (grass) {
-        Renderer.drawInstancing(grass.positions);
+      } else if (grass && mesh && transform3D) {
+        if (mesh.meshId !== 'grass') throw new Error('Mesh is not grass!');
+        const shader = ShaderManager.getShader(mesh.meshId);
+        shader.bind();
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix(),
+        );
+        const vertexArray = MeshManager.getMesh(mesh.meshId);
+        if (!vertexArray) throw new Error('Mesh is not grass');
+        Renderer.drawInstancing(vertexArray, grass.amountOfGrass);
       }
     }
   }

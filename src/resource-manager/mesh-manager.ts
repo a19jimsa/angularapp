@@ -8,16 +8,29 @@ export class MeshManager {
   public static addMesh(
     model: Model,
     meshName: string,
-    bufferLayout: BufferLayout
-  ) {
+    bufferLayout: BufferLayout,
+  ): string {
+    if (this.vertexArrays.has(meshName)) return meshName;
     const vertexArray = new VertexArray(
       new Float32Array(model.vertices),
-      new Uint16Array(model.indices)
+      new Uint16Array(model.indices),
     );
+    //love this function place mmm
     vertexArray.addBuffer(bufferLayout);
     this.vertexArrays.set(meshName, vertexArray);
     console.log('Added mesh ' + meshName);
-    return vertexArray;
+    return meshName;
+  }
+
+  public static addInstanceMesh(
+    meshName: string,
+    vbl: BufferLayout,
+    positions: Float32Array,
+  ) {
+    const vertexArray = this.vertexArrays.get(meshName);
+    if (!vertexArray) return;
+    vertexArray.addInstanceBuffer(vbl, positions);
+    console.log('Added instnace buffer to ' + meshName);
   }
 
   public static getMesh(index: string) {

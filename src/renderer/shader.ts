@@ -1,13 +1,11 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { BufferLayout } from './buffer';
 
 export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
   //Shader must have program and a layout for buffers.
   program: WebGLProgram;
-  layouts: BufferLayout[] = [];
   constructor(program: WebGLProgram) {
     this.program = program;
   }

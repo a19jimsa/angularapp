@@ -1,7 +1,7 @@
 import { Renderer } from './renderer';
 
 type BufferElement = {
-  name: string; //aPosition,a_normals etc
+  location: number; //aPosition,a_normals etc
   type: GLenum; // gl.FLOAT, gl.INT, gl.UNSIGNED_BYTE, etc
   count: number; // antal komponenter, t.ex. 3 för vec3
   normalized: boolean;
@@ -14,15 +14,15 @@ export class BufferLayout {
   public stride = 0;
 
   add(
-    name: string,
+    location: number,
     type: GLenum,
     count: number,
     normalized = false,
-    isInstanced = false
+    isInstanced = false,
   ) {
     const offset = this.stride;
     this.elements.push({
-      name,
+      location,
       type,
       count,
       normalized,

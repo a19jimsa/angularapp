@@ -296,7 +296,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   get animatedTexture(): AnimatedTexture | null {
     const animatedTexture = this.ecs.getComponent<AnimatedTexture>(
       this.meshbrush.entity,
-      'AnimatedTexture'
+      'AnimatedTexture',
     );
     if (animatedTexture) return animatedTexture;
     return null;
@@ -305,7 +305,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   get terrain(): Terrain | null {
     const terrain = this.ecs.getComponent<Terrain>(
       this.meshbrush.entity,
-      'Terrain'
+      'Terrain',
     );
     if (terrain) return terrain;
     return null;
@@ -318,7 +318,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   get material(): Material | null {
     const material = this.ecs.getComponent<Material>(
       this.meshbrush.entity,
-      'Material'
+      'Material',
     );
     if (material) return material;
     return null;
@@ -339,7 +339,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   get splatmap(): Splatmap | null {
     const splatmap = this.ecs.getComponent<Splatmap>(
       this.meshbrush.entity,
-      'Splatmap'
+      'Splatmap',
     );
     if (splatmap) return splatmap;
     return null;
@@ -371,19 +371,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load(
       'batch',
       'batch2d_vertex.txt',
-      'batch2d_fragment.txt'
+      'batch2d_fragment.txt',
     );
 
     await ShaderManager.load(
       'skybox',
       'skybox_vertex.txt',
-      'skybox_fragment.txt'
+      'skybox_fragment.txt',
     );
     await ShaderManager.load('basic', 'basic_vertex.txt', 'basic_fragment.txt');
     await ShaderManager.load(
       'splatmap',
       'image_vertex.txt',
-      'image_fragment.txt'
+      'image_fragment.txt',
     );
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
@@ -391,15 +391,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   changeActiveEntity(newEntity: Entity) {
     const debug = new BufferLayout();
-    debug.add('a_position', ShaderDataType.GetType(ShaderType.Float), 3, false);
-    debug.add('a_color', ShaderDataType.GetType(ShaderType.Float), 3, false);
+    debug.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    debug.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false);
     this.ecs.addComponent<Pivot>(newEntity, new Pivot());
     const model = new Model();
     model.addPivot();
     MeshManager.addMesh(model, 'pivot', debug);
     const transform = this.ecs.getComponent<Transform3D>(
       newEntity,
-      'Transform3D'
+      'Transform3D',
     );
     this.meshbrush.entity = newEntity;
     if (!transform) return;
@@ -431,27 +431,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async loadAllbrushes() {
     const smokeBrushImage = await TextureManager.loadImage(
-      'assets/brushes/smoke_brush.jpg'
+      'assets/brushes/smoke_brush.jpg',
     );
 
     const starBrushImage = await TextureManager.loadImage(
-      'assets/brushes/star_brush.jpg'
+      'assets/brushes/star_brush.jpg',
     );
 
     const terrainBrushImage = await TextureManager.loadImage(
-      'assets/brushes/terrain_brush.jpg'
+      'assets/brushes/terrain_brush.jpg',
     );
 
     const roundBrushImage = await TextureManager.loadImage(
-      'assets/brushes/round_brush.jpg'
+      'assets/brushes/round_brush.jpg',
     );
 
     const smallRoundBrushImage = await TextureManager.loadImage(
-      'assets/brushes/round_brush_small.jpg'
+      'assets/brushes/round_brush_small.jpg',
     );
 
     const smallBrushImage = await TextureManager.loadImage(
-      'assets/brushes/small_brush.jpg'
+      'assets/brushes/small_brush.jpg',
     );
 
     this.brushToolsImages.push(
@@ -460,7 +460,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       terrainBrushImage,
       roundBrushImage,
       smallRoundBrushImage,
-      smallBrushImage
+      smallBrushImage,
     );
 
     this.meshbrush.image = smallRoundBrushImage;
@@ -487,7 +487,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Player'));
     const transform3D = this.ecs.addComponent<Transform3D>(
       entity,
-      new Transform3D(500, 10, 950)
+      new Transform3D(500, 10, 950),
     );
     transform3D!.scale[0] = 0.2;
     transform3D!.scale[1] = 0.2;
@@ -495,24 +495,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     transform3D!.rotation[2] = 3.1;
     const playerSkeleton = new Skeleton(
       '/assets/textures/character-animation.jpg',
-      'playerAnimations'
+      'playerAnimations',
     );
     playerSkeleton.bones = Loader.getBones('skeleton');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     this.ecs.addComponent<Controlable>(
       entity,
-      new Controlable(new Vec(0, 0), 0, false)
+      new Controlable(new Vec(0, 0), 0, false),
     );
     this.ecs.addComponent<Player>(entity, new Player());
     this.ecs.addComponent<Transform>(
       entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
     if (!skeleton) return;
     skeleton.image = image;
     skeleton.keyframes = ResourceManager.getAnimation(
       skeleton.resource,
-      'idle'
+      'idle',
     );
     skeleton.animationDuration =
       skeleton.keyframes[skeleton.keyframes.length - 1].time;
@@ -524,7 +524,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Frogman'));
     const transform3D = this.ecs.addComponent<Transform3D>(
       entity,
-      new Transform3D(550, 3, 950)
+      new Transform3D(550, 3, 950),
     );
     transform3D!.scale[0] = 0.2;
     transform3D!.scale[1] = 0.2;
@@ -532,19 +532,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     transform3D!.rotation[2] = 3.1;
     const playerSkeleton = new Skeleton(
       '/assets/textures/frog-enemy.jpg',
-      'frogAnimations'
+      'frogAnimations',
     );
     playerSkeleton.bones = Loader.getBones('frogman');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     this.ecs.addComponent<Transform>(
       entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
     if (!skeleton) return;
     skeleton.image = image;
     skeleton.keyframes = ResourceManager.getAnimation(
       skeleton.resource,
-      'idle'
+      'idle',
     );
     skeleton.animationDuration =
       skeleton.keyframes[skeleton.keyframes.length - 1].time;
@@ -559,56 +559,46 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrainWithSplatmap() {
     const buffer = new BufferLayout();
-    buffer.add(
-      'a_position',
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false
-    );
-    buffer.add(
-      'a_texcoord',
-      ShaderDataType.GetType(ShaderType.Float),
-      2,
-      false
-    );
-    buffer.add('a_normal', ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const newEntity = this.ecs.createEntity();
     const width = 128;
     const height = 128;
     const image = await TextureManager.loadImage(
-      '/assets/textures/texture_map.jpg'
+      '/assets/textures/texture_map.jpg',
     );
     const name = 'textureMap';
     const texture = TextureManager.createAndBindTexture(
       name,
       image,
       image.width,
-      image.height
+      image.height,
     );
     const splatmap = 'splatmap' + newEntity;
     const splatmapTexture = TextureManager.createAndBindTexture(
       splatmap,
       null,
       width,
-      height
+      height,
     );
     const model = new Model();
     model.addPlane(50, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     this.ecs.addComponent(newEntity, new Material(texture, 'splatmap'));
-    const meshName = MeshManager.addMesh(model, 'splatmap' + newEntity, buffer);
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(model.vertices, model.indices, 'splatmap' + newEntity)
+      new Mesh(model.vertices, model.indices, 'splatmap' + newEntity),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(width, height, splatmapTexture)
+      new Splatmap(width, height, splatmapTexture),
     );
     //Add material component to entity
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
+    MeshManager.addMesh(model, 'splatmap' + newEntity, buffer);
   }
 
   public createAdjacentTerrain() {
@@ -679,7 +669,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.ecs.addComponent<Material>(
       effectEntity,
-      new Material('whirlwind', 'whirlwind')
+      new Material('whirlwind', 'whirlwind'),
     );
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
@@ -689,20 +679,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Mesh(
         cylinderModel.vertices,
         cylinderModel.indices,
-        'cylinder' + effectEntity
-      )
+        'cylinder' + effectEntity,
+      ),
     );
     //MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
   }
 
   createLightSource() {
     const layout = new BufferLayout();
-    layout.add(
-      'a_position',
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false
-    );
+    layout.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 10, 500));
@@ -712,43 +697,47 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const mesh = this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'light')
+      new Mesh(model.vertices, model.indices, 'light'),
     );
     const material = this.ecs.addComponent<Material>(
       entity,
-      new Material('', 'basic')
+      new Material('', 'basic'),
     );
     MeshManager.addMesh(model, 'light', layout);
   }
 
   protected async createWater() {
     const waterImage = await TextureManager.loadImage(
-      'assets/textures/water_texture.jpg'
+      'assets/textures/water_texture.jpg',
     );
     const textureSlot = TextureManager.createAndBindTexture(
       'water',
       waterImage,
       waterImage.width,
-      waterImage.height
+      waterImage.height,
     );
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 100)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 100),
     );
     this.ecs.addComponent<Material>(entity, new Material(textureSlot, 'water'));
     const model = new Model();
     //Change later in runtime with some parameters in UI
     model.addPlane(50, 1000, 1000);
-    //MeshManager.addMesh(model, 'water' );
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'water')
+      new Mesh(model.vertices, model.indices, 'water'),
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    MeshManager.addMesh(model, 'water', buffer);
   }
 
   protected async addTextureToMaterial(path: string) {
@@ -757,11 +746,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'textureMap',
       image,
       image.width,
-      image.height
+      image.height,
     );
     const material = this.ecs.getComponent<Material>(
       this.meshbrush.entity,
-      'Material'
+      'Material',
     );
     if (!material) return;
     material.slot = textureSlot;
@@ -770,38 +759,46 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   protected async addGrass() {
     const entity = this.ecs.createEntity();
     const grass = new BufferLayout();
-    grass.add('a_position', ShaderDataType.GetType(ShaderType.Float), 3, false);
-    grass.add('a_texcoord', ShaderDataType.GetType(ShaderType.Float), 2, false);
-    grass.add('a_normal', ShaderDataType.GetType(ShaderType.Float), 3, false);
-    grass.add(
-      'a_offset',
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true
-    );
+    grass.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    grass.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    grass.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const shader = await ShaderManager.load(
       'grass',
       'grass_vertex.txt',
-      'grass_fragment.txt'
+      'grass_fragment.txt',
     );
 
     const image = await TextureManager.loadImage('assets/textures/noise.jpg');
-    const textureSlot = TextureManager.createAndBindTexture(
+    TextureManager.createAndBindTexture(
       'grass',
       image,
       image.width,
-      image.height
+      image.height,
     );
-    const grassComponent = this.ecs.addComponent<Grass>(
-      entity,
-      new Grass(textureSlot)
-    );
+    const grassComponent = this.ecs.addComponent<Grass>(entity, new Grass());
+    if (!grassComponent) return;
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 0, 500));
     this.ecs.addComponent<Name>(entity, new Name('Grass'));
     const grassModel = new Model();
     grassModel.addGrass();
+    this.ecs.addComponent<Mesh>(
+      entity,
+      new Mesh(grassModel.vertices, grassModel.indices, 'grass'),
+    );
     MeshManager.addMesh(grassModel, 'grass', grass);
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh(
+      'grass',
+      instanceBuffer,
+      grassComponent.positions,
+    );
   }
 
   loop() {
@@ -864,7 +861,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.mouse.dragging && this.keyboard.isKeyPressed('Shift')) {
       const transform = this.ecs.getComponent<Transform3D>(
         this.meshbrush.entity,
-        'Transform3D'
+        'Transform3D',
       );
       if (transform) {
         transform.scale[0] += this.mouse.deltaX * 0.001;
@@ -881,7 +878,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.meshbrush,
         this.ecs,
         this.mouse,
-        this.editorCamera
+        this.editorCamera,
       );
     }
   }
@@ -943,12 +940,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       normalizedPos[0],
       normalizedPos[1],
       -1,
-      1
+      1,
     );
     const invertedProjectionMatrix = mat4.create();
     mat4.invert(
       invertedProjectionMatrix,
-      this.editorCamera.getProjectionMatrix()
+      this.editorCamera.getProjectionMatrix(),
     );
     const eyeCoords = vec4.fromValues(0, 0, 0, 0);
     vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
