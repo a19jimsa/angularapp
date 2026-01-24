@@ -19,7 +19,7 @@ export class BrushSystem {
     meshBrush: Brush,
     ecs: Ecs,
     mouse: Mouse,
-    perspectiveCamera: PerspectiveCamera
+    perspectiveCamera: PerspectiveCamera,
   ) {
     this.pickVertex(ecs, meshBrush, mouse, perspectiveCamera);
   }
@@ -28,7 +28,7 @@ export class BrushSystem {
     ecs: Ecs,
     meshBrush: Brush,
     mouse: Mouse,
-    perspectiveCamera: PerspectiveCamera
+    perspectiveCamera: PerspectiveCamera,
   ) {
     const epsilon = 10;
     const maxDistance = 1000;
@@ -41,13 +41,13 @@ export class BrushSystem {
     const rayOrigin = vec3.fromValues(
       invertedView[12],
       invertedView[13],
-      invertedView[14]
+      invertedView[14],
     );
 
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
-      'Transform3D'
+      'Transform3D',
     );
 
     const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
@@ -79,7 +79,6 @@ export class BrushSystem {
           if (meshBrush.type === ToolBrush.Height) {
             this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
             this.updateNormals(mesh);
-            mesh.dirty = true;
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
@@ -90,7 +89,7 @@ export class BrushSystem {
               ecs,
               meshBrush,
               mesh.vertices[j + 3],
-              mesh.vertices[j + 4]
+              mesh.vertices[j + 4],
             );
           }
           return;
@@ -105,7 +104,7 @@ export class BrushSystem {
     const step = 1;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
-      'Transform3D'
+      'Transform3D',
     );
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     if (transform3D && mesh) {
@@ -147,11 +146,11 @@ export class BrushSystem {
       }
       if (mouse.isSelected.select && mouse.dragging) {
         if (mouse.isSelected.element === 6) {
-          transform3D.translate[0] -= mouse.deltaX;
+          transform3D.translate[0] -= mouse.deltaX * 0.5;
         } else if (mouse.isSelected.element === 18) {
-          transform3D.translate[1] += mouse.deltaY;
+          transform3D.translate[1] += mouse.deltaY * 0.5;
         } else if (mouse.isSelected.element === 30) {
-          transform3D.translate[2] -= mouse.deltaY * 2;
+          transform3D.translate[2] -= mouse.deltaY * 0.5;
         }
       }
     }
@@ -162,32 +161,32 @@ export class BrushSystem {
     meshBrush: Brush,
     vx: number,
     vy: number,
-    vz: number
+    vz: number,
   ) {
     const image = this.getImageData(meshBrush.image, meshBrush.radius * 0.01);
     if (!image) return;
-    for (const entity of ecs.getEntities()) {
-      const grass = ecs.getComponent<Grass>(entity, 'Grass');
-      if (grass) {
-        for (let z = 0; z < image.height; z++) {
-          for (let x = 0; x < image.width; x++) {
-            const index = (z * image.width + x) * 4;
-            const r = image.data[index];
-            if (r < 200) {
-              const posX = vx - x;
-              const posZ = vz - z;
-              if (grass.amountOfGrass >= 100) return;
-              grass.positions[grass.amountOfGrass + 0] =
-                posX * 2 + image.width + 2 - Math.random() * 2;
-              grass.positions[grass.amountOfGrass + 1] = vy * 2;
-              grass.positions[grass.amountOfGrass + 2] =
-                posZ * 2 + image.height + 2 - Math.random() * 2;
-              grass.amountOfGrass++;
-            }
+    const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+    if (grass) {
+      for (let z = 0; z < image.height; z++) {
+        for (let x = 0; x < image.width; x++) {
+          const index = (z * image.width + x) * 4;
+          const r = image.data[index];
+          if (r === 0) {
+            const posX = vx - x;
+            const posZ = vz - z;
+            if (grass.amount >= grass.maxAmount) return;
+            grass.positions[grass.index + 0] =
+              posX - image.width * 0.5 - Math.random() * 2;
+            grass.positions[grass.index + 1] = vy;
+            grass.positions[grass.index + 2] =
+              posZ - image.width * 0.5 - Math.random() * 2;
+            grass.index += 3;
+            grass.amount++;
           }
         }
-        return;
       }
+      console.log(grass.positions);
+      return;
     }
   }
 
@@ -197,7 +196,7 @@ export class BrushSystem {
     y: number,
     z: number,
     mesh: Mesh,
-    meshBrush: Brush
+    meshBrush: Brush,
   ) {
     for (const entity of ecs.getEntities()) {
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
@@ -206,7 +205,7 @@ export class BrushSystem {
         for (let j = -radius; j < meshBrush.radius; j++) {
           for (let i = -radius; i < meshBrush.radius; i++) {
             if (j * j + i * i <= radius * radius) {
-              if (grass.positions.length > grass.maxGrassBuffer) return;
+              if (grass.positions.length > grass.maxAmount) return;
               //grass.positions.push(x * 2 + j * 0.5, y, z * 2 + i * 0.5);
             }
           }
@@ -220,7 +219,7 @@ export class BrushSystem {
     x: number,
     y: number,
     z: number,
-    meshBrush: Brush
+    meshBrush: Brush,
   ) {
     // const tree = ecs.createEntity();
     // ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
@@ -258,85 +257,85 @@ export class BrushSystem {
             //Red
             splatmap.coords[splatmapIndex + 0] = Math.min(
               splatmap.coords[splatmapIndex + 0] + color,
-              255
+              255,
             );
             //Green
             splatmap.coords[splatmapIndex + 1] = Math.min(
               splatmap.coords[splatmapIndex + 1] - color,
-              255
+              255,
             );
             //Blue
             splatmap.coords[splatmapIndex + 2] = Math.min(
               splatmap.coords[splatmapIndex + 2] - color,
-              255
+              255,
             );
             //Alpha
             splatmap.coords[splatmapIndex + 3] = Math.min(
               splatmap.coords[splatmapIndex + 3] - color,
-              255
+              255,
             );
           } else if (splatColor === 'green') {
             //Red
             splatmap.coords[splatmapIndex + 0] = Math.min(
               splatmap.coords[splatmapIndex + 0] - color,
-              255
+              255,
             );
             //Green
             splatmap.coords[splatmapIndex + 1] = Math.min(
               splatmap.coords[splatmapIndex + 1] + color,
-              255
+              255,
             );
             //Blue
             splatmap.coords[splatmapIndex + 2] = Math.min(
               splatmap.coords[splatmapIndex + 2] - color,
-              255
+              255,
             );
             //Alpha
             splatmap.coords[splatmapIndex + 3] = Math.min(
               splatmap.coords[splatmapIndex + 3] - color,
-              255
+              255,
             );
           } else if (splatColor === 'blue') {
             //Red
             splatmap.coords[splatmapIndex + 0] = Math.min(
               splatmap.coords[splatmapIndex + 0] - color,
-              255
+              255,
             );
             //Green
             splatmap.coords[splatmapIndex + 1] = Math.min(
               splatmap.coords[splatmapIndex + 1] - color,
-              255
+              255,
             );
             //Blue
             splatmap.coords[splatmapIndex + 2] = Math.min(
               splatmap.coords[splatmapIndex + 2] + color,
-              255
+              255,
             );
             //Alpha
             splatmap.coords[splatmapIndex + 3] = Math.min(
               splatmap.coords[splatmapIndex + 3] - color,
-              255
+              255,
             );
           } else if (splatColor === 'alpha') {
             //Red
             splatmap.coords[splatmapIndex + 0] = Math.min(
               splatmap.coords[splatmapIndex + 0] - color,
-              255
+              255,
             );
             //Green
             splatmap.coords[splatmapIndex + 1] = Math.min(
               splatmap.coords[splatmapIndex + 1] - color,
-              255
+              255,
             );
             //Blue
             splatmap.coords[splatmapIndex + 2] = Math.min(
               splatmap.coords[splatmapIndex + 2] - color,
-              255
+              255,
             );
             //Alpha
             splatmap.coords[splatmapIndex + 3] = Math.min(
               splatmap.coords[splatmapIndex + 3] + color,
-              255
+              255,
             );
           }
           splatmap.dirty = true;
@@ -370,85 +369,85 @@ export class BrushSystem {
               //Red
               splatmap.coords[idx + 0] = Math.min(
                 splatmap.coords[idx + 0] + strength,
-                255
+                255,
               );
               //Green
               splatmap.coords[idx + 1] = Math.min(
                 splatmap.coords[idx + 1] - strength,
-                255
+                255,
               );
               //Blue
               splatmap.coords[idx + 2] = Math.min(
                 splatmap.coords[idx + 2] - strength,
-                255
+                255,
               );
               //Alpha
               splatmap.coords[idx + 3] = Math.min(
                 splatmap.coords[idx + 3] - strength,
-                255
+                255,
               );
             } else if (splatColor === 'green') {
               //Red
               splatmap.coords[idx + 0] = Math.min(
                 splatmap.coords[idx + 0] - strength,
-                255
+                255,
               );
               //Green
               splatmap.coords[idx + 1] = Math.min(
                 splatmap.coords[idx + 1] + strength,
-                255
+                255,
               );
               //Blue
               splatmap.coords[idx + 2] = Math.min(
                 splatmap.coords[idx + 2] - strength,
-                255
+                255,
               );
               //Alpha
               splatmap.coords[idx + 3] = Math.min(
                 splatmap.coords[idx + 3] - strength,
-                255
+                255,
               );
             } else if (splatColor === 'blue') {
               //Red
               splatmap.coords[idx + 0] = Math.min(
                 splatmap.coords[idx + 0] - strength,
-                255
+                255,
               );
               //Green
               splatmap.coords[idx + 1] = Math.min(
                 splatmap.coords[idx + 1] - strength,
-                255
+                255,
               );
               //Blue
               splatmap.coords[idx + 2] = Math.min(
                 splatmap.coords[idx + 2] + strength,
-                255
+                255,
               );
               //Alpha
               splatmap.coords[idx + 3] = Math.min(
                 splatmap.coords[idx + 3] - strength,
-                255
+                255,
               );
             } else if (splatColor === 'alpha') {
               //Red
               splatmap.coords[idx + 0] = Math.min(
                 splatmap.coords[idx + 0] - strength,
-                255
+                255,
               );
               //Green
               splatmap.coords[idx + 1] = Math.min(
                 splatmap.coords[idx + 1] - strength,
-                255
+                255,
               );
               //Blue
               splatmap.coords[idx + 2] = Math.min(
                 splatmap.coords[idx + 2] - strength,
-                255
+                255,
               );
               //Alpha
               splatmap.coords[idx + 3] = Math.min(
                 splatmap.coords[idx + 3] + strength,
-                255
+                255,
               );
             }
           }
@@ -463,20 +462,19 @@ export class BrushSystem {
     x: number,
     y: number,
     z: number,
-    ecs: Ecs
+    ecs: Ecs,
   ) {
     const imageData = this.getImageData(meshBrush.image, 1);
-    if (!imageData) return;
+    if (!imageData) throw new Error('Could not get image data!');
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     const fallOff = meshBrush.fallOff;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
-      'Transform3D'
+      'Transform3D',
     );
-    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    if (!transform3D || !terrain || !mesh) return;
+    if (!transform3D || !mesh) return;
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
@@ -486,7 +484,9 @@ export class BrushSystem {
       const dz = vz - z;
       //Same formula again for some reasong... need a function!
       const dist = Math.sqrt(dx * dx + dz * dz);
+
       if (dist > brushRadius) continue;
+      console.log(dist);
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
@@ -498,11 +498,11 @@ export class BrushSystem {
         if (red < 255) {
           const influence =
             (1 - (dist / brushRadius) * fallOff) * brushStrength;
-          if (fallOff === 0) {
-            vertices[i + 1] += brushStrength;
-            continue;
-          }
+          console.log('Changed vertices');
           vertices[i + 1] += influence;
+          const vao = MeshManager.getMesh(mesh.meshId);
+          if (!vao) return;
+          vao.vertexBuffer.vertices = new Float32Array(vertices);
         }
       }
     }

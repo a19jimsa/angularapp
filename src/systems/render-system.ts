@@ -48,15 +48,6 @@ export class RenderSystem {
     );
   }
 
-  private updateMesh(mesh: Mesh) {
-    const gl = Renderer.getGL;
-    const vao = MeshManager.getMesh(mesh.meshId);
-    if (!vao) throw new Error('Could not get vao');
-    const buffer = vao.vertexBuffer.buffer;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(mesh.vertices));
-  }
-
   private drawBatch(ecs: Ecs) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
@@ -73,10 +64,7 @@ export class RenderSystem {
         splatmap.dirty = false;
       }
 
-      if (mesh) {
-        this.updateMesh(mesh);
-        mesh.dirty = false;
-      }
+      Renderer.updateMesh(mesh.meshId);
 
       if (batchRenderable && transform3D) {
         BatchRenderer.addQuads(
@@ -180,6 +168,10 @@ export class RenderSystem {
       if (lightEntity) {
         light = ecs.getComponent<Light>(lightEntity, 'Light');
         lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
+      }
+
+      if (mesh) {
+        Renderer.updateMesh(mesh.meshId);
       }
 
       if (pivot && transform3D) {
@@ -300,17 +292,26 @@ export class RenderSystem {
         const vertexArray = MeshManager.getMesh(mesh.meshId);
         if (!vertexArray) continue;
         Renderer.drawIndexed(vertexArray);
-      } else if (grass && mesh && transform3D) {
-        if (mesh.meshId !== 'grass') throw new Error('Mesh is not grass!');
-        const shader = ShaderManager.getShader(mesh.meshId);
+      }
+      if (grass) {
+        if (grass.meshId !== 'grass') throw new Error('Mesh is not grass!');
+        const shader = ShaderManager.getShader(grass.meshId);
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
-        const vertexArray = MeshManager.getMesh(mesh.meshId);
+        shader.setFloat('u_time', performance.now() * 0.01);
+        shader.setVec3('u_cameraPos', cameraPos);
+        if (light && lightPos) {
+          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.ambient', light.ambient);
+          shader.setVec3('light.diffuse', light.diffuse);
+        }
+        const vertexArray = MeshManager.getMesh(grass.meshId);
         if (!vertexArray) throw new Error('Mesh is not grass');
-        Renderer.drawInstancing(vertexArray, grass.amountOfGrass);
+        console.log('Render grass');
+        Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
     }
   }

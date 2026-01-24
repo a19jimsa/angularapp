@@ -13,11 +13,11 @@
         </mat-card-header>
         <mat-card-content class="h-100 d-flex flex-column overflow-auto">
           @for (item of ecs.getEntities(); track $index) {
-          <button matButton (click)="changeActiveEntity(item)">
-            {{ getSceneObjectName(item) }}
-          </button>
-          }</mat-card-content
-        >
+            <button matButton (click)="changeActiveEntity(item)">
+              {{ getSceneObjectName(item) }}
+            </button>
+          }
+        </mat-card-content>
         <button matButton="tonal" [matMenuTriggerFor]="animals">
           Add to scene
         </button>
@@ -31,7 +31,6 @@
           </button>
           <button mat-menu-item (click)="createCylinder()">Cylinder</button>
           <button mat-menu-item (click)="createLightSource()">Light</button>
-          <button mat-menu-item (click)="addGrass()">Grass</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -106,454 +105,467 @@
               </div>
             </mat-expansion-panel>
 
-            @for (item of componentsList; track $index) { @if(item === terrain){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>{{ item.type }} </mat-panel-title>
-                <mat-panel-description
-                  ><mat-icon>landscape_2</mat-icon></mat-panel-description
-                >
-              </mat-expansion-panel-header>
-              <div class="d-flex flex-column justify-content-center">
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Tiling</label
-                  >
-                  <label class="example-value-label">{{
-                    terrain.tiling
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="0.1" step="0.001">
-                  <input matSliderThumb [(ngModel)]="terrain.tiling" />
-                </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >FogPower</label
-                  >
-                  <label class="example-value-label">{{
-                    terrain.fogPower
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="0.1" step="0.0001">
-                  <input matSliderThumb [(ngModel)]="terrain.fogPower" />
-                </mat-slider>
-              </div>
-            </mat-expansion-panel>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>Brushes </mat-panel-title>
-                <mat-panel-description
-                  ><mat-icon>brush</mat-icon></mat-panel-description
-                >
-              </mat-expansion-panel-header>
-              <h5>Brushes</h5>
-              <div class="d-flex justify-content-around w-100">
-                <button mat-fab (click)="changeTool('grass')">
-                  <mat-icon>grass</mat-icon>
-                </button>
-                <button mat-fab (click)="changeTool('tree')">
-                  <mat-icon>forest</mat-icon>
-                </button>
-                <button mat-fab (click)="changeTool('height')">
-                  <mat-icon>landscape</mat-icon>
-                </button>
-                <button mat-fab (click)="changeTool('pivot')">
-                  <mat-icon>pivot</mat-icon>
-                </button>
-              </div>
-              <div class="d-flex flex-column justify-content-center">
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Radius</label
-                  >
-                  <label class="example-value-label">{{
-                    meshbrush.radius
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="500" step="1" discrete>
-                  <input matSliderThumb [(ngModel)]="meshbrush.radius" />
-                </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Strength</label
-                  >
-                  <label class="example-value-label">{{
-                    meshbrush.strength
-                  }}</label>
-                </div>
-                <mat-slider min="-10" max="10" step="1" discrete>
-                  <input matSliderThumb [(ngModel)]="meshbrush.strength" />
-                </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >FallOff</label
-                  >
-                  <label class="example-value-label">{{
-                    meshbrush.fallOff
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="1" step="0.1" discrete>
-                  <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
-                </mat-slider>
-              </div>
-            </mat-expansion-panel>
-            }@if(item === material){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> Material </mat-panel-title>
-                <mat-panel-description>
-                  <mat-icon>texture</mat-icon>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <div class="row">
-                {{ material.slot }}
-                <button
-                  (click)="
-                    addTextureToMaterial('/assets/textures/texture_map.jpg')
-                  "
-                >
-                  Add Texture
-                </button>
-              </div>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.ambient[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.ambient[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.ambient[2]"
-                  />
-                </mat-form-field>
-              </div>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.diffuse[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.diffuse[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.diffuse[2]"
-                  />
-                </mat-form-field>
-              </div>
+            @for (item of componentsList; track $index) {
+              @if (item === terrain) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>{{ item.type }} </mat-panel-title>
+                    <mat-panel-description
+                      ><mat-icon>landscape_2</mat-icon></mat-panel-description
+                    >
+                  </mat-expansion-panel-header>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Tiling</label
+                      >
+                      <label class="example-value-label">{{
+                        terrain.tiling
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="0.1" step="0.001">
+                      <input matSliderThumb [(ngModel)]="terrain.tiling" />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >FogPower</label
+                      >
+                      <label class="example-value-label">{{
+                        terrain.fogPower
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="0.1" step="0.0001">
+                      <input matSliderThumb [(ngModel)]="terrain.fogPower" />
+                    </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>Brushes </mat-panel-title>
+                    <mat-panel-description
+                      ><mat-icon>brush</mat-icon></mat-panel-description
+                    >
+                  </mat-expansion-panel-header>
+                  <h5>Brushes</h5>
+                  <div class="d-flex justify-content-around w-100">
+                    <button mat-fab (click)="changeTool('tree')">
+                      <mat-icon>forest</mat-icon>
+                    </button>
+                    <button mat-fab (click)="changeTool('height')">
+                      <mat-icon>landscape</mat-icon>
+                    </button>
+                    <button mat-fab (click)="changeTool('pivot')">
+                      <mat-icon>pivot</mat-icon>
+                    </button>
+                  </div>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Radius</label
+                      >
+                      <label class="example-value-label">{{
+                        meshbrush.radius
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="500" step="1" discrete>
+                      <input matSliderThumb [(ngModel)]="meshbrush.radius" />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Strength</label
+                      >
+                      <label class="example-value-label">{{
+                        meshbrush.strength
+                      }}</label>
+                    </div>
+                    <mat-slider min="-10" max="10" step="1" discrete>
+                      <input matSliderThumb [(ngModel)]="meshbrush.strength" />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >FallOff</label
+                      >
+                      <label class="example-value-label">{{
+                        meshbrush.fallOff
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="1" step="0.1" discrete>
+                      <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
+                    </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === material) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Material </mat-panel-title>
+                    <mat-panel-description>
+                      <mat-icon>texture</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="row">
+                    {{ material.slot }}
+                    <button
+                      (click)="
+                        addTextureToMaterial('/assets/textures/texture_map.jpg')
+                      "
+                    >
+                      Add Texture
+                    </button>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.ambient[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.ambient[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.ambient[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.diffuse[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.diffuse[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.diffuse[2]"
+                      />
+                    </mat-form-field>
+                  </div>
 
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Specular X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.specular[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Specular Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.specular[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Specular Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="material.specular[2]"
-                  />
-                </mat-form-field>
-                <mat-slider min="30" max="64" step="1" discrete>
-                  <input matSliderThumb [(ngModel)]="material.shininess" />
-                </mat-slider>
-              </div>
-            </mat-expansion-panel>
-            } @if(item === light){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> Light </mat-panel-title>
-                <mat-panel-description>
-                  <mat-icon>light_mode</mat-icon>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.ambient[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.ambient[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Ambient Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.ambient[2]"
-                  />
-                </mat-form-field>
-              </div>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.diffuse[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.diffuse[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Diffuse Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.diffuse[2]"
-                  />
-                </mat-form-field>
-              </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.specular[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.specular[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="material.specular[2]"
+                      />
+                    </mat-form-field>
+                    <mat-slider min="30" max="64" step="1" discrete>
+                      <input matSliderThumb [(ngModel)]="material.shininess" />
+                    </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === light) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Light </mat-panel-title>
+                    <mat-panel-description>
+                      <mat-icon>light_mode</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.ambient[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.ambient[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Ambient Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.ambient[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.diffuse[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.diffuse[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Diffuse Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.diffuse[2]"
+                      />
+                    </mat-form-field>
+                  </div>
 
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>Specular X</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.specular[0]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Specular Y</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.specular[1]"
-                  />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Specular Z</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    [(ngModel)]="light.specular[2]"
-                  />
-                </mat-form-field>
-              </div>
-            </mat-expansion-panel>
-            }@if(item === splatmap){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> Splatmap </mat-panel-title>
-                <mat-panel-description
-                  ><mat-icon>palette</mat-icon></mat-panel-description
-                >
-              </mat-expansion-panel-header>
-              <div class="d-flex flex-row">
-                Splatmap slot: {{ splatmap.slot }}
-              </div>
-              <div class="d-flex flex-row">
-                @for (image of images; track $index) {
-                <img
-                  [src]="image.src"
-                  (click)="changeBrushImage(image)"
-                  width="50"
-                  height="50"
-                />
-                }
-              </div>
-              <div class="d-flex flex-row">
-                <div>
-                  <mat-slider min="0" max="1" step="0.1" discrete>
-                    <input matSliderThumb [(ngModel)]="meshbrush.alpha" />
-                  </mat-slider>
-                  <mat-slider min="0" max="100" step="1" discrete>
-                    <input matSliderThumb [(ngModel)]="meshbrush.radius" />
-                  </mat-slider>
-                  <button mat-fab (click)="changeTool('splat')">
-                    <mat-icon>brush</mat-icon>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.specular[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.specular[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Specular Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="light.specular[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === splatmap) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Splatmap </mat-panel-title>
+                    <mat-panel-description
+                      ><mat-icon>palette</mat-icon></mat-panel-description
+                    >
+                  </mat-expansion-panel-header>
+                  <div class="d-flex flex-row">
+                    Splatmap slot: {{ splatmap.slot }}
+                  </div>
+                  <app-brush-image
+                    [images]="this.brushToolsImages"
+                    (selected)="changeBrushImage($event)"
+                  ></app-brush-image>
+                  <div class="d-flex flex-row">
+                    <div>
+                      <mat-slider min="0" max="1" step="0.1" discrete>
+                        <input matSliderThumb [(ngModel)]="meshbrush.alpha" />
+                      </mat-slider>
+                      <mat-slider min="0" max="100" step="1" discrete>
+                        <input matSliderThumb [(ngModel)]="meshbrush.radius" />
+                      </mat-slider>
+                      <button mat-fab (click)="changeTool('splat')">
+                        <mat-icon>brush</mat-icon>
+                      </button>
+                    </div>
+                    <div>
+                      <mat-radio-group
+                        aria-labelledby="example-radio-group-label"
+                        class="example-radio-group"
+                        [(ngModel)]="meshbrush.color"
+                      >
+                        <mat-radio-button value="red">Red</mat-radio-button>
+                        <mat-radio-button value="green">Green</mat-radio-button>
+                        <mat-radio-button value="blue">Blue</mat-radio-button>
+                        <mat-radio-button value="alpha">Alpha</mat-radio-button>
+                      </mat-radio-group>
+                      <div>Your color is: {{ meshbrush.color }}</div>
+                    </div>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === water) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> {{ water.type }} </mat-panel-title>
+                    <mat-panel-description> </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Displacement</label
+                      >
+                      <label class="example-value-label">{{
+                        water.displacement
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="20" step="1" discrete>
+                      <input matSliderThumb [(ngModel)]="water.displacement" />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Tiling</label
+                      >
+                      <label class="example-value-label">{{
+                        water.tiling
+                      }}</label>
+                    </div>
+                    <mat-slider min="0.01" max="10" step="0.01" discrete>
+                      <input matSliderThumb [(ngModel)]="water.tiling" />
+                    </mat-slider>
+                    <label id="example-name-label" class="example-name-label"
+                      >Flow speed</label
+                    >
+                    <label class="example-value-label">{{
+                      water.flowSpeed
+                    }}</label>
+                    <mat-slider min="0.0001" max="10" step="0.0001" discrete>
+                      <input matSliderThumb [(ngModel)]="water.flowSpeed" />
+                    </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === grass) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> {{ item.type }} </mat-panel-title>
+                    <mat-panel-description>Grass</mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <button mat-fab (click)="changeTool('grass')">
+                    <mat-icon>grass</mat-icon>
                   </button>
-                </div>
-                <div>
-                  <mat-radio-group
-                    aria-labelledby="example-radio-group-label"
-                    class="example-radio-group"
-                    [(ngModel)]="meshbrush.color"
-                  >
-                    <mat-radio-button value="red">Red</mat-radio-button>
-                    <mat-radio-button value="green">Green</mat-radio-button>
-                    <mat-radio-button value="blue">Blue</mat-radio-button>
-                    <mat-radio-button value="alpha">Alpha</mat-radio-button>
-                  </mat-radio-group>
-                  <div>Your color is: {{ meshbrush.color }}</div>
-                </div>
-              </div>
-            </mat-expansion-panel>
-            } @if(item === water){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> {{ water.type }} </mat-panel-title>
-                <mat-panel-description> </mat-panel-description>
-              </mat-expansion-panel-header>
-              <div class="d-flex flex-column justify-content-center">
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Displacement</label
-                  >
-                  <label class="example-value-label">{{
-                    water.displacement
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="20" step="1" discrete>
-                  <input matSliderThumb [(ngModel)]="water.displacement" />
-                </mat-slider>
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Tiling</label
-                  >
-                  <label class="example-value-label">{{ water.tiling }}</label>
-                </div>
-                <mat-slider min="0.01" max="10" step="0.01" discrete>
-                  <input matSliderThumb [(ngModel)]="water.tiling" />
-                </mat-slider>
-                <label id="example-name-label" class="example-name-label"
-                  >Flow speed</label
-                >
-                <label class="example-value-label">{{ water.flowSpeed }}</label>
-                <mat-slider min="0.0001" max="10" step="0.0001" discrete>
-                  <input matSliderThumb [(ngModel)]="water.flowSpeed" />
-                </mat-slider>
-              </div>
-            </mat-expansion-panel>
-            } @if(item === grass){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> {{ item.type }} </mat-panel-title>
-                <mat-panel-description>Grass</mat-panel-description>
-              </mat-expansion-panel-header>
-              {{ grass.amountOfGrass }}
-              {{ grass.maxGrassBuffer }}
-            </mat-expansion-panel>
-            } @if(item === animatedTexture){
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> {{ item.type }} </mat-panel-title>
-                <mat-panel-description> </mat-panel-description>
-              </mat-expansion-panel-header>
-              <div class="d-flex flex-column justify-content-center">
-                <div class="example-label-container">
-                  <label id="example-name-label" class="example-name-label"
-                    >Speed</label
-                  >
-                  <label class="example-value-label">{{
-                    animatedTexture.speed
-                  }}</label>
-                </div>
-                <mat-slider min="0" max="0.001" step="0.0001">
-                  <input matSliderThumb [(ngModel)]="animatedTexture.speed" />
-                </mat-slider>
-              </div>
-            </mat-expansion-panel>
-            }}
+                  <app-brush-image
+                    [images]="this.brushToolsImages"
+                    (selected)="changeBrushImage($event)"
+                  ></app-brush-image>
+                  {{ grass.amount }}
+                  {{ grass.maxAmount }}
+                </mat-expansion-panel>
+              }
+              @if (item === animatedTexture) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> {{ item.type }} </mat-panel-title>
+                    <mat-panel-description> </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Speed</label
+                      >
+                      <label class="example-value-label">{{
+                        animatedTexture.speed
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="0.001" step="0.0001">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="animatedTexture.speed"
+                      />
+                    </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+              }
+            }
           </mat-accordion>
         </mat-card-content>
         <mat-card-footer></mat-card-footer>

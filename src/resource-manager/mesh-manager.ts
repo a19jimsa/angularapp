@@ -1,3 +1,4 @@
+import { Renderer } from 'src/renderer/renderer';
 import { BufferLayout } from 'src/renderer/buffer';
 import { Model } from 'src/renderer/model';
 import { VertexArray } from 'src/renderer/vertex-array';

@@ -1,13 +1,46 @@
 #version 300 es
 precision mediump float;
 
+in float v_height;
+in float v_random_Id;
+in vec3 v_normal;
+in vec3 v_fragPos;
+
 out vec4 FragColor;
 
+struct Light{
+   vec3 position;
+
+   vec3 ambient;
+   vec3 diffuse;
+   vec3 specular;
+};
+
+struct Material{
+   vec3 ambient;
+   vec3 diffuse;
+   vec3 specular;
+   float shininess;
+};
+
+uniform Material material;
+uniform Light light;
+uniform vec3 u_cameraPos;
+
 void main() {
-    //float scale = 0.8;
-    //float blend = smoothstep(0.2, 0.8, v_random_Id);
-    //vec3 color = mix(vec3(0.0, 0.5, 0.0), vec3(0.3, 0.9, 0.1), blend);
-    //vec3 finalColor = mix(vec3(0.0, 0.5, 0.0), color, v_height / 2.0); 
-    //gl_FragColor = texColor;
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    // ambient
+    vec3 ambient = light.ambient + material.ambient;
+  	
+    // diffuse 
+    vec3 norm = normalize(v_normal);
+    vec3 lightDir = normalize(light.position - v_fragPos);
+    float diff = max(dot(norm, lightDir), material.shininess);
+    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+
+    float scale = 0.8;
+    float blend = smoothstep(0.2, 0.8, v_random_Id);
+    vec3 color = mix(vec3(0.0, 0.5, 0.0), vec3(0.3, 0.9, 0.1), blend);
+    vec3 finalColor = mix(vec3(0.0, 0.5, 0.0), color, v_height); 
+    vec3 lightColor = (ambient + diffuse) * finalColor;
+    FragColor = vec4(lightColor, 1.0);
 }

@@ -32,9 +32,15 @@ export class Renderer {
     this.gl.useProgram(shader);
   }
 
-  public static drawInstancing(vertexArray: VertexArray, count: number) {
+  public static drawInstancing(
+    vertexArray: VertexArray,
+    positions: Float32Array,
+    count: number,
+  ) {
     const gl = Renderer.getGL;
     vertexArray.bind();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.instanceBuffer!);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
     // --- Draw call ---
     gl.drawElementsInstanced(
       gl.TRIANGLES,
@@ -138,36 +144,14 @@ export class Renderer {
     gl.colorMask(true, true, true, true);
   }
 
-  // private createBatch(
-  //   gl: WebGL2RenderingContext,
-  //   mesh: MeshRenderer,
-  //   amount: number
-  // ) {
-  //   mesh.shader.use();
-  //   mesh.vao.bind();
-  //   const buffer = gl.createBuffer();
-  //   mesh.vao.vertexBuffer.buffer = buffer!;
-  //   if (!mesh.vao.vertexBuffer.buffer) {
-  //     console.error("Couldn't not create buffer!");
-  //   }
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vao.vertexBuffer.buffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(amount), gl.DYNAMIC_DRAW);
-  //   const location = gl.getAttribLocation(
-  //     mesh.shader.program,
-  //     'a_instancePositions'
-  //   );
-  //   gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 4 * 4, 0);
-  //   gl.enableVertexAttribArray(location);
-  //   gl.vertexAttribDivisor(location, 1); // ← per‑instans
-  //   const idLocation = gl.getAttribLocation(
-  //     mesh.shader.program,
-  //     'a_instanceID'
-  //   );
-  //   gl.vertexAttribPointer(idLocation, 1, gl.FLOAT, false, 4 * 4, 3 * 4);
-  //   gl.enableVertexAttribArray(idLocation);
-  //   gl.vertexAttribDivisor(idLocation, 1);
-  //   gl.useProgram(null);
-  //   mesh.vao.unbind();
-  //   return mesh;
-  // }
+  public static updateMesh(meshId: string) {
+    const gl = Renderer.getGL;
+    const vao = MeshManager.getMesh(meshId);
+    if (!vao) throw new Error('Could not get vao');
+    vao.bind();
+    const buffer = vao.vertexBuffer.buffer;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vao.vertexBuffer.vertices);
+    vao.unbind();
+  }
 }

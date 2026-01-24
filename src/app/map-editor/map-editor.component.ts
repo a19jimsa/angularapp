@@ -60,6 +60,7 @@ import { BufferLayout } from 'src/renderer/buffer';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { Pivot } from 'src/components/pivot';
 import { Grass } from 'src/components/grass';
+import { BrushImageComponent } from '../brush-image/brush-image.component';
 
 type IsSelected = {
   select: boolean;
@@ -132,7 +133,7 @@ export type Brush = {
     MatRadioModule,
     MatSelectModule,
     MatMenuModule,
-    //JsonPipe,
+    BrushImageComponent,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -195,7 +196,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     radius: 5,
     strength: 1,
     image: new Image(),
-    type: ToolBrush.Pivot,
+    type: ToolBrush.Grass,
     color: 'red',
     alpha: 1,
     entity: -1,
@@ -462,8 +463,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       smallRoundBrushImage,
       smallBrushImage,
     );
-
-    this.meshbrush.image = smallRoundBrushImage;
   }
 
   async init() {
@@ -477,6 +476,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.sceneObjects.set(name, [entity]); // skapa ny lista
       }
     }
+
+    //Init brushimage to brush
+    this.meshbrush.image = this.brushToolsImages[0];
 
     this.cdr.detectChanges();
     this.loop();
@@ -757,7 +759,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected async addGrass() {
-    const entity = this.ecs.createEntity();
     const grass = new BufferLayout();
     grass.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     grass.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
@@ -775,16 +776,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       image.width,
       image.height,
     );
-    const grassComponent = this.ecs.addComponent<Grass>(entity, new Grass());
+    const grassComponent = this.ecs.addComponent<Grass>(
+      this.meshbrush.entity,
+      new Grass(),
+    );
+    this.ecs.addComponent<Material>(
+      this.meshbrush.entity,
+      new Material('grass', 'grass'),
+    );
     if (!grassComponent) return;
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 0, 500));
-    this.ecs.addComponent<Name>(entity, new Name('Grass'));
     const grassModel = new Model();
     grassModel.addGrass();
-    this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(grassModel.vertices, grassModel.indices, 'grass'),
-    );
     MeshManager.addMesh(grassModel, 'grass', grass);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(

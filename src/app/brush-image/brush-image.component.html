@@ -1,0 +1,7 @@
+<div class="row">
+  <div class="col-12">
+    @for (image of images; track $index) {
+      <img [src]="image.src" width="50" height="50" (click)="onClick($index)" />
+    }
+  </div>
+</div>

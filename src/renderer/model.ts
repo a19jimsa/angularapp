@@ -45,7 +45,7 @@ export class Model {
     dy: number,
     dw: number,
     dh: number,
-    order: number
+    order: number,
   ) {
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
@@ -262,14 +262,15 @@ export class Model {
 
   addPivot() {
     const vertices = [
-      // X-axis 3, color 2
-      0, 0, 0, 1, 0, 0, 50, 0, 0, 1, 0, 0,
+      // X-axis, color 1
+      0, 0, 0, 1, 0, 0, 30, 0, 0, 1, 0, 0,
       // Y-axis, color 2
-      0, 0, 0, 0, 1, 0, 0, 50, 0, 0, 1, 0,
-      // Z-axis, color 2
-      0, 0, 0, 0, 0, 1, 0, 0, 50, 0, 0, 1,
+      0, 0, 0, 0, 1, 0, 0, 30, 0, 0, 1, 0,
+      // Z-axis, color 3
+      0, 0, 0, 0, 0, 1, 0, 0, 30, 0, 0, 1,
     ];
 
+    //indiices
     const indices = [0, 1, 2, 3, 4, 5];
     this.vertices = vertices;
     this.indices = indices;
@@ -291,7 +292,7 @@ export class Model {
         const posX = (u - 0.5) * rowWidth;
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
-        this.vertices.push(1, 0, 0); // normal framåt
+        this.vertices.push(0, 0, 1); // normal framåt
         index++;
       }
     }
