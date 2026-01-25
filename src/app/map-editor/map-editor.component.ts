@@ -61,6 +61,7 @@ import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { Pivot } from 'src/components/pivot';
 import { Grass } from 'src/components/grass';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
+import { CommandManager } from 'src/resource-manager/command-manager';
 
 type IsSelected = {
   select: boolean;
@@ -811,7 +812,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     } else {
       this.input();
       this.update();
-      //this.updateMesh();
     }
     this.draw();
     this.gameId = requestAnimationFrame(() => this.loop());
@@ -842,6 +842,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.mouse.isDown = false;
     }
 
+    if (
+      this.keyboard.isKeyPressed('Control') &&
+      this.keyboard.isKeyPressed('z')
+    ) {
+      CommandManager.undo();
+    }
+
     //Dragging
     if (
       this.mouse.pressed &&
@@ -859,17 +866,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
     this.mouse.lastX = this.mouse.x;
     this.mouse.lastY = this.mouse.y;
-
-    if (this.mouse.dragging && this.keyboard.isKeyPressed('Shift')) {
-      const transform = this.ecs.getComponent<Transform3D>(
-        this.meshbrush.entity,
-        'Transform3D',
-      );
-      if (transform) {
-        transform.scale[0] += this.mouse.deltaX * 0.001;
-        transform.scale[2] += this.mouse.deltaY * 0.001;
-      }
-    }
     this.cameraMovement();
   }
 
@@ -983,8 +979,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.keyboard.isKeyPressed('e')) rotateX += speed;
     if (this.keyboard.isKeyPressed('q')) rotateX -= speed;
 
-    if (this.keyboard.isKeyPressed('x')) rotateY += speed;
-    if (this.keyboard.isKeyPressed('z')) rotateY -= speed;
+    // if (this.keyboard.isKeyPressed('x')) rotateY += speed;
+    // if (this.keyboard.isKeyPressed('z')) rotateY -= speed;
 
     if (this.keyboard.isKeyPressed('Escape')) {
       this.editorCamera.resetCamera();

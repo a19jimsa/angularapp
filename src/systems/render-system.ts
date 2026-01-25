@@ -21,7 +21,6 @@ import { Renderer } from 'src/renderer/renderer';
 import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { Shader } from 'src/renderer/shader';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -174,6 +173,11 @@ export class RenderSystem {
         Renderer.updateMesh(mesh.meshId);
       }
 
+      if (mesh.dirty) {
+        this.updateNormals(mesh);
+        mesh.dirty = false;
+      }
+
       if (pivot && transform3D) {
         const shader = ShaderManager.getShader('debug');
         shader.bind();
@@ -313,6 +317,65 @@ export class RenderSystem {
         console.log('Render grass');
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
+    }
+  }
+
+  private updateNormals(mesh: Mesh): void {
+    // Steg 1: Initiera alla normals till 0
+    for (let i = 0; i < mesh.vertices.length / 8; i++) {
+      mesh.vertices[i * 8 + 5] = 0;
+      mesh.vertices[i * 8 + 6] = 0;
+      mesh.vertices[i * 8 + 7] = 0;
+    }
+    //Stride 8 xyzuvnormals(3)
+    for (let i = 0; i < mesh.indices.length; i += 3) {
+      const i0 = mesh.indices[i];
+      const i1 = mesh.indices[i + 1];
+      const i2 = mesh.indices[i + 2];
+
+      const v0 = mesh.vertices[i0 * 8];
+      const v1 = mesh.vertices[i0 * 8 + 1];
+      const v2 = mesh.vertices[i0 * 8 + 2];
+
+      const v3 = mesh.vertices[i1 * 8];
+      const v4 = mesh.vertices[i1 * 8 + 1];
+      const v5 = mesh.vertices[i1 * 8 + 2];
+
+      const v6 = mesh.vertices[i2 * 8];
+      const v7 = mesh.vertices[i2 * 8 + 1];
+      const v8 = mesh.vertices[i2 * 8 + 2];
+
+      const triangleA = vec3.fromValues(v0, v1, v2);
+      const triangleB = vec3.fromValues(v3, v4, v5);
+      const triangleC = vec3.fromValues(v6, v7, v8);
+
+      const edge = vec3.create();
+      vec3.subtract(edge, triangleB, triangleA);
+      const edge1 = vec3.create();
+      vec3.subtract(edge1, triangleC, triangleA);
+
+      const normal = vec3.create();
+      vec3.cross(normal, edge, edge1);
+      vec3.normalize(normal, normal);
+      // Skriv normalen till varje vertex i triangeln (flat shading)
+      for (const idx of [i0, i1, i2]) {
+        mesh.vertices[idx * 8 + 5] += normal[0];
+        mesh.vertices[idx * 8 + 6] += normal[1];
+        mesh.vertices[idx * 8 + 7] += normal[2];
+      }
+    }
+    // Steg 3: Normalisera normals för varje vertex
+    for (let i = 0; i < mesh.vertices.length / 8; i++) {
+      const nx = mesh.vertices[i * 8 + 5];
+      const ny = mesh.vertices[i * 8 + 6];
+      const nz = mesh.vertices[i * 8 + 7];
+
+      const normal = vec3.fromValues(nx, ny, nz);
+      vec3.normalize(normal, normal);
+
+      mesh.vertices[i * 8 + 5] = normal[0];
+      mesh.vertices[i * 8 + 6] = normal[1];
+      mesh.vertices[i * 8 + 7] = normal[2];
     }
   }
 }

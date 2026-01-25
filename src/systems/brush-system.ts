@@ -4,6 +4,11 @@ import {
   Mouse,
   ToolBrush,
 } from 'src/app/map-editor/map-editor.component';
+import { HeightBrushCommand } from 'src/commands/height-brush-command';
+import {
+  SplatBrush,
+  SplatBrushCommand,
+} from 'src/commands/splat-brush-command';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Pivot } from 'src/components/pivot';
@@ -12,7 +17,13 @@ import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+
+export type Height = {
+  index: number;
+  y: number;
+};
 
 export class BrushSystem {
   update(
@@ -78,7 +89,6 @@ export class BrushSystem {
         if (dist < epsilon) {
           if (meshBrush.type === ToolBrush.Height) {
             this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
-            this.updateNormals(mesh);
           } else if (meshBrush.type === ToolBrush.Grass) {
             //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
             this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
@@ -245,6 +255,7 @@ export class BrushSystem {
         Math.floor(uv0 * splatmap.width) - Math.floor(image.width / 2);
       const texZ =
         Math.floor(uv1 * splatmap.height) - Math.floor(image.height / 2);
+      const splatmapList: SplatBrush[] = [];
       for (let y = 0; y < image.height; y++) {
         for (let x = 0; x < image.width; x++) {
           const dx = texX + x;
@@ -254,93 +265,110 @@ export class BrushSystem {
           const red = image.data[imageIndex];
           const color = 255 - red; // 0-255 Om vandla svart till färg. 255 om svart
           if (splatColor === 'red') {
-            //Red
-            splatmap.coords[splatmapIndex + 0] = Math.min(
-              splatmap.coords[splatmapIndex + 0] + color,
-              255,
-            );
-            //Green
-            splatmap.coords[splatmapIndex + 1] = Math.min(
-              splatmap.coords[splatmapIndex + 1] - color,
-              255,
-            );
-            //Blue
-            splatmap.coords[splatmapIndex + 2] = Math.min(
-              splatmap.coords[splatmapIndex + 2] - color,
-              255,
-            );
-            //Alpha
-            splatmap.coords[splatmapIndex + 3] = Math.min(
-              splatmap.coords[splatmapIndex + 3] - color,
-              255,
-            );
+            const r = splatmap.coords[splatmapIndex + 0];
+            const g = splatmap.coords[splatmapIndex + 1];
+            const b = splatmap.coords[splatmapIndex + 2];
+            const a = splatmap.coords[splatmapIndex + 3];
+            // öka r
+            let nr = Math.min(r + color, 255);
+
+            // hur mycket som "saknas"
+            const delta = nr - r;
+
+            // fördela bort från andra kanaler
+            const sumOthers = g + b + a || 1;
+
+            const ng = Math.max(g - delta * (g / sumOthers), 0);
+            const nb = Math.max(b - delta * (b / sumOthers), 0);
+            const na = Math.max(a - delta * (a / sumOthers), 0);
+            splatmapList.push({
+              index: splatmapIndex,
+              colorR: nr,
+              colorG: ng,
+              colorB: nb,
+              colorA: na,
+            });
           } else if (splatColor === 'green') {
-            //Red
-            splatmap.coords[splatmapIndex + 0] = Math.min(
-              splatmap.coords[splatmapIndex + 0] - color,
-              255,
-            );
-            //Green
-            splatmap.coords[splatmapIndex + 1] = Math.min(
-              splatmap.coords[splatmapIndex + 1] + color,
-              255,
-            );
-            //Blue
-            splatmap.coords[splatmapIndex + 2] = Math.min(
-              splatmap.coords[splatmapIndex + 2] - color,
-              255,
-            );
-            //Alpha
-            splatmap.coords[splatmapIndex + 3] = Math.min(
-              splatmap.coords[splatmapIndex + 3] - color,
-              255,
-            );
+            const r = splatmap.coords[splatmapIndex + 0];
+            const g = splatmap.coords[splatmapIndex + 1];
+            const b = splatmap.coords[splatmapIndex + 2];
+            const a = splatmap.coords[splatmapIndex + 3];
+
+            // öka r
+            let ng = Math.min(g + color, 255);
+
+            // hur mycket som "saknas"
+            const delta = ng - g;
+
+            // fördela bort från andra kanaler
+            const sumOthers = r + b + a || 1;
+
+            const nr = Math.max(r - delta * (r / sumOthers), 0);
+            const nb = Math.max(b - delta * (b / sumOthers), 0);
+            const na = Math.max(a - delta * (a / sumOthers), 0);
+            splatmapList.push({
+              index: splatmapIndex,
+              colorR: nr,
+              colorG: ng,
+              colorB: nb,
+              colorA: na,
+            });
           } else if (splatColor === 'blue') {
-            //Red
-            splatmap.coords[splatmapIndex + 0] = Math.min(
-              splatmap.coords[splatmapIndex + 0] - color,
-              255,
-            );
-            //Green
-            splatmap.coords[splatmapIndex + 1] = Math.min(
-              splatmap.coords[splatmapIndex + 1] - color,
-              255,
-            );
-            //Blue
-            splatmap.coords[splatmapIndex + 2] = Math.min(
-              splatmap.coords[splatmapIndex + 2] + color,
-              255,
-            );
-            //Alpha
-            splatmap.coords[splatmapIndex + 3] = Math.min(
-              splatmap.coords[splatmapIndex + 3] - color,
-              255,
-            );
+            const r = splatmap.coords[splatmapIndex + 0];
+            const g = splatmap.coords[splatmapIndex + 1];
+            const b = splatmap.coords[splatmapIndex + 2];
+            const a = splatmap.coords[splatmapIndex + 3];
+
+            // öka r
+            let nb = Math.min(b + color, 255);
+
+            // hur mycket som "saknas"
+            const delta = nb - b;
+
+            // fördela bort från andra kanaler
+            const sumOthers = r + g + a || 1;
+
+            const nr = Math.max(r - delta * (r / sumOthers), 0);
+            const ng = Math.max(g - delta * (g / sumOthers), 0);
+            const na = Math.max(a - delta * (a / sumOthers), 0);
+            splatmapList.push({
+              index: splatmapIndex,
+              colorR: nr,
+              colorG: ng,
+              colorB: nb,
+              colorA: na,
+            });
           } else if (splatColor === 'alpha') {
-            //Red
-            splatmap.coords[splatmapIndex + 0] = Math.min(
-              splatmap.coords[splatmapIndex + 0] - color,
-              255,
-            );
-            //Green
-            splatmap.coords[splatmapIndex + 1] = Math.min(
-              splatmap.coords[splatmapIndex + 1] - color,
-              255,
-            );
-            //Blue
-            splatmap.coords[splatmapIndex + 2] = Math.min(
-              splatmap.coords[splatmapIndex + 2] - color,
-              255,
-            );
-            //Alpha
-            splatmap.coords[splatmapIndex + 3] = Math.min(
-              splatmap.coords[splatmapIndex + 3] + color,
-              255,
-            );
+            const r = splatmap.coords[splatmapIndex + 0];
+            const g = splatmap.coords[splatmapIndex + 1];
+            const b = splatmap.coords[splatmapIndex + 2];
+            const a = splatmap.coords[splatmapIndex + 3];
+
+            // öka r
+            let na = Math.min(a + color, 255);
+
+            // hur mycket som "saknas"
+            const delta = na - a;
+
+            // fördela bort från andra kanaler
+            const sumOthers = r + g + b || 1;
+
+            const nr = Math.max(r - delta * (r / sumOthers), 0);
+            const ng = Math.max(g - delta * (g / sumOthers), 0);
+            const nb = Math.max(b - delta * (b / sumOthers), 0);
+            splatmapList.push({
+              index: splatmapIndex,
+              colorR: nr,
+              colorG: ng,
+              colorB: nb,
+              colorA: na,
+            });
           }
-          splatmap.dirty = true;
         }
       }
+      CommandManager.execute(
+        new SplatBrushCommand(meshBrush.entity, ecs, splatmapList),
+      );
       return;
     }
   }
@@ -474,7 +502,9 @@ export class BrushSystem {
       'Transform3D',
     );
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    if (!transform3D || !mesh) return;
+    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+    if (!transform3D || !mesh || !terrain) return;
+    const commandList: Height[] = new Array();
     for (let i = 0; i < vertices.length; i += 8) {
       const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
       const vz =
@@ -484,9 +514,7 @@ export class BrushSystem {
       const dz = vz - z;
       //Same formula again for some reasong... need a function!
       const dist = Math.sqrt(dx * dx + dz * dz);
-
       if (dist > brushRadius) continue;
-      console.log(dist);
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
@@ -498,14 +526,15 @@ export class BrushSystem {
         if (red < 255) {
           const influence =
             (1 - (dist / brushRadius) * fallOff) * brushStrength;
-          console.log('Changed vertices');
-          vertices[i + 1] += influence;
-          const vao = MeshManager.getMesh(mesh.meshId);
-          if (!vao) return;
-          vao.vertexBuffer.vertices = new Float32Array(vertices);
+          //Now we have commands instead!
+          //Just save all affected vertices in an array and send it to commands.
+          commandList.push({ index: i + 1, y: influence });
         }
       }
     }
+    CommandManager.execute(
+      new HeightBrushCommand(meshBrush.entity, ecs, commandList),
+    );
   }
 
   private getImageData(image: HTMLImageElement, scale: number) {
@@ -519,64 +548,5 @@ export class BrushSystem {
     ctx.drawImage(image, 0, 0);
     //Get all imagedata of image on canvas
     return ctx.getImageData(0, 0, image.width * scale, image.height * scale);
-  }
-
-  public updateNormals(mesh: Mesh): void {
-    // Steg 1: Initiera alla normals till 0
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
-      mesh.vertices[i * 8 + 5] = 0;
-      mesh.vertices[i * 8 + 6] = 0;
-      mesh.vertices[i * 8 + 7] = 0;
-    }
-    //Stride 8 xyzuvnormals(3)
-    for (let i = 0; i < mesh.indices.length; i += 3) {
-      const i0 = mesh.indices[i];
-      const i1 = mesh.indices[i + 1];
-      const i2 = mesh.indices[i + 2];
-
-      const v0 = mesh.vertices[i0 * 8];
-      const v1 = mesh.vertices[i0 * 8 + 1];
-      const v2 = mesh.vertices[i0 * 8 + 2];
-
-      const v3 = mesh.vertices[i1 * 8];
-      const v4 = mesh.vertices[i1 * 8 + 1];
-      const v5 = mesh.vertices[i1 * 8 + 2];
-
-      const v6 = mesh.vertices[i2 * 8];
-      const v7 = mesh.vertices[i2 * 8 + 1];
-      const v8 = mesh.vertices[i2 * 8 + 2];
-
-      const triangleA = vec3.fromValues(v0, v1, v2);
-      const triangleB = vec3.fromValues(v3, v4, v5);
-      const triangleC = vec3.fromValues(v6, v7, v8);
-
-      const edge = vec3.create();
-      vec3.subtract(edge, triangleB, triangleA);
-      const edge1 = vec3.create();
-      vec3.subtract(edge1, triangleC, triangleA);
-
-      const normal = vec3.create();
-      vec3.cross(normal, edge, edge1);
-      vec3.normalize(normal, normal);
-      // Skriv normalen till varje vertex i triangeln (flat shading)
-      for (const idx of [i0, i1, i2]) {
-        mesh.vertices[idx * 8 + 5] += normal[0];
-        mesh.vertices[idx * 8 + 6] += normal[1];
-        mesh.vertices[idx * 8 + 7] += normal[2];
-      }
-    }
-    // Steg 3: Normalisera normals för varje vertex
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
-      const nx = mesh.vertices[i * 8 + 5];
-      const ny = mesh.vertices[i * 8 + 6];
-      const nz = mesh.vertices[i * 8 + 7];
-
-      const normal = vec3.fromValues(nx, ny, nz);
-      vec3.normalize(normal, normal);
-
-      mesh.vertices[i * 8 + 5] = normal[0];
-      mesh.vertices[i * 8 + 6] = normal[1];
-      mesh.vertices[i * 8 + 7] = normal[2];
-    }
   }
 }

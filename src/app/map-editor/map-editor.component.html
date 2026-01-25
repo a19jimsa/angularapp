@@ -148,6 +148,10 @@
                   </mat-expansion-panel-header>
                   <h5>Brushes</h5>
                   <div class="d-flex justify-content-around w-100">
+                    <app-brush-image
+                      [images]="this.brushToolsImages"
+                      (selected)="(meshbrush.image)"
+                    ></app-brush-image>
                     <button mat-fab (click)="changeTool('tree')">
                       <mat-icon>forest</mat-icon>
                     </button>

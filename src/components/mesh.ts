@@ -5,6 +5,7 @@ export class Mesh extends Component {
   vertices: number[];
   indices: number[];
   meshId: string;
+  dirty: boolean = false;
 
   constructor(vertices: number[], indices: number[], meshId: string) {
     super();
