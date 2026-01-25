@@ -4,6 +4,10 @@ import {
   Mouse,
   ToolBrush,
 } from 'src/app/map-editor/map-editor.component';
+import {
+  GrassBrush,
+  GrassBrushCommand,
+} from 'src/commands/grass-brush-command';
 import { HeightBrushCommand } from 'src/commands/height-brush-command';
 import {
   SplatBrush,
@@ -177,6 +181,7 @@ export class BrushSystem {
     if (!image) return;
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
     if (grass) {
+      const grassList: GrassBrush[] = [];
       for (let z = 0; z < image.height; z++) {
         for (let x = 0; x < image.width; x++) {
           const index = (z * image.width + x) * 4;
@@ -185,18 +190,15 @@ export class BrushSystem {
             const posX = vx - x;
             const posZ = vz - z;
             if (grass.amount >= grass.maxAmount) return;
-            grass.positions[grass.index + 0] =
-              posX - image.width * 0.5 - Math.random() * 2;
-            grass.positions[grass.index + 1] = vy;
-            grass.positions[grass.index + 2] =
-              posZ - image.width * 0.5 - Math.random() * 2;
-            grass.index += 3;
+            grassList.push({ index: grass.index, x: posX, y: vy, z: posZ });
             grass.amount++;
+            grass.index += 3;
           }
         }
       }
-      console.log(grass.positions);
-      return;
+      CommandManager.execute(
+        new GrassBrushCommand(meshBrush.entity, ecs, grassList),
+      );
     }
   }
 
@@ -369,7 +371,6 @@ export class BrushSystem {
       CommandManager.execute(
         new SplatBrushCommand(meshBrush.entity, ecs, splatmapList),
       );
-      return;
     }
   }
 

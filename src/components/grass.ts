@@ -7,5 +7,5 @@ export class Grass extends Component {
   index: number = 0;
   meshId: string = 'grass';
   //Max grass per buffer * xyz
-  positions: Float32Array = new Float32Array(this.maxAmount * 3);
+  positions: number[] = new Array(this.maxAmount * 3);
 }

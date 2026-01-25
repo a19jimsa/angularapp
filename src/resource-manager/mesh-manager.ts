@@ -26,7 +26,7 @@ export class MeshManager {
   public static addInstanceMesh(
     meshName: string,
     vbl: BufferLayout,
-    positions: Float32Array,
+    positions: number[],
   ) {
     const vertexArray = this.vertexArrays.get(meshName);
     if (!vertexArray) return;

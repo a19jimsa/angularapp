@@ -30,23 +30,6 @@ export class RenderSystem {
     BatchRenderer.init();
   }
 
-  private updateSplatmap(splatmap: Splatmap) {
-    const gl = Renderer.getGL;
-    gl.activeTexture(gl.TEXTURE0 + TextureManager.getSlot(splatmap.slot));
-    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(splatmap.slot));
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      splatmap.width,
-      splatmap.height,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      splatmap.coords,
-    );
-  }
-
   private drawBatch(ecs: Ecs) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
@@ -59,7 +42,12 @@ export class RenderSystem {
       );
 
       if (splatmap && splatmap.dirty) {
-        this.updateSplatmap(splatmap);
+        Renderer.updateTexture(
+          splatmap.slot,
+          splatmap.width,
+          splatmap.height,
+          splatmap.coords,
+        );
         splatmap.dirty = false;
       }
 

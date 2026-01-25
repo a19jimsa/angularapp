@@ -27,14 +27,18 @@ export class VertexArray {
     this.unbind();
   }
 
-  addInstanceBuffer(vbl: BufferLayout, instanceVertices: Float32Array) {
+  addInstanceBuffer(vbl: BufferLayout, instanceVertices: number[]) {
     console.log(vbl);
     const gl = Renderer.getGL;
     gl.bindVertexArray(this.VAO);
     //Instance VBO
     this.instanceBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, instanceVertices, gl.DYNAMIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(instanceVertices),
+      gl.DYNAMIC_DRAW,
+    );
     for (const element of vbl.elements) {
       gl.enableVertexAttribArray(element.location);
       {

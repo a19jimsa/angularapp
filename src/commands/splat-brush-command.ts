@@ -26,7 +26,13 @@ export class SplatBrushCommand extends Command {
     const splatmap = this.ecs.getComponent<Splatmap>(this.entity, 'Splatmap');
     if (!splatmap) return;
     for (const color of this.colors) {
-      this.colorsBefore.push(color);
+      this.colorsBefore.push({
+        index: color.index,
+        colorR: splatmap.coords[color.index + 0],
+        colorG: splatmap.coords[color.index + 1],
+        colorB: splatmap.coords[color.index + 2],
+        colorA: splatmap.coords[color.index + 3],
+      });
       splatmap.coords[color.index + 0] = color.colorR;
       splatmap.coords[color.index + 1] = color.colorG;
       splatmap.coords[color.index + 2] = color.colorB;

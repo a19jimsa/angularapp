@@ -34,13 +34,14 @@ export class Renderer {
 
   public static drawInstancing(
     vertexArray: VertexArray,
-    positions: Float32Array,
+    positions: number[],
     count: number,
   ) {
     const gl = Renderer.getGL;
     vertexArray.bind();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.instanceBuffer!);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
+    if (!vertexArray.instanceBuffer) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.instanceBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(positions));
     // --- Draw call ---
     gl.drawElementsInstanced(
       gl.TRIANGLES,
@@ -153,5 +154,27 @@ export class Renderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vao.vertexBuffer.vertices);
     vao.unbind();
+  }
+
+  public static updateTexture(
+    textureName: string,
+    width: number,
+    height: number,
+    coords: Uint8ClampedArray,
+  ) {
+    const gl = Renderer.getGL;
+    gl.activeTexture(gl.TEXTURE0 + TextureManager.getSlot(textureName));
+    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(textureName));
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      width,
+      height,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      coords,
+    );
   }
 }
