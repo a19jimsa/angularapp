@@ -7,7 +7,7 @@ export class Material extends Component {
   ambient = vec3.fromValues(1, 1, 1);
   diffuse = vec3.fromValues(1, 1, 1);
   specular = vec3.fromValues(1, 1, 1);
-  shininess: number = 30;
+  shininess: number = 1;
   shaderId: string;
   constructor(slot: string, shaderId: string) {
     super();

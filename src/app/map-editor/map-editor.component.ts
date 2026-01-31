@@ -62,6 +62,7 @@ import { Pivot } from 'src/components/pivot';
 import { Grass } from 'src/components/grass';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { CommandManager } from 'src/resource-manager/command-manager';
+import { FlowMap } from 'src/components/flow-map';
 
 type IsSelected = {
   select: boolean;
@@ -561,10 +562,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected async createTerrainWithSplatmap() {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const newEntity = this.ecs.createEntity();
     const width = 128;
     const height = 128;
@@ -592,7 +589,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(model.vertices, model.indices, 'splatmap' + newEntity),
+      new Mesh(
+        model.vertices,
+        model.indices,
+        1000,
+        1000,
+        'splatmap' + newEntity,
+      ),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
@@ -601,6 +604,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Add material component to entity
     this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     MeshManager.addMesh(model, 'splatmap' + newEntity, buffer);
   }
 
@@ -669,7 +676,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const cylinderModel = new Model();
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
-
     this.ecs.addComponent<Material>(
       effectEntity,
       new Material('whirlwind', 'whirlwind'),
@@ -682,6 +688,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Mesh(
         cylinderModel.vertices,
         cylinderModel.indices,
+        50,
+        50,
         'cylinder' + effectEntity,
       ),
     );
@@ -691,25 +699,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   createLightSource() {
     const layout = new BufferLayout();
     layout.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const model = new Model();
+    model.addCube(10, 10, 10);
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 10, 500));
     this.ecs.addComponent<Light>(entity, new Light());
-    const model = new Model();
-    model.addCube();
 
     const mesh = this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'light'),
+      new Mesh(model.vertices, model.indices, 10, 10, 'light'),
     );
-    const material = this.ecs.addComponent<Material>(
-      entity,
-      new Material('', 'basic'),
-    );
+
     MeshManager.addMesh(model, 'light', layout);
   }
 
   protected async createWater() {
+    const width = 1000;
+    const height = 1000;
     const waterImage = await TextureManager.loadImage(
       'assets/textures/water_texture.jpg',
     );
@@ -720,22 +727,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       waterImage.height,
     );
     const entity = this.ecs.createEntity();
-    this.ecs.addComponent<Transform>(
-      entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 100),
-    );
-    this.ecs.addComponent<Material>(entity, new Material(textureSlot, 'water'));
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(50, 1000, 1000);
+    model.addPlane(50, width, height);
     this.ecs.addComponent<Mesh>(
       entity,
-      new Mesh(model.vertices, model.indices, 'water'),
+      new Mesh(model.vertices, model.indices, width, height, 'water'),
     );
+    this.ecs.addComponent<Material>(entity, new Material(textureSlot, 'water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
+    const flowMapSlot = TextureManager.createAndBindTexture(
+      'FlowMap',
+      null,
+      64,
+      64,
+    );
+    this.ecs.addComponent<FlowMap>(entity, new FlowMap(flowMapSlot));
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);

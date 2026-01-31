@@ -189,10 +189,15 @@ export class BrushSystem {
           if (r === 0) {
             const posX = vx - x;
             const posZ = vz - z;
-            if (grass.amount >= grass.maxAmount) return;
+            if (grass.amount >= grass.maxAmount) {
+              CommandManager.execute(
+                new GrassBrushCommand(meshBrush.entity, ecs, grassList),
+              );
+              return;
+            }
             grassList.push({ index: grass.index, x: posX, y: vy, z: posZ });
-            grass.amount++;
             grass.index += 3;
+            grass.amount++;
           }
         }
       }

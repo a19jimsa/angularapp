@@ -68,7 +68,8 @@ vec4 TriplarMapping(vec4 worldPosition, vec3 worldNormal, sampler2D bajs, vec2 t
 void main() {
 
     // ambient
-    vec3 ambient = light.ambient * material.ambient;
+    float ambientStrength = 0.1;
+    vec3 ambient = light.ambient * material.ambient * ambientStrength;
   	
     // diffuse 
     vec3 norm = normalize(v_normal);

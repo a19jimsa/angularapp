@@ -14,7 +14,6 @@ export class GrassBrushCommand extends Command {
   private entity: Entity;
   private ecs: Ecs;
   private positions: GrassBrush[] = [];
-  private positionsBefore: GrassBrush[] = [];
   constructor(entity: Entity, ecs: Ecs, positions: GrassBrush[]) {
     super();
     this.entity = entity;
@@ -25,7 +24,6 @@ export class GrassBrushCommand extends Command {
     const grass = this.ecs.getComponent<Grass>(this.entity, 'Grass');
     if (!grass) return;
     for (const position of this.positions) {
-      this.positionsBefore.push(position);
       grass.positions[position.index + 0] = position.x;
       grass.positions[position.index + 1] = position.y;
       grass.positions[position.index + 2] = position.z;
@@ -35,10 +33,10 @@ export class GrassBrushCommand extends Command {
   override undo(): void {
     const grass = this.ecs.getComponent<Grass>(this.entity, 'Grass');
     if (!grass) return;
-    for (const position of this.positionsBefore) {
-      grass.positions[position.index + 0] = position.x;
-      grass.positions[position.index + 1] = position.y;
-      grass.positions[position.index + 2] = position.z;
+    for (const position of this.positions) {
+      grass.positions[position.index + 0] = 0;
+      grass.positions[position.index + 1] = 0;
+      grass.positions[position.index + 2] = 0;
       grass.index -= 3;
       grass.amount--;
     }

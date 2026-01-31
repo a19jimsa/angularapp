@@ -21,6 +21,7 @@ import { Renderer } from 'src/renderer/renderer';
 import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { FlowMap } from 'src/components/flow-map';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -36,6 +37,7 @@ export class RenderSystem {
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
+      const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
       const batchRenderable = ecs.getComponent<BatchRenderable>(
         entity,
         'BatchRenderable',
@@ -51,6 +53,9 @@ export class RenderSystem {
         splatmap.dirty = false;
       }
 
+      if (flowMap) {
+        Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
+      }
       Renderer.updateMesh(mesh.meshId);
 
       if (batchRenderable && transform3D) {
@@ -121,10 +126,7 @@ export class RenderSystem {
 
   public update(ecs: Ecs) {
     Renderer.begin();
-    const vertexArray = MeshManager.getMesh('skybox');
-    if (vertexArray) {
-      Renderer.drawSkybox(vertexArray);
-    }
+    Renderer.drawSkybox();
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
       mat4.create(),
@@ -244,7 +246,7 @@ export class RenderSystem {
           this.camera.getViewProjectionMatrix(),
         );
         shader.setVec3('u_cameraPos', cameraPos);
-        shader.setFloat('u_time', performance.now());
+        shader.setFloat('u_time', performance.now() * 0.001);
         shader.setFloat('u_animationSpeed', animatedTexture.speed);
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
@@ -263,6 +265,10 @@ export class RenderSystem {
           shader.setFloat('u_displacmentScale', water.displacement);
           shader.setFloat('u_tiling', water.tiling);
           shader.setFloat('u_flowSpeed', water.flowSpeed);
+          const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
+          if (flowMap) {
+            shader.setMaterialTexture('u_flowMap', flowMap.slot);
+          }
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) continue;
@@ -293,13 +299,17 @@ export class RenderSystem {
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
-        shader.setFloat('u_time', performance.now() * 0.01);
+        shader.setFloat('u_time', performance.now() * 0.001);
         shader.setVec3('u_cameraPos', cameraPos);
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.translate);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
         }
+        shader.setVec3('material.ambient', material.ambient);
+        shader.setVec3('material.diffuse', material.diffuse);
+        shader.setVec3('material.specular', material.specular);
+        shader.setFloat('material.shininess', material.shininess);
         const vertexArray = MeshManager.getMesh(grass.meshId);
         if (!vertexArray) throw new Error('Mesh is not grass');
         console.log('Render grass');

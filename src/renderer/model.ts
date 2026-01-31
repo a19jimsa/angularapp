@@ -129,92 +129,95 @@ export class Model {
     this.shaderName = 'batch2d';
   }
 
-  addCube() {
-    // 6 faces × 4 vertices per face = 24 vertices
+  addCube(width: number, height: number, depth: number) {
+    const hw = width / 2;
+    const hh = height / 2;
+    const hd = depth / 2;
+
     this.vertices = [
-      // Front face
-      -10,
-      -10,
-      10, // v0
-      10,
-      -10,
-      10, // v1
-      10,
-      10,
-      10, // v2
-      -10,
-      10,
-      10, // v3
+      // Front
+      -hw,
+      -hh,
+      hd,
+      hw,
+      -hh,
+      hd,
+      hw,
+      hh,
+      hd,
+      -hw,
+      hh,
+      hd,
 
-      // Back face
-      -10,
-      -10,
-      -10, // v4
-      -10,
-      10,
-      -10, // v5
-      10,
-      10,
-      -10, // v6
-      10,
-      -10,
-      -10, // v7
+      // Back
+      -hw,
+      -hh,
+      -hd,
+      -hw,
+      hh,
+      -hd,
+      hw,
+      hh,
+      -hd,
+      hw,
+      -hh,
+      -hd,
 
-      // Top face
-      -10,
-      10,
-      -10, // v8
-      -10,
-      10,
-      10, // v9
-      10,
-      10,
-      10, // v10
-      10,
-      10,
-      -10, // v11
+      // Top
+      -hw,
+      hh,
+      -hd,
+      -hw,
+      hh,
+      hd,
+      hw,
+      hh,
+      hd,
+      hw,
+      hh,
+      -hd,
 
-      // Bottom face
-      -10,
-      -10,
-      -10, // v12
-      10,
-      -10,
-      -10, // v13
-      10,
-      -10,
-      10, // v14
-      -10,
-      -10,
-      10, // v15
+      // Bottom
+      -hw,
+      -hh,
+      -hd,
+      hw,
+      -hh,
+      -hd,
+      hw,
+      -hh,
+      hd,
+      -hw,
+      -hh,
+      hd,
 
-      // Right face
-      10,
-      -10,
-      -10, // v16
-      10,
-      10,
-      -10, // v17
-      10,
-      10,
-      10, // v18
-      10,
-      -10,
-      10, // v19
+      // Right
+      hw,
+      -hh,
+      -hd,
+      hw,
+      hh,
+      -hd,
+      hw,
+      hh,
+      hd,
+      hw,
+      -hh,
+      hd,
 
-      // Left face
-      -10,
-      -10,
-      -10, // v20
-      -10,
-      -10,
-      10, // v21
-      -10,
-      10,
-      10, // v22
-      -10,
-      10,
-      -10, // v23
+      // Left
+      -hw,
+      -hh,
+      -hd,
+      -hw,
+      -hh,
+      hd,
+      -hw,
+      hh,
+      hd,
+      -hw,
+      hh,
+      -hd,
     ];
 
     // 2 triangles per face
@@ -369,7 +372,7 @@ export class Model {
         const posX = u * width;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
-        this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
+        this.vertices.push(posX, 1, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
         this.vertices.push(0, 1, 0); // Normals
       }
