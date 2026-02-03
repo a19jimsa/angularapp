@@ -26,10 +26,8 @@
           <button mat-menu-item (click)="createTerrainWithSplatmap()">
             Terrain
           </button>
-          <button mat-menu-item (click)="createAdjacentTerrain()">
-            Adjacent Terrain
-          </button>
-          <button mat-menu-item (click)="createCylinder()">Cylinder</button>
+          <button mat-menu-item (click)="createFrog()">Frog</button>
+          <button mat-menu-item>Cylinder</button>
           <button mat-menu-item (click)="createLightSource()">Light</button>
         </mat-menu>
       </mat-card>
@@ -162,7 +160,7 @@
                   <div class="d-flex justify-content-around w-100">
                     <app-brush-image
                       [images]="this.brushToolsImages"
-                      (selected)="(meshbrush.image)"
+                      (selected)="changeBrushImage($event)"
                     ></app-brush-image>
                   </div>
                   <div class="d-flex flex-column justify-content-center">

@@ -13,6 +13,7 @@ import {
   SplatBrush,
   SplatBrushCommand,
 } from 'src/commands/splat-brush-command';
+import { BatchRenderable } from 'src/components/batch-renderable';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Pivot } from 'src/components/pivot';
@@ -23,6 +24,7 @@ import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export type Height = {
   index: number;
@@ -238,25 +240,18 @@ export class BrushSystem {
     z: number,
     meshBrush: Brush,
   ) {
-    // const tree = ecs.createEntity();
-    // ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
-    // ecs.addComponent<BatchRenderable>(
-    //   tree,
-    //   new BatchRenderable(
-    //     TextureManager.getImage(meshBrush.imageName).width,
-    //     TextureManager.getImage(meshBrush.imageName).height,
-    //     meshBrush.imageName
-    //   )
-    // );
+    const tree = ecs.createEntity();
+    ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
+    ecs.addComponent<BatchRenderable>(tree, new BatchRenderable('tree'));
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
     //const alpha = meshBrush.alpha;
-    const radius = meshBrush.radius;
+    const radius = meshBrush.radius * 0.01;
     const splatColor = meshBrush.color;
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
     if (splatmap) {
-      const image = this.getImageData(meshBrush.image, radius * 0.01);
+      const image = this.getImageData(meshBrush.image, radius);
       if (!image) return;
       const texX =
         Math.floor(uv0 * splatmap.width) - Math.floor(image.width / 2);

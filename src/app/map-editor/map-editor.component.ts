@@ -28,8 +28,6 @@ import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
 import { AnimatedTexture } from 'src/components/animatedTexture';
-import { Transform } from 'src/components/transform';
-import { Vec } from '../vec';
 import { MatSelectModule } from '@angular/material/select';
 import { Entity } from '../entity';
 import { Name } from 'src/components/name';
@@ -63,6 +61,7 @@ import { Grass } from 'src/components/grass';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { FlowMap } from 'src/components/flow-map';
+import { BatchRenderable } from 'src/components/batch-renderable';
 
 type IsSelected = {
   select: boolean;
@@ -215,6 +214,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    TextureManager.restore();
+    ShaderManager.restore();
     cancelAnimationFrame(this.gameId);
   }
 
@@ -367,6 +368,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await this.loadAllbrushes();
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.editorCamera);
+    const image = await TextureManager.loadImage('assets/sprites/tree.png');
+    const slot = TextureManager.createAndBindTexture(
+      'tree',
+      image,
+      image.width,
+      image.height,
+    );
     await this.init();
   }
 
@@ -486,34 +494,35 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.loop();
   }
 
-  private createCharacter(image: HTMLImageElement) {
-    const entity = this.ecs.createEntity();
-    this.ecs.addComponent<Name>(entity, new Name('Player'));
-    const transform3D = this.ecs.addComponent<Transform3D>(
-      entity,
-      new Transform3D(500, 10, 950),
+  protected async createCharacter() {
+    const image = await TextureManager.loadImage(
+      '/assets/textures/character-animation.png',
     );
-    transform3D!.scale[0] = 0.2;
-    transform3D!.scale[1] = 0.2;
-    transform3D!.scale[2] = 0.2;
-    transform3D!.rotation[2] = 3.1;
+    const character = 'character';
+    const textureSlot = TextureManager.createAndBindTexture(
+      character,
+      image,
+      image.width,
+      image.height,
+    );
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
+
     const playerSkeleton = new Skeleton(
-      '/assets/textures/character-animation.jpg',
-      'playerAnimations',
+      '/assets/textures/frogman.png',
+      'frogAnimations',
     );
     playerSkeleton.bones = Loader.getBones('skeleton');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
-    this.ecs.addComponent<Controlable>(
-      entity,
-      new Controlable(new Vec(0, 0), 0, false),
-    );
+    this.ecs.addComponent<Controlable>(entity, new Controlable());
     this.ecs.addComponent<Player>(entity, new Player());
-    this.ecs.addComponent<Transform>(
+
+    this.ecs.addComponent<BatchRenderable>(
       entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
+      new BatchRenderable(textureSlot),
     );
     if (!skeleton) return;
-    skeleton.image = image;
+    skeleton.image = playerSkeleton.image;
     skeleton.keyframes = ResourceManager.getAnimation(
       skeleton.resource,
       'idle',
@@ -523,26 +532,28 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     skeleton.startTime = performance.now();
   }
 
-  createFrog(image: HTMLImageElement) {
+  async createFrog() {
+    const image = await TextureManager.loadImage(
+      '/assets/textures/frog-enemy.png',
+    );
+    const textureSlot = TextureManager.createAndBindTexture(
+      'frog',
+      image,
+      image.width,
+      image.height,
+    );
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Frogman'));
-    const transform3D = this.ecs.addComponent<Transform3D>(
-      entity,
-      new Transform3D(550, 3, 950),
-    );
-    transform3D!.scale[0] = 0.2;
-    transform3D!.scale[1] = 0.2;
-    transform3D!.scale[2] = 0.2;
-    transform3D!.rotation[2] = 3.1;
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     const playerSkeleton = new Skeleton(
-      '/assets/textures/frog-enemy.jpg',
+      '/assets/textures/frog-enemy.png',
       'frogAnimations',
     );
     playerSkeleton.bones = Loader.getBones('frogman');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
-    this.ecs.addComponent<Transform>(
+    this.ecs.addComponent<BatchRenderable>(
       entity,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
+      new BatchRenderable(textureSlot),
     );
     if (!skeleton) return;
     skeleton.image = image;
@@ -925,7 +936,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   editorMode() {}
 
   gameMode() {
-    this.animationSystem.update(this.ecs);
     this.controllerSystem.update(this.ecs);
     // this.movementSystem.update(this.ecs);
   }

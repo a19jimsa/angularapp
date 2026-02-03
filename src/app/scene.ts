@@ -13,6 +13,7 @@ import { RotationSystem } from '../systems/rotation-system';
 import { Rotation } from '../components/rotation';
 import { MouseHandler } from './mouse-handler';
 import { MovementSystem } from '../systems/movement-system';
+import { BatchRenderable } from 'src/components/batch-renderable';
 
 export class Scene {
   ecs: Ecs;
@@ -35,7 +36,7 @@ export class Scene {
     canvasWidth: number,
     canvasheight: number,
     width: number,
-    height: number
+    height: number,
   ) {
     this.canvas = canvas;
     this.ecs = new Ecs();
@@ -58,14 +59,11 @@ export class Scene {
     //Add player components
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(this.canvasWidth / 2, 30), new Vec(0, 0), 20)
+      new Transform(new Vec(this.canvasWidth / 2, 30), new Vec(0, 0), 20),
     );
     this.ecs.addComponent<Camera>(player, new Camera());
 
-    this.ecs.addComponent<Controlable>(
-      player,
-      new Controlable(new Vec(0, 10), 10, false)
-    );
+    this.ecs.addComponent<Controlable>(player, new Controlable());
 
     //Add components
     this.ecs.addComponent<Transform>(
@@ -73,14 +71,14 @@ export class Scene {
       new Transform(
         new Vec(this.canvasWidth / 2, this.height - 200),
         new Vec(0, 0),
-        20
-      )
+        20,
+      ),
     );
     for (let i = 0; i < 10; i++) {
       var entity = this.ecs.createEntity();
       this.ecs.addComponent<Transform>(
         entity,
-        new Transform(new Vec((1 + i) * 50, 1750), new Vec(0, 0), 20)
+        new Transform(new Vec((1 + i) * 50, 1750), new Vec(0, 0), 20),
       );
     }
 
@@ -99,7 +97,7 @@ export class Scene {
       this.canvasWidth,
       this.canvasHeight,
       this.width,
-      this.height
+      this.height,
     );
     this.renderer.clearScreen();
     this.renderer.drawBackground();

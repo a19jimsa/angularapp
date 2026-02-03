@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Add new {{ this.data.name }}</h2>
+<mat-dialog-content>
+  <p>{{ this.data.name }}</p>
+  <mat-form-field>
+    <mat-label>Type</mat-label>
+    <input matInput [(ngModel)]="this.info().name" [disabled]="true" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>width</mat-label>
+    <input matInput [(ngModel)]="this.info().width" type="number" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>height</mat-label>
+    <input matInput [(ngModel)]="this.info().height" type="number" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Quads</mat-label>
+    <input matInput [(ngModel)]="this.info().quads" type="number" />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No</button>
+  <button mat-button [mat-dialog-close]="info()" cdkFocusInitial>Yes</button>
+</mat-dialog-actions>

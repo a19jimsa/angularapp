@@ -33,7 +33,7 @@ export class TextureManager extends Manager {
         0,
         gl.RGB,
         gl.UNSIGNED_BYTE,
-        images[i]
+        images[i],
       );
     }
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -50,7 +50,7 @@ export class TextureManager extends Manager {
     name: string,
     image: HTMLImageElement | null,
     width: number,
-    height: number
+    height: number,
   ) {
     const gl = Renderer.getGL;
     const texture = gl.createTexture();
@@ -67,7 +67,7 @@ export class TextureManager extends Manager {
         gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
         gl.RGBA, // Format
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        image
+        image,
       );
     } else {
       gl.texImage2D(
@@ -79,7 +79,7 @@ export class TextureManager extends Manager {
         0, // border
         gl.RGBA, // format
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        null
+        null,
       );
     }
 
@@ -128,5 +128,9 @@ export class TextureManager extends Manager {
 
   static getTextures() {
     return this.textures.entries();
+  }
+
+  static restore() {
+    this.textures.clear();
   }
 }

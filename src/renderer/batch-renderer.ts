@@ -13,7 +13,7 @@ export class BatchRenderer {
   private static floatsPerVertex: number = 6;
   //VBO object of all mesh data, 1000 sprites för 6 hörn och varje hörn har 7 attribut
   private static vbo: Float32Array = new Float32Array(
-    this.maxSprites * this.verticesPerSprite * this.floatsPerVertex
+    this.maxSprites * this.verticesPerSprite * this.floatsPerVertex,
   );
   private static vertexCount: number = 0;
   //Layout of our shader data to GPU
@@ -24,10 +24,11 @@ export class BatchRenderer {
     const gl = this.gl;
     this.vertexArray = VertexArray.create(
       this.vbo,
-      new Uint16Array([0, 1, 3, 2])
+      new Uint16Array([0, 1, 3, 2]),
     );
 
     const shader = ShaderManager.getShader('batch');
+    if (!shader) throw new Error("Couldn't find shader" + 'batch');
     shader.bind();
     this.vertexArray.bind();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexArray.vertexBuffer.buffer);
@@ -38,7 +39,7 @@ export class BatchRenderer {
       gl.FLOAT,
       false,
       6 * Float32Array.BYTES_PER_ELEMENT,
-      0
+      0,
     );
     gl.enableVertexAttribArray(positionLoc);
     const texLocation = gl.getAttribLocation(shader.program, 'a_texcoord');
@@ -48,12 +49,12 @@ export class BatchRenderer {
       gl.FLOAT,
       false,
       6 * Float32Array.BYTES_PER_ELEMENT,
-      3 * Float32Array.BYTES_PER_ELEMENT
+      3 * Float32Array.BYTES_PER_ELEMENT,
     );
     gl.enableVertexAttribArray(texLocation);
     const textureIDLocation = gl.getAttribLocation(
       shader.program,
-      'a_texIndex'
+      'a_texIndex',
     );
     gl.vertexAttribPointer(
       textureIDLocation,
@@ -61,19 +62,22 @@ export class BatchRenderer {
       gl.FLOAT,
       false,
       6 * Float32Array.BYTES_PER_ELEMENT,
-      5 * Float32Array.BYTES_PER_ELEMENT
+      5 * Float32Array.BYTES_PER_ELEMENT,
     );
     gl.enableVertexAttribArray(textureIDLocation);
     //Send all texturearray ids to shader
     const texturesLocation = gl.getUniformLocation(
       shader.program,
-      'u_textures'
+      'u_textures',
     );
     //Upload textureID
     gl.uniform1iv(texturesLocation, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
   }
 
   static begin() {
+    // Clear the canvas AND the depth buffer.
+    this.gl.clearColor(1, 1, 1, 1); // Viktigt! Gör hela canvasen svart
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.vertexCount = 0;
   }
 
@@ -148,12 +152,7 @@ export class BatchRenderer {
     dy: number,
     dw: number,
     dh: number,
-    translateX: number,
-    translateY: number,
-    translateZ: number,
-    scaleX: number,
-    scaleY: number,
-    textureIndex: number
+    slot: number,
   ) {
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
@@ -168,8 +167,8 @@ export class BatchRenderer {
 
     const x0 = dx;
     const y0 = dy;
-    const x1 = dx + dw * scaleX;
-    const y1 = dy + dh * scaleY;
+    const x1 = dx + dw;
+    const y1 = dy + dh;
 
     // Pivot i world-space
     const pivotX = dx + pivot.x + sw / 2;
@@ -178,53 +177,53 @@ export class BatchRenderer {
     const vertices = [
       // Triangel 1
       // top-left
-      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
-      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY * scaleY,
-      translateZ,
+      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
+      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
+      0,
       u0,
       v0,
-      textureIndex,
+      slot,
 
       // top-right
-      (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
-      (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
-      translateZ,
+      (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
+      (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
+      0,
       u1,
       v0,
-      textureIndex,
+      slot,
 
       // bottom-right
-      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
-      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      translateZ,
+      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
+      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
+      0,
       u1,
       v1,
-      textureIndex,
+      slot,
 
       // Triangel 2
       // top-left (igen)
-      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX + translateX,
-      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY + translateY,
-      translateZ,
+      (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
+      (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
+      0,
       u0,
       v0,
-      textureIndex,
+      slot,
 
       // bottom-right (igen)
-      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
-      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      translateZ,
+      (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
+      (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
+      0,
       u1,
       v1,
-      textureIndex,
+      slot,
 
       // bottom-left
-      (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX + translateX,
-      (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY + translateY,
-      translateZ,
+      (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
+      (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
+      0,
       u0,
       v1,
-      textureIndex,
+      slot,
     ];
 
     this.vbo.set(vertices, this.vertexCount * this.floatsPerVertex);
@@ -234,6 +233,7 @@ export class BatchRenderer {
   static end(camera: PerspectiveCamera) {
     const gl = this.gl;
     const shader = ShaderManager.getShader('batch');
+    if (!shader) return;
     shader.bind();
     this.vertexArray.bind();
     shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
@@ -242,7 +242,7 @@ export class BatchRenderer {
     gl.bufferSubData(
       this.gl.ARRAY_BUFFER,
       0,
-      this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex)
+      this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex),
     );
 
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);

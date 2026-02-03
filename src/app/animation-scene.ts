@@ -225,7 +225,7 @@ export class AnimationScene {
 
     this.ecs.addComponent<Controlable>(
       player,
-      new Controlable(new Vec(0, 0), 0, false)
+      new Controlable()
     );
     this.ecs.addComponent<Camera>(player, new Camera());
     this.ecs.addComponent<Player>(player, new Player());

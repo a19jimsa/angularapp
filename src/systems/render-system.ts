@@ -22,6 +22,7 @@ import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { FlowMap } from 'src/components/flow-map';
+import { Loader } from 'src/app/loader';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -34,56 +35,39 @@ export class RenderSystem {
   private drawBatch(ecs: Ecs) {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
-      const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
-      const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
+
       const batchRenderable = ecs.getComponent<BatchRenderable>(
         entity,
         'BatchRenderable',
       );
 
-      if (splatmap && splatmap.dirty) {
-        Renderer.updateTexture(
-          splatmap.slot,
-          splatmap.width,
-          splatmap.height,
-          splatmap.coords,
-        );
-        splatmap.dirty = false;
-      }
-
-      if (flowMap) {
-        Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
-      }
-      Renderer.updateMesh(mesh.meshId);
-
-      if (batchRenderable && transform3D) {
-        BatchRenderer.addQuads(
-          batchRenderable.width,
-          batchRenderable.height,
-          0,
-          new Vec(1, 1),
-          0,
-          0,
-          batchRenderable.width,
-          batchRenderable.height,
-          0,
-          0,
-          batchRenderable.width,
-          batchRenderable.height,
-          transform3D.translate[0],
-          transform3D.translate[1],
-          transform3D.translate[2],
-          transform3D.scale[0],
-          transform3D.scale[1],
-          TextureManager.getSlot(batchRenderable.texture),
-        );
-      }
+      // if (batchRenderable && transform3D) {
+      //   BatchRenderer.addQuads(
+      //     batchRenderable.width,
+      //     batchRenderable.height,
+      //     0,
+      //     new Vec(1, 1),
+      //     0,
+      //     0,
+      //     batchRenderable.width,
+      //     batchRenderable.height,
+      //     0,
+      //     0,
+      //     batchRenderable.width,
+      //     batchRenderable.height,
+      //     transform3D.translate[0],
+      //     transform3D.translate[1],
+      //     transform3D.translate[2],
+      //     transform3D.scale[0],
+      //     transform3D.scale[1],
+      //     TextureManager.getSlot(batchRenderable.texture),
+      //   );
+      // }
 
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (skeleton && transform3D) {
-        const bones = skeleton.bones.sort((a, b) => a.order - b.order);
+        const bones = Loader.getBones('frogman');
         for (let i = 0; i < bones.length; i++) {
           const bone = bones[i];
           BatchRenderer.addQuads(
@@ -96,15 +80,10 @@ export class RenderSystem {
             bone.endX,
             bone.endY,
             bone.position.x - bone.pivot.x - bone.endX / 2,
-            -bone.position.y + bone.pivot.y,
+            bone.position.y + bone.pivot.y,
             bone.endX,
             bone.endY,
-            transform3D.translate[0],
-            transform3D.translate[1],
-            transform3D.translate[2],
-            transform3D.scale[0],
-            transform3D.scale[1],
-            6,
+            0,
           );
         }
       }
@@ -166,6 +145,20 @@ export class RenderSystem {
       if (mesh.dirty) {
         this.updateNormals(mesh);
         mesh.dirty = false;
+      }
+      const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
+      if (splatmap && splatmap.dirty) {
+        Renderer.updateTexture(
+          splatmap.slot,
+          splatmap.width,
+          splatmap.height,
+          splatmap.coords,
+        );
+        splatmap.dirty = false;
+      }
+
+      if (flowMap) {
+        Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
       }
 
       if (pivot && transform3D) {

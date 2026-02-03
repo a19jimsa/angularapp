@@ -9,14 +9,14 @@ export class ShaderManager extends Manager {
   public static async load(
     key: string,
     vertexUrl: string,
-    fragmentUrl: string
+    fragmentUrl: string,
   ) {
     const gl = Renderer.getGL;
     if (!gl) throw new Error('GL is not set!');
     console.log(vertexUrl, fragmentUrl);
     const shaders = await this.loadShader(
       '../assets/shaders/' + vertexUrl,
-      '../assets/shaders/' + fragmentUrl
+      '../assets/shaders/' + fragmentUrl,
     );
     const vertexShader = this.createShader(gl.VERTEX_SHADER, shaders[0]);
     const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, shaders[1]);
@@ -35,7 +35,7 @@ export class ShaderManager extends Manager {
 
   private static async loadShader(
     vertexSource: string,
-    fragmentSource: string
+    fragmentSource: string,
   ) {
     const shaderPromise = await Promise.all([
       fetch(vertexSource).then((res) => res.text()),
@@ -61,7 +61,7 @@ export class ShaderManager extends Manager {
 
   private static createProgram(
     vertexShader: WebGLShader,
-    fragmentShader: WebGLShader
+    fragmentShader: WebGLShader,
   ) {
     const gl = Renderer.getGL;
     const program = gl.createProgram()!; // IF not program then error gets it
@@ -80,5 +80,9 @@ export class ShaderManager extends Manager {
     const shader = this.shaders.get(key);
     if (!shader) throw new Error('Cannot find shader');
     return shader;
+  }
+
+  public static restore() {
+    this.shaders.clear();
   }
 }

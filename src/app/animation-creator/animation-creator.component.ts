@@ -45,6 +45,11 @@ import { ChangeBoneCommand } from 'src/commands/change-bone-command';
 import { Animation, ResourceManager } from 'src/core/resource-manager';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { Loader } from '../loader';
+import { Renderer } from 'src/renderer/renderer';
+import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { TextureManager } from 'src/resource-manager/texture-manager';
+import { BatchRenderer } from 'src/renderer/batch-renderer';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
 
 @Component({
   selector: 'app-animation-creator',
@@ -56,11 +61,12 @@ export class AnimationCreatorComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
   @ViewChild('canvas', { static: true })
-  canvas!: ElementRef<HTMLCanvasElement>;
-  ctx!: CanvasRenderingContext2D;
+  canvasRef!: ElementRef<HTMLCanvasElement>;
+  canvas!: HTMLCanvasElement;
+  editorCamera: PerspectiveCamera;
   id: number = 0;
-  canvasHeight: number = 0;
-  canvasWidth: number = 0;
+  width: number = 0;
+  height: number = 0;
   bones: Bone[] = new Array();
   keyframes: Keyframe[] = new Array();
   filteredKeyframes: Keyframe[] = new Array();
@@ -128,15 +134,38 @@ export class AnimationCreatorComponent
 
   skeletonFiles: string[] = new Array();
 
-  ngAfterViewInit(): void {
-    this.canvas.nativeElement.width = 800;
-    this.canvas.nativeElement.height = 480;
-    this.canvasWidth = this.canvas.nativeElement.width;
-    this.canvasHeight = this.canvas.nativeElement.height;
-    this.ctx = this.canvas.nativeElement.getContext('2d')!;
-    this.spriteSheet.src = '../assets/sprites/88022.png';
+  image = new Image();
+
+  constructor() {
+    this.editorCamera = new PerspectiveCamera(1920, 1080);
+  }
+
+  async ngAfterViewInit() {
+    //Must do this first! INIT canvas! after viewinit
+    this.canvas = this.canvasRef.nativeElement;
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+
+    Renderer.create(this.canvas, this.editorCamera);
+
+    const image = await TextureManager.loadImage(
+      'assets/textures/frog-enemy.png',
+    );
+    const slot = TextureManager.createAndBindTexture(
+      'frog',
+      image,
+      image.width,
+      image.height,
+    );
+    await ShaderManager.load(
+      'batch',
+      'batch2d_vertex.txt',
+      'batch2d_fragment.txt',
+    );
+    this.image = image;
+    BatchRenderer.init();
     this.animationLoop();
-    setTimeout(() => this.addEventHandlers(), 3000);
+    //setTimeout(() => this.addEventHandlers(), 3000);
   }
 
   ngOnInit() {
@@ -185,21 +214,43 @@ export class AnimationCreatorComponent
     cancelAnimationFrame(this.id);
   }
 
-  animationLoop(): void {
-    this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.drawBackground();
+  animationLoop() {
+    //this.drawBackground();
     this.updateBonePositions();
-    this.drawSpritesheet();
-    this.drawGui();
-    this.drawSprite();
-    this.drawbone();
-    this.drawPivot();
+    //this.drawSpritesheet();
+    //this.drawGui();
+    //this.drawSprite();
+    //this.drawbone();
+    //this.drawPivot();
     //this.drawDebug();
     this.playAnimation();
     this.updateLength();
     this.updateRotation();
+    this.render();
 
     this.id = requestAnimationFrame(() => this.animationLoop());
+  }
+
+  render() {
+    BatchRenderer.begin();
+    for (const bone of this.bones) {
+      BatchRenderer.addQuads(
+        this.image.width,
+        this.image.height,
+        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+        bone.pivot,
+        bone.startX,
+        bone.startY,
+        bone.endX,
+        bone.endY,
+        bone.position.x - bone.pivot.x - bone.endX / 2,
+        bone.position.y + bone.pivot.y,
+        bone.endX,
+        bone.endY,
+        TextureManager.getSlot('frog'),
+      );
+    }
+    BatchRenderer.end(this.editorCamera);
   }
 
   setKeyframesFromResource(name: string) {
@@ -209,18 +260,18 @@ export class AnimationCreatorComponent
     console.log(this.keyframes);
   }
 
-  drawBackground() {
-    const gridSize = 10;
-    if (gridSize <= 0) return;
-    for (let y = 0; y < this.canvasHeight; y += gridSize) {
-      for (let x = 0; x < this.canvasWidth; x += gridSize) {
-        // Växla mellan två färger beroende på position
-        this.ctx.fillStyle =
-          (x / gridSize + y / gridSize) % 2 === 0 ? '#6c757d' : '#343a40';
-        this.ctx.fillRect(x, y, gridSize, gridSize);
-      }
-    }
-  }
+  // drawBackground() {
+  //   const gridSize = 10;
+  //   if (gridSize <= 0) return;
+  //   for (let y = 0; y < this.canvasHeight; y += gridSize) {
+  //     for (let x = 0; x < this.canvasWidth; x += gridSize) {
+  //       // Växla mellan två färger beroende på position
+  //       this.ctx.fillStyle =
+  //         (x / gridSize + y / gridSize) % 2 === 0 ? '#6c757d' : '#343a40';
+  //       this.ctx.fillRect(x, y, gridSize, gridSize);
+  //     }
+  //   }
+  // }
 
   changeState(name: string) {}
 
@@ -250,7 +301,7 @@ export class AnimationCreatorComponent
       if (result !== '') {
         stateName = result;
         const animations = ResourceManager.getAllAnimationsFromFile(
-          this.activeFilename
+          this.activeFilename,
         );
         if (!animations) return;
         animations[stateName] = new Array();
@@ -272,13 +323,13 @@ export class AnimationCreatorComponent
     this.runAnimation();
   }
 
-  drawSpritesheet() {
-    if (!this.showSpritesheet) return;
-    this.ctx.save();
-    this.ctx.scale(this.scale.x, this.scale.y);
-    this.ctx.drawImage(this.spriteSheet, this.camera.x, this.camera.y);
-    this.ctx.restore();
-  }
+  // drawSpritesheet() {
+  //   if (!this.showSpritesheet) return;
+  //   this.ctx.save();
+  //   this.ctx.scale(this.scale.x, this.scale.y);
+  //   this.ctx.drawImage(this.spriteSheet, this.camera.x, this.camera.y);
+  //   this.ctx.restore();
+  // }
 
   onFileSelected(event: any) {
     const input = event.target as HTMLInputElement;
@@ -402,32 +453,32 @@ export class AnimationCreatorComponent
     return bone.rotation;
   }
 
-  drawbone(): void {
-    if (!this.showBones) return;
-    for (const bone of this.bones) {
-      this.ctx.save();
-      this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      this.ctx.scale(this.scale.x, this.scale.y);
-      this.ctx.lineWidth = 5;
-      this.ctx.strokeStyle = 'blue';
-      this.ctx.beginPath();
-      this.ctx.moveTo(bone.position.x, bone.position.y);
-      const newPos = MathUtils.calculateParentPosition(
-        bone.position,
-        bone.length,
-        bone.globalRotation - bone.globalSpriteRotation // I dunno why but it works
-      );
-      this.ctx.lineTo(newPos.x, newPos.y);
-      this.ctx.stroke();
-      this.ctx.closePath();
-      this.ctx.beginPath();
-      this.ctx.strokeStyle = 'red';
-      this.ctx.arc(bone.position.x, bone.position.y, 10, 0, Math.PI * 2);
-      this.ctx.stroke();
-      this.ctx.closePath();
-      this.ctx.restore();
-    }
-  }
+  // drawbone(): void {
+  //   if (!this.showBones) return;
+  //   for (const bone of this.bones) {
+  //     this.ctx.save();
+  //     this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
+  //     this.ctx.scale(this.scale.x, this.scale.y);
+  //     this.ctx.lineWidth = 5;
+  //     this.ctx.strokeStyle = 'blue';
+  //     this.ctx.beginPath();
+  //     this.ctx.moveTo(bone.position.x, bone.position.y);
+  //     const newPos = MathUtils.calculateParentPosition(
+  //       bone.position,
+  //       bone.length,
+  //       bone.globalRotation - bone.globalSpriteRotation, // I dunno why but it works
+  //     );
+  //     this.ctx.lineTo(newPos.x, newPos.y);
+  //     this.ctx.stroke();
+  //     this.ctx.closePath();
+  //     this.ctx.beginPath();
+  //     this.ctx.strokeStyle = 'red';
+  //     this.ctx.arc(bone.position.x, bone.position.y, 10, 0, Math.PI * 2);
+  //     this.ctx.stroke();
+  //     this.ctx.closePath();
+  //     this.ctx.restore();
+  //   }
+  // }
 
   createKeyframesOfBones() {
     for (const bone of this.filteredBones) {
@@ -512,49 +563,49 @@ export class AnimationCreatorComponent
     this.filteredKeyframes = this.keyframes;
   }
 
-  drawSprite(): void {
-    if (!this.showSprites) return;
-    const bones = this.bones.sort((a, b) => a.order - b.order);
-    for (const bone of bones) {
-      this.ctx.save();
+  // drawSprite(): void {
+  //   if (!this.showSprites) return;
+  //   const bones = this.bones.sort((a, b) => a.order - b.order);
+  //   for (const bone of bones) {
+  //     this.ctx.save();
 
-      //Draw sprites
-      this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
-      //Scale according to canvas scale
-      this.ctx.scale(this.scale.x, this.scale.y);
-      this.ctx.translate(bone.position.x, bone.position.y);
-      this.ctx.rotate(
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
-      );
-      this.ctx.scale(bone.scale.x, bone.scale.y);
-      this.ctx.translate(-bone.position.x, -bone.position.y);
-      this.ctx.drawImage(
-        this.spriteSheet,
-        bone.startX,
-        bone.startY,
-        bone.endX,
-        bone.endY,
-        bone.position.x - bone.pivot.x - bone.endX / 2,
-        bone.position.y - bone.pivot.y,
-        bone.endX,
-        bone.endY
-      );
-      this.ctx.restore();
-    }
-  }
+  //     //Draw sprites
+  //     this.ctx.translate(this.canvasWidth / 2, this.canvasHeight / 2);
+  //     //Scale according to canvas scale
+  //     this.ctx.scale(this.scale.x, this.scale.y);
+  //     this.ctx.translate(bone.position.x, bone.position.y);
+  //     this.ctx.rotate(
+  //       MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+  //     );
+  //     this.ctx.scale(bone.scale.x, bone.scale.y);
+  //     this.ctx.translate(-bone.position.x, -bone.position.y);
+  //     this.ctx.drawImage(
+  //       this.spriteSheet,
+  //       bone.startX,
+  //       bone.startY,
+  //       bone.endX,
+  //       bone.endY,
+  //       bone.position.x - bone.pivot.x - bone.endX / 2,
+  //       bone.position.y - bone.pivot.y,
+  //       bone.endX,
+  //       bone.endY,
+  //     );
+  //     this.ctx.restore();
+  //   }
+  // }
 
-  drawGui() {
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = 'red';
-    this.ctx.lineWidth = 1;
-    this.ctx.rect(
-      this.mouseDown.x * this.scale.x,
-      this.mouseDown.y * this.scale.y,
-      (this.mousePos.x - this.mouseDown.x) * this.scale.x,
-      (this.mousePos.y - this.mouseDown.y) * this.scale.y
-    );
-    this.ctx.stroke();
-  }
+  // drawGui() {
+  //   this.ctx.beginPath();
+  //   this.ctx.strokeStyle = 'red';
+  //   this.ctx.lineWidth = 1;
+  //   this.ctx.rect(
+  //     this.mouseDown.x * this.scale.x,
+  //     this.mouseDown.y * this.scale.y,
+  //     (this.mousePos.x - this.mouseDown.x) * this.scale.x,
+  //     (this.mousePos.y - this.mouseDown.y) * this.scale.y,
+  //   );
+  //   this.ctx.stroke();
+  // }
 
   togglePlay() {
     this.play = !this.play;
@@ -567,109 +618,109 @@ export class AnimationCreatorComponent
     }
   }
 
-  drawButton(
-    text: string,
-    color: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ) {
-    this.ctx.save();
-    this.ctx.font = 'Arial 50px';
-    this.ctx.strokeStyle = 'black';
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(x, y, width, height);
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillText(text, x + 25, y + 40);
-    this.ctx.lineWidth = 10;
-    this.ctx.strokeStyle = 'blue';
-    this.ctx.strokeRect(x, y, width, height);
-    this.ctx.restore();
-  }
+  // drawButton(
+  //   text: string,
+  //   color: string,
+  //   x: number,
+  //   y: number,
+  //   width: number,
+  //   height: number,
+  // ) {
+  //   this.ctx.save();
+  //   this.ctx.font = 'Arial 50px';
+  //   this.ctx.strokeStyle = 'black';
+  //   this.ctx.fillStyle = color;
+  //   this.ctx.fillRect(x, y, width, height);
+  //   this.ctx.fillStyle = 'black';
+  //   this.ctx.fillText(text, x + 25, y + 40);
+  //   this.ctx.lineWidth = 10;
+  //   this.ctx.strokeStyle = 'blue';
+  //   this.ctx.strokeRect(x, y, width, height);
+  //   this.ctx.restore();
+  // }
 
-  drawPivot() {
-    if (!this.activeBone) return;
-    this.ctx.save();
-    this.ctx.translate(
-      this.canvasWidth / 2 + this.activeBone.position.x * this.scale.x,
-      this.canvasHeight / 2 + this.activeBone.position.y * this.scale.y
-    );
-    this.ctx.lineWidth = 3;
+  // drawPivot() {
+  //   if (!this.activeBone) return;
+  //   this.ctx.save();
+  //   this.ctx.translate(
+  //     this.canvasWidth / 2 + this.activeBone.position.x * this.scale.x,
+  //     this.canvasHeight / 2 + this.activeBone.position.y * this.scale.y,
+  //   );
+  //   this.ctx.lineWidth = 3;
 
-    this.ctx.strokeStyle = 'green';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(0, 0 - 100);
-    this.ctx.lineTo(0 - 10, 0 - 80);
-    this.ctx.moveTo(0, 0 - 100);
-    this.ctx.lineTo(0 + 10, 0 - 80);
-    this.ctx.stroke();
+  //   this.ctx.strokeStyle = 'green';
+  //   this.ctx.beginPath();
+  //   this.ctx.moveTo(0, 0);
+  //   this.ctx.lineTo(0, 0 - 100);
+  //   this.ctx.lineTo(0 - 10, 0 - 80);
+  //   this.ctx.moveTo(0, 0 - 100);
+  //   this.ctx.lineTo(0 + 10, 0 - 80);
+  //   this.ctx.stroke();
 
-    this.ctx.strokeStyle = 'red';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(0 + 100, 0);
-    this.ctx.lineTo(0 + 80, 0 + 10);
-    this.ctx.moveTo(0 + 100, 0);
-    this.ctx.lineTo(0 + 80, 0 - 10);
-    this.ctx.stroke();
-    this.ctx.restore();
-  }
+  //   this.ctx.strokeStyle = 'red';
+  //   this.ctx.beginPath();
+  //   this.ctx.moveTo(0, 0);
+  //   this.ctx.lineTo(0 + 100, 0);
+  //   this.ctx.lineTo(0 + 80, 0 + 10);
+  //   this.ctx.moveTo(0 + 100, 0);
+  //   this.ctx.lineTo(0 + 80, 0 - 10);
+  //   this.ctx.stroke();
+  //   this.ctx.restore();
+  // }
 
-  addEventHandlers() {
-    const bound = this.canvas.nativeElement.getBoundingClientRect();
-    this.canvas.nativeElement.addEventListener('click', (event) => {
-      this.isMouseDown = true;
-      if (!this.isMouseOverJoint()) {
-        this.activeBone = null;
-      }
-      this.isMouseDown = false;
-    });
-    this.canvas.nativeElement.addEventListener('mousemove', (event) => {
-      if (!this.isMouseDown) return;
-      this.mousePos.x =
-        event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mousePos.y =
-        event.clientY - bound.top - this.canvas.nativeElement.clientTop;
-      this.mousePos.x /= this.scale.x;
-      this.mousePos.y /= this.scale.y;
-    });
-    this.canvas.nativeElement.addEventListener('mousedown', (event) => {
-      this.mouseDown.x =
-        event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mouseDown.y =
-        event.clientY - bound.top - this.canvas.nativeElement.clientTop;
-      this.isMouseDown = true;
-      this.mouseDown.x /= this.scale.x;
-      this.mouseDown.y /= this.scale.y;
-    });
-    this.canvas.nativeElement.addEventListener('mouseup', (event) => {
-      this.mouseUp.x =
-        event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
-      this.mouseUp.y =
-        event.clientY - bound.top - this.canvas.nativeElement.clientTop;
-      this.isMouseDown = false;
-      this.mouseUp.x /= this.scale.x;
-      this.mouseUp.y /= this.scale.y;
-      this.animation.startX = this.mouseDown.x - this.camera.x;
-      this.animation.startY = this.mouseDown.y - this.camera.y;
-      this.animation.endX = this.mouseUp.x - this.mouseDown.x;
-      this.animation.endY = this.mouseUp.y - this.mouseDown.y;
-    });
+  // addEventHandlers() {
+  //   const bound = this.canvas.nativeElement.getBoundingClientRect();
+  //   this.canvas.nativeElement.addEventListener('click', (event) => {
+  //     this.isMouseDown = true;
+  //     if (!this.isMouseOverJoint()) {
+  //       this.activeBone = null;
+  //     }
+  //     this.isMouseDown = false;
+  //   });
+  //   this.canvas.nativeElement.addEventListener('mousemove', (event) => {
+  //     if (!this.isMouseDown) return;
+  //     this.mousePos.x =
+  //       event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
+  //     this.mousePos.y =
+  //       event.clientY - bound.top - this.canvas.nativeElement.clientTop;
+  //     this.mousePos.x /= this.scale.x;
+  //     this.mousePos.y /= this.scale.y;
+  //   });
+  //   this.canvas.nativeElement.addEventListener('mousedown', (event) => {
+  //     this.mouseDown.x =
+  //       event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
+  //     this.mouseDown.y =
+  //       event.clientY - bound.top - this.canvas.nativeElement.clientTop;
+  //     this.isMouseDown = true;
+  //     this.mouseDown.x /= this.scale.x;
+  //     this.mouseDown.y /= this.scale.y;
+  //   });
+  //   this.canvas.nativeElement.addEventListener('mouseup', (event) => {
+  //     this.mouseUp.x =
+  //       event.clientX - bound.left - this.canvas.nativeElement.clientLeft;
+  //     this.mouseUp.y =
+  //       event.clientY - bound.top - this.canvas.nativeElement.clientTop;
+  //     this.isMouseDown = false;
+  //     this.mouseUp.x /= this.scale.x;
+  //     this.mouseUp.y /= this.scale.y;
+  //     this.animation.startX = this.mouseDown.x - this.camera.x;
+  //     this.animation.startY = this.mouseDown.y - this.camera.y;
+  //     this.animation.endX = this.mouseUp.x - this.mouseDown.x;
+  //     this.animation.endY = this.mouseUp.y - this.mouseDown.y;
+  //   });
 
-    this.canvas.nativeElement.addEventListener('wheel', (event) => {
-      //this.camera.y += event.deltaY / 10;
-      const value = event.deltaY / 1000;
-      if (value === 0) return;
-      this.scale.x += value;
-      this.scale.y += value;
-    });
+  //   this.canvas.nativeElement.addEventListener('wheel', (event) => {
+  //     //this.camera.y += event.deltaY / 10;
+  //     const value = event.deltaY / 1000;
+  //     if (value === 0) return;
+  //     this.scale.x += value;
+  //     this.scale.y += value;
+  //   });
 
-    addEventListener('keydown', (event) => {
-      console.log(event.key);
-    });
-  }
+  //   addEventListener('keydown', (event) => {
+  //     console.log(event.key);
+  //   });
+  // }
 
   createBoneHierarchy() {
     const boneMap = new Map<string, BoneHierarchy>();
@@ -705,7 +756,7 @@ export class AnimationCreatorComponent
     for (const boneName of boneNames) {
       //Create a copy of keyframes
       let tempKeyframes: Keyframe[] = JSON.parse(
-        JSON.stringify(this.keyframes)
+        JSON.stringify(this.keyframes),
       );
       tempKeyframes = tempKeyframes.filter((e) => e.name === boneName);
       const maxTime = tempKeyframes[tempKeyframes.length - 1].time;
@@ -735,23 +786,23 @@ export class AnimationCreatorComponent
     this.addKeyframestoActiveState();
   }
 
-  drawDebug() {
-    this.ctx.save();
-    this.ctx.font = 'Arial';
-    this.ctx.fillStyle = 'green';
-    this.ctx.translate(20, 50);
-    this.ctx.scale(5, 5);
-    this.ctx.beginPath();
-    this.ctx.fillText(
-      'Pos x: ' +
-        this.mouseUp.x.toString() +
-        ' Pos y: ' +
-        this.mouseUp.y.toString(),
-      0,
-      0
-    );
-    this.ctx.restore();
-  }
+  // drawDebug() {
+  //   this.ctx.save();
+  //   this.ctx.font = 'Arial';
+  //   this.ctx.fillStyle = 'green';
+  //   this.ctx.translate(20, 50);
+  //   this.ctx.scale(5, 5);
+  //   this.ctx.beginPath();
+  //   this.ctx.fillText(
+  //     'Pos x: ' +
+  //       this.mouseUp.x.toString() +
+  //       ' Pos y: ' +
+  //       this.mouseUp.y.toString(),
+  //     0,
+  //     0,
+  //   );
+  //   this.ctx.restore();
+  // }
 
   addBone() {
     const bone = new Bone(
@@ -765,7 +816,7 @@ export class AnimationCreatorComponent
       this.mouseUp.y - this.mouseDown.y,
       0,
       0,
-      180
+      180,
     );
 
     let dialogRef = this.dialog.open(BoneDialogComponent, {
@@ -796,12 +847,12 @@ export class AnimationCreatorComponent
     this.activeBone = null;
   }
 
-  mouseCollision() {
-    if (!this.activeBone) return;
-    if (!this.activeBone.position) return;
-    this.activeBone.position.x = this.mousePos.x - this.canvasWidth / 2;
-    this.activeBone.position.y = this.mousePos.y - this.canvasHeight / 2;
-  }
+  // mouseCollision() {
+  //   if (!this.activeBone) return;
+  //   if (!this.activeBone.position) return;
+  //   this.activeBone.position.x = this.mousePos.x - this.canvasWidth / 2;
+  //   this.activeBone.position.y = this.mousePos.y - this.canvasHeight / 2;
+  // }
 
   calculateHierarchyDepth(bone: Bone, bones: Bone[]): number {
     if (!bone.parentId) return 0; // Roten har djup 0
@@ -828,7 +879,7 @@ export class AnimationCreatorComponent
           bone.position = MathUtils.calculateParentPosition(
             parent.position,
             parent.length * bone.attachAt * parent.scale.y,
-            parentRotation
+            parentRotation,
           );
         }
       }
@@ -883,29 +934,29 @@ export class AnimationCreatorComponent
     this.createBoneHierarchy();
   }
 
-  isMouseOverJoint(): boolean {
-    const mousePosx = this.mousePos.x - this.canvasWidth / 2 / this.scale.x;
-    const mousePosy = this.mousePos.y - this.canvasHeight / 2 / this.scale.y;
-    for (const bone of this.bones) {
-      const distance = bone.position.dist(new Vec(mousePosx, mousePosy));
-      if (distance <= 10) {
-        this.activateBone(bone.id);
-        return true;
-      }
-    }
-    return false;
-  }
+  // isMouseOverJoint(): boolean {
+  //   const mousePosx = this.mousePos.x - this.canvasWidth / 2 / this.scale.x;
+  //   const mousePosy = this.mousePos.y - this.canvasHeight / 2 / this.scale.y;
+  //   for (const bone of this.bones) {
+  //     const distance = bone.position.dist(new Vec(mousePosx, mousePosy));
+  //     if (distance <= 10) {
+  //       this.activateBone(bone.id);
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
-  isMouseOverSprite(bone: Bone): boolean {
-    const mousex = this.mousePos.x - this.canvasWidth / 2;
-    const mousey = this.mousePos.y - this.canvasHeight / 2;
-    return (
-      mousex > bone.position.x - bone.endX / 2 &&
-      mousex < bone.endX &&
-      mousey > bone.position.y &&
-      mousey < bone.endY
-    );
-  }
+  // isMouseOverSprite(bone: Bone): boolean {
+  //   const mousex = this.mousePos.x - this.canvasWidth / 2;
+  //   const mousey = this.mousePos.y - this.canvasHeight / 2;
+  //   return (
+  //     mousex > bone.position.x - bone.endX / 2 &&
+  //     mousex < bone.endX &&
+  //     mousey > bone.position.y &&
+  //     mousey < bone.endY
+  //   );
+  // }
 
   addClothesToBone() {
     for (const bone of this.bones) {
@@ -941,34 +992,34 @@ export class AnimationCreatorComponent
               bone.position.x = MathUtils.interpolateKeyframe(
                 keyFrame.position.x,
                 this.keyframes[i + 1].position.x,
-                progress
+                progress,
               );
               bone.position.y = MathUtils.interpolateKeyframe(
                 keyFrame.position.y,
                 this.keyframes[i + 1].position.y,
-                progress
+                progress,
               );
             }
 
             bone.rotation = MathUtils.interpolateKeyframe(
               keyFrame.angle,
               this.keyframes[i + 1].angle,
-              progress
+              progress,
             );
             bone.scale.x = MathUtils.interpolateKeyframe(
               keyFrame.scale.x,
               this.keyframes[i + 1].scale.x,
-              progress
+              progress,
             );
             bone.scale.y = MathUtils.interpolateKeyframe(
               keyFrame.scale.y,
               this.keyframes[i + 1].scale.y,
-              progress
+              progress,
             );
             bone.length = MathUtils.interpolateKeyframe(
               keyFrame.length,
               this.keyframes[i + 1].length,
-              progress
+              progress,
             );
             bone.startX = keyFrame.clip.startX;
             bone.startY = keyFrame.clip.startY;

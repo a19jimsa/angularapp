@@ -33,7 +33,7 @@ export class Bone extends Component {
     endY: number,
     order: number,
     minAngle: number,
-    maxAngle: number
+    maxAngle: number,
   ) {
     super();
     this.id = id;
