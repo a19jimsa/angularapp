@@ -76,8 +76,6 @@ export class BatchRenderer {
 
   static begin() {
     // Clear the canvas AND the depth buffer.
-    this.gl.clearColor(1, 1, 1, 1); // Viktigt! Gör hela canvasen svart
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.vertexCount = 0;
   }
 
@@ -235,7 +233,6 @@ export class BatchRenderer {
     const shader = ShaderManager.getShader('batch');
     if (!shader) return;
     shader.bind();
-    this.vertexArray.bind();
     shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
     const buffer = this.vertexArray.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -244,7 +241,7 @@ export class BatchRenderer {
       0,
       this.vbo.subarray(0, this.vertexCount * this.floatsPerVertex),
     );
-
+    this.vertexArray.bind();
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
     this.vertexArray.unbind();
     shader.unbind();

@@ -78,7 +78,7 @@ export class ShaderManager extends Manager {
 
   public static getShader(key: string): Shader {
     const shader = this.shaders.get(key);
-    if (!shader) throw new Error('Cannot find shader');
+    if (!shader) throw new Error('Cannot find shader ' + key);
     return shader;
   }
 

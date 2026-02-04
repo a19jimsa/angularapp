@@ -50,6 +50,7 @@ import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
+import { LineBatch } from 'src/renderer/line-batch';
 
 @Component({
   selector: 'app-animation-creator',
@@ -162,8 +163,10 @@ export class AnimationCreatorComponent
       'batch2d_vertex.txt',
       'batch2d_fragment.txt',
     );
+    await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
     this.image = image;
     BatchRenderer.init();
+    LineBatch.init();
     this.animationLoop();
     //setTimeout(() => this.addEventHandlers(), 3000);
   }
@@ -232,19 +235,31 @@ export class AnimationCreatorComponent
   }
 
   render() {
+    for (const bone of this.bones) {
+      LineBatch.begin();
+      LineBatch.addVertex(bone.position.x, -bone.position.y);
+      const position = MathUtils.calculateParentPosition(
+        bone.position,
+        bone.length,
+        bone.globalRotation - bone.globalSpriteRotation,
+      );
+      LineBatch.addVertex(position.x, -position.y);
+      LineBatch.end(this.editorCamera);
+    }
+
     BatchRenderer.begin();
     for (const bone of this.bones) {
       BatchRenderer.addQuads(
         this.image.width,
         this.image.height,
-        MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
+        MathUtils.degreesToRadians(-bone.globalRotation) - Math.PI / 2,
         bone.pivot,
         bone.startX,
         bone.startY,
         bone.endX,
         bone.endY,
-        bone.position.x - bone.pivot.x - bone.endX / 2,
-        bone.position.y + bone.pivot.y,
+        bone.position.x + bone.pivot.x - bone.endX / 2,
+        -bone.position.y - bone.pivot.y,
         bone.endX,
         bone.endY,
         TextureManager.getSlot('frog'),
