@@ -148,6 +148,7 @@ export class BatchRenderer {
     sh: number,
     dx: number,
     dy: number,
+    dz: number,
     dw: number,
     dh: number,
     slot: number,
@@ -165,6 +166,7 @@ export class BatchRenderer {
 
     const x0 = dx;
     const y0 = dy;
+    const z0 = dz;
     const x1 = dx + dw;
     const y1 = dy + dh;
 
@@ -177,7 +179,7 @@ export class BatchRenderer {
       // top-left
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
       (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u0,
       v0,
       slot,
@@ -185,7 +187,7 @@ export class BatchRenderer {
       // top-right
       (x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
       (x1 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u1,
       v0,
       slot,
@@ -193,7 +195,7 @@ export class BatchRenderer {
       // bottom-right
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
       (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u1,
       v1,
       slot,
@@ -202,7 +204,7 @@ export class BatchRenderer {
       // top-left (igen)
       (x0 - pivotX) * cos - (y0 - pivotY) * sin + pivotX,
       (x0 - pivotX) * sin + (y0 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u0,
       v0,
       slot,
@@ -210,7 +212,7 @@ export class BatchRenderer {
       // bottom-right (igen)
       (x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
       (x1 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u1,
       v1,
       slot,
@@ -218,7 +220,7 @@ export class BatchRenderer {
       // bottom-left
       (x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX,
       (x0 - pivotX) * sin + (y1 - pivotY) * cos + pivotY,
-      0,
+      z0,
       u0,
       v1,
       slot,

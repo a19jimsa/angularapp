@@ -24,6 +24,18 @@ export class Renderer {
     Renderer.setupSkybox();
   }
 
+  public static getHeight() {
+    return this.canvas.height;
+  }
+
+  public static getWidth() {
+    return this.canvas.width;
+  }
+
+  public static getCamera() {
+    return this.camera;
+  }
+
   public static get getGL() {
     if (!this.gl) throw new Error('GL is not set');
     return Renderer.gl;

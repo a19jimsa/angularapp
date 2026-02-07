@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec3, vec4 } from 'gl-matrix';
 import {
   Brush,
   Mouse,
@@ -22,9 +22,9 @@ import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
+import { Renderer } from 'src/renderer/renderer';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export type Height = {
   index: number;
@@ -32,143 +32,146 @@ export type Height = {
 };
 
 export class BrushSystem {
-  update(
-    meshBrush: Brush,
-    ecs: Ecs,
-    mouse: Mouse,
-    perspectiveCamera: PerspectiveCamera,
-  ) {
-    this.pickVertex(ecs, meshBrush, mouse, perspectiveCamera);
-  }
-
-  private pickVertex(
-    ecs: Ecs,
-    meshBrush: Brush,
-    mouse: Mouse,
-    perspectiveCamera: PerspectiveCamera,
-  ) {
-    const epsilon = 10;
-    const maxDistance = 1000;
-    const step = 1;
-
-    const viewMatrix = perspectiveCamera.getViewMatrix();
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, viewMatrix);
-
-    const rayOrigin = vec3.fromValues(
-      invertedView[12],
-      invertedView[13],
-      invertedView[14],
-    );
-
+  update(meshBrush: Brush, ecs: Ecs, mouse: Mouse) {
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
     );
-
-    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-    if (pivot) {
-      this.movePivot(ecs, meshBrush, mouse, rayOrigin);
-    }
-
     if (!mesh || !transform3D) return;
-    for (let i = 0; i < maxDistance; i += step) {
-      const pos = vec3.create();
-      vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
-      //8 Stride change later to make it get from the mesh stride, offset etc
-      for (let j = 0; j < mesh.vertices.length; j += 8) {
-        const vx =
-          mesh.vertices[j] * transform3D.scale[0] + transform3D.translate[0];
-        const vy =
-          mesh.vertices[j + 1] * transform3D.scale[1] +
-          transform3D.translate[1];
-        const vz =
-          mesh.vertices[j + 2] * transform3D.scale[2] +
-          transform3D.translate[2];
-        // Calculate distance between vertex positions and raycaster's position.
-        const dx = vx - pos[0];
-        const dy = vy - pos[1];
-        const dz = vz - pos[2];
-        //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < epsilon) {
-          if (meshBrush.type === ToolBrush.Height) {
-            this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
-          } else if (meshBrush.type === ToolBrush.Grass) {
-            //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
-            this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
-          } else if (meshBrush.type === ToolBrush.Trees) {
-            this.treeBrush(ecs, vx, vy, vz, meshBrush);
-          } else if (meshBrush.type === ToolBrush.Splat) {
-            this.paintImage(
-              ecs,
-              meshBrush,
-              mesh.vertices[j + 3],
-              mesh.vertices[j + 4],
-            );
-          }
-          return;
-        }
-      }
+    const index = this.pickVertexNew(transform3D, mesh.meshId, mouse);
+    if (meshBrush.type === ToolBrush.Height) {
+      this.heightBrush(
+        meshBrush,
+        vec4.fromValues(
+          mesh.vertices[index],
+          mesh.vertices[index + 1],
+          mesh.vertices[index + 2],
+          1,
+        ),
+        ecs,
+      );
+    } else if (meshBrush.type === ToolBrush.Grass) {
+      //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
+      this.grassBrushWithImage(
+        ecs,
+        meshBrush,
+        mesh.vertices[index],
+        mesh.vertices[index + 1],
+        mesh.vertices[index + 2],
+      );
+    } else if (meshBrush.type === ToolBrush.Trees) {
+      this.treeBrush(
+        ecs,
+        mesh.vertices[index],
+        mesh.vertices[index + 1],
+        mesh.vertices[index + 2],
+      );
+    } else if (meshBrush.type === ToolBrush.Splat) {
+      this.paintImage(
+        ecs,
+        meshBrush,
+        mesh.vertices[index + 3],
+        mesh.vertices[index + 4],
+      );
     }
+    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+    if (!pivot) return;
+    const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
+    console.log(pivotIndex);
+    this.movePivot(transform3D, mouse, pivotIndex);
   }
 
-  private movePivot(ecs: Ecs, meshBrush: Brush, mouse: Mouse, rayOrigin: vec3) {
-    const epsilon = 10;
-    const maxDistance = 1000;
-    const step = 1;
-    const transform3D = ecs.getComponent<Transform3D>(
-      meshBrush.entity,
-      'Transform3D',
-    );
-    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    if (transform3D && mesh) {
-      const vertexArray = MeshManager.getMesh('pivot');
-      if (!vertexArray) return;
-      const vertices = vertexArray.vertexBuffer.vertices;
-      for (let i = 0; i < maxDistance; i += step) {
-        if (mouse.isSelected.select) {
-          break;
-        }
-        const pos = vec3.create();
-        vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
-        //8 Stride change later to make it get from the mesh stride, offset etc.
-        for (let j = 0; j < vertices.length; j += 6) {
-          const vx = vertices[j] + transform3D.translate[0];
-          const vy = vertices[j + 1] + transform3D.translate[1];
-          const vz = vertices[j + 2] + transform3D.translate[2];
-          // Calculate distance between vertex positions and raycaster's position.
-          const dx = vx - pos[0];
-          const dy = vy - pos[1];
-          const dz = vz - pos[2];
-          //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          if (dist < epsilon) {
-            console.log('Hitted pivot! ' + j);
-            //Create drag system with mouse!
-            if (j === 6) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 18) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            } else if (j === 30) {
-              mouse.isSelected = { select: true, element: j };
-              break;
-            }
-          }
-        }
+  private pickVertexNew(
+    transform3D: Transform3D,
+    meshId: string,
+    mouse: Mouse,
+  ) {
+    const camera = Renderer.getCamera();
+    const vertexArray = MeshManager.getMesh(meshId);
+    if (!vertexArray) return -1;
+    const vertices = vertexArray.vertexBuffer.vertices;
+    for (
+      let i = 0;
+      i < vertices.length;
+      i += vertexArray.bufferLayout.stride / 4
+    ) {
+      const model = mat4.create();
+
+      // translation
+      mat4.translate(model, model, transform3D.translate);
+
+      // rotation (ordning är viktig – välj en och håll den konsekvent)
+      mat4.rotateX(model, model, transform3D.rotation[0]);
+      mat4.rotateY(model, model, transform3D.rotation[1]);
+      mat4.rotateZ(model, model, transform3D.rotation[2]);
+
+      // scale
+      mat4.scale(model, model, transform3D.scale);
+
+      const mvp = mat4.create();
+      mat4.multiply(mvp, camera.getViewProjectionMatrix(), model);
+
+      const pos = vec4.fromValues(
+        vertices[i],
+        vertices[i + 1],
+        vertices[i + 2],
+        1.0,
+      );
+
+      const clip = vec4.create();
+      vec4.transformMat4(clip, pos, mvp);
+
+      if (clip[3] <= 0) continue; // bakom kameran
+
+      const ndcX = clip[0] / clip[3];
+      const ndcY = clip[1] / clip[3];
+      const ndcZ = clip[2] / clip[3];
+
+      if (
+        ndcX < -1 ||
+        ndcX > 1 ||
+        ndcY < -1 ||
+        ndcY > 1 ||
+        ndcZ < -1 ||
+        ndcZ > 1
+      )
+        continue;
+
+      const sx = (ndcX * 0.5 + 0.5) * Renderer.getWidth();
+      const sy = (1 - (ndcY * 0.5 + 0.5)) * Renderer.getHeight();
+
+      const dx = mouse.x - sx;
+      const dy = mouse.y - sy;
+
+      const d = dx * dx + dy * dy;
+      if (d < 200) {
+        return i;
       }
-      if (mouse.isSelected.select && mouse.dragging) {
-        if (mouse.isSelected.element === 6) {
-          transform3D.translate[0] -= mouse.deltaX * 0.5;
-        } else if (mouse.isSelected.element === 18) {
-          transform3D.translate[1] += mouse.deltaY * 0.5;
-        } else if (mouse.isSelected.element === 30) {
-          transform3D.translate[2] -= mouse.deltaY * 0.5;
-        }
-      }
+    }
+    return -1;
+  }
+
+  private movePivot(transform3D: Transform3D, mouse: Mouse, index: number) {
+    const vertexArray = MeshManager.getMesh('pivot');
+    if (!vertexArray) return;
+
+    if (mouse.isSelected.select && mouse.isSelected.element === 6) {
+      transform3D.translate[0] -= mouse.deltaX;
+      return;
+    } else if (mouse.isSelected.select && mouse.isSelected.element === 18) {
+      transform3D.translate[1] += mouse.deltaY;
+      return;
+    } else if (mouse.isSelected.select && mouse.isSelected.element === 30) {
+      transform3D.translate[2] -= mouse.deltaY;
+      return;
+    }
+    if (index === 6) {
+      mouse.isSelected = { select: true, element: 6 };
+    } else if (index === 18) {
+      mouse.isSelected = { select: true, element: 18 };
+    } else if (index === 30) {
+      mouse.isSelected = { select: true, element: 30 };
     }
   }
 
@@ -233,13 +236,7 @@ export class BrushSystem {
     }
   }
 
-  private treeBrush(
-    ecs: Ecs,
-    x: number,
-    y: number,
-    z: number,
-    meshBrush: Brush,
-  ) {
+  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
     const tree = ecs.createEntity();
     ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
     ecs.addComponent<BatchRenderable>(tree, new BatchRenderable('tree'));
@@ -485,14 +482,7 @@ export class BrushSystem {
     }
   }
 
-  private heightBrush(
-    meshBrush: Brush,
-    vertices: number[],
-    x: number,
-    y: number,
-    z: number,
-    ecs: Ecs,
-  ) {
+  private heightBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
     const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) throw new Error('Could not get image data!');
     const brushRadius = meshBrush.radius;
@@ -506,14 +496,21 @@ export class BrushSystem {
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
     if (!transform3D || !mesh || !terrain) return;
     const commandList: Height[] = new Array();
-    for (let i = 0; i < vertices.length; i += 8) {
-      const vx = vertices[i] * transform3D.scale[0] + transform3D.translate[0];
-      const vz =
-        vertices[i + 2] * transform3D.scale[2] + transform3D.translate[2];
-      // Calculate distance again between vertices and raycasting...
-      const dx = vx - x;
-      const dz = vz - z;
-      //Same formula again for some reasong... need a function!
+    const vertexArray = MeshManager.getMesh(mesh.meshId);
+    if (!vertexArray) return;
+    for (
+      let i = 0;
+      i < vertexArray.vertexBuffer.vertices.length;
+      i += vertexArray.bufferLayout.stride / 4
+    ) {
+      const pos = vec4.fromValues(
+        vertexArray.vertexBuffer.vertices[i],
+        vertexArray.vertexBuffer.vertices[i + 1],
+        vertexArray.vertexBuffer.vertices[i + 2],
+        1,
+      );
+      const dx = pos[0] - position[0];
+      const dz = pos[2] - position[2];
       const dist = Math.sqrt(dx * dx + dz * dz);
       if (dist > brushRadius) continue;
       // Mappa från world-space till penselns bildkoordinater
@@ -550,4 +547,72 @@ export class BrushSystem {
     //Get all imagedata of image on canvas
     return ctx.getImageData(0, 0, image.width * scale, image.height * scale);
   }
+
+  // private pickVertex(
+  //   ecs: Ecs,
+  //   meshBrush: Brush,
+  //   mouse: Mouse,
+  //   perspectiveCamera: PerspectiveCamera,
+  // ) {
+  //   const epsilon = 10;
+  //   const maxDistance = 1000;
+  //   const step = 1;
+
+  //   const viewMatrix = perspectiveCamera.getViewMatrix();
+  //   const invertedView = mat4.create();
+  //   mat4.invert(invertedView, viewMatrix);
+
+  //   const rayOrigin = vec3.fromValues(
+  //     invertedView[12],
+  //     invertedView[13],
+  //     invertedView[14],
+  //   );
+
+  //   const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+  //   const transform3D = ecs.getComponent<Transform3D>(
+  //     meshBrush.entity,
+  //     'Transform3D',
+  //   );
+
+  //   if (!mesh || !transform3D) return;
+  //   for (let i = 0; i < maxDistance; i += step) {
+  //     const pos = vec3.create();
+  //     vec3.scaleAndAdd(pos, rayOrigin, mouse.dir, i); // pos = origin + dir * i
+  //     //8 Stride change later to make it get from the mesh stride, offset etc
+  //     for (let j = 0; j < mesh.vertices.length; j += 8) {
+  //       const vx =
+  //         mesh.vertices[j] * transform3D.scale[0] + transform3D.translate[0];
+  //       const vy =
+  //         mesh.vertices[j + 1] * transform3D.scale[1] +
+  //         transform3D.translate[1];
+  //       const vz =
+  //         mesh.vertices[j + 2] * transform3D.scale[2] +
+  //         transform3D.translate[2];
+  //       // Calculate distance between vertex positions and raycaster's position.
+  //       const dx = vx - pos[0];
+  //       const dy = vy - pos[1];
+  //       const dz = vz - pos[2];
+  //       //Bad calculate distance formula... again... USE SOME FINISHED LIKE IN ANY LIBRARY
+  //       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  //       if (dist < epsilon) {
+  //         if (meshBrush.type === ToolBrush.Height) {
+  //           //this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
+  //         } else if (meshBrush.type === ToolBrush.Grass) {
+  //           //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
+  //           this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
+  //         } else if (meshBrush.type === ToolBrush.Trees) {
+  //           this.treeBrush(ecs, vx, vy, vz);
+  //         } else if (meshBrush.type === ToolBrush.Splat) {
+  //           this.paintImage(
+  //             ecs,
+  //             meshBrush,
+  //             mesh.vertices[j + 3],
+  //             mesh.vertices[j + 4],
+  //           );
+  //         }
+  //         return;
+  //       }
+  //     }
+  //   }
+  // }
 }

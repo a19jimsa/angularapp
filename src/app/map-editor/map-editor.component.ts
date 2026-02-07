@@ -892,13 +892,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     if (this.mouse.dragging) {
-      this.mouse.dir = this.calculateRayCast();
-      this.brushSystem.update(
-        this.meshbrush,
-        this.ecs,
-        this.mouse,
-        this.editorCamera,
-      );
+      this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
     }
   }
 

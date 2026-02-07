@@ -229,13 +229,16 @@ export class AnimationCreatorComponent
     this.playAnimation();
     this.updateLength();
     this.updateRotation();
+    this.renderBones();
     this.render();
 
     this.id = requestAnimationFrame(() => this.animationLoop());
   }
 
-  render() {
-    for (const bone of this.bones) {
+  renderBones() {
+    if (!this.showBones) return;
+    const bones = this.bones.sort((a, b) => a.order - b.order);
+    for (const bone of bones) {
       LineBatch.begin();
       LineBatch.addVertex(bone.position.x, -bone.position.y);
       const position = MathUtils.calculateParentPosition(
@@ -246,9 +249,12 @@ export class AnimationCreatorComponent
       LineBatch.addVertex(position.x, -position.y);
       LineBatch.end(this.editorCamera);
     }
+  }
 
+  render() {
     BatchRenderer.begin();
-    for (const bone of this.bones) {
+    const bones = this.bones.sort((a, b) => a.order - b.order);
+    for (const bone of bones) {
       BatchRenderer.addQuads(
         this.image.width,
         this.image.height,
@@ -260,6 +266,7 @@ export class AnimationCreatorComponent
         bone.endY,
         bone.position.x + bone.pivot.x - bone.endX / 2,
         -bone.position.y - bone.pivot.y,
+        0,
         bone.endX,
         bone.endY,
         TextureManager.getSlot('frog'),

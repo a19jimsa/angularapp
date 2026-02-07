@@ -42,28 +42,24 @@ export class RenderSystem {
         'BatchRenderable',
       );
 
-      // if (batchRenderable && transform3D) {
-      //   BatchRenderer.addQuads(
-      //     batchRenderable.width,
-      //     batchRenderable.height,
-      //     0,
-      //     new Vec(1, 1),
-      //     0,
-      //     0,
-      //     batchRenderable.width,
-      //     batchRenderable.height,
-      //     0,
-      //     0,
-      //     batchRenderable.width,
-      //     batchRenderable.height,
-      //     transform3D.translate[0],
-      //     transform3D.translate[1],
-      //     transform3D.translate[2],
-      //     transform3D.scale[0],
-      //     transform3D.scale[1],
-      //     TextureManager.getSlot(batchRenderable.texture),
-      //   );
-      // }
+      if (batchRenderable && transform3D) {
+        BatchRenderer.addQuads(
+          100,
+          100,
+          0,
+          new Vec(1, 1),
+          0,
+          0,
+          100,
+          100,
+          transform3D.translate[0],
+          transform3D.translate[1],
+          transform3D.translate[2],
+          100,
+          100,
+          TextureManager.getSlot(batchRenderable.slot),
+        );
+      }
 
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (skeleton && transform3D) {
@@ -81,6 +77,7 @@ export class RenderSystem {
             bone.endY,
             bone.position.x - bone.pivot.x - bone.endX / 2,
             bone.position.y + bone.pivot.y,
+            0,
             bone.endX,
             bone.endY,
             0,
@@ -140,12 +137,10 @@ export class RenderSystem {
 
       if (mesh) {
         Renderer.updateMesh(mesh.meshId);
-      }
-
-      if (mesh.dirty) {
         this.updateNormals(mesh);
         mesh.dirty = false;
       }
+
       const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
       if (splatmap && splatmap.dirty) {
         Renderer.updateTexture(

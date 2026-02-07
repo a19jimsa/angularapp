@@ -89,8 +89,8 @@ export class MouseHandler {
 
   private onMouseMove(e: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = e.x - rect.left;
-    const y = e.y - rect.top;
+    const x = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (this.canvas.height / rect.height);
     this.mousePosition[0] = x;
     this.mousePosition[1] = y;
   }

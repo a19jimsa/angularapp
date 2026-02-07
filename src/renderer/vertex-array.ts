@@ -5,6 +5,7 @@ import { BufferLayout, IndexBuffer, VertexBuffer } from './buffer';
 export class VertexArray {
   vertexBuffer: VertexBuffer;
   indexBuffer: IndexBuffer;
+  bufferLayout: BufferLayout;
   VAO: WebGLVertexArrayObject;
   instanceBuffer: WebGLBuffer | undefined;
 
@@ -23,12 +24,11 @@ export class VertexArray {
     }
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-
+    this.bufferLayout = new BufferLayout();
     this.unbind();
   }
 
   addInstanceBuffer(vbl: BufferLayout, instanceVertices: number[]) {
-    console.log(vbl);
     const gl = Renderer.getGL;
     gl.bindVertexArray(this.VAO);
     //Instance VBO
@@ -54,11 +54,11 @@ export class VertexArray {
       }
     }
     this.unbind();
+    this.bufferLayout = vbl;
   }
 
   addBuffer(vbl: BufferLayout) {
     const gl = Renderer.getGL;
-    //VertexArraybind
     this.bind();
     for (const element of vbl.elements) {
       gl.enableVertexAttribArray(element.location);
@@ -75,6 +75,7 @@ export class VertexArray {
       }
     }
     this.unbind();
+    this.bufferLayout = vbl;
   }
 
   bind() {
