@@ -21,7 +21,6 @@ import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
-import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Renderer } from 'src/renderer/renderer';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
@@ -40,45 +39,46 @@ export class BrushSystem {
     );
     if (!mesh || !transform3D) return;
     const index = this.pickVertexNew(transform3D, mesh.meshId, mouse);
-    if (meshBrush.type === ToolBrush.Height) {
-      this.heightBrush(
-        meshBrush,
-        vec4.fromValues(
+    if (index !== -1) {
+      if (meshBrush.type === ToolBrush.Height) {
+        this.heightBrush(
+          meshBrush,
+          vec4.fromValues(
+            mesh.vertices[index],
+            mesh.vertices[index + 1],
+            mesh.vertices[index + 2],
+            1,
+          ),
+          ecs,
+        );
+      } else if (meshBrush.type === ToolBrush.Grass) {
+        //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
+        this.grassBrushWithImage(
+          ecs,
+          meshBrush,
           mesh.vertices[index],
           mesh.vertices[index + 1],
           mesh.vertices[index + 2],
-          1,
-        ),
-        ecs,
-      );
-    } else if (meshBrush.type === ToolBrush.Grass) {
-      //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
-      this.grassBrushWithImage(
-        ecs,
-        meshBrush,
-        mesh.vertices[index],
-        mesh.vertices[index + 1],
-        mesh.vertices[index + 2],
-      );
-    } else if (meshBrush.type === ToolBrush.Trees) {
-      this.treeBrush(
-        ecs,
-        mesh.vertices[index],
-        mesh.vertices[index + 1],
-        mesh.vertices[index + 2],
-      );
-    } else if (meshBrush.type === ToolBrush.Splat) {
-      this.paintImage(
-        ecs,
-        meshBrush,
-        mesh.vertices[index + 3],
-        mesh.vertices[index + 4],
-      );
+        );
+      } else if (meshBrush.type === ToolBrush.Trees) {
+        this.treeBrush(
+          ecs,
+          mesh.vertices[index],
+          mesh.vertices[index + 1],
+          mesh.vertices[index + 2],
+        );
+      } else if (meshBrush.type === ToolBrush.Splat) {
+        this.paintImage(
+          ecs,
+          meshBrush,
+          mesh.vertices[index + 3],
+          mesh.vertices[index + 4],
+        );
+      }
     }
     const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
     if (!pivot) return;
     const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
-    console.log(pivotIndex);
     this.movePivot(transform3D, mouse, pivotIndex);
   }
 
@@ -145,7 +145,7 @@ export class BrushSystem {
       const dy = mouse.y - sy;
 
       const d = dx * dx + dy * dy;
-      if (d < 200) {
+      if (d < 100) {
         return i;
       }
     }
@@ -239,7 +239,10 @@ export class BrushSystem {
   private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
     const tree = ecs.createEntity();
     ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
-    ecs.addComponent<BatchRenderable>(tree, new BatchRenderable('tree'));
+    ecs.addComponent<BatchRenderable>(
+      tree,
+      new BatchRenderable(100, 100, 'tree'),
+    );
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {

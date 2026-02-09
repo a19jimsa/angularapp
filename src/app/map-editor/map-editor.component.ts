@@ -62,6 +62,7 @@ import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { FlowMap } from 'src/components/flow-map';
 import { BatchRenderable } from 'src/components/batch-renderable';
+import { Animation } from 'src/components/animation';
 
 type IsSelected = {
   select: boolean;
@@ -217,6 +218,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     TextureManager.restore();
     ShaderManager.restore();
     cancelAnimationFrame(this.gameId);
+    // WebGL cleanup
+    if (Renderer.getGL) {
+      const ext = Renderer.getGL.getExtension('WEBGL_lose_context');
+      ext?.loseContext();
+    }
+
+    // Ta bort canvas från DOM helt
+    this.canvas.remove();
   }
 
   get translateX() {
@@ -513,23 +522,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'frogAnimations',
     );
     playerSkeleton.bones = Loader.getBones('skeleton');
-    const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
+    this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     this.ecs.addComponent<Controlable>(entity, new Controlable());
     this.ecs.addComponent<Player>(entity, new Player());
 
     this.ecs.addComponent<BatchRenderable>(
       entity,
-      new BatchRenderable(textureSlot),
+      new BatchRenderable(image.width, image.height, textureSlot),
     );
-    if (!skeleton) return;
-    skeleton.image = playerSkeleton.image;
-    skeleton.keyframes = ResourceManager.getAnimation(
-      skeleton.resource,
-      'idle',
-    );
-    skeleton.animationDuration =
-      skeleton.keyframes[skeleton.keyframes.length - 1].time;
-    skeleton.startTime = performance.now();
   }
 
   async createFrog() {
@@ -553,17 +553,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     this.ecs.addComponent<BatchRenderable>(
       entity,
-      new BatchRenderable(textureSlot),
+      new BatchRenderable(image.width, image.height, textureSlot),
     );
-    if (!skeleton) return;
-    skeleton.image = image;
-    skeleton.keyframes = ResourceManager.getAnimation(
-      skeleton.resource,
-      'idle',
-    );
-    skeleton.animationDuration =
-      skeleton.keyframes[skeleton.keyframes.length - 1].time;
-    skeleton.startTime = performance.now();
   }
 
   public getSceneObjectName(entity: Entity) {
@@ -740,7 +731,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const entity = this.ecs.createEntity();
     const model = new Model();
     //Change later in runtime with some parameters in UI
-    model.addPlane(50, width, height);
+    model.addPlane(1, width, height);
     this.ecs.addComponent<Mesh>(
       entity,
       new Mesh(model.vertices, model.indices, width, height, 'water'),
@@ -972,7 +963,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 1;
+    const speed = 10;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1001,11 +992,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.mouseHandler.scrollY < 0) {
-      rotateY -= speed;
+      rotateY -= speed * 0.5;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     } else if (this.mouseHandler.scrollY > 0) {
-      rotateY += speed;
+      rotateY += speed * 0.5;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     }

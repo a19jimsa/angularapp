@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 
@@ -28,7 +28,7 @@ export class Shader {
     Renderer.getGL.uniformMatrix4fv(
       this.getUniformLocation(name),
       false,
-      matrix
+      matrix,
     );
   }
 
@@ -37,12 +37,19 @@ export class Shader {
     Renderer.getGL.uniform1i(location, x);
   }
 
+  setVec2(name: string, value: vec2) {
+    Renderer.getGL.uniform2fv(this.getUniformLocation(name), value);
+  }
+
   setVec3(name: string, value: vec3) {
     Renderer.getGL.uniform3fv(this.getUniformLocation(name), value);
   }
 
   setFloat(name: string, value: number) {
     Renderer.getGL.uniform1f(this.getUniformLocation(name), value);
+  }
+  setFloatArray(name: string, values: Float32Array) {
+    Renderer.getGL.uniform1fv(this.getUniformLocation(name), values);
   }
 
   setMaterialTexture(locationName: string, slotName: string) {

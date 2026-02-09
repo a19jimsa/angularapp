@@ -97,14 +97,10 @@ void main() {
       ground_color * splat.a;
 
    float fogFactor = 1.0 - exp(-v_fogDistance * u_fogPower);
-   float heightFactor = 1.0 - smoothstep(0.0, 500.0, v_height);
-   fogFactor *= heightFactor;
 
-   vec3 fogColor = vec3(0.5, 0.5, 0.5);
+   vec3 fogColor = vec3(0.1, 0.1, 0.6);
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);
 
    vec3 result = (ambient + diffuse + specular) * color;
    FragColor = vec4(result, 1.0);
-   //gl_FragColor = vec4(1.0);
-   //gl_FragColor = vec4(normalize(v_worldNormal), 1.0);
 }

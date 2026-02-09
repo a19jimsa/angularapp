@@ -11,7 +11,6 @@ import { Terrain } from 'src/components/terrain';
 import { Skeleton } from 'src/components/skeleton';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { MathUtils } from 'src/Utils/MathUtils';
-import { Vec } from 'src/app/vec';
 import { Pivot } from 'src/components/pivot';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { BatchRenderable } from 'src/components/batch-renderable';
@@ -22,7 +21,6 @@ import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { FlowMap } from 'src/components/flow-map';
-import { Loader } from 'src/app/loader';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -36,56 +34,28 @@ export class RenderSystem {
     BatchRenderer.begin();
     for (const entity of ecs.getEntities()) {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-
-      const batchRenderable = ecs.getComponent<BatchRenderable>(
-        entity,
-        'BatchRenderable',
-      );
-
-      if (batchRenderable && transform3D) {
+      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
+      if (!skeleton) continue;
+      for (const bone of skeleton.bones) {
         BatchRenderer.addQuads(
-          100,
-          100,
+          skeleton.image.width,
+          skeleton.image.height,
+          MathUtils.degreesToRadians(-bone.globalRotation) - Math.PI / 2,
+          bone.pivot,
+          bone.startX,
+          bone.startY,
+          bone.endX,
+          bone.endY,
+          bone.position.x + bone.pivot.x - bone.endX / 2,
+          -bone.position.y - bone.pivot.y,
           0,
-          new Vec(1, 1),
-          0,
-          0,
-          100,
-          100,
-          transform3D.translate[0],
-          transform3D.translate[1],
-          transform3D.translate[2],
-          100,
-          100,
-          TextureManager.getSlot(batchRenderable.slot),
+          bone.endX,
+          bone.endY,
+          TextureManager.getSlot('frog'),
         );
       }
-
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (skeleton && transform3D) {
-        const bones = Loader.getBones('frogman');
-        for (let i = 0; i < bones.length; i++) {
-          const bone = bones[i];
-          BatchRenderer.addQuads(
-            skeleton.image.width,
-            skeleton.image.height,
-            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
-            bone.pivot,
-            bone.startX,
-            bone.startY,
-            bone.endX,
-            bone.endY,
-            bone.position.x - bone.pivot.x - bone.endX / 2,
-            bone.position.y + bone.pivot.y,
-            0,
-            bone.endX,
-            bone.endY,
-            0,
-          );
-        }
-      }
+      BatchRenderer.end(this.camera);
     }
-    BatchRenderer.end(this.camera);
   }
 
   private getLightSources(ecs: Ecs): Entity | null {
