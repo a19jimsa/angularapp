@@ -1,16 +1,16 @@
 import { Entity } from 'src/app/entity';
 import { Command } from './command';
 import { Ecs } from 'src/core/ecs';
-import { Height } from 'src/systems/brush-system';
 import { Mesh } from 'src/components/mesh';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { Terrain } from 'src/components/terrain';
 
 export class HeightBrushCommand extends Command {
   private entity: Entity;
   private ecs: Ecs;
-  private heights: Height[] = [];
-  private heightBefore: Height[] = [];
-  constructor(entity: Entity, ecs: Ecs, heights: Height[]) {
+  private heights: Map<number, number>;
+  private heightBefore: Map<number, number> = new Map();
+  constructor(entity: Entity, ecs: Ecs, heights: Map<number, number>) {
     super();
     this.entity = entity;
     this.ecs = ecs;
@@ -18,12 +18,20 @@ export class HeightBrushCommand extends Command {
   }
 
   override execute(): void {
+    const terrain = this.ecs.getComponent<Terrain>(this.entity, 'Terrain');
     const mesh = this.ecs.getComponent<Mesh>(this.entity, 'Mesh');
     if (!mesh) return;
+    if (!terrain) return;
     for (const height of this.heights) {
-      this.heightBefore.push(height);
-      //Add influence to vertice on specific position
-      mesh.vertices[height.index] += height.y;
+      this.heightBefore.set(height[0], height[1]);
+      //Convert to heights index index 0 = 1
+      let value = terrain.heights.get(height[0]);
+      if (!value) {
+        value = 0;
+      }
+      terrain.heights.set(height[0], height[1] + value);
+      //Add one otherwise changes x
+      mesh.vertices[height[0]] += height[1];
     }
     const vao = MeshManager.getMesh(mesh.meshId);
     if (!vao) return;
@@ -32,11 +40,18 @@ export class HeightBrushCommand extends Command {
   }
 
   override undo(): void {
+    const terrain = this.ecs.getComponent<Terrain>(this.entity, 'Terrain');
     const mesh = this.ecs.getComponent<Mesh>(this.entity, 'Mesh');
     if (!mesh) return;
+    if (!terrain) return;
     for (const height of this.heightBefore) {
-      //Substract influence to vertice on specific position
-      mesh.vertices[height.index] -= height.y;
+      let value = terrain.heights.get(height[0]);
+      if (!value) {
+        value = 0;
+      }
+      terrain.heights.set(height[0], value - height[1]);
+      //Add one otherwise changes x
+      mesh.vertices[height[0]] -= height[1];
     }
     const vao = MeshManager.getMesh(mesh.meshId);
     if (!vao) return;

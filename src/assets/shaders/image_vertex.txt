@@ -19,7 +19,7 @@ out vec3 v_cameraPos;
 out vec3 v_fragPos;
 
 void main() {
-   v_worldSpace = u_model * vec4(a_position, 1.0);
+   v_worldSpace = vec4(a_position, 1.0);
    v_texcoord = a_texcoord;
    v_height = a_position.y;
    v_normal = a_normal;
@@ -28,6 +28,7 @@ void main() {
    vec3 meshPosition = vec3(u_model[3]);
    v_cameraPos = u_cameraPos;
    v_fogDistance = length(v_worldSpace.xyz - u_cameraPos);
-   v_fragPos = v_worldSpace.xyz;
+   vec4 pos = u_model * vec4(a_position, 1.0);
+   v_fragPos = pos.xyz;
    gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
 }

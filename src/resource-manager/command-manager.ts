@@ -9,13 +9,11 @@ export class CommandManager {
     cmd.execute();
     this.commands.push(cmd);
     this.index++;
-    console.log(this.commands);
   }
 
   static undo() {
     if (this.index < 0) return;
     this.commands[this.index].undo();
     this.index--;
-    console.log(this.commands);
   }
 }

@@ -1,5 +1,55 @@
 <div class="container-fluid">
   <div class="row">
+    <mat-toolbar class="transparent d-flex justify-content-between">
+      <div>
+        <button
+          matIconButton
+          [matMenuTriggerFor]="menu"
+          class="example-icon"
+          aria-label="Example icon-button with menu icon"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span>Map Editor</span>
+
+        <mat-menu #menu="matMenu">
+          <!-- Dold file input -->
+          <input
+            type="file"
+            #fileInput
+            hidden
+            (change)="onFileSelected($event)"
+          />
+          <button mat-menu-item (click)="fileInput.click()">
+            <mat-icon>voicemail</mat-icon>
+            <span>Open map</span>
+          </button>
+          <button mat-menu-item (click)="saveScene()">
+            <mat-icon>save</mat-icon>
+            <span>Save</span>
+          </button>
+
+          <button mat-menu-item>
+            <mat-icon>notifications_off</mat-icon>
+            <span>Disable alerts</span>
+          </button>
+        </mat-menu>
+      </div>
+      <div>
+        <button matMiniFab aria-label="Example icon button with a menu icon">
+          <mat-icon>3d_rotation</mat-icon>
+        </button>
+        <button matMiniFab aria-label="Example icon button with a menu icon">
+          <mat-icon>3d</mat-icon>
+        </button>
+        <button matMiniFab aria-label="Example icon button with a menu icon">
+          <mat-icon>camera</mat-icon>
+        </button>
+      </div>
+      <div>Basj</div>
+    </mat-toolbar>
+  </div>
+  <div class="row">
     <div class="col-1">
       <mat-card
         class="d-flex flex-column justify-content-between p-2"
@@ -42,7 +92,11 @@
       >
         <mat-card-header>
           <mat-card-title-group>
-            <mat-card-title>Toolbox</mat-card-title>
+            <mat-card-title
+              class="d-flex flex-row justify-content-between w-100"
+              ><div>Toolbox</div>
+              <div>Toolbox</div></mat-card-title
+            >
             <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
@@ -152,9 +206,6 @@
                     </button>
                     <button mat-fab (click)="changeTool('height')">
                       <mat-icon>landscape</mat-icon>
-                    </button>
-                    <button mat-fab (click)="changeTool('pivot')">
-                      <mat-icon>pivot</mat-icon>
                     </button>
                   </div>
                   <div class="d-flex justify-content-around w-100">
@@ -467,7 +518,7 @@
                     (selected)="changeBrushImage($event)"
                   ></app-brush-image>
                   <div class="d-flex flex-row">
-                    <div>
+                    <div class="col-6">
                       <mat-slider min="0" max="1" step="0.1" discrete>
                         <input matSliderThumb [(ngModel)]="meshbrush.alpha" />
                       </mat-slider>
@@ -478,7 +529,7 @@
                         <mat-icon>brush</mat-icon>
                       </button>
                     </div>
-                    <div>
+                    <div class="col-6">
                       <mat-radio-group
                         aria-labelledby="example-radio-group-label"
                         class="example-radio-group"
@@ -490,6 +541,112 @@
                         <mat-radio-button value="alpha">Alpha</mat-radio-button>
                       </mat-radio-group>
                       <div>Your color is: {{ meshbrush.color }}</div>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column w-100 border">
+                    <div class="row">
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[0] }}</label>
+                        </div>
+                        <mat-slider min="0" max="5" step="1">
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[0]"
+                          />
+                        </mat-slider>
+                      </div>
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[1] }}</label>
+                        </div>
+                        <mat-slider min="0" max="1" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[1]"
+                          />
+                        </mat-slider>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[2] }}</label>
+                        </div>
+                        <mat-slider min="0" max="5" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[2]"
+                          />
+                        </mat-slider>
+                      </div>
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[3] }}</label>
+                        </div>
+                        <mat-slider min="0" max="1" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[3]"
+                          />
+                        </mat-slider>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[4] }}</label>
+                        </div>
+                        <mat-slider min="0" max="5" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[4]"
+                          />
+                        </mat-slider>
+                      </div>
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[5] }}</label>
+                        </div>
+                        <mat-slider min="0" max="1" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[5]"
+                          />
+                        </mat-slider>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[6] }}</label>
+                        </div>
+                        <mat-slider min="0" max="5" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[6]"
+                          />
+                        </mat-slider>
+                      </div>
+                      <div class="col-6">
+                        <div>
+                          <label>Value</label>
+                          <label>{{ splatmap.tiles[7] }}</label>
+                        </div>
+                        <mat-slider min="0" max="1" step="1" discrete>
+                          <input
+                            matSliderThumb
+                            [(ngModel)]="splatmap.tiles[7]"
+                          />
+                        </mat-slider>
+                      </div>
                     </div>
                   </div>
                 </mat-expansion-panel>
@@ -532,6 +689,41 @@
                     <mat-slider min="0" max="1" step="0.0001" discrete>
                       <input matSliderThumb [(ngModel)]="water.flowSpeed" />
                     </mat-slider>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Color X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="water.color[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Color Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="water.color[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Color Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        [(ngModel)]="water.color[2]"
+                      />
+                    </mat-form-field>
                   </div>
                 </mat-expansion-panel>
               }

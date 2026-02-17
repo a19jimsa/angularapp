@@ -48,8 +48,13 @@ export class Shader {
   setFloat(name: string, value: number) {
     Renderer.getGL.uniform1f(this.getUniformLocation(name), value);
   }
+
   setFloatArray(name: string, values: Float32Array) {
     Renderer.getGL.uniform1fv(this.getUniformLocation(name), values);
+  }
+
+  setVec2Array(name: string, values: Float32Array) {
+    Renderer.getGL.uniform2fv(this.getUniformLocation(name), values);
   }
 
   setMaterialTexture(locationName: string, slotName: string) {

@@ -19,6 +19,7 @@ uniform sampler2D u_splatmap;
 uniform float u_fogPower;
 uniform float u_tiling;
 uniform vec3 u_cameraPos;
+uniform vec2 u_tiles[4];
 
 struct Material{
    vec3 ambient;
@@ -40,7 +41,7 @@ struct Light{
 uniform Light light;
 
 
-vec4 TriplarMapping(vec4 worldPosition, vec3 worldNormal, sampler2D bajs, vec2 tile){
+vec4 TriplarMapping(vec3 worldNormal, sampler2D bajs, vec2 tile){
    vec2 pixelResolution = vec2(6144, 2048);
    vec2 pixelOffset = 1.0 / pixelResolution;
    vec2 padding = pixelOffset * 0.5;
@@ -49,13 +50,13 @@ vec4 TriplarMapping(vec4 worldPosition, vec3 worldNormal, sampler2D bajs, vec2 t
 
    vec3 blending = abs(worldNormal);
 
-   blending = pow(blending, vec3(64.0));
+   blending = pow(blending, vec3(32.0));
 
    blending /= (blending.x + blending.y + blending.z);
 
-   vec2 uvX = worldPosition.zy * tiling;
-   vec2 uvY = worldPosition.xz * tiling;
-   vec2 uvZ = -worldPosition.xy * tiling;
+   vec2 uvX = v_worldSpace.zy * tiling;
+   vec2 uvY = v_worldSpace.xz * tiling;
+   vec2 uvZ = -v_worldSpace.xy * tiling;
 
    vec4 colorX = texture(bajs, fract(uvX) * (tileSize - 2.0 * padding) + tile * tileSize + padding);
    vec4 colorY = texture(bajs, fract(uvY) * (tileSize - 2.0 * padding) + tile * tileSize + padding);
@@ -83,10 +84,10 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * (spec * material.specular);  
 
-   vec4 leaf_color = TriplarMapping(v_worldSpace, norm, u_texture, vec2(0.0, 0.0));
-   vec4 sand_color = TriplarMapping(v_worldSpace, norm, u_texture, vec2(3.0, 0.0));
-   vec4 snow_color = TriplarMapping(v_worldSpace, norm, u_texture, vec2(3.0, 1.0));
-   vec4 ground_color = TriplarMapping(v_worldSpace, norm, u_texture, vec2(5.0, 1.0));
+   vec4 leaf_color = TriplarMapping(norm, u_texture, u_tiles[0]);
+   vec4 sand_color = TriplarMapping(norm, u_texture, u_tiles[1]);
+   vec4 snow_color = TriplarMapping(norm, u_texture, u_tiles[2]);
+   vec4 ground_color = TriplarMapping(norm, u_texture, u_tiles[3]);
 
    vec4 splat = texture(u_splatmap, v_texcoord);
 
@@ -98,7 +99,7 @@ void main() {
 
    float fogFactor = 1.0 - exp(-v_fogDistance * u_fogPower);
 
-   vec3 fogColor = vec3(0.1, 0.1, 0.6);
+   vec3 fogColor = vec3(0.1, 0.1, 0.2);
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);
 
    vec3 result = (ambient + diffuse + specular) * color;

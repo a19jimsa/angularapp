@@ -63,11 +63,20 @@ import { CommandManager } from 'src/resource-manager/command-manager';
 import { FlowMap } from 'src/components/flow-map';
 import { BatchRenderable } from 'src/components/batch-renderable';
 import { Animation } from 'src/components/animation';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { SceneManager } from 'src/scene/scene-manager';
 
 type IsSelected = {
   select: boolean;
   element: number;
 };
+
+enum Mode {
+  Edit = 0,
+  Game = 1,
+  Object = 2,
+  Pivot = 3,
+}
 
 export type Mouse = {
   x: number;
@@ -136,6 +145,7 @@ export type Brush = {
     MatSelectModule,
     MatMenuModule,
     BrushImageComponent,
+    MatToolbarModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -167,6 +177,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   animationSystem: AnimationSystem = new AnimationSystem();
   componentsList: ECSComponent[] = new Array();
   editorCamera: PerspectiveCamera;
+  mode: Mode = 0;
 
   mouse: Mouse = {
     x: 0,
@@ -358,6 +369,21 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  get getEditMode(): Mode {
+    return Mode.Edit;
+  }
+
+  get getPivotMode(): Mode {
+    return Mode.Pivot;
+  }
+
+  get getGameMode(): Mode {
+    return Mode.Game;
+  }
+  get getObjectMode(): Mode {
+    return Mode.Object;
+  }
+
   setBrushTextureSlot(image: string) {
     this.meshbrush.imageName = image;
   }
@@ -526,10 +552,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Controlable>(entity, new Controlable());
     this.ecs.addComponent<Player>(entity, new Player());
 
-    this.ecs.addComponent<BatchRenderable>(
-      entity,
-      new BatchRenderable(image.width, image.height, textureSlot),
-    );
+    this.ecs.addComponent<BatchRenderable>(entity, new BatchRenderable(20));
   }
 
   async createFrog() {
@@ -551,10 +574,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     playerSkeleton.bones = Loader.getBones('frogman');
     const skeleton = this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
-    this.ecs.addComponent<BatchRenderable>(
-      entity,
-      new BatchRenderable(image.width, image.height, textureSlot),
-    );
+    this.ecs.addComponent<BatchRenderable>(entity, new BatchRenderable(10));
   }
 
   public getSceneObjectName(entity: Entity) {
@@ -565,8 +585,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
-    const width = 128;
-    const height = 128;
+    const size = 128;
     const image = await TextureManager.loadImage(
       '/assets/textures/texture_map.jpg',
     );
@@ -581,11 +600,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const splatmapTexture = TextureManager.createAndBindTexture(
       splatmap,
       null,
-      width,
-      height,
+      size,
+      size,
     );
     const model = new Model();
-    model.addPlane(50, 1000, 1000);
+    model.addPlane(100, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     this.ecs.addComponent(newEntity, new Material(texture, 'splatmap'));
     //Add mesh component to entity VAO splatmap id meshId
@@ -596,59 +615,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.indices,
         1000,
         1000,
-        'splatmap' + newEntity,
+        'terrain' + newEntity,
       ),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(width, height, splatmapTexture),
+      new Splatmap(size, splatmapTexture),
     );
     //Add material component to entity
-    this.ecs.addComponent<Terrain>(newEntity, new Terrain());
+    this.ecs.addComponent<Terrain>(
+      newEntity,
+      new Terrain(50 + 1, 'terrain' + newEntity),
+    );
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<BatchRenderable>(newEntity, new BatchRenderable(512));
+    this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
+  }
+
+  private addBufferLayoutToMesh(model: Model, name: string) {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    MeshManager.addMesh(model, 'splatmap' + newEntity, buffer);
-  }
-
-  public createAdjacentTerrain() {
-    // const activeEntity = this.meshbrush.entity;
-    // const mesh = this.ecs.getComponent<Mesh>(activeEntity, 'Mesh');
-    // const transform3D = this.ecs.getComponent<Transform3D>(
-    //   activeEntity,
-    //   'Transform3D'
-    // );
-    // const splatmap = this.ecs.getComponent<Splatmap>(activeEntity, 'Splatmap');
-    // if (mesh && transform3D && splatmap) {
-    //   this.makeTerrainSeamless(mesh);
-    //   const newVertices = [...mesh.vertices];
-    //   const newIndices = [...mesh.indices];
-    //   for (let i = 0; i < mesh.vertices.length / mesh.meshId; i += 8) {
-    //     const x = mesh.vertices[i + 0] + 1000 * mesh.meshId;
-    //     const y = mesh.vertices[i + 1];
-    //     const z = mesh.vertices[i + 2];
-    //     const u = mesh.vertices[i + 3];
-    //     const v = mesh.vertices[i + 4];
-    //     const normal1 = mesh.vertices[i + 6];
-    //     const normal2 = mesh.vertices[i + 7];
-    //     const normal3 = mesh.vertices[i + 8];
-    //     newVertices.push(x, y, z, u, v, normal1, normal2, normal3);
-    //   }
-    //   for (let i = 0; i < mesh.indices.length / mesh.meshId; i++) {
-    //     newIndices.push(mesh.indices[i] + mesh.vertices.length / 8);
-    //   }
-    //   const adjacentMesh = new Mesh(newVertices, newIndices, 1);
-    //   this.ecs.removeComponent(this.meshbrush.entity, 'Mesh');
-    //   const newMesh = this.ecs.addComponent<Mesh>(
-    //     this.meshbrush.entity,
-    //     adjacentMesh
-    //   );
-    //   mesh.meshId++;
-    //   if (newMesh === null) throw new Error('Could not add id to mesh!');
-    //   newMesh.meshId = mesh.meshId;
-    // }
+    MeshManager.addMesh(model, name, buffer);
   }
 
   // private makeTerrainSeamless(mesh: Mesh) {
@@ -918,7 +907,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   // }
 
   loadEntity() {}
+
   editorMode() {}
+
+  pivotMode() {}
 
   gameMode() {
     this.controllerSystem.update(this.ecs);
@@ -992,11 +984,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.mouseHandler.scrollY < 0) {
-      rotateY -= speed * 0.5;
+      rotateY -= speed * 0.1;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     } else if (this.mouseHandler.scrollY > 0) {
-      rotateY += speed * 0.5;
+      rotateY += speed * 0.1;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     }
@@ -1009,5 +1001,32 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (rotateX !== 0 || rotateY !== 0 || rotateZ !== 0) {
       this.editorCamera.rotate(rotateX, rotateY);
     }
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const json = reader.result as string;
+      const scene = JSON.parse(json);
+
+      console.log('Loaded scene:', scene);
+
+      // här kan du kalla SceneLoader.load(scene)
+      SceneManager.loadScene(scene);
+    };
+
+    reader.readAsText(file);
+  }
+
+  saveScene() {
+    const json = SceneManager.saveScene(this.ecs);
+    console.log(json);
+  }
+
+  changeMode(mode: Mode) {
+    this.mode = mode;
   }
 }

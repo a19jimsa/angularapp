@@ -241,7 +241,7 @@ export class BrushSystem {
     ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
     ecs.addComponent<BatchRenderable>(
       tree,
-      new BatchRenderable(100, 100, 'tree'),
+      new BatchRenderable(tree as number),
     );
   }
 
@@ -254,15 +254,15 @@ export class BrushSystem {
       const image = this.getImageData(meshBrush.image, radius);
       if (!image) return;
       const texX =
-        Math.floor(uv0 * splatmap.width) - Math.floor(image.width / 2);
+        Math.floor(uv0 * splatmap.size) - Math.floor(image.width / 2);
       const texZ =
-        Math.floor(uv1 * splatmap.height) - Math.floor(image.height / 2);
+        Math.floor(uv1 * splatmap.size) - Math.floor(image.height / 2);
       const splatmapList: SplatBrush[] = [];
       for (let y = 0; y < image.height; y++) {
         for (let x = 0; x < image.width; x++) {
           const dx = texX + x;
           const dz = texZ + y;
-          const splatmapIndex = (dz * splatmap.width + dx) * 4;
+          const splatmapIndex = (dz * splatmap.size + dx) * 4;
           const imageIndex = (y * image.width + x) * 4;
           const red = image.data[imageIndex];
           const color = 255 - red; // 0-255 Om vandla svart till färg. 255 om svart
@@ -380,8 +380,8 @@ export class BrushSystem {
     const splatColor = meshBrush.color;
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
     if (splatmap) {
-      const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
-      const texZ = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
+      const texX = Math.floor(uv0 * splatmap.size); // Omvandla u till texel X
+      const texZ = Math.floor(uv1 * splatmap.size); // Omvandla v till texel Y
       for (let z = -radius; z <= radius; z++) {
         for (let x = -radius; x <= radius; x++) {
           const dx = x;
@@ -391,7 +391,7 @@ export class BrushSystem {
             const pz = texZ + dz;
             //To not draw outside of width and height
 
-            const idx = (pz * splatmap.width + px) * 4;
+            const idx = (pz * splatmap.size + px) * 4;
             const distance = Math.sqrt(dx * dx + dz * dz);
             const strength = 255 * alpha * (1 - distance / radius);
             if (splatColor === 'red') {
@@ -498,7 +498,8 @@ export class BrushSystem {
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
     if (!transform3D || !mesh || !terrain) return;
-    const commandList: Height[] = new Array();
+    //LOVE THIS SOLUTION!
+    const commandList: Map<number, number> = new Map();
     const vertexArray = MeshManager.getMesh(mesh.meshId);
     if (!vertexArray) return;
     for (
@@ -529,7 +530,8 @@ export class BrushSystem {
             (1 - (dist / brushRadius) * fallOff) * brushStrength;
           //Now we have commands instead!
           //Just save all affected vertices in an array and send it to commands.
-          commandList.push({ index: i + 1, y: influence });
+          //It saves index ys position and send it to the height or just take it - stride so it fits terrains heights index?
+          commandList.set(i + 1, influence);
         }
       }
     }
