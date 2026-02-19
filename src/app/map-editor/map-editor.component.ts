@@ -627,7 +627,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Terrain(50 + 1, 'terrain' + newEntity),
     );
-    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, -9000));
     this.ecs.addComponent<BatchRenderable>(newEntity, new BatchRenderable(512));
     this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
   }
@@ -694,7 +694,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addCube(10, 10, 10);
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(500, 10, 500));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(5000, 5000, 5000));
     this.ecs.addComponent<Light>(entity, new Light());
 
     const mesh = this.ecs.addComponent<Mesh>(

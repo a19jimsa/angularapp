@@ -189,6 +189,42 @@
                     <mat-slider min="0" max="0.1" step="0.0001">
                       <input matSliderThumb [(ngModel)]="terrain.fogPower" />
                     </mat-slider>
+                    <div class="row">
+                      <mat-form-field class="col-4">
+                        <mat-label>X</mat-label>
+                        <input
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.fogColor[0]"
+                        />
+                      </mat-form-field>
+
+                      <mat-form-field class="col-4">
+                        <mat-label>Y</mat-label>
+                        <input
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.fogColor[1]"
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-4">
+                        <mat-label>Z</mat-label>
+                        <input
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.fogColor[2]"
+                        />
+                      </mat-form-field>
+                    </div>
                   </div>
                 </mat-expansion-panel>
                 <mat-expansion-panel>

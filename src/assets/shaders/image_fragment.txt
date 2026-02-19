@@ -20,6 +20,7 @@ uniform float u_fogPower;
 uniform float u_tiling;
 uniform vec3 u_cameraPos;
 uniform vec2 u_tiles[4];
+uniform vec3 u_fogColor;
 
 struct Material{
    vec3 ambient;
@@ -97,9 +98,9 @@ void main() {
       snow_color  * splat.b +
       ground_color * splat.a;
 
-   float fogFactor = 1.0 - exp(-v_fogDistance * u_fogPower);
+   float fogFactor = smoothstep(1500.0 * u_fogPower, 15000.0, v_fogDistance);
 
-   vec3 fogColor = vec3(0.1, 0.1, 0.2);
+   vec3 fogColor = u_fogColor;
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);
 
    vec3 result = (ambient + diffuse + specular) * color;

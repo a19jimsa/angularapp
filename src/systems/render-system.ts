@@ -205,6 +205,7 @@ export class RenderSystem {
           if (terrain) {
             shader.setFloat('u_tiling', terrain.tiling);
             shader.setFloat('u_fogPower', terrain.fogPower);
+            shader.setVec3('u_fogColor', terrain.fogColor);
           }
           shader.setUniformMat4(
             'u_matrix',
