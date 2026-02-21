@@ -98,7 +98,7 @@ void main() {
       snow_color  * splat.b +
       ground_color * splat.a;
 
-   float fogFactor = smoothstep(1500.0 * u_fogPower, 15000.0, v_fogDistance);
+   float fogFactor = smoothstep(1500.0 , 5000.0 * u_fogPower, v_fogDistance);
 
    vec3 fogColor = u_fogColor;
    vec3 color = mix(splatColor.rgb, fogColor, fogFactor);

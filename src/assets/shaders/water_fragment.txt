@@ -53,11 +53,11 @@ void main() {
 
    // --- Light calculations ---
    vec3 lightDir = normalize(light.position - v_fragPos);
-   float NdotL = max(dot(blendedNormal, lightDir), 0.0);
+   float NdotL = max(dot(blendedNormal, -lightDir), 0.0);
 
    // --- View / specular ---
    vec3 viewDir = normalize(u_cameraPos - v_fragPos);
-   vec3 reflectDir = reflect(-lightDir, blendedNormal);  
+   vec3 reflectDir = reflect(lightDir, blendedNormal);  
    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
    // --- Base water colors ---
