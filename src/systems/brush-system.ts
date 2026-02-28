@@ -195,7 +195,7 @@ export class BrushSystem {
             const posX = vx - x;
             const posZ = vz - z;
             if (grass.amount >= grass.maxAmount) {
-              CommandManager.execute(
+              CommandManager.add(
                 new GrassBrushCommand(meshBrush.entity, ecs, grassList),
               );
               return;
@@ -206,7 +206,7 @@ export class BrushSystem {
           }
         }
       }
-      CommandManager.execute(
+      CommandManager.add(
         new GrassBrushCommand(meshBrush.entity, ecs, grassList),
       );
     }
@@ -368,7 +368,7 @@ export class BrushSystem {
           }
         }
       }
-      CommandManager.execute(
+      CommandManager.add(
         new SplatBrushCommand(meshBrush.entity, ecs, splatmapList),
       );
     }
@@ -535,7 +535,7 @@ export class BrushSystem {
         }
       }
     }
-    CommandManager.execute(
+    CommandManager.add(
       new HeightBrushCommand(meshBrush.entity, ecs, commandList),
     );
   }

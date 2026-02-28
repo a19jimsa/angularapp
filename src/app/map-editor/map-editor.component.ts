@@ -62,7 +62,6 @@ import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { FlowMap } from 'src/components/flow-map';
 import { BatchRenderable } from 'src/components/batch-renderable';
-import { Animation } from 'src/components/animation';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
@@ -90,6 +89,7 @@ export type Mouse = {
   dragging: boolean;
   pressed: boolean;
   isDown: boolean;
+  isUp: boolean;
   clicked: boolean;
   moving: boolean;
   released: boolean;
@@ -199,6 +199,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     deltaY: 0,
     clicked: false,
     isDown: false,
+    isUp: true,
     scrollDeltaY: 0,
     lastScrollDeltaY: 0,
   };
@@ -846,21 +847,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.mouse.pressed && !this.mouse.isDown) {
-      console.log('Mouse is clicked once');
+      console.log('Is down');
+      CommandManager.beginBatch();
       this.mouse.clicked = true;
       this.mouse.isDown = true;
     } else {
       this.mouse.clicked = false;
     }
 
-    if (this.mouse.released) {
+    if (this.mouse.released && this.mouse.isDown) {
+      console.log('Released');
       this.mouse.isDown = false;
+      CommandManager.endBatch();
     }
 
     if (
       this.keyboard.isKeyPressed('Control') &&
       this.keyboard.isKeyPressed('z')
     ) {
+      console.log('Undo');
       CommandManager.undo();
     }
 
@@ -887,6 +892,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   update() {
     if (this.mouse.dragging) {
       this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+      //Collect all data as long as mouse is draggin
     }
   }
 

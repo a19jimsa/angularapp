@@ -36,6 +36,10 @@ export class MouseHandler {
     return this.isMouseDown;
   }
 
+  get getIsMouseRelased() {
+    return this.isReleased;
+  }
+
   get getMousePosition() {
     return this.mousePosition;
   }
@@ -78,13 +82,11 @@ export class MouseHandler {
 
   private onMouseClick(e: MouseEvent) {
     this.isClicked = true;
-    console.log('Mouse clicked');
   }
 
   private onMouseEnter(e: MouseEvent) {
     this.isMouseDown = false;
     this.isMouseMoved = false;
-    console.log('Mouse enter canvas');
   }
 
   private onMouseMove(e: MouseEvent) {
@@ -96,20 +98,17 @@ export class MouseHandler {
   }
 
   private onMouseLeave(e: MouseEvent) {
-    console.log('Mouse leaved canvas');
     this.isDragging = false;
     this.isMouseDown = false;
     this.isMoving = false;
   }
 
   private onMousePressed(e: MouseEvent) {
-    console.log('Mouse is pressed');
     this.isMouseDown = true;
     this.isReleased = false;
   }
 
   private onMouseReleased(e: MouseEvent) {
-    console.log('Mouse press is released');
     this.isMouseDown = false;
     this.isReleased = true;
   }
