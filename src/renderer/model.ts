@@ -1,11 +1,15 @@
 import { Vec } from 'src/app/vec';
+import { BufferLayout } from './buffer';
 
 export class Model {
   vertices: number[] = new Array();
   indices: number[] = new Array();
   shaderName: string = '';
+  bufferLayout: BufferLayout;
 
-  constructor() {}
+  constructor(vbl: BufferLayout) {
+    this.bufferLayout = vbl;
+  }
 
   addSkybox() {
     const skyboxVertices = [

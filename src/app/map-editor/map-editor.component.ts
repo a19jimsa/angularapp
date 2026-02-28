@@ -65,6 +65,7 @@ import { BatchRenderable } from 'src/components/batch-renderable';
 import { Animation } from 'src/components/animation';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
+import { HttpClient } from '@angular/common/http';
 
 type IsSelected = {
   select: boolean;
@@ -178,6 +179,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   componentsList: ECSComponent[] = new Array();
   editorCamera: PerspectiveCamera;
   mode: Mode = 0;
+  private http = inject(HttpClient);
 
   mouse: Mouse = {
     x: 0,
@@ -369,6 +371,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  get splatmapImage(): HTMLImageElement | null {
+    const splatmap = this.splatmap;
+    if (!splatmap) return null;
+    const image = SceneManager.convertCoordsToImage(
+      splatmap.size,
+      splatmap.coords,
+    );
+    return image;
+  }
+
   get getEditMode(): Mode {
     return Mode.Edit;
   }
@@ -403,7 +415,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await this.loadAllbrushes();
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.editorCamera);
-    const image = await TextureManager.loadImage('assets/sprites/tree.png');
+    const image = await TextureManager.loadImage('/assets/sprites/tree.png');
     const slot = TextureManager.createAndBindTexture(
       'tree',
       image,
@@ -440,9 +452,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     debug.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     debug.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false);
     this.ecs.addComponent<Pivot>(newEntity, new Pivot());
-    const model = new Model();
+    const model = new Model(debug);
     model.addPivot();
-    MeshManager.addMesh(model, 'pivot', debug);
+    MeshManager.addMesh(model, 'pivot');
     const transform = this.ecs.getComponent<Transform3D>(
       newEntity,
       'Transform3D',
@@ -551,7 +563,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Skeleton>(entity, playerSkeleton);
     this.ecs.addComponent<Controlable>(entity, new Controlable());
     this.ecs.addComponent<Player>(entity, new Player());
-
     this.ecs.addComponent<BatchRenderable>(entity, new BatchRenderable(20));
   }
 
@@ -603,7 +614,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       size,
       size,
     );
-    const model = new Model();
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const model = new Model(buffer);
     model.addPlane(100, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     this.ecs.addComponent(newEntity, new Material(texture, 'splatmap'));
@@ -628,16 +643,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Terrain(50 + 1, 'terrain' + newEntity),
     );
     this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, -9000));
-    this.ecs.addComponent<BatchRenderable>(newEntity, new BatchRenderable(512));
     this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
   }
 
   private addBufferLayoutToMesh(model: Model, name: string) {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    MeshManager.addMesh(model, name, buffer);
+    MeshManager.addMesh(model, name);
   }
 
   // private makeTerrainSeamless(mesh: Mesh) {
@@ -664,7 +674,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected createCylinder() {
-    const cylinderModel = new Model();
+    const buffer = new BufferLayout();
+    //Add correct buffer!
+    const cylinderModel = new Model(buffer);
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
@@ -684,25 +696,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         'cylinder' + effectEntity,
       ),
     );
-    //MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
+    MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
   }
 
   createLightSource() {
     const layout = new BufferLayout();
     layout.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    const model = new Model();
+    const model = new Model(layout);
     model.addCube(10, 10, 10);
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(5000, 5000, 5000));
+    this.ecs.addComponent<Transform3D>(
+      entity,
+      new Transform3D(5000, 5000, 5000),
+    );
     this.ecs.addComponent<Light>(entity, new Light());
 
     const mesh = this.ecs.addComponent<Mesh>(
       entity,
       new Mesh(model.vertices, model.indices, 10, 10, 'light'),
     );
-
-    MeshManager.addMesh(model, 'light', layout);
+    MeshManager.addMesh(model, 'light');
   }
 
   protected async createWater() {
@@ -718,7 +732,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       waterImage.height,
     );
     const entity = this.ecs.createEntity();
-    const model = new Model();
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addPlane(1, width, height);
     this.ecs.addComponent<Mesh>(
@@ -737,11 +755,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       64,
     );
     this.ecs.addComponent<FlowMap>(entity, new FlowMap(flowMapSlot));
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    MeshManager.addMesh(model, 'water', buffer);
+    MeshManager.addMesh(model, 'water');
   }
 
   protected async addTextureToMaterial(path: string) {
@@ -761,10 +775,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected async addGrass() {
-    const grass = new BufferLayout();
-    grass.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    grass.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    grass.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const grassBuffer = new BufferLayout();
+    grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    grassBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    grassBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const shader = await ShaderManager.load(
       'grass',
       'grass_vertex.txt',
@@ -787,9 +801,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Material('grass', 'grass'),
     );
     if (!grassComponent) return;
-    const grassModel = new Model();
+    const grassModel = new Model(grassBuffer);
     grassModel.addGrass();
-    MeshManager.addMesh(grassModel, 'grass', grass);
+    MeshManager.addMesh(grassModel, 'grass');
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       3,
@@ -1008,14 +1022,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (!file) return;
     const reader = new FileReader();
 
-    reader.onload = () => {
+    reader.onload = async () => {
       const json = reader.result as string;
       const scene = JSON.parse(json);
 
       console.log('Loaded scene:', scene);
 
       // här kan du kalla SceneLoader.load(scene)
-      SceneManager.loadScene(scene);
+      const ecs = await SceneManager.loadScene(scene);
+      this.ecs = ecs;
     };
 
     reader.readAsText(file);
@@ -1024,6 +1039,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   saveScene() {
     const json = SceneManager.saveScene(this.ecs);
     console.log(json);
+    this.http.post('/api/saveMap', { json }).subscribe({
+      next: (e) => {
+        console.log(e);
+      },
+      error: (e) => console.error(e),
+      complete: () => {
+        console.log('Completed save scene!');
+      },
+    });
   }
 
   changeMode(mode: Mode) {

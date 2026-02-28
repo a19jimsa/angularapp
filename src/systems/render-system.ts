@@ -71,29 +71,6 @@ export class RenderSystem {
     return light;
   }
 
-  private updateTerrainBatch(ecs: Ecs) {
-    const vertices = [];
-    const indices = [];
-    for (const entity of ecs.getEntities()) {
-      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
-      const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
-
-      let vertexOffset = 0;
-      if (!mesh || !terrain) continue;
-      vertices.push(...mesh.vertices);
-      // --- Lägg till index, offsetta dem ---
-      for (let i = 0; i < mesh.indices.length; i++) {
-        indices.push(mesh.indices[i] + vertexOffset);
-      }
-      const vertexCount = mesh.vertices.length / 8; // t.ex 8 floats per vertex
-      vertexOffset += vertexCount;
-    }
-    const model = new Model();
-    model.vertices = vertices;
-    model.indices = indices;
-    MeshManager.updateMesh(model, 'terrain');
-  }
-
   private drawTerrainBatch() {
     const shader = ShaderManager.getShader('splatmap');
     shader.bind();
@@ -118,6 +95,14 @@ export class RenderSystem {
       cameraMatrix[14],
     );
 
+    const lightEntity = this.getLightSources(ecs);
+    let light = null;
+    let lightPos = null;
+    if (lightEntity) {
+      light = ecs.getComponent<Light>(lightEntity, 'Light');
+      lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
+    }
+
     for (const entity of ecs.getEntities()) {
       //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
@@ -132,17 +117,11 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      const lightEntity = this.getLightSources(ecs);
+
       const batch = ecs.getComponent<BatchRenderable>(
         entity,
         'BatchRenderable',
       );
-      let light = null;
-      let lightPos = null;
-      if (lightEntity) {
-        light = ecs.getComponent<Light>(lightEntity, 'Light');
-        lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
-      }
 
       if (mesh && mesh.dirty) {
         console.log(mesh.vertices.length);
@@ -185,50 +164,49 @@ export class RenderSystem {
         shader.unbind();
       }
       //Render all terrain as in batch, and mostly everything is going to be drawn if they have a renderable component of some sort, probalby 3d and 2d renderables.
-      if (batch) {
-        if (mesh && material && splatmap) {
-          const shader = ShaderManager.getShader('splatmap');
-          shader.bind();
-          if (light && lightPos) {
-            shader.setVec3('light.position', lightPos.translate);
-            shader.setVec3('light.ambient', light.ambient);
-            shader.setVec3('light.diffuse', light.diffuse);
-          }
-          shader.setVec3('material.ambient', material.ambient);
-          shader.setVec3('material.diffuse', material.diffuse);
-          shader.setVec3('material.specular', material.specular);
-          shader.setFloat('material.shininess', material.shininess);
-          shader.setMaterialTexture('u_texture', material.slot);
-          shader.setMaterialTexture('u_splatmap', splatmap.slot);
-          shader.setVec2Array('u_tiles', splatmap.tiles);
 
-          if (terrain) {
-            shader.setFloat('u_tiling', terrain.tiling);
-            shader.setFloat('u_fogPower', terrain.fogPower);
-            shader.setVec3('u_fogColor', terrain.fogColor);
-          }
-          shader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix(),
-          );
-          shader.setFloat('u_time', performance.now() * 0.001);
-          shader.setUniformMat4('u_view', this.camera.getViewMatrix());
-          shader.setVec3('u_cameraPos', cameraPos);
-          if (transform3D) {
-            const modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-            mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-            mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-            mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-            mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-            shader.setUniformMat4('u_model', modelMatrix);
-          }
-          //VAO comtains only vertexdata
-          const vao = MeshManager.getMesh(mesh.meshId);
-          if (!vao) continue;
-          Renderer.drawIndexed(vao);
-          shader.unbind();
+      if (mesh && material && splatmap) {
+        const shader = ShaderManager.getShader('splatmap');
+        shader.bind();
+        if (light && lightPos) {
+          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.ambient', light.ambient);
+          shader.setVec3('light.diffuse', light.diffuse);
         }
+        shader.setVec3('material.ambient', material.ambient);
+        shader.setVec3('material.diffuse', material.diffuse);
+        shader.setVec3('material.specular', material.specular);
+        shader.setFloat('material.shininess', material.shininess);
+        shader.setMaterialTexture('u_texture', material.slot);
+        shader.setMaterialTexture('u_splatmap', splatmap.slot);
+        shader.setVec2Array('u_tiles', splatmap.tiles);
+
+        if (terrain) {
+          shader.setFloat('u_tiling', terrain.tiling);
+          shader.setFloat('u_fogPower', terrain.fogPower);
+          shader.setVec3('u_fogColor', terrain.fogColor);
+        }
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix(),
+        );
+        shader.setFloat('u_time', performance.now() * 0.001);
+        shader.setUniformMat4('u_view', this.camera.getViewMatrix());
+        shader.setVec3('u_cameraPos', cameraPos);
+        if (transform3D) {
+          const modelMatrix = mat4.create();
+          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+          mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+          shader.setUniformMat4('u_model', modelMatrix);
+        }
+        //VAO comtains only vertexdata
+        const vao = MeshManager.getMesh(mesh.meshId);
+        if (!vao) continue;
+        Renderer.drawIndexed(vao);
+        shader.unbind();
       } else if (mesh && material && animatedTexture) {
         const shader = ShaderManager.getShader(mesh.meshId);
         shader.bind();

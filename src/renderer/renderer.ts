@@ -106,12 +106,6 @@ export class Renderer {
       front,
       back,
     ]);
-    const model = new Model();
-    model.addSkybox();
-    const vao = new VertexArray(
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-    );
     const bufferLayout = new BufferLayout();
     bufferLayout.add(
       0,
@@ -120,7 +114,14 @@ export class Renderer {
       false,
       false,
     );
-    MeshManager.addMesh(model, 'skybox', bufferLayout);
+    const model = new Model(bufferLayout);
+    model.addSkybox();
+    const vao = new VertexArray(
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+    );
+
+    MeshManager.addMesh(model, 'skybox');
   }
 
   static begin() {

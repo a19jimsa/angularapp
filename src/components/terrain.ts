@@ -27,4 +27,11 @@ export class Terrain extends Component {
       meshId: this.meshId,
     };
   }
+
+  deserialize(terrain: Terrain, component: any) {
+    terrain.heights = new Map(component.heights);
+    terrain.tiling = component.tiling;
+    terrain.fogPower = component.fogPower;
+    return terrain;
+  }
 }

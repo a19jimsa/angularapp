@@ -7,4 +7,14 @@ export class Name extends Component {
     super();
     this.value = value;
   }
+
+  serialize() {
+    return {
+      value: this.value,
+    };
+  }
+
+  deserialize(component: Name) {
+    return new Name(component.value);
+  }
 }

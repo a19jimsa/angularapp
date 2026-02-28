@@ -10,4 +10,17 @@ export class Transform3D extends Component {
     super();
     this.translate = vec3.fromValues(x, y, z);
   }
+
+  serialize() {
+    return {
+      translate: this.translate,
+      rotation: this.rotation,
+      scale: this.scale,
+    };
+  }
+
+  deserialize(component: Transform3D) {
+    const transform3D = new Transform3D(0, 0, 0);
+    return transform3D;
+  }
 }

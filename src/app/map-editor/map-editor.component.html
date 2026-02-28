@@ -21,7 +21,7 @@
             (change)="onFileSelected($event)"
           />
           <button mat-menu-item (click)="fileInput.click()">
-            <mat-icon>voicemail</mat-icon>
+            <mat-icon>folder_open</mat-icon>
             <span>Open map</span>
           </button>
           <button mat-menu-item (click)="saveScene()">
@@ -546,13 +546,18 @@
                       ><mat-icon>palette</mat-icon></mat-panel-description
                     >
                   </mat-expansion-panel-header>
-                  <div class="d-flex flex-row">
-                    Splatmap slot: {{ splatmap.slot }}
+                  <div
+                    class="d-flex flex-column justify-content-center align-items-center p-2"
+                  >
+                    <div>Splatmap slot: {{ splatmap.slot }}</div>
+                    <img [src]="splatmapImage?.src" />
                   </div>
+
                   <app-brush-image
                     [images]="this.brushToolsImages"
                     (selected)="changeBrushImage($event)"
                   ></app-brush-image>
+
                   <div class="d-flex flex-row">
                     <div class="col-6">
                       <mat-slider min="0" max="1" step="0.1" discrete>
