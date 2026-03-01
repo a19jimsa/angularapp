@@ -14,6 +14,7 @@ import {
   SplatBrushCommand,
 } from 'src/commands/splat-brush-command';
 import { BatchRenderable } from 'src/components/batch-renderable';
+import { BrushImage } from 'src/components/brush-image';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Pivot } from 'src/components/pivot';
@@ -39,7 +40,15 @@ export class BrushSystem {
     );
     if (!mesh || !transform3D) return;
     const index = this.pickVertexNew(transform3D, mesh.meshId, mouse);
-    if (index !== -1) {
+    if (index === -1) return;
+    const brushImage = ecs.getComponent<BrushImage>(
+      meshBrush.entity,
+      'BrushImage',
+    );
+    if (!brushImage) return;
+    brushImage.UV[0] = mesh.vertices[index + 3];
+    brushImage.UV[1] = mesh.vertices[index + 4];
+    if (mouse.dragging) {
       if (meshBrush.type === ToolBrush.Height) {
         this.heightBrush(
           meshBrush,
@@ -75,11 +84,24 @@ export class BrushSystem {
           mesh.vertices[index + 4],
         );
       }
+
+      const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+      if (!pivot) return;
+      const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
+      this.movePivot(transform3D, mouse, pivotIndex);
     }
-    const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-    if (!pivot) return;
-    const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
-    this.movePivot(transform3D, mouse, pivotIndex);
+  }
+
+  private calculateBrushImageUV(
+    image: HTMLImageElement,
+    radius: number,
+    uv0: number,
+    uv1: number,
+    splatmapSize: number,
+  ) {
+    const texX = Math.floor(uv0 * splatmapSize) - Math.floor(image.width / 2);
+    const texZ = Math.floor(uv1 * splatmapSize) - Math.floor(image.height / 2);
+    console.log(uv0, uv1);
   }
 
   private pickVertexNew(
@@ -250,6 +272,10 @@ export class BrushSystem {
     const radius = meshBrush.radius * 0.01;
     const splatColor = meshBrush.color;
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+    const brushImage = ecs.getComponent<BrushImage>(
+      meshBrush.entity,
+      'BrushImage',
+    );
     if (splatmap) {
       const image = this.getImageData(meshBrush.image, radius);
       if (!image) return;

@@ -88,7 +88,6 @@ export class TextureManager extends Manager {
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
     this.textures.set(name, texture);
     console.log('Added texture to manager by name ' + name);
     return name;

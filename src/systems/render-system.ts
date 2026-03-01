@@ -22,6 +22,7 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { FlowMap } from 'src/components/flow-map';
 import { Model } from 'src/renderer/model';
+import { BrushImage } from 'src/components/brush-image';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -180,6 +181,12 @@ export class RenderSystem {
         shader.setMaterialTexture('u_texture', material.slot);
         shader.setMaterialTexture('u_splatmap', splatmap.slot);
         shader.setVec2Array('u_tiles', splatmap.tiles);
+
+        const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
+        if (brushImage) {
+          shader.setMaterialTexture('u_brushTexture', brushImage.slot);
+          shader.setVec2('u_brushUV', brushImage.UV);
+        }
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);

@@ -65,6 +65,7 @@ import { BatchRenderable } from 'src/components/batch-renderable';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
+import { BrushImage } from 'src/components/brush-image';
 
 type IsSelected = {
   select: boolean;
@@ -467,6 +468,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   changeBrushImage(image: HTMLImageElement) {
+    const brushImage = this.ecs.getComponent<BrushImage>(
+      this.meshbrush.entity,
+      'BrushImage',
+    );
+    const slot = TextureManager.createAndBindTexture(
+      'brushImage',
+      image,
+      image.width,
+      image.height,
+    );
+    if (!brushImage) {
+      this.ecs.addComponent<BrushImage>(
+        this.meshbrush.entity,
+        new BrushImage(slot, vec2.fromValues(0, 0)),
+      );
+    } else {
+      brushImage.slot = slot;
+    }
     this.meshbrush.image = image;
   }
 
@@ -643,7 +662,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Terrain(50 + 1, 'terrain' + newEntity),
     );
-    this.ecs.addComponent<Transform3D>(newEntity, new Transform3D(0, 0, -9000));
+    const transform = this.ecs.addComponent<Transform3D>(
+      newEntity,
+      new Transform3D(0, 0, -9000),
+    );
+    if (!transform) return;
+    transform.scale[0] = 10;
+    transform.scale[1] = 10;
+    transform.scale[2] = 10;
     this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
   }
 
@@ -890,10 +916,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.mouse.dragging) {
-      this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
-      //Collect all data as long as mouse is draggin
-    }
+    this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
   }
 
   draw() {
