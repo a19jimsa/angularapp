@@ -4,7 +4,7 @@ import { Component } from './component';
 export class Terrain extends Component {
   override type: string = 'Terrain';
   tiling: number = 0.01;
-  fogPower: number = 1.0;
+  fogPower: number = 10.0;
   fogColor: vec3 = vec3.fromValues(0, 0, 0);
   size: number;
   heights: Map<number, number>;

@@ -51,33 +51,22 @@ void main() {
 
    vec3 blendedNormal = normalize(mix(normal1, normal2, 0.5));
 
-   // --- Light calculations ---
+   vec3 ambient = light.ambient * material.ambient;
+
    vec3 lightDir = normalize(light.position - v_fragPos);
-   float NdotL = max(dot(blendedNormal, -lightDir), 0.0);
-
-   // --- View / specular ---
    vec3 viewDir = normalize(u_cameraPos - v_fragPos);
-   vec3 reflectDir = reflect(lightDir, blendedNormal);  
-   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
-   // --- Base water colors ---
-   vec3 deepWaterColor = u_color;
-   vec3 shallowWaterColor = vec3(0.0, 0.5, 0.8);
+   float NdotL = max(dot(blendedNormal, lightDir), 0.0);
 
-   // --- Diffuse lighting (vattnets basfärg med ljus) ---
-   vec3 lightFactor = vec3(NdotL); // intensitet från ljuset
-   vec3 baseColor = mix(deepWaterColor, shallowWaterColor, 0.5); // jämn blå bas
-   vec3 diffuse = baseColor * lightFactor;
+   vec3 halfDir = normalize(lightDir + viewDir);
+   float spec = pow(max(dot(blendedNormal, halfDir), 0.0), material.shininess);
 
-   // --- Specular highlight (glans) ---
-   vec3 specularColor = material.specular * spec;
+   vec3 diffuse = material.ambient * NdotL;
+   vec3 specular = light.specular * spec;
 
-   // --- Kombinera ---
-   vec3 finalColor = diffuse + specularColor;
+   vec3 finalColor = diffuse + specular;
 
-   // --- Alpha/transparens ---
-   float alpha = 0.8; // genomskinligt blått vatten
+   float alpha = 0.5; // genomskinligt blått vatten
 
    FragColor = vec4(finalColor, alpha);
-
 }

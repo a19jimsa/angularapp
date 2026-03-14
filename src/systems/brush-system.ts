@@ -45,10 +45,17 @@ export class BrushSystem {
       meshBrush.entity,
       'BrushImage',
     );
-    if (!brushImage) return;
-    brushImage.UV[0] = mesh.vertices[index + 3];
-    brushImage.UV[1] = mesh.vertices[index + 4];
+    if (brushImage) {
+      brushImage.UV[0] = mesh.vertices[index + 3];
+      brushImage.UV[1] = mesh.vertices[index + 4];
+    }
+
     if (mouse.dragging) {
+      const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+      if (pivot) {
+        const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
+        this.movePivot(transform3D, mouse, pivotIndex);
+      }
       if (meshBrush.type === ToolBrush.Height) {
         this.heightBrush(
           meshBrush,
@@ -84,11 +91,6 @@ export class BrushSystem {
           mesh.vertices[index + 4],
         );
       }
-
-      const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-      if (!pivot) return;
-      const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
-      this.movePivot(transform3D, mouse, pivotIndex);
     }
   }
 
