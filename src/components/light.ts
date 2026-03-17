@@ -14,6 +14,8 @@ export class Light extends Component {
   ambient: vec3;
   diffuse: vec3;
   specular: vec3;
+  direction: vec3;
+  color: vec3;
 
   constructor() {
     super();
@@ -21,6 +23,8 @@ export class Light extends Component {
     this.ambient = vec3.fromValues(1, 1, 1);
     this.diffuse = vec3.fromValues(1, 1, 1);
     this.specular = vec3.fromValues(1, 1, 1);
+    this.direction = vec3.fromValues(0, 0, 0);
+    this.color = vec3.fromValues(1, 1, 1);
   }
 
   serialize() {
@@ -29,6 +33,8 @@ export class Light extends Component {
       ambient: this.ambient,
       diffuse: this.diffuse,
       specular: this.specular,
+      direction: this.direction,
+      color: this.color,
     };
   }
 

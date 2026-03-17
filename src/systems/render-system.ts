@@ -173,6 +173,7 @@ export class RenderSystem {
           shader.setVec3('light.position', lightPos.translate);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
+          shader.setVec3('light.color', light.color);
         }
         shader.setVec3('material.ambient', material.ambient);
         shader.setVec3('material.diffuse', material.diffuse);
@@ -221,6 +222,7 @@ export class RenderSystem {
           shader.setVec3('light.position', lightPos.translate);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
+          shader.setVec3('light.direction', light.direction);
         }
         shader.setVec3('material.ambient', material.ambient);
         shader.setVec3('material.diffuse', material.diffuse);
