@@ -1,10 +1,50 @@
 import { Renderer } from 'src/renderer/renderer';
 import { Manager } from './manager';
+import { Texture, TextureType } from 'src/renderer/texture';
+import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
 
 export class TextureManager extends Manager {
-  private static textures = new Map<string, WebGLTexture>();
+  private static textures = new Map<string, Texture>();
+  private static glArray = new TextureArrayBuilder();
 
-  static async loadImage(path: string): Promise<HTMLImageElement> {
+  public static async build(type: TextureType) {
+    const textures = new Array();
+    for (const [name, texture] of this.textures.entries()) {
+      if (type === texture.type) {
+        textures.push(texture);
+        console.log(name);
+      }
+    }
+    this.glArray.rebuild(type, textures);
+    console.log(textures);
+  }
+
+  public static getTextureArray(type: TextureType) {
+    return this.glArray.TextureArray.get(type);
+  }
+
+  public static async add(name: string, path: string, type: TextureType) {
+    const image = await this.loadImage(path);
+    const texture = new Texture(
+      name,
+      image,
+      image.width,
+      image.height,
+      0,
+      type,
+    );
+    const index = this.textures.size;
+    this.textures.set(name, texture);
+    return index;
+  }
+
+  public static async addNonImage(name: string, width: number, height: number) {
+    const texture = new Texture(name, null, width, height, 0);
+    this.textures.set(name, texture);
+    return name;
+  }
+
+  private static async loadImage(path: string): Promise<HTMLImageElement> {
     // Load texture
     return new Promise((resolve, reject) => {
       const image = new Image();
@@ -15,82 +55,6 @@ export class TextureManager extends Manager {
       };
       image.src = path;
     });
-  }
-
-  static createAndBindSkybox(images: HTMLImageElement[]): number {
-    const gl = Renderer.getGL;
-    const texture = gl.createTexture();
-    const slot = this.textures.size;
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    for (let i = 0; i < images.length; i++) {
-      gl.texImage2D(
-        gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
-        0,
-        gl.RGB,
-        images[i].width,
-        images[i].height,
-        0,
-        gl.RGB,
-        gl.UNSIGNED_BYTE,
-        images[i],
-      );
-    }
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-    this.textures.set('skybox', texture);
-    console.log('Skybox slot is ' + slot);
-    return slot;
-  }
-
-  static createAndBindTexture(
-    name: string,
-    image: HTMLImageElement | null,
-    width: number,
-    height: number,
-  ) {
-    const gl = Renderer.getGL;
-    const texture = gl.createTexture();
-    if (!texture) {
-      throw new Error('Could not create texture');
-    }
-    const slot = this.textures.size;
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    if (image instanceof HTMLImageElement) {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0, // Level (mipmap nivå)
-        gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
-        gl.RGBA, // Format
-        gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        image,
-      );
-    } else {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0, // mipmap level
-        gl.RGBA, // internal format
-        width,
-        height,
-        0, // border
-        gl.RGBA, // format
-        gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        null,
-      );
-    }
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    this.textures.set(name, texture);
-    console.log('Added texture to manager by name ' + name);
-    return name;
   }
 
   static getTexture(name: string) {

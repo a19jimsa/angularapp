@@ -1,6 +1,7 @@
 import { mat4, vec2, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { TextureType } from './texture';
 
 export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
@@ -57,15 +58,26 @@ export class Shader {
     Renderer.getGL.uniform2fv(this.getUniformLocation(name), values);
   }
 
-  setMaterialTexture(locationName: string, slotName: string) {
+  setMaterialTexture(locationName: string, name: string) {
     const gl = Renderer.getGL;
     const location = this.getUniformLocation(locationName);
-    const slot = TextureManager.getSlot(slotName);
-    if (slot === -1) {
-      console.log('Slot is wrong! ' + slotName);
-    }
+    const texture = TextureManager.getTexture('splatmap');
+    if (!texture) throw new Error('Could not get texture ' + 'splatmap');
+    gl.activeTexture(gl.TEXTURE0 + 3);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(location, 3);
+  }
+
+  setMaterialTextureArray(
+    locationName: string,
+    type: TextureType,
+    slot: number,
+  ) {
+    console.log(locationName);
+    const gl = Renderer.getGL;
+    const location = this.getUniformLocation(locationName);
     gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(slotName));
-    gl.uniform1i(location, slot); // koppla uniform till samma slot
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, TextureManager.getTextureArray(type)!);
+    gl.uniform1i(location, slot);
   }
 }

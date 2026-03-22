@@ -21,8 +21,8 @@ import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { FlowMap } from 'src/components/flow-map';
-import { Model } from 'src/renderer/model';
 import { BrushImage } from 'src/components/brush-image';
+import { TextureType } from 'src/renderer/texture';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -135,15 +135,15 @@ export class RenderSystem {
       }
 
       const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
-      if (splatmap && splatmap.dirty) {
-        Renderer.updateTexture(
-          splatmap.slot,
-          splatmap.size,
-          splatmap.size,
-          splatmap.coords,
-        );
-        splatmap.dirty = false;
-      }
+      // if (splatmap && splatmap.dirty) {
+      //   Renderer.updateTexture(
+      //     splatmap.slot,
+      //     splatmap.size,
+      //     splatmap.size,
+      //     splatmap.coords,
+      //   );
+      //   splatmap.dirty = false;
+      // }
 
       if (flowMap) {
         Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
@@ -171,6 +171,7 @@ export class RenderSystem {
         shader.bind();
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.direction', light.direction);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
           shader.setVec3('light.color', light.color);
@@ -179,13 +180,13 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTexture('u_texture', material.slot);
-        shader.setMaterialTexture('u_splatmap', splatmap.slot);
+        shader.setMaterialTextureArray('u_textures', TextureType.Terrain, 0);
+        //shader.setMaterialTexture('u_splatmap', splatmap.slot);
         shader.setVec2Array('u_tiles', splatmap.tiles);
 
         const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
         if (brushImage) {
-          shader.setMaterialTexture('u_brushTexture', brushImage.slot);
+          shader.setMaterialTextureArray('u_brushes', TextureType.Brush, 1);
           shader.setVec2('u_brushUV', brushImage.UV);
         }
 
@@ -215,6 +216,7 @@ export class RenderSystem {
         if (!vao) continue;
         Renderer.drawIndexed(vao);
         shader.unbind();
+        console.log('Splatmap');
       } else if (mesh && material && animatedTexture) {
         const shader = ShaderManager.getShader(mesh.meshId);
         shader.bind();
@@ -228,7 +230,11 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTexture('u_texture', material.slot);
+        // shader.setMaterialTexture(
+        //   'u_texture',
+        //   material.textureType,
+        //   material.index,
+        // );
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);
@@ -259,10 +265,6 @@ export class RenderSystem {
           shader.setFloat('u_tiling', water.tiling);
           shader.setFloat('u_flowSpeed', water.flowSpeed);
           shader.setVec3('u_color', water.color);
-          const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
-          if (flowMap) {
-            shader.setMaterialTexture('u_flowMap', flowMap.slot);
-          }
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) continue;

@@ -51,6 +51,7 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { LineBatch } from 'src/renderer/line-batch';
+import { TextureType } from 'src/renderer/texture';
 
 @Component({
   selector: 'app-animation-creator',
@@ -149,22 +150,18 @@ export class AnimationCreatorComponent
 
     Renderer.create(this.canvas, this.editorCamera);
 
-    const image = await TextureManager.loadImage(
+    const image = await TextureManager.add(
+      'frog_enemy',
       'assets/textures/frog-enemy.png',
+      TextureType.Albedo,
     );
-    const slot = TextureManager.createAndBindTexture(
-      'frog',
-      image,
-      image.width,
-      image.height,
-    );
+
     await ShaderManager.load(
       'batch',
       'batch2d_vertex.txt',
       'batch2d_fragment.txt',
     );
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
-    this.image = image;
     BatchRenderer.init();
     LineBatch.init();
     this.animationLoop();

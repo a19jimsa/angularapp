@@ -40,33 +40,32 @@ export class Splatmap extends Component {
   }
 
   async deserialize(splatmap: Splatmap, component: any) {
-    const image = await TextureManager.loadImage(
-      '/assets/textures/texture_map.jpg',
-    );
-    const name = 'textureMap';
-    const texture = TextureManager.createAndBindTexture(
-      name,
-      image,
-      image.width,
-      image.height,
-    );
-    splatmap.tiles = component.tiles;
-    splatmap.coords = await SceneManager.convertImageToCoords(component.path)!;
-    splatmap.alphaCoords = component.alphaCoords;
-    let index = 0;
-    for (let i = 0; i < splatmap.coords.length; i += 4) {
-      splatmap.coords[i + 3] = splatmap.alphaCoords[index];
-      index++;
-    }
-
-    const splatmapTexture = TextureManager.createAndBindTexture(
-      splatmap.slot,
-      null,
-      splatmap.size,
-      splatmap.size,
-    );
-    console.log(splatmapTexture);
-    splatmap.dirty = true;
-    return splatmap;
+    // const image = await TextureManager.loadImage(
+    //   '/assets/textures/texture_map.jpg',
+    // );
+    // const name = 'textureMap';
+    // const texture = TextureManager.createAndBindTexture(
+    //   name,
+    //   image,
+    //   image.width,
+    //   image.height,
+    // );
+    // splatmap.tiles = component.tiles;
+    // splatmap.coords = await SceneManager.convertImageToCoords(component.path)!;
+    // splatmap.alphaCoords = component.alphaCoords;
+    // let index = 0;
+    // for (let i = 0; i < splatmap.coords.length; i += 4) {
+    //   splatmap.coords[i + 3] = splatmap.alphaCoords[index];
+    //   index++;
+    // }
+    // const splatmapTexture = TextureManager.createAndBindTexture(
+    //   splatmap.slot,
+    //   null,
+    //   splatmap.size,
+    //   splatmap.size,
+    // );
+    // console.log(splatmapTexture);
+    // splatmap.dirty = true;
+    // return splatmap;
   }
 }

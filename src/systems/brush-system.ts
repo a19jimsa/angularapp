@@ -169,7 +169,7 @@ export class BrushSystem {
       const dy = mouse.y - sy;
 
       const d = dx * dx + dy * dy;
-      if (d < 100) {
+      if (d < 300) {
         return i;
       }
     }

@@ -8,6 +8,7 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BufferLayout } from './buffer';
 import { ShaderDataType, ShaderType } from './shader-data-type';
+import { TextureType } from './texture';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
@@ -80,32 +81,37 @@ export class Renderer {
   }
 
   private static async setupSkybox() {
-    const top = await TextureManager.loadImage(
+    const top = await TextureManager.add(
+      'skybox_top',
       '/assets/textures/skybox/right.bmp',
+      TextureType.Skybox,
     );
-    const right = await TextureManager.loadImage(
+    const right = await TextureManager.add(
+      'skybox_right',
       '/assets/textures/skybox/left.bmp',
+      TextureType.Skybox,
     );
-    const left = await TextureManager.loadImage(
+    const left = await TextureManager.add(
+      'skybox_left',
       '/assets/textures/skybox/top.bmp',
+      TextureType.Skybox,
     );
-    const bottom = await TextureManager.loadImage(
+    const bottom = await TextureManager.add(
+      'skybox_bottom',
       '/assets/textures/skybox/bottom.bmp',
+      TextureType.Skybox,
     );
-    const front = await TextureManager.loadImage(
+    const front = await TextureManager.add(
+      'skybox_front',
       '/assets/textures/skybox/front.bmp',
+      TextureType.Skybox,
     );
-    const back = await TextureManager.loadImage(
+    const back = await TextureManager.add(
+      'skybox_back',
       '/assets/textures/skybox/back.bmp',
+      TextureType.Skybox,
     );
-    const slot = TextureManager.createAndBindSkybox([
-      top,
-      right,
-      left,
-      bottom,
-      front,
-      back,
-    ]);
+
     const bufferLayout = new BufferLayout();
     bufferLayout.add(
       0,
@@ -120,7 +126,6 @@ export class Renderer {
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
     );
-
     MeshManager.addMesh(model, 'skybox');
   }
 
@@ -195,8 +200,9 @@ export class Renderer {
     coords: Uint8ClampedArray,
   ) {
     const gl = Renderer.getGL;
-    gl.activeTexture(gl.TEXTURE0 + TextureManager.getSlot(textureName));
-    gl.bindTexture(gl.TEXTURE_2D, TextureManager.getTexture(textureName));
+    const texture = TextureManager.getTexture(textureName);
+    if (!texture) throw new Error('Could not find texture ');
+    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
