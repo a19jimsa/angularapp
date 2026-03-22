@@ -150,7 +150,7 @@ export class AnimationCreatorComponent
 
     Renderer.create(this.canvas, this.editorCamera);
 
-    const image = await TextureManager.add(
+    const image = await TextureManager.addToTextureArray(
       'frog_enemy',
       'assets/textures/frog-enemy.png',
       TextureType.Albedo,

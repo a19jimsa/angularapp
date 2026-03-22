@@ -19,7 +19,15 @@ export class TextureManager extends Manager {
     console.log(textures);
   }
 
-  public static async add(name: string, path: string, type: TextureType) {
+  public static addTexture(name: string, texture: Texture) {
+    this.textures.set(name, texture);
+  }
+
+  public static async addToTextureArray(
+    name: string,
+    path: string,
+    type: TextureType,
+  ) {
     const image = await this.loadImage(path);
     const texture = new Texture(
       name,
@@ -30,6 +38,7 @@ export class TextureManager extends Manager {
       type,
     );
     this.textures.set(name, texture);
+    return texture;
   }
 
   public static async addNonImage(name: string, width: number, height: number) {
@@ -38,7 +47,7 @@ export class TextureManager extends Manager {
     return name;
   }
 
-  private static async loadImage(path: string): Promise<HTMLImageElement> {
+  public static async loadImage(path: string): Promise<HTMLImageElement> {
     // Load texture
     return new Promise((resolve, reject) => {
       const image = new Image();

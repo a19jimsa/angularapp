@@ -247,6 +247,7 @@
                   <div class="d-flex justify-content-around w-100">
                     <app-brush-image
                       [images]="this.brushToolsImages"
+                      (selected)="changeBrushImage($event)"
                     ></app-brush-image>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
@@ -624,6 +625,7 @@
 
                   <app-brush-image
                     [images]="this.brushToolsImages"
+                    (selected)="changeBrushImage($event)"
                   ></app-brush-image>
 
                   <div class="d-flex flex-row">
@@ -847,6 +849,7 @@
                   </button>
                   <app-brush-image
                     [images]="this.brushToolsImages"
+                    (selected)="changeBrushImage($event)"
                   ></app-brush-image>
                   {{ grass.amount }}
                   {{ grass.maxAmount }}

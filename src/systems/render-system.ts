@@ -22,14 +22,51 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { FlowMap } from 'src/components/flow-map';
 import { BrushImage } from 'src/components/brush-image';
-import { TextureType } from 'src/renderer/texture';
+import { Texture, TextureType } from 'src/renderer/texture';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
+  private loading: boolean = true;
 
   constructor(camera: PerspectiveCamera) {
     this.camera = camera;
+    this.setupSkybox();
     BatchRenderer.init();
+  }
+
+  private async setupSkybox() {
+    const top = await TextureManager.loadImage(
+      '/assets/textures/skybox/right.bmp',
+    );
+    const right = await TextureManager.loadImage(
+      '/assets/textures/skybox/left.bmp',
+    );
+    const left = await TextureManager.loadImage(
+      '/assets/textures/skybox/top.bmp',
+    );
+    const bottom = await TextureManager.loadImage(
+      '/assets/textures/skybox/bottom.bmp',
+    );
+    const front = await TextureManager.loadImage(
+      '/assets/textures/skybox/front.bmp',
+    );
+    const back = await TextureManager.loadImage(
+      '/assets/textures/skybox/back.bmp',
+    );
+
+    const skybox = await Renderer.setupSkybox([
+      top,
+      right,
+      left,
+      bottom,
+      front,
+      back,
+    ]);
+    MeshManager.addMesh(skybox.model, 'skybox');
+    const texture = new Texture('skybox', null, 0, 0, 0);
+    texture.texture = skybox.skyboxTexture;
+    TextureManager.addTexture('skybox', texture);
+    this.loading = false;
   }
 
   private drawBatch(ecs: Ecs) {
@@ -82,8 +119,24 @@ export class RenderSystem {
   }
 
   public update(ecs: Ecs) {
+    if (this.loading) return;
     Renderer.begin();
-    //Renderer.drawSkybox();
+    const shader = ShaderManager.getShader('skybox');
+    if (!shader) return;
+    shader.bind();
+    const matrix = mat4.create();
+    mat4.copy(matrix, this.camera.getViewMatrix());
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    const perspectiveMatrix = mat4.create();
+    mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
+    shader.setUniformMat4('u_matrix', perspectiveMatrix);
+    const vao = MeshManager.getMesh('skybox');
+    if (vao) {
+      const texture = TextureManager.getTexture('skybox');
+      Renderer.drawSkybox(vao, texture.newTexture, texture.slot);
+    }
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
       mat4.create(),

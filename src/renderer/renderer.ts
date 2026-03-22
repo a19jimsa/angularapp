@@ -8,12 +8,13 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BufferLayout } from './buffer';
 import { ShaderDataType, ShaderType } from './shader-data-type';
-import { TextureType } from './texture';
+import { Texture } from './texture';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
   private static canvas: HTMLCanvasElement;
   private static camera: PerspectiveCamera;
+  private static skyboxTextures: Texture[] = new Array();
 
   static create(canvas: HTMLCanvasElement, camera: PerspectiveCamera) {
     const gl = canvas.getContext('webgl2');
@@ -22,7 +23,6 @@ export class Renderer {
     Renderer.canvas = canvas;
     this.camera = camera;
     Renderer.setupGL();
-    Renderer.setupSkybox();
   }
 
   public static getHeight() {
@@ -40,11 +40,6 @@ export class Renderer {
   public static get getGL() {
     if (!this.gl) throw new Error('GL is not set');
     return Renderer.gl;
-  }
-
-  public static bindShader(shaderName: string) {
-    const shader = ShaderManager.getShader(shaderName);
-    this.gl.useProgram(shader);
   }
 
   public static drawInstancing(
@@ -80,37 +75,18 @@ export class Renderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
-  private static async setupSkybox() {
-    const top = await TextureManager.add(
-      'skybox_top',
-      '/assets/textures/skybox/right.bmp',
-      TextureType.Skybox,
-    );
-    const right = await TextureManager.add(
-      'skybox_right',
-      '/assets/textures/skybox/left.bmp',
-      TextureType.Skybox,
-    );
-    const left = await TextureManager.add(
-      'skybox_left',
-      '/assets/textures/skybox/top.bmp',
-      TextureType.Skybox,
-    );
-    const bottom = await TextureManager.add(
-      'skybox_bottom',
-      '/assets/textures/skybox/bottom.bmp',
-      TextureType.Skybox,
-    );
-    const front = await TextureManager.add(
-      'skybox_front',
-      '/assets/textures/skybox/front.bmp',
-      TextureType.Skybox,
-    );
-    const back = await TextureManager.add(
-      'skybox_back',
-      '/assets/textures/skybox/back.bmp',
-      TextureType.Skybox,
-    );
+  public static async setupSkybox(images: HTMLImageElement[]) {
+    for (const image of images) {
+      const texture = new Texture(
+        'skybox',
+        image,
+        image.width,
+        image.height,
+        0,
+      );
+      this.skyboxTextures.push(texture);
+    }
+    const skyboxTexture = this.createAndBindSkybox(images);
 
     const bufferLayout = new BufferLayout();
     bufferLayout.add(
@@ -120,13 +96,39 @@ export class Renderer {
       false,
       false,
     );
+
     const model = new Model(bufferLayout);
     model.addSkybox();
     const vao = new VertexArray(
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
     );
-    MeshManager.addMesh(model, 'skybox');
+    return { skyboxTexture, model };
+  }
+
+  private static createAndBindSkybox(images: HTMLImageElement[]) {
+    const gl = Renderer.getGL;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    for (let i = 0; i < images.length; i++) {
+      gl.texImage2D(
+        gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        0,
+        gl.RGB,
+        images[i].width,
+        images[i].height,
+        0,
+        gl.RGB,
+        gl.UNSIGNED_BYTE,
+        images[i],
+      );
+    }
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    return texture;
   }
 
   static begin() {
@@ -154,26 +156,16 @@ export class Renderer {
 
   static end(camera: PerspectiveCamera | OrtographicCamera) {}
 
-  static drawSkybox() {
+  public static drawSkybox(
+    vao: VertexArray,
+    texture: WebGLTexture,
+    slot: number,
+  ) {
     const gl = this.gl;
     gl.depthMask(false);
     gl.depthFunc(gl.LEQUAL);
-    const shader = ShaderManager.getShader('skybox');
-    if (!shader) return;
-    shader.bind();
-    const matrix = mat4.create();
-    mat4.copy(matrix, this.camera.getViewMatrix());
-    matrix[12] = 0;
-    matrix[13] = 0;
-    matrix[14] = 0;
-    const perspectiveMatrix = mat4.create();
-    mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
-    shader.setUniformMat4('u_matrix', perspectiveMatrix);
-    //Always give skybox texture slot 0
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, TextureManager.getTexture('skybox'));
-    const vao = MeshManager.getMesh('skybox');
-    if (!vao) return;
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     vao.bind();
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     vao.unbind();

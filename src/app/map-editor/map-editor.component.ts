@@ -66,6 +66,7 @@ import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
 import { Texture, TextureType } from 'src/renderer/texture';
 import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
+import { BrushImage } from 'src/components/brush-image';
 
 type IsSelected = {
   select: boolean;
@@ -466,25 +467,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   //Add array for all brushes in textureslot, going to be much more nicer to change brush image in future.
-  // async changeBrushImage(image: HTMLImageElement) {
-  //   const brushImage = this.ecs.getComponent<BrushImage>(
-  //     this.meshbrush.entity,
-  //     'BrushImage',
-  //   );
-  //   const slot = await TextureManager.add(
-  //     'brushImage',
-  //     '/assets/brushes/tree.png',
-  //   );
-  //   if (!brushImage) {
-  //     this.ecs.addComponent<BrushImage>(
-  //       this.meshbrush.entity,
-  //       new BrushImage(slot, vec2.fromValues(0, 0)),
-  //     );
-  //   } else {
-  //     brushImage.slot = slot;
-  //   }
-  //   this.meshbrush.image = image;
-  // }
+  changeBrushImage(image: HTMLImageElement) {
+    console.log(image);
+    this.meshbrush.image = image;
+  }
 
   changeTool(name: string) {
     if (name === 'grass') {
@@ -505,60 +491,67 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadAllbrushes() {
-    const smokeBrushImage = await TextureManager.add(
+    const smokeBrushImage = await TextureManager.addToTextureArray(
       'smoke_brush',
       'assets/brushes/smoke_brush.jpg',
       TextureType.Brush,
     );
 
-    const starBrushImage = await TextureManager.add(
+    const starBrushImage = await TextureManager.addToTextureArray(
       'star_brush',
       'assets/brushes/star_brush.jpg',
       TextureType.Brush,
     );
 
-    const terrainBrushImage = await TextureManager.add(
+    const terrainBrushImage = await TextureManager.addToTextureArray(
       'terrain_brush',
       'assets/brushes/terrain_brush.jpg',
       TextureType.Brush,
     );
 
-    const roundBrushImage = await TextureManager.add(
+    const roundBrushImage = await TextureManager.addToTextureArray(
       'round_brush',
       'assets/brushes/round_brush.jpg',
       TextureType.Brush,
     );
 
-    const texture1 = await TextureManager.add(
+    const texture1 = await TextureManager.addToTextureArray(
       'grass',
       'assets/textures/grass.jpg',
       TextureType.Terrain,
     );
-    const texture2 = await TextureManager.add(
+    const texture2 = await TextureManager.addToTextureArray(
       'mountain',
       'assets/textures/mountain.jpg',
       TextureType.Terrain,
     );
-    const texture3 = await TextureManager.add(
+    const texture3 = await TextureManager.addToTextureArray(
       'snow',
       'assets/textures/snow.jpg',
       TextureType.Terrain,
     );
-    const texture4 = await TextureManager.add(
+    const texture4 = await TextureManager.addToTextureArray(
       'sand_0',
       'assets/textures/sand.jpg',
       TextureType.Terrain,
     );
-    await TextureManager.add(
+    await TextureManager.addToTextureArray(
       'sand_1',
       'assets/textures/sand_01.jpg',
       TextureType.Terrain,
     );
-    await TextureManager.add(
+    await TextureManager.addToTextureArray(
       'sand_2',
       'assets/textures/sand_02.jpg',
       TextureType.Terrain,
     );
+
+    this.brushToolsImages.push(smokeBrushImage.image!);
+    this.brushToolsImages.push(starBrushImage.image!);
+    this.brushToolsImages.push(terrainBrushImage.image!);
+    this.brushToolsImages.push(roundBrushImage.image!);
+
+    this.changeBrushImage(smokeBrushImage.image!);
 
     // await TextureManager.add(
     //   'frog_image',
