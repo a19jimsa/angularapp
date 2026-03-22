@@ -201,8 +201,9 @@ export class Renderer {
   ) {
     const gl = Renderer.getGL;
     const texture = TextureManager.getTexture(textureName);
-    if (!texture) throw new Error('Could not find texture ');
-    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+    if (!texture.newTexture)
+      throw new Error('Could not find texture ' + textureName);
+    gl.bindTexture(gl.TEXTURE_2D, texture.newTexture);
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,

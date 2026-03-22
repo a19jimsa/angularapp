@@ -2,12 +2,17 @@ import { Renderer } from './renderer';
 import { Texture, TextureType } from './texture';
 
 export class TextureArrayBuilder {
-  private glArrays = new Map<TextureType, WebGLTexture>();
+  private textureArrays = new Map<TextureType, WebGLTexture>();
 
   constructor() {}
 
   get TextureArray() {
-    return this.glArrays;
+    return this.textureArrays;
+  }
+
+  public getTextureArraySlot(type: TextureType) {
+    const slot = Array.from(this.textureArrays.keys()).indexOf(type);
+    return slot;
   }
 
   public rebuild(type: TextureType, textures: Texture[]) {
@@ -60,6 +65,6 @@ export class TextureArrayBuilder {
     gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-    this.glArrays.set(type, textureArray);
+    this.textureArrays.set(type, textureArray);
   }
 }

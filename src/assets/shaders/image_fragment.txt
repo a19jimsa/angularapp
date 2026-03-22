@@ -74,7 +74,7 @@ void main() {
    vec4 snow_color = TriplarMapping(norm, u_textures, 2);
    vec4 ground_color = TriplarMapping(norm, u_textures, 3);
 
-   vec4 splat = texture(u_textures, vec3(v_texcoord, 0));
+   vec4 splat = texture(u_splatmap, v_texcoord);
 
    vec2 position = u_brushUV;
    vec2 size = vec2(0.2); // hur stor brushen ska vara
@@ -123,5 +123,5 @@ void main() {
       finalColor = mix(finalColor, highlightColor, highlightMask * 0.5);
    }
 
-   FragColor = vec4(leaf_color);
+   FragColor = vec4(splatColor);
 }

@@ -1,7 +1,7 @@
 import { mat4, vec2, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { TextureType } from './texture';
+import { Texture, TextureType } from './texture';
 
 export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
@@ -58,26 +58,27 @@ export class Shader {
     Renderer.getGL.uniform2fv(this.getUniformLocation(name), values);
   }
 
-  setMaterialTexture(locationName: string, name: string) {
+  setMaterialTexture(
+    locationName: string,
+    texture: WebGLTexture,
+    slot: number,
+  ) {
     const gl = Renderer.getGL;
     const location = this.getUniformLocation(locationName);
-    const texture = TextureManager.getTexture('splatmap');
-    if (!texture) throw new Error('Could not get texture ' + 'splatmap');
-    gl.activeTexture(gl.TEXTURE0 + 3);
+    gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.uniform1i(location, 3);
+    gl.uniform1i(location, slot);
   }
 
   setMaterialTextureArray(
     locationName: string,
-    type: TextureType,
+    textureArray: WebGLTexture,
     slot: number,
   ) {
-    console.log(locationName);
     const gl = Renderer.getGL;
     const location = this.getUniformLocation(locationName);
     gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, TextureManager.getTextureArray(type)!);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, textureArray);
     gl.uniform1i(location, slot);
   }
 }

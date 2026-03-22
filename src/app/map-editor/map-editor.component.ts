@@ -545,8 +545,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       TextureType.Terrain,
     );
     const texture4 = await TextureManager.add(
-      'sand',
+      'sand_0',
       'assets/textures/sand.jpg',
+      TextureType.Terrain,
+    );
+    await TextureManager.add(
+      'sand_1',
+      'assets/textures/sand_01.jpg',
+      TextureType.Terrain,
+    );
+    await TextureManager.add(
+      'sand_2',
+      'assets/textures/sand_02.jpg',
       TextureType.Terrain,
     );
 
@@ -646,6 +656,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
     const size = 128;
+    const slot = await TextureManager.addNonImage('splatmap', size, size);
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
@@ -655,7 +666,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     this.ecs.addComponent(
       newEntity,
-      new Material(5, TextureType.Splatmap, 'splatmap'),
+      new Material(5, TextureType.Splatmap, slot),
     );
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
@@ -668,7 +679,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         'terrain' + newEntity,
       ),
     );
-    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(size, 'bajs'));
+    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(size, slot));
     //Add material component to entity
     this.ecs.addComponent<Terrain>(
       newEntity,

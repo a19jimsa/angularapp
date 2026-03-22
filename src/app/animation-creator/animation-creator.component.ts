@@ -265,7 +265,7 @@ export class AnimationCreatorComponent
         bone.order,
         bone.endX,
         bone.endY,
-        TextureManager.getSlot('frog'),
+        TextureManager.getTexture('frog').slot,
       );
     }
     BatchRenderer.end(this.editorCamera);

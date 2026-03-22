@@ -53,7 +53,7 @@ export class RenderSystem {
           0,
           bone.endX,
           bone.endY,
-          TextureManager.getSlot('frog'),
+          TextureManager.getTexture('frog').slot,
         );
       }
       BatchRenderer.end(this.camera);
@@ -75,7 +75,6 @@ export class RenderSystem {
   private drawTerrainBatch() {
     const shader = ShaderManager.getShader('splatmap');
     shader.bind();
-
     const vao = MeshManager.getMesh('terrain');
     if (!vao) return;
     Renderer.drawIndexed(vao);
@@ -84,7 +83,7 @@ export class RenderSystem {
 
   public update(ecs: Ecs) {
     Renderer.begin();
-    Renderer.drawSkybox();
+    //Renderer.drawSkybox();
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
       mat4.create(),
@@ -135,15 +134,15 @@ export class RenderSystem {
       }
 
       const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
-      // if (splatmap && splatmap.dirty) {
-      //   Renderer.updateTexture(
-      //     splatmap.slot,
-      //     splatmap.size,
-      //     splatmap.size,
-      //     splatmap.coords,
-      //   );
-      //   splatmap.dirty = false;
-      // }
+      if (splatmap && splatmap.dirty) {
+        Renderer.updateTexture(
+          splatmap.slot,
+          splatmap.size,
+          splatmap.size,
+          splatmap.coords,
+        );
+        splatmap.dirty = false;
+      }
 
       if (flowMap) {
         Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
@@ -180,8 +179,18 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setMaterialTextureArray('u_textures', TextureType.Terrain, 0);
-        //shader.setMaterialTexture('u_splatmap', splatmap.slot);
+        const texture = TextureManager.getTextureArray(TextureType.Terrain);
+        shader.setMaterialTextureArray(
+          'u_textures',
+          texture.texture,
+          texture.slot,
+        );
+        const splatmapTexture = TextureManager.getTexture(splatmap.slot);
+        shader.setMaterialTexture(
+          'u_splatmap',
+          splatmapTexture.newTexture,
+          splatmapTexture.slot,
+        );
         shader.setVec2Array('u_tiles', splatmap.tiles);
 
         const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
@@ -216,7 +225,6 @@ export class RenderSystem {
         if (!vao) continue;
         Renderer.drawIndexed(vao);
         shader.unbind();
-        console.log('Splatmap');
       } else if (mesh && material && animatedTexture) {
         const shader = ShaderManager.getShader(mesh.meshId);
         shader.bind();

@@ -5,7 +5,7 @@ import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
 
 export class TextureManager extends Manager {
   private static textures = new Map<string, Texture>();
-  private static glArray = new TextureArrayBuilder();
+  private static textureArrayBuilder = new TextureArrayBuilder();
 
   public static async build(type: TextureType) {
     const textures = new Array();
@@ -15,12 +15,8 @@ export class TextureManager extends Manager {
         console.log(name);
       }
     }
-    this.glArray.rebuild(type, textures);
+    this.textureArrayBuilder.rebuild(type, textures);
     console.log(textures);
-  }
-
-  public static getTextureArray(type: TextureType) {
-    return this.glArray.TextureArray.get(type);
   }
 
   public static async add(name: string, path: string, type: TextureType) {
@@ -33,9 +29,7 @@ export class TextureManager extends Manager {
       0,
       type,
     );
-    const index = this.textures.size;
     this.textures.set(name, texture);
-    return index;
   }
 
   public static async addNonImage(name: string, width: number, height: number) {
@@ -57,27 +51,26 @@ export class TextureManager extends Manager {
     });
   }
 
-  static getTexture(name: string) {
-    if (!this.textures.get(name)) {
-      new Error('Could not get texture!');
-    }
-    return this.textures.get(name)!;
+  static getTextureArray(type: TextureType) {
+    const texture = this.textureArrayBuilder.TextureArray.get(type);
+    if (!texture) throw new Error('Could not get texture of type' + type);
+    const slot = this.textureArrayBuilder.getTextureArraySlot(type);
+    return { texture, slot };
   }
 
-  static getSlot(name: string): number {
-    let index = 0;
-    for (let key of this.textures.keys()) {
-      if (key === name) return index;
-      index++;
-    }
-    return -1;
+  static getTexture(name: string) {
+    const texture = this.textures.get(name);
+    if (!texture) throw new Error('Could not get texture of name' + name);
+    const slot = Array.from(this.textures.keys()).indexOf(name);
+    const newTexture = texture.texture;
+    return { newTexture, slot };
   }
 
   static override bind(name: string) {
     const gl = Renderer.getGL;
     const texture = this.textures.get(name);
     if (!texture) throw new Error('Cannot bind texture ' + name);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
   }
 
   static unbind() {
