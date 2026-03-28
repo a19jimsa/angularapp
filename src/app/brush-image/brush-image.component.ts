@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Texture } from 'src/renderer/texture';
 
 @Component({
   selector: 'app-brush-image',

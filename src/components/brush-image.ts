@@ -3,11 +3,6 @@ import { Component } from './component';
 
 export class BrushImage extends Component {
   override type: string = 'BrushImage';
-  slot: string;
-  UV: vec2;
-  constructor(slot: string, UV: vec2) {
-    super();
-    this.slot = slot;
-    this.UV = UV;
-  }
+  UV: vec2 = vec2.fromValues(0, 0);
+  layer: number = -1;
 }

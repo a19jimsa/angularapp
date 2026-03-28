@@ -65,7 +65,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
 import { Texture, TextureType } from 'src/renderer/texture';
-import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
 import { BrushImage } from 'src/components/brush-image';
 
 type IsSelected = {
@@ -147,7 +146,6 @@ export type Brush = {
     MatRadioModule,
     MatSelectModule,
     MatMenuModule,
-    BrushImageComponent,
     MatToolbarModule,
   ],
   templateUrl: './map-editor.component.html',
@@ -173,7 +171,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   brushSystem: BrushSystem = new BrushSystem();
   controllerSystem: ControllerSystem = new ControllerSystem();
   movementSystem: MovementSystem = new MovementSystem();
-  brushToolsImages: HTMLImageElement[] = new Array();
   selectedShader: string = 'default';
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
@@ -340,10 +337,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  get images() {
-    return this.brushToolsImages;
-  }
-
   get material(): Material | null {
     const material = this.ecs.getComponent<Material>(
       this.meshbrush.entity,
@@ -414,9 +407,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ResourceManager.loadAllAnimations();
     await this.loadAllShaders();
     await this.loadAllbrushes();
+    //IS notr doing antyhting feyat
     await this.loadAllTextures();
-    await TextureManager.build(TextureType.Brush);
-    await TextureManager.build(TextureType.Terrain);
+
+    // console.log(TextureManager.getTexture())
 
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem(this.editorCamera);
@@ -467,9 +461,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   //Add array for all brushes in textureslot, going to be much more nicer to change brush image in future.
-  changeBrushImage(image: HTMLImageElement) {
-    console.log(image);
-    this.meshbrush.image = image;
+  changeBrushImage(texture: Texture) {
+    const brushImage = this.ecs.getComponent<BrushImage>(
+      this.meshbrush.entity,
+      'BrushImage',
+    );
+    if (!brushImage) return;
   }
 
   changeTool(name: string) {
@@ -491,67 +488,50 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadAllbrushes() {
-    const smokeBrushImage = await TextureManager.addToTextureArray(
-      'smoke_brush',
+    const smokeBrushImage = await TextureManager.loadImage(
       'assets/brushes/smoke_brush.jpg',
-      TextureType.Brush,
     );
 
-    const starBrushImage = await TextureManager.addToTextureArray(
-      'star_brush',
+    const starBrushImage = await TextureManager.loadImage(
       'assets/brushes/star_brush.jpg',
-      TextureType.Brush,
     );
 
-    const terrainBrushImage = await TextureManager.addToTextureArray(
-      'terrain_brush',
+    const terrainBrushImage = await TextureManager.loadImage(
       'assets/brushes/terrain_brush.jpg',
-      TextureType.Brush,
     );
 
-    const roundBrushImage = await TextureManager.addToTextureArray(
-      'round_brush',
+    const roundBrushImage = await TextureManager.loadImage(
       'assets/brushes/round_brush.jpg',
-      TextureType.Brush,
     );
 
-    const texture1 = await TextureManager.addToTextureArray(
-      'grass',
+    const texture1 = await TextureManager.loadImage(
       'assets/textures/grass.jpg',
-      TextureType.Terrain,
     );
-    const texture2 = await TextureManager.addToTextureArray(
-      'mountain',
+    const texture2 = await TextureManager.loadImage(
       'assets/textures/mountain.jpg',
-      TextureType.Terrain,
     );
-    const texture3 = await TextureManager.addToTextureArray(
-      'snow',
-      'assets/textures/snow.jpg',
-      TextureType.Terrain,
-    );
-    const texture4 = await TextureManager.addToTextureArray(
-      'sand_0',
-      'assets/textures/sand.jpg',
-      TextureType.Terrain,
-    );
-    await TextureManager.addToTextureArray(
-      'sand_1',
+    const texture3 = await TextureManager.loadImage('assets/textures/snow.jpg');
+    const texture4 = await TextureManager.loadImage('assets/textures/sand.jpg');
+    const texture5 = await TextureManager.loadImage(
       'assets/textures/sand_01.jpg',
-      TextureType.Terrain,
     );
-    await TextureManager.addToTextureArray(
-      'sand_2',
+    const texture6 = await TextureManager.loadImage(
       'assets/textures/sand_02.jpg',
-      TextureType.Terrain,
     );
 
-    this.brushToolsImages.push(smokeBrushImage.image!);
-    this.brushToolsImages.push(starBrushImage.image!);
-    this.brushToolsImages.push(terrainBrushImage.image!);
-    this.brushToolsImages.push(roundBrushImage.image!);
+    const textureArray = await TextureManager.addTextureArray(
+      'u_brushes',
+      [smokeBrushImage, starBrushImage, terrainBrushImage, roundBrushImage],
+      'splatmap',
+    );
 
-    this.changeBrushImage(smokeBrushImage.image!);
+    const textureArray2 = await TextureManager.addTextureArray(
+      'u_textures',
+      [texture1, texture2, texture3, texture4, texture5, texture6],
+      'splatmap',
+    );
+
+    //this.changeBrushImage(smokeBrushImage);
 
     // await TextureManager.add(
     //   'frog_image',
@@ -649,7 +629,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
     const size = 128;
-    const slot = await TextureManager.addNonImage('splatmap', size, size);
+    const slot = await TextureManager.addNonImage(
+      size,
+      size,
+      'u_splatmap',
+      'splatmap',
+    );
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
@@ -659,7 +644,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     this.ecs.addComponent(
       newEntity,
-      new Material(5, TextureType.Splatmap, slot),
+      new Material(TextureType.Splatmap, 'splatmap'),
     );
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
@@ -672,7 +657,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         'terrain' + newEntity,
       ),
     );
-    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(size, slot));
+    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(size, 'splatmap'));
+    this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
     //Add material component to entity
     this.ecs.addComponent<Terrain>(
       newEntity,
@@ -724,7 +710,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const effectEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(
       effectEntity,
-      new Material(1, TextureType.Normal, 'whirlwind'),
+      new Material(TextureType.Normal, 'whirlwind'),
     );
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
@@ -779,7 +765,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Material>(
       entity,
-      new Material(0, TextureType.Albedo, 'water'),
+      new Material(TextureType.Albedo, 'water'),
     );
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
@@ -821,7 +807,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Material>(
       this.meshbrush.entity,
-      new Material(0, TextureType.Albedo, 'grass'),
+      new Material(TextureType.Albedo, 'grass'),
     );
     if (!grassComponent) return;
     const grassModel = new Model(grassBuffer);

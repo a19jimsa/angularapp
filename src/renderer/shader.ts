@@ -1,8 +1,5 @@
 import { mat4, vec2, vec3 } from 'gl-matrix';
 import { Renderer } from './renderer';
-import { TextureManager } from 'src/resource-manager/texture-manager';
-import { Texture, TextureType } from './texture';
-
 export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
   //Shader must have program and a layout for buffers.
@@ -31,6 +28,20 @@ export class Shader {
       false,
       matrix,
     );
+  }
+
+  setUniform(
+    uniformName: string,
+    texture: WebGLTexture,
+    slot: number,
+    target: number,
+  ) {
+    const gl = Renderer.getGL;
+    const location = this.getUniformLocation(uniformName);
+    console.log(slot);
+    gl.activeTexture(gl.TEXTURE0 + slot);
+    gl.bindTexture(target, texture);
+    gl.uniform1i(location, slot);
   }
 
   setInt(program: WebGLProgram, name: string, x: number) {

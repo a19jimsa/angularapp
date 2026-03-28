@@ -5,8 +5,8 @@ export class FlowMap extends Component {
   width: number;
   height: number;
   coords: Uint8ClampedArray;
-  slot: string;
-  constructor(slot: string) {
+  slot: number;
+  constructor(slot: number) {
     super();
     this.width = 64;
     this.height = 64;

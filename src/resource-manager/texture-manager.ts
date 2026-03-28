@@ -1,50 +1,81 @@
 import { Renderer } from 'src/renderer/renderer';
-import { Manager } from './manager';
-import { Texture, TextureType } from 'src/renderer/texture';
+import { Target, Texture, TextureType } from 'src/renderer/texture';
 import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
+import { Manager } from './manager';
 
 export class TextureManager extends Manager {
-  private static textures = new Map<string, Texture>();
+  private static textures = new Array<Texture>();
   private static textureArrayBuilder = new TextureArrayBuilder();
+  public static dirty = false;
 
-  public static async build(type: TextureType) {
-    const textures = new Array();
-    for (const [name, texture] of this.textures.entries()) {
-      if (type === texture.type) {
-        textures.push(texture);
-        console.log(name);
-      }
-    }
-    this.textureArrayBuilder.rebuild(type, textures);
-    console.log(textures);
-  }
-
-  public static addTexture(name: string, texture: Texture) {
-    this.textures.set(name, texture);
-  }
-
-  public static async addToTextureArray(
-    name: string,
-    path: string,
-    type: TextureType,
+  public static async addTextureArray(
+    uniformName: string,
+    images: HTMLImageElement[],
+    shaderID: string,
   ) {
-    const image = await this.loadImage(path);
     const texture = new Texture(
-      name,
-      image,
-      image.width,
-      image.height,
-      0,
-      type,
+      Target.TEXTURE_2D_ARRAY,
+      images[0].height,
+      images[0].width,
+      uniformName,
+      shaderID,
     );
-    this.textures.set(name, texture);
+    texture.bind2DArray(images);
+    this.textures.push(texture);
+    this.dirty = true;
     return texture;
   }
 
-  public static async addNonImage(name: string, width: number, height: number) {
-    const texture = new Texture(name, null, width, height, 0);
-    this.textures.set(name, texture);
-    return name;
+  public static addCubeMap(images: HTMLImageElement[], shaderID: string) {
+    const texture = new Texture(
+      Target.TEXTURE_CUBE_MAP,
+      images[0].width,
+      images[0].height,
+      'u_skybox',
+      shaderID,
+    );
+    texture.bindCubemap(images);
+    this.textures.push(texture);
+    this.dirty = true;
+    return texture;
+  }
+
+  public static async addTexture(
+    path: string,
+    unifornName: string,
+    shaderID: string,
+  ) {
+    const image = await this.loadImage(path);
+    const texture = new Texture(
+      Target.TEXTURE_2D,
+      image.width,
+      image.height,
+      unifornName,
+      shaderID,
+    );
+    texture.bindTexture(image, image.width, image.height);
+    this.textures.push(texture);
+    this.dirty = true;
+    return texture;
+  }
+
+  public static async addNonImage(
+    width: number,
+    height: number,
+    uniformName: string,
+    shaderID: string,
+  ) {
+    const texture = new Texture(
+      Target.TEXTURE_2D,
+      width,
+      height,
+      uniformName,
+      shaderID,
+    );
+    texture.bindTexture(null, width, height);
+    this.textures.push(texture);
+    this.dirty = true;
+    return texture;
   }
 
   public static async loadImage(path: string): Promise<HTMLImageElement> {
@@ -60,42 +91,19 @@ export class TextureManager extends Manager {
     });
   }
 
-  static getTextureArray(type: TextureType) {
-    const texture = this.textureArrayBuilder.TextureArray.get(type);
-    if (!texture) throw new Error('Could not get texture of type' + type);
-    const slot = this.textureArrayBuilder.getTextureArraySlot(type);
-    return { texture, slot };
-  }
-
-  static getTexture(name: string) {
-    const texture = this.textures.get(name);
-    if (!texture) throw new Error('Could not get texture of name' + name);
-    const slot = Array.from(this.textures.keys()).indexOf(name);
-    const newTexture = texture.texture;
-    return { newTexture, slot };
-  }
-
-  static override bind(name: string) {
-    const gl = Renderer.getGL;
-    const texture = this.textures.get(name);
-    if (!texture) throw new Error('Cannot bind texture ' + name);
-    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
-  }
-
-  static unbind() {
-    const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, null);
-  }
-
   static getNames() {
     return this.textures.keys();
   }
 
-  static getTextures() {
-    return this.textures.entries();
+  static restore() {
+    this.textures.length = 0;
   }
 
-  static restore() {
-    this.textures.clear();
+  static getTexture(uniformName: string) {
+    return this.textures.find((e) => e.UniformName === uniformName);
+  }
+
+  static getTextures() {
+    return this.textures;
   }
 }

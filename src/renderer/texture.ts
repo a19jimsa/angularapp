@@ -10,33 +10,80 @@ export enum TextureType {
   Splatmap = 'Splatmap',
 }
 
+export const Target = {
+  TEXTURE_2D: 0x0de1, // 3553
+  TEXTURE_2D_ARRAY: 0x8c1a, // 35866
+  TEXTURE_CUBE_MAP: 0x8513, // 34067
+} as const;
+
 export class Texture {
-  name: string;
-  image: HTMLImageElement | null;
-  texture: WebGLTexture;
-  width: number;
-  height: number;
-  format: number;
-  type?: TextureType;
+  private glTexture?: WebGLTexture;
+  private target: number; // WebGL constant
+  private width: number;
+  private height: number;
+  private uniformName: string;
+  private shaderID: string;
 
   constructor(
-    name: string,
-    image: HTMLImageElement | null,
+    target: number,
     width: number,
     height: number,
-    format: number,
-    type?: TextureType,
+    uniformName: string,
+    shaderID: string,
   ) {
-    this.name = name;
-    this.image = image;
+    this.target = target;
     this.width = width;
     this.height = height;
-    this.format = format;
-    this.type = type;
-    this.texture = this.bindTexture(image, width, height);
+    this.uniformName = uniformName;
+    this.shaderID = shaderID;
   }
 
-  private bindTexture(
+  public get Texture() {
+    if (!this.glTexture) throw new Error('GL texture is not set');
+    return this.glTexture;
+  }
+
+  public get Target() {
+    return this.target;
+  }
+
+  public get ShaderID() {
+    return this.shaderID;
+  }
+
+  public get UniformName() {
+    return this.uniformName;
+  }
+
+  public bindCubemap(images: HTMLImageElement[]) {
+    const gl = Renderer.getGL;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    let i = 0;
+    for (const image of images) {
+      gl.texImage2D(
+        gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        0,
+        gl.RGB,
+        image.width,
+        image.height,
+        0,
+        gl.RGB,
+        gl.UNSIGNED_BYTE,
+        image,
+      );
+      i++;
+    }
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    this.glTexture = texture;
+    return texture;
+  }
+
+  public bindTexture(
     image: HTMLImageElement | null,
     width: number,
     height: number,
@@ -74,6 +121,59 @@ export class Texture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    this.glTexture = texture;
+    return texture;
+  }
+
+  public bind2DArray(images: HTMLImageElement[]) {
+    const gl = Renderer.getGL;
+    const tex0 = images[0];
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+    const width = tex0.width;
+    const height = tex0.height;
+    const layers = images.length;
+    gl.texImage3D(
+      gl.TEXTURE_2D_ARRAY,
+      0,
+      gl.RGBA8,
+      width,
+      height,
+      layers,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null,
+    );
+
+    images.forEach((tex, i) => {
+      gl.texSubImage3D(
+        gl.TEXTURE_2D_ARRAY,
+        0,
+        0,
+        0,
+        i,
+        width,
+        height,
+        1,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        tex,
+      );
+    });
+
+    gl.texParameteri(
+      gl.TEXTURE_2D_ARRAY,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_LINEAR,
+    );
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
+    this.glTexture = texture;
+    console.log(this.glTexture);
     return texture;
   }
 }

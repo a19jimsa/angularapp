@@ -150,10 +150,8 @@ export class AnimationCreatorComponent
 
     Renderer.create(this.canvas, this.editorCamera);
 
-    const image = await TextureManager.addToTextureArray(
-      'frog_enemy',
+    const image = await TextureManager.loadImage(
       'assets/textures/frog-enemy.png',
-      TextureType.Albedo,
     );
 
     await ShaderManager.load(
@@ -265,7 +263,7 @@ export class AnimationCreatorComponent
         bone.order,
         bone.endX,
         bone.endY,
-        TextureManager.getTexture('frog').slot,
+        5,
       );
     }
     BatchRenderer.end(this.editorCamera);

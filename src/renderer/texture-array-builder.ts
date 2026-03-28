@@ -1,35 +1,18 @@
 import { Renderer } from './renderer';
-import { Texture, TextureType } from './texture';
 
 export class TextureArrayBuilder {
-  private textureArrays = new Map<TextureType, WebGLTexture>();
-
   constructor() {}
 
-  get TextureArray() {
-    return this.textureArrays;
-  }
-
-  public getTextureArraySlot(type: TextureType) {
-    const slot = Array.from(this.textureArrays.keys()).indexOf(type);
-    return slot;
-  }
-
-  public rebuild(type: TextureType, textures: Texture[]) {
-    if (textures.length === 0) return;
-    this.createTextureArrays(type, textures);
-  }
-
-  private createTextureArrays(type: TextureType, textures: Texture[]) {
+  public build(images: HTMLImageElement[]) {
     const gl = Renderer.getGL;
-    const tex0 = textures[0];
+    const tex0 = images[0];
 
-    const textureArray = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, textureArray);
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
 
     const width = tex0.width;
     const height = tex0.height;
-    const layers = textures.length;
+    const layers = images.length;
 
     gl.texImage3D(
       gl.TEXTURE_2D_ARRAY,
@@ -44,7 +27,7 @@ export class TextureArrayBuilder {
       null,
     );
 
-    textures.forEach((tex, i) => {
+    images.forEach((tex, i) => {
       gl.texSubImage3D(
         gl.TEXTURE_2D_ARRAY,
         0,
@@ -56,7 +39,7 @@ export class TextureArrayBuilder {
         1,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        tex.image!,
+        tex,
       );
     });
 
@@ -70,6 +53,6 @@ export class TextureArrayBuilder {
     gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.REPEAT);
     gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-    this.textureArrays.set(type, textureArray);
+    return texture;
   }
 }

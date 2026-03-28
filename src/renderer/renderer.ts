@@ -1,20 +1,12 @@
-import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
-import { mat4 } from 'gl-matrix';
 import { OrtographicCamera } from './orthographic-camera';
-import { Model } from './model';
-import { MeshManager } from 'src/resource-manager/mesh-manager';
-import { TextureManager } from 'src/resource-manager/texture-manager';
-import { BufferLayout } from './buffer';
-import { ShaderDataType, ShaderType } from './shader-data-type';
 import { Texture } from './texture';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
   private static canvas: HTMLCanvasElement;
   private static camera: PerspectiveCamera;
-  private static skyboxTextures: Texture[] = new Array();
 
   static create(canvas: HTMLCanvasElement, camera: PerspectiveCamera) {
     const gl = canvas.getContext('webgl2');
@@ -75,62 +67,6 @@ export class Renderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
-  public static async setupSkybox(images: HTMLImageElement[]) {
-    for (const image of images) {
-      const texture = new Texture(
-        'skybox',
-        image,
-        image.width,
-        image.height,
-        0,
-      );
-      this.skyboxTextures.push(texture);
-    }
-    const skyboxTexture = this.createAndBindSkybox(images);
-
-    const bufferLayout = new BufferLayout();
-    bufferLayout.add(
-      0,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      false,
-    );
-
-    const model = new Model(bufferLayout);
-    model.addSkybox();
-    const vao = new VertexArray(
-      new Float32Array(model.vertices),
-      new Uint16Array(model.indices),
-    );
-    return { skyboxTexture, model };
-  }
-
-  private static createAndBindSkybox(images: HTMLImageElement[]) {
-    const gl = Renderer.getGL;
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    for (let i = 0; i < images.length; i++) {
-      gl.texImage2D(
-        gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
-        0,
-        gl.RGB,
-        images[i].width,
-        images[i].height,
-        0,
-        gl.RGB,
-        gl.UNSIGNED_BYTE,
-        images[i],
-      );
-    }
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-    return texture;
-  }
-
   static begin() {
     // Clear the canvas AND the depth buffer.
     this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen svart
@@ -156,16 +92,10 @@ export class Renderer {
 
   static end(camera: PerspectiveCamera | OrtographicCamera) {}
 
-  public static drawSkybox(
-    vao: VertexArray,
-    texture: WebGLTexture,
-    slot: number,
-  ) {
+  public static drawSkybox(vao: VertexArray) {
     const gl = this.gl;
     gl.depthMask(false);
     gl.depthFunc(gl.LEQUAL);
-    gl.activeTexture(gl.TEXTURE0 + slot);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     vao.bind();
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     vao.unbind();
@@ -174,9 +104,8 @@ export class Renderer {
     gl.colorMask(true, true, true, true);
   }
 
-  public static updateMesh(meshId: string) {
+  public static updateMesh(vao: VertexArray) {
     const gl = Renderer.getGL;
-    const vao = MeshManager.getMesh(meshId);
     if (!vao) throw new Error('Could not get vao');
     vao.bind();
     const buffer = vao.vertexBuffer.buffer;
@@ -186,16 +115,13 @@ export class Renderer {
   }
 
   public static updateTexture(
-    textureName: string,
+    texture: Texture,
     width: number,
     height: number,
     coords: Uint8ClampedArray,
   ) {
     const gl = Renderer.getGL;
-    const texture = TextureManager.getTexture(textureName);
-    if (!texture.newTexture)
-      throw new Error('Could not find texture ' + textureName);
-    gl.bindTexture(gl.TEXTURE_2D, texture.newTexture);
+    gl.bindTexture(texture.Target, texture.Texture);
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,

@@ -38,11 +38,7 @@ export class SceneManager {
           ecs.addComponent<Name>(entity, name);
         } else if (type === 'Material') {
           const newData = data as Material;
-          const material = new Material(
-            newData.index,
-            newData.textureType,
-            newData.shaderId,
-          );
+          const material = new Material(newData.textureType, newData.shaderId);
           ecs.addComponent<Material>(entity, material);
         } else if (type === 'Transform3D') {
           const newData = data as Transform3D;

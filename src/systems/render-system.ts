@@ -20,9 +20,11 @@ import { Renderer } from 'src/renderer/renderer';
 import { Grass } from 'src/components/grass';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { FlowMap } from 'src/components/flow-map';
 import { BrushImage } from 'src/components/brush-image';
-import { Texture, TextureType } from 'src/renderer/texture';
+import { BufferLayout } from 'src/renderer/buffer';
+import { Model } from 'src/renderer/model';
+import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
+import { VertexArray } from 'src/renderer/vertex-array';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -30,8 +32,8 @@ export class RenderSystem {
 
   constructor(camera: PerspectiveCamera) {
     this.camera = camera;
-    this.setupSkybox();
     BatchRenderer.init();
+    this.setupSkybox();
   }
 
   private async setupSkybox() {
@@ -54,18 +56,29 @@ export class RenderSystem {
       '/assets/textures/skybox/back.bmp',
     );
 
-    const skybox = await Renderer.setupSkybox([
-      top,
-      right,
-      left,
-      bottom,
-      front,
-      back,
-    ]);
-    MeshManager.addMesh(skybox.model, 'skybox');
-    const texture = new Texture('skybox', null, 0, 0, 0);
-    texture.texture = skybox.skyboxTexture;
-    TextureManager.addTexture('skybox', texture);
+    const texture = TextureManager.addCubeMap(
+      [top, right, left, bottom, front, back],
+      'skybox',
+    );
+
+    console.log('Setup skybox');
+
+    const bufferLayout = new BufferLayout();
+    bufferLayout.add(
+      0,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      false,
+    );
+
+    const model = new Model(bufferLayout);
+    model.addSkybox();
+    const vao = new VertexArray(
+      new Float32Array(model.vertices),
+      new Uint16Array(model.indices),
+    );
+    MeshManager.addMesh(model, 'skybox');
     this.loading = false;
   }
 
@@ -90,7 +103,7 @@ export class RenderSystem {
           0,
           bone.endX,
           bone.endY,
-          TextureManager.getTexture('frog').slot,
+          5,
         );
       }
       BatchRenderer.end(this.camera);
@@ -118,8 +131,29 @@ export class RenderSystem {
     shader.unbind();
   }
 
+  private bindTextures() {
+    const textures = TextureManager.getTextures();
+    let slot = 0;
+    for (const texture of textures) {
+      const shader = ShaderManager.getShader(texture.ShaderID);
+      shader.bind();
+      console.log(texture);
+      shader.setUniform(
+        texture.UniformName,
+        texture.Texture,
+        slot,
+        texture.Target,
+      );
+      slot++;
+    }
+  }
+
   public update(ecs: Ecs) {
     if (this.loading) return;
+    if (TextureManager.dirty) {
+      this.bindTextures();
+      TextureManager.dirty = false;
+    }
     Renderer.begin();
     const shader = ShaderManager.getShader('skybox');
     if (!shader) return;
@@ -134,8 +168,7 @@ export class RenderSystem {
     shader.setUniformMat4('u_matrix', perspectiveMatrix);
     const vao = MeshManager.getMesh('skybox');
     if (vao) {
-      const texture = TextureManager.getTexture('skybox');
-      Renderer.drawSkybox(vao, texture.newTexture, texture.slot);
+      Renderer.drawSkybox(vao);
     }
     this.drawBatch(ecs);
     const cameraMatrix = mat4.invert(
@@ -155,7 +188,6 @@ export class RenderSystem {
       light = ecs.getComponent<Light>(lightEntity, 'Light');
       lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
     }
-
     for (const entity of ecs.getEntities()) {
       //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
@@ -181,15 +213,19 @@ export class RenderSystem {
         if (terrain) {
           console.log(terrain.heights.size);
         }
-        Renderer.updateMesh(mesh.meshId);
-        this.updateNormals(mesh);
+        const vao = MeshManager.getMesh(mesh.meshId);
+        if (vao) {
+          Renderer.updateMesh(vao);
+          this.updateNormals(mesh);
+        }
         mesh.dirty = false;
       }
 
-      const flowMap = ecs.getComponent<FlowMap>(entity, 'FlowMap');
       if (splatmap && splatmap.dirty) {
+        const texture = TextureManager.getTexture('u_splatmap');
+        if (!texture) throw new Error('Could not get texture of u_splatmap');
         Renderer.updateTexture(
-          splatmap.slot,
+          texture,
           splatmap.size,
           splatmap.size,
           splatmap.coords,
@@ -197,9 +233,11 @@ export class RenderSystem {
         splatmap.dirty = false;
       }
 
-      if (flowMap) {
-        Renderer.updateTexture(flowMap.slot, 64, 64, flowMap.coords);
-      }
+      // if (flowMap) {
+      //   TextureManager.getTexture(flowMap.slot);
+      //   const texture = TextureManager.getTexture(flowMap.slot);
+      //   Renderer.updateTexture(texture, 64, 64, flowMap.coords);
+      // }
 
       if (pivot && transform3D) {
         const shader = ShaderManager.getShader('debug');
@@ -232,23 +270,10 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        const texture = TextureManager.getTextureArray(TextureType.Terrain);
-        shader.setMaterialTextureArray(
-          'u_textures',
-          texture.texture,
-          texture.slot,
-        );
-        const splatmapTexture = TextureManager.getTexture(splatmap.slot);
-        shader.setMaterialTexture(
-          'u_splatmap',
-          splatmapTexture.newTexture,
-          splatmapTexture.slot,
-        );
         shader.setVec2Array('u_tiles', splatmap.tiles);
 
         const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
         if (brushImage) {
-          shader.setMaterialTextureArray('u_brushes', TextureType.Brush, 1);
           shader.setVec2('u_brushUV', brushImage.UV);
         }
 
