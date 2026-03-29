@@ -113,25 +113,4 @@ export class Renderer {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vao.vertexBuffer.vertices);
     vao.unbind();
   }
-
-  public static updateTexture(
-    texture: Texture,
-    width: number,
-    height: number,
-    coords: Uint8ClampedArray,
-  ) {
-    const gl = Renderer.getGL;
-    gl.bindTexture(texture.Target, texture.Texture);
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      width,
-      height,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      coords,
-    );
-  }
 }

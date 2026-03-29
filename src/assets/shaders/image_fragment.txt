@@ -24,6 +24,7 @@ uniform vec3 u_cameraPos;
 uniform vec2 u_tiles[4];
 uniform vec3 u_fogColor;
 uniform vec2 u_brushUV;
+uniform float u_brushLayer;
 
 struct Material{
    vec3 ambient;
@@ -79,7 +80,6 @@ void main() {
    vec2 position = u_brushUV;
    vec2 size = vec2(0.2); // hur stor brushen ska vara
    vec2 brushUV = (v_texcoord - position) / size + 0.5;
-   vec4 brush = texture(u_brushes, vec3(brushUV, 0));
 
    vec4 splatColor =
       leaf_color * splat.r +
@@ -114,13 +114,13 @@ void main() {
    if(brushUV.x >= 0.0 && brushUV.x <= 1.0 &&
       brushUV.y >= 0.0 && brushUV.y <= 1.0) {
 
-      vec4 brush = texture(u_brushes, vec3(brushUV, 0));
+      vec4 brush = texture(u_brushes, vec3(brushUV, u_brushLayer));
 
       float highlightMask = 1.0 - brush.r;
 
       vec3 highlightColor = vec3(0.0, 0.2, 1.0); // blue
 
-      finalColor = mix(finalColor, highlightColor, highlightMask * 0.5);
+      finalColor = mix(finalColor, highlightColor, highlightMask * 0.8);
    }
    FragColor = vec4(finalColor, 1.0);
 }

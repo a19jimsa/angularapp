@@ -58,14 +58,14 @@ import { BufferLayout } from 'src/renderer/buffer';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { Pivot } from 'src/components/pivot';
 import { Grass } from 'src/components/grass';
-import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { BatchRenderable } from 'src/components/batch-renderable';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
-import { Texture, TextureType } from 'src/renderer/texture';
+import { TextureType } from 'src/renderer/texture';
 import { BrushImage } from 'src/components/brush-image';
+import { BrushImageComponent } from '../brush-image/brush-image.component';
 
 type IsSelected = {
   select: boolean;
@@ -147,6 +147,7 @@ export type Brush = {
     MatSelectModule,
     MatMenuModule,
     MatToolbarModule,
+    BrushImageComponent,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -171,10 +172,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   brushSystem: BrushSystem = new BrushSystem();
   controllerSystem: ControllerSystem = new ControllerSystem();
   movementSystem: MovementSystem = new MovementSystem();
+  animationSystem: AnimationSystem = new AnimationSystem();
+
   selectedShader: string = 'default';
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
-  animationSystem: AnimationSystem = new AnimationSystem();
   componentsList: ECSComponent[] = new Array();
   editorCamera: PerspectiveCamera;
   mode: Mode = 0;
@@ -220,6 +222,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     imageName: '',
     textureSlot: 0,
   };
+
+  brushImages: HTMLImageElement[] = new Array();
 
   constructor(private cdr: ChangeDetectorRef) {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -461,12 +465,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   //Add array for all brushes in textureslot, going to be much more nicer to change brush image in future.
-  changeBrushImage(texture: Texture) {
+  changeBrushImage(index: number) {
+    this.meshbrush.image = this.brushImages[index];
     const brushImage = this.ecs.getComponent<BrushImage>(
       this.meshbrush.entity,
       'BrushImage',
     );
-    if (!brushImage) return;
+    if (brushImage) {
+      brushImage.layer = index;
+    }
   }
 
   changeTool(name: string) {
@@ -520,18 +527,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const textureArray = await TextureManager.addTextureArray(
+      'brushes',
       'u_brushes',
       [smokeBrushImage, starBrushImage, terrainBrushImage, roundBrushImage],
       'splatmap',
     );
 
     const textureArray2 = await TextureManager.addTextureArray(
+      'textures',
       'u_textures',
       [texture1, texture2, texture3, texture4, texture5, texture6],
       'splatmap',
     );
 
-    //this.changeBrushImage(smokeBrushImage);
+    this.brushImages.push(
+      ...[smokeBrushImage, starBrushImage, terrainBrushImage, roundBrushImage],
+    );
+
+    //Init brushimage to brush
+    this.meshbrush.image = smokeBrushImage;
 
     // await TextureManager.add(
     //   'frog_image',
@@ -559,6 +573,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //   TextureType.Brush,
     // );
 
+    const waterNormal = await TextureManager.loadImage(
+      'assets/textures/water_normal_01.jpg',
+    );
+
+    const waterTextureArray = await TextureManager.addTextureArray(
+      'noise',
+      'u_textures',
+      [waterNormal],
+      'water',
+    );
+
     //Wrong size
     // const smallRoundBrushImage = await TextureManager.add(
     //   'small_round_brush',
@@ -584,9 +609,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.sceneObjects.set(name, [entity]); // skapa ny lista
       }
     }
-
-    //Init brushimage to brush
-    // this.meshbrush.image = this.brushToolsImages[0];
 
     this.cdr.detectChanges();
     this.loop();
@@ -628,13 +650,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
-    const size = 128;
+    const size = 256;
     const slot = await TextureManager.addNonImage(
+      'terrain' + newEntity,
       size,
       size,
       'u_splatmap',
       'splatmap',
     );
+
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
@@ -657,7 +681,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         'terrain' + newEntity,
       ),
     );
-    this.ecs.addComponent<Splatmap>(newEntity, new Splatmap(size, 'splatmap'));
+    this.ecs.addComponent<Splatmap>(
+      newEntity,
+      new Splatmap(size, 'terrain' + newEntity),
+    );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
     //Add material component to entity
     this.ecs.addComponent<Terrain>(
@@ -673,6 +700,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     transform.scale[1] = 10;
     transform.scale[2] = 10;
     this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
+    TextureManager.dirty = true;
   }
 
   private addBufferLayoutToMesh(model: Model, name: string) {
@@ -773,22 +801,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Water>(entity, new Water());
     MeshManager.addMesh(model, 'water');
   }
-
-  // protected async addTextureToMaterial(path: string) {
-  //   const image = await TextureManager.loadImage(path);
-  //   const textureSlot = TextureManager.createAndBindTexture(
-  //     'textureMap',
-  //     image,
-  //     image.width,
-  //     image.height,
-  //   );
-  //   const material = this.ecs.getComponent<Material>(
-  //     this.meshbrush.entity,
-  //     'Material',
-  //   );
-  //   if (!material) return;
-  //   material.slot = textureSlot;
-  // }
 
   protected async addGrass() {
     const grassBuffer = new BufferLayout();

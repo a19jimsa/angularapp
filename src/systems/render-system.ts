@@ -57,6 +57,7 @@ export class RenderSystem {
     );
 
     const texture = TextureManager.addCubeMap(
+      'skybox',
       [top, right, left, bottom, front, back],
       'skybox',
     );
@@ -136,8 +137,8 @@ export class RenderSystem {
     let slot = 0;
     for (const texture of textures) {
       const shader = ShaderManager.getShader(texture.ShaderID);
-      shader.bind();
       console.log(texture);
+      shader.bind();
       shader.setUniform(
         texture.UniformName,
         texture.Texture,
@@ -221,23 +222,12 @@ export class RenderSystem {
         mesh.dirty = false;
       }
 
-      if (splatmap && splatmap.dirty) {
-        const texture = TextureManager.getTexture('u_splatmap');
-        if (!texture) throw new Error('Could not get texture of u_splatmap');
-        Renderer.updateTexture(
-          texture,
-          splatmap.size,
-          splatmap.size,
-          splatmap.coords,
-        );
-        splatmap.dirty = false;
+      if (splatmap) {
+        const texture = TextureManager.getTexture(splatmap.slot);
+        if (!texture)
+          throw new Error('Could not get texture of ' + splatmap.slot);
+        texture.updateTexture(splatmap.coords);
       }
-
-      // if (flowMap) {
-      //   TextureManager.getTexture(flowMap.slot);
-      //   const texture = TextureManager.getTexture(flowMap.slot);
-      //   Renderer.updateTexture(texture, 64, 64, flowMap.coords);
-      // }
 
       if (pivot && transform3D) {
         const shader = ShaderManager.getShader('debug');
@@ -254,10 +244,9 @@ export class RenderSystem {
         Renderer.drawLines(vao);
         shader.unbind();
       }
-      //Render all terrain as in batch, and mostly everything is going to be drawn if they have a renderable component of some sort, probalby 3d and 2d renderables.
 
       if (mesh && material && splatmap) {
-        const shader = ShaderManager.getShader('splatmap');
+        const shader = ShaderManager.getShader(material.shaderId);
         shader.bind();
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.translate);
@@ -270,11 +259,11 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        shader.setVec2Array('u_tiles', splatmap.tiles);
 
         const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
         if (brushImage) {
           shader.setVec2('u_brushUV', brushImage.UV);
+          shader.setFloat('u_brushLayer', brushImage.layer);
         }
 
         if (terrain) {
@@ -289,6 +278,7 @@ export class RenderSystem {
         shader.setFloat('u_time', performance.now() * 0.001);
         shader.setUniformMat4('u_view', this.camera.getViewMatrix());
         shader.setVec3('u_cameraPos', cameraPos);
+        
         if (transform3D) {
           const modelMatrix = mat4.create();
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
@@ -377,7 +367,6 @@ export class RenderSystem {
         shader.setFloat('material.shininess', material.shininess);
         const vertexArray = MeshManager.getMesh(grass.meshId);
         if (!vertexArray) throw new Error('Mesh is not grass');
-        console.log('Render grass');
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
     }

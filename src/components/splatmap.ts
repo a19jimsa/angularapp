@@ -1,6 +1,5 @@
 import { SceneManager } from 'src/scene/scene-manager';
 import { Component } from './component';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class Splatmap extends Component {
   override type: string = 'Splatmap';
@@ -9,15 +8,16 @@ export class Splatmap extends Component {
   size: number;
   dirty: boolean = true;
   slot: string;
+  layers: number = -1;
   tiles = new Float32Array([0, 0, 1, 0, 2, 0, 3, 0]);
   constructor(size: number, slot: string) {
     super();
     this.size = size;
     this.coords = new Uint8ClampedArray(size * size * 4);
     for (let i = 0; i < this.coords.length; i += 4) {
-      this.coords[i + 0] = 0;
+      this.coords[i + 0] = 255;
       this.coords[i + 1] = 0;
-      this.coords[i + 2] = 255;
+      this.coords[i + 2] = 0;
       this.coords[i + 3] = 0;
     }
     this.alphaCoords = new Uint8ClampedArray(size * size);

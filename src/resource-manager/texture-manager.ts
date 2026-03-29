@@ -1,5 +1,4 @@
-import { Renderer } from 'src/renderer/renderer';
-import { Target, Texture, TextureType } from 'src/renderer/texture';
+import { Target, Texture } from 'src/renderer/texture';
 import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
 import { Manager } from './manager';
 
@@ -9,11 +8,13 @@ export class TextureManager extends Manager {
   public static dirty = false;
 
   public static async addTextureArray(
+    name: string,
     uniformName: string,
     images: HTMLImageElement[],
     shaderID: string,
   ) {
     const texture = new Texture(
+      name,
       Target.TEXTURE_2D_ARRAY,
       images[0].height,
       images[0].width,
@@ -26,8 +27,13 @@ export class TextureManager extends Manager {
     return texture;
   }
 
-  public static addCubeMap(images: HTMLImageElement[], shaderID: string) {
+  public static addCubeMap(
+    name: string,
+    images: HTMLImageElement[],
+    shaderID: string,
+  ) {
     const texture = new Texture(
+      name,
       Target.TEXTURE_CUBE_MAP,
       images[0].width,
       images[0].height,
@@ -41,12 +47,14 @@ export class TextureManager extends Manager {
   }
 
   public static async addTexture(
+    name: string,
     path: string,
     unifornName: string,
     shaderID: string,
   ) {
     const image = await this.loadImage(path);
     const texture = new Texture(
+      name,
       Target.TEXTURE_2D,
       image.width,
       image.height,
@@ -60,12 +68,14 @@ export class TextureManager extends Manager {
   }
 
   public static async addNonImage(
+    name: string,
     width: number,
     height: number,
     uniformName: string,
     shaderID: string,
   ) {
     const texture = new Texture(
+      name,
       Target.TEXTURE_2D,
       width,
       height,
@@ -99,8 +109,8 @@ export class TextureManager extends Manager {
     this.textures.length = 0;
   }
 
-  static getTexture(uniformName: string) {
-    return this.textures.find((e) => e.UniformName === uniformName);
+  static getTexture(name: string) {
+    return this.textures.find((e) => e.Name === name);
   }
 
   static getTextures() {

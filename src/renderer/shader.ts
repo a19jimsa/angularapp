@@ -38,14 +38,17 @@ export class Shader {
   ) {
     const gl = Renderer.getGL;
     const location = this.getUniformLocation(uniformName);
-    console.log(slot);
     gl.activeTexture(gl.TEXTURE0 + slot);
     gl.bindTexture(target, texture);
     gl.uniform1i(location, slot);
   }
 
-  setInt(program: WebGLProgram, name: string, x: number) {
-    const location = Renderer.getGL.getUniformLocation(program, name);
+  setInt(name: string, x: number) {
+    const location = this.getUniformLocation(name);
+    if (!location)
+      throw new Error(
+        'Could not find location ' + location + ' with name ' + name,
+      );
     Renderer.getGL.uniform1i(location, x);
   }
 

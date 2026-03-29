@@ -9,9 +9,9 @@ import { Texture } from 'src/renderer/texture';
 })
 export class BrushImageComponent {
   @Input() images: HTMLImageElement[] = [];
-  @Output() selected = new EventEmitter<HTMLImageElement>();
+  @Output() selected = new EventEmitter<number>();
 
   onClick(index: number) {
-    this.selected.emit(this.images[index]);
+    this.selected.emit(index);
   }
 }

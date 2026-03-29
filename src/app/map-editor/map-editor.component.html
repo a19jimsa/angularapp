@@ -614,6 +614,10 @@
                     <div>Splatmap slot: {{ splatmap.slot }}</div>
                     <img [src]="splatmapImage?.src" />
                   </div>
+                  <app-brush-image
+                    [images]="this.brushImages"
+                    (selected)="changeBrushImage($event)"
+                  ></app-brush-image>
 
                   <div class="d-flex flex-row">
                     <div class="col-6">

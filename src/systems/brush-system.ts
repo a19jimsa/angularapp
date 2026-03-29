@@ -274,10 +274,7 @@ export class BrushSystem {
     const radius = meshBrush.radius * 0.01;
     const splatColor = meshBrush.color;
     const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
-    const brushImage = ecs.getComponent<BrushImage>(
-      meshBrush.entity,
-      'BrushImage',
-    );
+
     if (splatmap) {
       const image = this.getImageData(meshBrush.image, radius);
       if (!image) return;

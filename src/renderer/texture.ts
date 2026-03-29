@@ -17,6 +17,7 @@ export const Target = {
 } as const;
 
 export class Texture {
+  private name: string;
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
@@ -25,17 +26,23 @@ export class Texture {
   private shaderID: string;
 
   constructor(
+    name: string,
     target: number,
     width: number,
     height: number,
     uniformName: string,
     shaderID: string,
   ) {
+    this.name = name;
     this.target = target;
     this.width = width;
     this.height = height;
     this.uniformName = uniformName;
     this.shaderID = shaderID;
+  }
+
+  public get Name() {
+    return this.name;
   }
 
   public get Texture() {
@@ -175,5 +182,21 @@ export class Texture {
     this.glTexture = texture;
     console.log(this.glTexture);
     return texture;
+  }
+
+  public updateTexture(coords: Uint8ClampedArray) {
+    const gl = Renderer.getGL;
+    gl.bindTexture(this.Target, this.Texture);
+    gl.texSubImage2D(
+      this.Target,
+      0,
+      0,
+      0,
+      this.width,
+      this.height,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      coords,
+    );
   }
 }
