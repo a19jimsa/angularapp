@@ -3,7 +3,7 @@ import { Ecs } from '../core/ecs';
 import { Material } from 'src/components/material';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3 } from 'gl-matrix';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
@@ -13,7 +13,6 @@ import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Pivot } from 'src/components/pivot';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
-import { BatchRenderable } from 'src/components/batch-renderable';
 import { Light } from 'src/components/light';
 import { Entity } from 'src/app/entity';
 import { Renderer } from 'src/renderer/renderer';
@@ -25,15 +24,17 @@ import { BufferLayout } from 'src/renderer/buffer';
 import { Model } from 'src/renderer/model';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
+import { Tree } from 'src/components/tree';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
   private loading: boolean = true;
+  private batch: BatchRenderer;
 
-  constructor(camera: PerspectiveCamera) {
-    this.camera = camera;
-    BatchRenderer.init();
+  constructor() {
+    this.camera = Renderer.getCamera();
     this.setupSkybox();
+    this.batch = new BatchRenderer();
   }
 
   private async setupSkybox() {
@@ -84,17 +85,36 @@ export class RenderSystem {
   }
 
   private drawBatch(ecs: Ecs) {
-    BatchRenderer.begin();
+    this.batch.begin();
     for (const entity of ecs.getEntities()) {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      const tree = ecs.getComponent<Tree>(entity, 'Tree');
+      if (transform3D && tree) {
+        this.batch.addQuads(
+          tree.width,
+          tree.height,
+          0,
+          vec2.fromValues(1, 1),
+          0,
+          0,
+          tree.width,
+          tree.height,
+          transform3D.translate[0],
+          transform3D.translate[1],
+          transform3D.translate[2],
+          tree.width,
+          tree.height,
+          transform3D.translate[2],
+        );
+      }
       const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
       if (!skeleton) continue;
       for (const bone of skeleton.bones) {
-        BatchRenderer.addQuads(
+        this.batch.addQuads(
           skeleton.image.width,
           skeleton.image.height,
           MathUtils.degreesToRadians(-bone.globalRotation) - Math.PI / 2,
-          bone.pivot,
+          vec2.fromValues(bone.pivot.x, bone.pivot.y),
           bone.startX,
           bone.startY,
           bone.endX,
@@ -104,11 +124,12 @@ export class RenderSystem {
           0,
           bone.endX,
           bone.endY,
-          5,
+          bone.order,
         );
       }
-      BatchRenderer.end(this.camera);
     }
+
+    this.batch.end(this.camera);
   }
 
   private getLightSources(ecs: Ecs): Entity | null {
@@ -171,7 +192,9 @@ export class RenderSystem {
     if (vao) {
       Renderer.drawSkybox(vao);
     }
+
     this.drawBatch(ecs);
+
     const cameraMatrix = mat4.invert(
       mat4.create(),
       this.camera.getViewMatrix(),
@@ -190,7 +213,6 @@ export class RenderSystem {
       lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
     }
     for (const entity of ecs.getEntities()) {
-      //Use transform for later... not very matrixfriendly yet or maybe with 2 vectors? What do I kn´pw??
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
       const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
@@ -203,21 +225,17 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-
-      const batch = ecs.getComponent<BatchRenderable>(
-        entity,
-        'BatchRenderable',
-      );
-
       if (mesh && mesh.dirty) {
-        console.log(mesh.vertices.length);
+        const vertexArray = MeshManager.getMesh(mesh.meshId);
+        if (!vertexArray)
+          throw new Error('Could not get mesh with meshid' + mesh.meshId);
         if (terrain) {
           console.log(terrain.heights.size);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (vao) {
           Renderer.updateMesh(vao);
-          this.updateNormals(mesh);
+          this.updateNormals(vertexArray);
         }
         mesh.dirty = false;
       }
@@ -278,7 +296,7 @@ export class RenderSystem {
         shader.setFloat('u_time', performance.now() * 0.001);
         shader.setUniformMat4('u_view', this.camera.getViewMatrix());
         shader.setVec3('u_cameraPos', cameraPos);
-        
+
         if (transform3D) {
           const modelMatrix = mat4.create();
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
@@ -372,30 +390,32 @@ export class RenderSystem {
     }
   }
 
-  private updateNormals(mesh: Mesh): void {
+  private updateNormals(vertexArray: VertexArray): void {
+    const vertices = vertexArray.vertexBuffer.vertices;
+    const indices = vertexArray.indexBuffer.indices;
     // Steg 1: Initiera alla normals till 0
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
-      mesh.vertices[i * 8 + 5] = 0;
-      mesh.vertices[i * 8 + 6] = 0;
-      mesh.vertices[i * 8 + 7] = 0;
+    for (let i = 0; i < vertices.length / 8; i++) {
+      vertices[i * 8 + 5] = 0;
+      vertices[i * 8 + 6] = 0;
+      vertices[i * 8 + 7] = 0;
     }
     //Stride 8 xyzuvnormals(3)
-    for (let i = 0; i < mesh.indices.length; i += 3) {
-      const i0 = mesh.indices[i];
-      const i1 = mesh.indices[i + 1];
-      const i2 = mesh.indices[i + 2];
+    for (let i = 0; i < indices.length; i += 3) {
+      const i0 = indices[i];
+      const i1 = indices[i + 1];
+      const i2 = indices[i + 2];
 
-      const v0 = mesh.vertices[i0 * 8];
-      const v1 = mesh.vertices[i0 * 8 + 1];
-      const v2 = mesh.vertices[i0 * 8 + 2];
+      const v0 = vertices[i0 * 8];
+      const v1 = vertices[i0 * 8 + 1];
+      const v2 = vertices[i0 * 8 + 2];
 
-      const v3 = mesh.vertices[i1 * 8];
-      const v4 = mesh.vertices[i1 * 8 + 1];
-      const v5 = mesh.vertices[i1 * 8 + 2];
+      const v3 = vertices[i1 * 8];
+      const v4 = vertices[i1 * 8 + 1];
+      const v5 = vertices[i1 * 8 + 2];
 
-      const v6 = mesh.vertices[i2 * 8];
-      const v7 = mesh.vertices[i2 * 8 + 1];
-      const v8 = mesh.vertices[i2 * 8 + 2];
+      const v6 = vertices[i2 * 8];
+      const v7 = vertices[i2 * 8 + 1];
+      const v8 = vertices[i2 * 8 + 2];
 
       const triangleA = vec3.fromValues(v0, v1, v2);
       const triangleB = vec3.fromValues(v3, v4, v5);
@@ -411,23 +431,23 @@ export class RenderSystem {
       vec3.normalize(normal, normal);
       // Skriv normalen till varje vertex i triangeln (flat shading)
       for (const idx of [i0, i1, i2]) {
-        mesh.vertices[idx * 8 + 5] += normal[0];
-        mesh.vertices[idx * 8 + 6] += normal[1];
-        mesh.vertices[idx * 8 + 7] += normal[2];
+        vertices[idx * 8 + 5] += normal[0];
+        vertices[idx * 8 + 6] += normal[1];
+        vertices[idx * 8 + 7] += normal[2];
       }
     }
     // Steg 3: Normalisera normals för varje vertex
-    for (let i = 0; i < mesh.vertices.length / 8; i++) {
-      const nx = mesh.vertices[i * 8 + 5];
-      const ny = mesh.vertices[i * 8 + 6];
-      const nz = mesh.vertices[i * 8 + 7];
+    for (let i = 0; i < vertices.length / 8; i++) {
+      const nx = vertices[i * 8 + 5];
+      const ny = vertices[i * 8 + 6];
+      const nz = vertices[i * 8 + 7];
 
       const normal = vec3.fromValues(nx, ny, nz);
       vec3.normalize(normal, normal);
 
-      mesh.vertices[i * 8 + 5] = normal[0];
-      mesh.vertices[i * 8 + 6] = normal[1];
-      mesh.vertices[i * 8 + 7] = normal[2];
+      vertices[i * 8 + 5] = normal[0];
+      vertices[i * 8 + 6] = normal[1];
+      vertices[i * 8 + 7] = normal[2];
     }
   }
 }

@@ -1,35 +1,17 @@
+#version 300 es
 precision mediump float;
+precision mediump sampler2DArray;
 
-uniform sampler2D u_textures[8];
+uniform sampler2DArray u_textures;
 
-varying vec2 v_texcoord;
-varying float v_texIndex;
+in vec2 v_texcoord;
+in float v_texIndex;
+
+out vec4 FragColor;
 
 void main() {
-    vec4 color = vec4(1.0);
-    int index = int(v_texIndex);
-    if(index == 0){
-        color = texture2D(u_textures[0], v_texcoord);
-    }else if(index == 1){
-        color = texture2D(u_textures[1], v_texcoord);
-    }else if(index == 2){
-        color = texture2D(u_textures[2], v_texcoord);
-    }else if(index == 3){
-        color = texture2D(u_textures[3], v_texcoord);
-    }
-    else if(index == 4){
-        color = texture2D(u_textures[4], v_texcoord);
-    }
-    else if(index == 5){
-        color = texture2D(u_textures[5], v_texcoord);
-    }
-    else if(index == 6){
-        color = texture2D(u_textures[6], v_texcoord);
-    }
-    else if(index == 7){
-        color = texture2D(u_textures[7], v_texcoord);
-    }
+    vec4 color = texture(u_textures, vec3(v_texcoord, 1));
     if(color.a < 0.9)
         discard;
-    gl_FragColor = color;
+    FragColor = color;
 }

@@ -1,39 +1,37 @@
 import { Target, Texture } from 'src/renderer/texture';
-import { TextureArrayBuilder } from 'src/renderer/texture-array-builder';
 import { Manager } from './manager';
 
 export class TextureManager extends Manager {
   private static textures = new Array<Texture>();
-  private static textureArrayBuilder = new TextureArrayBuilder();
   public static dirty = false;
 
   public static async addTextureArray(
-    name: string,
+    slot: string,
     uniformName: string,
     images: HTMLImageElement[],
     shaderID: string,
   ) {
     const texture = new Texture(
-      name,
+      slot,
       Target.TEXTURE_2D_ARRAY,
       images[0].height,
       images[0].width,
       uniformName,
       shaderID,
     );
-    texture.bind2DArray(images);
+    texture.bind2DArrayTexture(images);
     this.textures.push(texture);
     this.dirty = true;
     return texture;
   }
 
   public static addCubeMap(
-    name: string,
+    slot: string,
     images: HTMLImageElement[],
     shaderID: string,
   ) {
     const texture = new Texture(
-      name,
+      slot,
       Target.TEXTURE_CUBE_MAP,
       images[0].width,
       images[0].height,
@@ -47,14 +45,14 @@ export class TextureManager extends Manager {
   }
 
   public static async addTexture(
-    name: string,
+    slot: string,
     path: string,
     unifornName: string,
     shaderID: string,
   ) {
     const image = await this.loadImage(path);
     const texture = new Texture(
-      name,
+      slot,
       Target.TEXTURE_2D,
       image.width,
       image.height,
@@ -68,14 +66,14 @@ export class TextureManager extends Manager {
   }
 
   public static async addNonImage(
-    name: string,
+    slot: string,
     width: number,
     height: number,
     uniformName: string,
     shaderID: string,
   ) {
     const texture = new Texture(
-      name,
+      slot,
       Target.TEXTURE_2D,
       width,
       height,
@@ -109,8 +107,8 @@ export class TextureManager extends Manager {
     this.textures.length = 0;
   }
 
-  static getTexture(name: string) {
-    return this.textures.find((e) => e.Name === name);
+  static getTexture(slot: string) {
+    return this.textures.find((e) => e.Slot === slot);
   }
 
   static getTextures() {

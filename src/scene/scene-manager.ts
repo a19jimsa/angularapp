@@ -1,3 +1,4 @@
+import { Component } from 'src/components/component';
 import { Light } from 'src/components/light';
 import { Material } from 'src/components/material';
 import { Mesh } from 'src/components/mesh';
@@ -29,7 +30,11 @@ export class SceneManager {
           ecs.addComponent<Splatmap>(entity, splatmap);
         } else if (type === 'Terrain') {
           const newData = data as Terrain;
-          const terrain = new Terrain(newData.size, newData.meshId);
+          const terrain = new Terrain(
+            newData.slot,
+            newData.size,
+            newData.meshId,
+          );
           terrain.deserialize(terrain, newData);
           ecs.addComponent<Terrain>(entity, terrain);
         } else if (type === 'Name') {
@@ -38,30 +43,12 @@ export class SceneManager {
           ecs.addComponent<Name>(entity, name);
         } else if (type === 'Material') {
           const newData = data as Material;
-          const material = new Material(newData.textureType, newData.shaderId);
+          const material = new Material(newData.shaderId);
           ecs.addComponent<Material>(entity, material);
         } else if (type === 'Transform3D') {
           const newData = data as Transform3D;
           const transform = new Transform3D(0, 0, 0);
           ecs.addComponent<Transform3D>(entity, transform);
-        } else if (type === 'Mesh') {
-          const newData = data as Mesh;
-          const mesh = new Mesh(
-            newData.vertices,
-            newData.indices,
-            newData.width,
-            newData.height,
-            newData.meshId,
-          );
-          ecs.addComponent<Mesh>(entity, mesh);
-          const buffer = new BufferLayout();
-          buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-          buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-          buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-          const model = new Model(buffer);
-          model.vertices = newData.vertices;
-          model.indices = newData.indices;
-          MeshManager.addMesh(model, newData.meshId);
         } else if (type === 'Light') {
           const newData = data as Light;
           const light = new Light();
@@ -73,23 +60,21 @@ export class SceneManager {
   }
 
   static saveScene(ecs: Ecs) {
-    const scene: any = {
-      entities: [],
-    };
+    const scene: any[] = [];
+
     for (const entity of ecs.getEntities()) {
-      const entityData: any = {
-        id: entity,
-        components: {},
-      };
-      const components = ecs.getComponents(entity);
-      //Serialize data that is going in the scene.
-      for (const component of components as any) {
+      const entityData: Record<string, any> = {};
+      const components = ecs.getComponents(entity) as any[];
+
+      for (const component of components) {
         if (typeof component.serialize === 'function') {
-          entityData.components[component.type] = component.serialize();
+          entityData[component.type] = component.serialize();
         }
       }
-      scene.entities.push(entityData);
+
+      scene.push(entityData);
     }
+
     return scene;
   }
 

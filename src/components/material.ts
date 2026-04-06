@@ -1,18 +1,15 @@
-import { TextureType } from 'src/renderer/texture';
 import { Component } from './component';
 import { vec3 } from 'gl-matrix';
 
 export class Material extends Component {
   override type: string = 'Material';
-  textureType: TextureType;
   ambient = vec3.fromValues(1, 1, 1);
   diffuse = vec3.fromValues(1, 1, 1);
   specular = vec3.fromValues(1, 1, 1);
   shininess: number = 1;
   shaderId: string;
-  constructor(textureType: TextureType, shaderId: string) {
+  constructor(shaderId: string) {
     super();
-    this.textureType = textureType;
     this.shaderId = shaderId;
   }
 
@@ -27,7 +24,7 @@ export class Material extends Component {
   }
 
   deserialize(component: Material) {
-    const material = new Material(component.textureType, component.shaderId);
+    const material = new Material(component.shaderId);
     material.ambient = component.ambient;
     material.diffuse = component.diffuse;
     material.specular = component.specular;

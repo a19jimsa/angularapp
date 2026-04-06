@@ -20,6 +20,10 @@ export class HeightBrushCommand extends Command {
   override execute(): void {
     const terrain = this.ecs.getComponent<Terrain>(this.entity, 'Terrain');
     const mesh = this.ecs.getComponent<Mesh>(this.entity, 'Mesh');
+    const vertexArray = MeshManager.getMesh(mesh.meshId);
+    if (!vertexArray)
+      throw new Error('Could not get mesh with mesh id' + mesh.meshId);
+    const vertices = vertexArray.vertexBuffer.vertices;
     if (!mesh) return;
     if (!terrain) return;
     for (const height of this.heights) {
@@ -31,17 +35,22 @@ export class HeightBrushCommand extends Command {
       }
       terrain.heights.set(height[0], height[1] + value);
       //Add one otherwise changes x
-      mesh.vertices[height[0]] += height[1];
+      vertexArray.vertexBuffer.vertices[height[0]] += height[1];
     }
     const vao = MeshManager.getMesh(mesh.meshId);
     if (!vao) return;
-    vao.vertexBuffer.vertices = new Float32Array(mesh.vertices);
+    vao.vertexBuffer.vertices = new Float32Array(vertices);
     mesh.dirty = true;
   }
 
   override undo(): void {
     const terrain = this.ecs.getComponent<Terrain>(this.entity, 'Terrain');
     const mesh = this.ecs.getComponent<Mesh>(this.entity, 'Mesh');
+    const vertexArray = MeshManager.getMesh(mesh.meshId);
+    if (!vertexArray)
+      throw new Error('Could not get mesh with mesh id' + mesh.meshId);
+    //Init vertices
+    const vertices = vertexArray.vertexBuffer.vertices;
     if (!mesh) return;
     if (!terrain) return;
     for (const height of this.heightBefore) {
@@ -51,11 +60,11 @@ export class HeightBrushCommand extends Command {
       }
       terrain.heights.set(height[0], value - height[1]);
       //Add one otherwise changes x
-      mesh.vertices[height[0]] -= height[1];
+      vertices[height[0]] -= height[1];
     }
     const vao = MeshManager.getMesh(mesh.meshId);
     if (!vao) return;
-    vao.vertexBuffer.vertices = new Float32Array(mesh.vertices);
+    vao.vertexBuffer.vertices = new Float32Array(vertices);
     mesh.dirty = true;
   }
 }

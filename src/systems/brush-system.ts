@@ -17,10 +17,10 @@ import { BatchRenderable } from 'src/components/batch-renderable';
 import { BrushImage } from 'src/components/brush-image';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
-import { Pivot } from 'src/components/pivot';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
+import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { Renderer } from 'src/renderer/renderer';
 import { CommandManager } from 'src/resource-manager/command-manager';
@@ -34,6 +34,11 @@ export type Height = {
 export class BrushSystem {
   update(meshBrush: Brush, ecs: Ecs, mouse: Mouse) {
     const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    if (!mesh) return;
+    const vertexArray = MeshManager.getMesh(mesh.meshId);
+    if (!vertexArray) return;
+    const vertices = vertexArray.vertexBuffer.vertices;
+    const indices = vertexArray.indexBuffer.indices;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
@@ -46,23 +51,23 @@ export class BrushSystem {
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = mesh.vertices[index + 3];
-      brushImage.UV[1] = mesh.vertices[index + 4];
+      brushImage.UV[0] = vertexArray.vertexBuffer.vertices[index + 3];
+      brushImage.UV[1] = vertexArray.vertexBuffer.vertices[index + 4];
     }
 
-    if (mouse.dragging) {
-      const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-      if (pivot) {
-        const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
-        this.movePivot(transform3D, mouse, pivotIndex);
-      }
+    if (mouse.dragging || mouse.clicked) {
+      // const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
+      // if (pivot) {
+      //   const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
+      //   this.movePivot(transform3D, mouse, pivotIndex);
+      // }
       if (meshBrush.type === ToolBrush.Height) {
         this.heightBrush(
           meshBrush,
           vec4.fromValues(
-            mesh.vertices[index],
-            mesh.vertices[index + 1],
-            mesh.vertices[index + 2],
+            vertices[index],
+            vertices[index + 1],
+            vertices[index + 2],
             1,
           ),
           ecs,
@@ -72,23 +77,23 @@ export class BrushSystem {
         this.grassBrushWithImage(
           ecs,
           meshBrush,
-          mesh.vertices[index],
-          mesh.vertices[index + 1],
-          mesh.vertices[index + 2],
+          vertices[index],
+          vertices[index + 1],
+          vertices[index + 2],
         );
       } else if (meshBrush.type === ToolBrush.Trees) {
         this.treeBrush(
           ecs,
-          mesh.vertices[index],
-          mesh.vertices[index + 1],
-          mesh.vertices[index + 2],
+          vertices[index],
+          vertices[index + 1],
+          vertices[index + 2],
         );
       } else if (meshBrush.type === ToolBrush.Splat) {
         this.paintImage(
           ecs,
           meshBrush,
-          mesh.vertices[index + 3],
-          mesh.vertices[index + 4],
+          vertices[index + 3],
+          vertices[index + 4],
         );
       }
     }
@@ -116,9 +121,9 @@ export class BrushSystem {
     if (!vertexArray) return -1;
     const vertices = vertexArray.vertexBuffer.vertices;
     for (
-      let i = 0;
-      i < vertices.length;
-      i += vertexArray.bufferLayout.stride / 4
+      let i = vertices.length - vertexArray.bufferLayout.stride / 4;
+      i >= 0;
+      i -= vertexArray.bufferLayout.stride / 4
     ) {
       const model = mat4.create();
 
@@ -262,11 +267,13 @@ export class BrushSystem {
 
   private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
     const tree = ecs.createEntity();
-    ecs.addComponent<Transform3D>(tree, new Transform3D(x, y, z));
-    ecs.addComponent<BatchRenderable>(
+    ecs.addComponent<Transform3D>(
       tree,
-      new BatchRenderable(tree as number),
+      new Transform3D(x * 10, y, z * 10 - 9000),
     );
+    ecs.addComponent<Tree>(tree, new Tree(566, 800, 0));
+    console.log(x, y, z);
+    console.log(x * 10, y, z * 10);
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {

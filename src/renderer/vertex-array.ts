@@ -13,10 +13,12 @@ export class VertexArray {
     const gl = Renderer.getGL;
     this.VAO = gl.createVertexArray();
     this.bind();
+
     //VBO
     this.vertexBuffer = VertexBuffer.create(vertices);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
     //IBO
     this.indexBuffer = IndexBuffer.create(indices);
     if (!this.indexBuffer.buffer) {

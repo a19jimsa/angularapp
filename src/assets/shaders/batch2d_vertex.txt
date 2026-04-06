@@ -1,14 +1,17 @@
-attribute vec3 a_position;
-attribute vec2 a_texcoord;
-attribute float a_texIndex;
+#version 300 es
+precision mediump float;
+
+layout(location = 0) in vec3 a_position;
+layout(location = 1) in vec2 a_texcoord;
+layout(location = 2) in float a_texIndex;
 
 uniform mat4 u_matrix;
 
-varying vec2 v_texcoord;
-varying float v_texIndex;
+out vec2 v_texcoord;
+out float v_texIndex;
  
 void main() {
-   gl_Position = u_matrix * vec4(a_position, 1.0);
    v_texcoord = a_texcoord;
    v_texIndex = a_texIndex;
+   gl_Position = u_matrix * vec4(a_position, 1.0);
 }

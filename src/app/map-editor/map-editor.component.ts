@@ -63,7 +63,6 @@ import { BatchRenderable } from 'src/components/batch-renderable';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
-import { TextureType } from 'src/renderer/texture';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 
@@ -371,14 +370,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  get splatmapImage(): HTMLImageElement | null {
+  get splatmapImage(): string | null {
     const splatmap = this.splatmap;
     if (!splatmap) return null;
     const image = SceneManager.convertCoordsToImage(
       splatmap.size,
       splatmap.coords,
     );
-    return image;
+    return image.src;
   }
 
   get getEditMode(): Mode {
@@ -417,7 +416,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     // console.log(TextureManager.getTexture())
 
     this.bones = Loader.getBones('skeleton');
-    this.renderSystem = new RenderSystem(this.editorCamera);
+    this.renderSystem = new RenderSystem();
 
     await this.init();
   }
@@ -511,6 +510,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/brushes/round_brush.jpg',
     );
 
+    const squareBrushImage = await TextureManager.loadImage(
+      'assets/brushes/square_brush.jpg',
+    );
+
+    const textureImage = await TextureManager.loadImage(
+      'assets/brushes/texture_brush.jpg',
+    );
+
     const texture1 = await TextureManager.loadImage(
       'assets/textures/grass.jpg',
     );
@@ -526,52 +533,44 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/sand_02.jpg',
     );
 
+    const texture7 = await TextureManager.loadImage(
+      'assets/textures/ground_01.jpg',
+    );
+
     const textureArray = await TextureManager.addTextureArray(
       'brushes',
       'u_brushes',
-      [smokeBrushImage, starBrushImage, terrainBrushImage, roundBrushImage],
+      [
+        smokeBrushImage,
+        starBrushImage,
+        terrainBrushImage,
+        roundBrushImage,
+        squareBrushImage,
+        textureImage,
+      ],
       'splatmap',
     );
 
     const textureArray2 = await TextureManager.addTextureArray(
       'textures',
       'u_textures',
-      [texture1, texture2, texture3, texture4, texture5, texture6],
+      [texture1, texture2, texture3, texture4, texture5, texture6, texture7],
       'splatmap',
     );
 
     this.brushImages.push(
-      ...[smokeBrushImage, starBrushImage, terrainBrushImage, roundBrushImage],
+      ...[
+        smokeBrushImage,
+        starBrushImage,
+        terrainBrushImage,
+        roundBrushImage,
+        squareBrushImage,
+        textureImage,
+      ],
     );
 
     //Init brushimage to brush
     this.meshbrush.image = smokeBrushImage;
-
-    // await TextureManager.add(
-    //   'frog_image',
-    //   '/assets/textures/frog-enemy.png',
-    //   TextureType.Brush,
-    // );
-    // await TextureManager.add(
-    //   'character',
-    //   '/assets/textures/character-animation.png',
-    //   TextureType.Brush,
-    // );
-    // await TextureManager.add(
-    //   'tree',
-    //   '/assets/sprites/tree.png',
-    //   TextureType.Brush,
-    // );
-    // await TextureManager.add(
-    //   'noise',
-    //   'assets/textures/noise.jpg',
-    //   TextureType.Brush,
-    // );
-    // await TextureManager.add(
-    //   'water_texture',
-    //   'assets/textures/water_texture.jpg',
-    //   TextureType.Brush,
-    // );
 
     const waterNormal = await TextureManager.loadImage(
       'assets/textures/water_normal_01.jpg',
@@ -582,6 +581,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [waterNormal],
       'water',
+    );
+
+    const tree1 = await TextureManager.loadImage('/assets/trees/tree_001.png');
+    const tree2 = await TextureManager.loadImage('/assets/trees/tree_002.png');
+    //const tree3 = await TextureManager.loadImage('/assets/trees/tree_003.png');
+
+    const treeTextureArray = await TextureManager.addTextureArray(
+      'tree',
+      'u_textures',
+      [tree1, tree2],
+      'batch',
     );
 
     //Wrong size
@@ -650,8 +660,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
-    const size = 256;
-    const slot = await TextureManager.addNonImage(
+    const size = 128;
+    const texture = await TextureManager.addNonImage(
       'terrain' + newEntity,
       size,
       size,
@@ -666,20 +676,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     model.addPlane(50, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
-    this.ecs.addComponent(
-      newEntity,
-      new Material(TextureType.Splatmap, 'splatmap'),
-    );
+    this.ecs.addComponent(newEntity, new Material('splatmap'));
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(
-        model.vertices,
-        model.indices,
-        1000,
-        1000,
-        'terrain' + newEntity,
-      ),
+      new Mesh(1000, 1000, 'terrain' + newEntity),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
@@ -689,7 +690,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Add material component to entity
     this.ecs.addComponent<Terrain>(
       newEntity,
-      new Terrain(50 + 1, 'terrain' + newEntity),
+      new Terrain(texture.Slot, 50 + 1, 'terrain' + newEntity),
     );
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
@@ -736,22 +737,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const cylinderModel = new Model(buffer);
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(
-      effectEntity,
-      new Material(TextureType.Normal, 'whirlwind'),
-    );
+    this.ecs.addComponent<Material>(effectEntity, new Material('whirlwind'));
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(
-        cylinderModel.vertices,
-        cylinderModel.indices,
-        50,
-        50,
-        'cylinder' + effectEntity,
-      ),
+      new Mesh(50, 50, 'cylinder' + effectEntity),
     );
     MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
   }
@@ -768,11 +760,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Transform3D(5000, 5000, 5000),
     );
     this.ecs.addComponent<Light>(entity, new Light());
-
-    const mesh = this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(model.vertices, model.indices, 10, 10, 'light'),
-    );
+    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'light'));
     MeshManager.addMesh(model, 'light');
   }
 
@@ -787,19 +775,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addPlane(1, width, height);
-    this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(model.vertices, model.indices, width, height, 'water'),
-    );
-    this.ecs.addComponent<Material>(
-      entity,
-      new Material(TextureType.Albedo, 'water'),
-    );
+    MeshManager.addMesh(model, 'water');
+    //Add all components
+    this.ecs.addComponent<Mesh>(entity, new Mesh(width, height, 'water'));
+    this.ecs.addComponent<Material>(entity, new Material('water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
-    MeshManager.addMesh(model, 'water');
   }
 
   protected async addGrass() {
@@ -819,7 +802,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Material>(
       this.meshbrush.entity,
-      new Material(TextureType.Albedo, 'grass'),
+      new Material('grass'),
     );
     if (!grassComponent) return;
     const grassModel = new Model(grassBuffer);
@@ -1059,9 +1042,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     reader.readAsText(file);
   }
 
-  saveScene() {
+  async saveScene() {
     const json = SceneManager.saveScene(this.ecs);
-    console.log(json);
+
     this.http.post('/api/saveMap', { json }).subscribe({
       next: (e) => {
         console.log(e);

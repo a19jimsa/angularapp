@@ -12,6 +12,10 @@ app.get("/api/hello", (req, res) => {
   res.json({ msg: "API works" });
 });
 
+app.post("/api/maps/:mapId/splatmap", upload.single("file"), (req, res) => {
+  res.json({ success: true });
+});
+
 app.post("/api/saveMap", (req, res) => {
   const sceneData = req.body.json;
 

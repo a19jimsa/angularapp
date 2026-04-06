@@ -51,7 +51,7 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { LineBatch } from 'src/renderer/line-batch';
-import { TextureType } from 'src/renderer/texture';
+import { vec2 } from 'gl-matrix';
 
 @Component({
   selector: 'app-animation-creator',
@@ -138,6 +138,8 @@ export class AnimationCreatorComponent
 
   image = new Image();
 
+  private batch!: BatchRenderer;
+
   constructor() {
     this.editorCamera = new PerspectiveCamera(1920, 1080);
   }
@@ -149,6 +151,8 @@ export class AnimationCreatorComponent
     this.height = this.canvas.height;
 
     Renderer.create(this.canvas, this.editorCamera);
+    this.batch = new BatchRenderer();
+    if (!this.batch) throw new Error('Could not create batch ');
 
     const image = await TextureManager.loadImage(
       'assets/textures/frog-enemy.png',
@@ -160,7 +164,6 @@ export class AnimationCreatorComponent
       'batch2d_fragment.txt',
     );
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
-    BatchRenderer.init();
     LineBatch.init();
     this.animationLoop();
     //setTimeout(() => this.addEventHandlers(), 3000);
@@ -246,14 +249,14 @@ export class AnimationCreatorComponent
   }
 
   render() {
-    BatchRenderer.begin();
+    this.batch.begin();
     const bones = this.bones.sort((a, b) => a.order - b.order);
     for (const bone of bones) {
-      BatchRenderer.addQuads(
+      this.batch.addQuads(
         this.image.width,
         this.image.height,
         MathUtils.degreesToRadians(-bone.globalRotation) - Math.PI / 2,
-        bone.pivot,
+        vec2.fromValues(bone.pivot.x, bone.pivot.y),
         bone.startX,
         bone.startY,
         bone.endX,
@@ -266,7 +269,7 @@ export class AnimationCreatorComponent
         5,
       );
     }
-    BatchRenderer.end(this.editorCamera);
+    this.batch.end(this.editorCamera);
   }
 
   setKeyframesFromResource(name: string) {

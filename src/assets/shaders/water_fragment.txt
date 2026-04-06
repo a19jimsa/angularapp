@@ -41,8 +41,8 @@ void main() {
    vec2 flow = texture(u_flowMap, v_texcoord).rg; // 0–1
    flow = flow * 2.0 - 1.0;
 
-   vec2 scroll = v_texcoord + vec2(0.0, -u_time * 0.01);
-   vec2 scroll2 = v_texcoord + vec2(0.0, u_time * 0.01);
+   vec2 scroll = (v_texcoord * u_tiling) + vec2(0.0, -u_time * 0.01);
+   vec2 scroll2 = (v_texcoord * u_tiling) + vec2(0.0, u_time * 0.01);
 
    vec3 normal1 = texture(u_textures, vec3(scroll, 0)).rgb * 2.0 - 1.0;
    vec3 normal2 = texture(u_textures, vec3(scroll2, 0)).rgb * 2.0 - 1.0;

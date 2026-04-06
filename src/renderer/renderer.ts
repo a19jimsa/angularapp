@@ -1,7 +1,6 @@
 import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
 import { OrtographicCamera } from './orthographic-camera';
-import { Texture } from './texture';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;

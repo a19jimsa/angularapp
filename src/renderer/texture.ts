@@ -1,15 +1,5 @@
 import { Renderer } from './renderer';
 
-export enum TextureType {
-  Brush = 'brush',
-  Terrain = 'terrain',
-  Albedo = 'albedo',
-  Normal = 'normal',
-  UI = 'ui',
-  Skybox = 'skybox',
-  Splatmap = 'Splatmap',
-}
-
 export const Target = {
   TEXTURE_2D: 0x0de1, // 3553
   TEXTURE_2D_ARRAY: 0x8c1a, // 35866
@@ -17,7 +7,8 @@ export const Target = {
 } as const;
 
 export class Texture {
-  private name: string;
+  private slot: string;
+  private imagePaths: string[] = new Array();
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
@@ -26,14 +17,14 @@ export class Texture {
   private shaderID: string;
 
   constructor(
-    name: string,
+    slot: string,
     target: number,
     width: number,
     height: number,
     uniformName: string,
     shaderID: string,
   ) {
-    this.name = name;
+    this.slot = slot;
     this.target = target;
     this.width = width;
     this.height = height;
@@ -41,8 +32,12 @@ export class Texture {
     this.shaderID = shaderID;
   }
 
-  public get Name() {
-    return this.name;
+  public get Paths() {
+    return this.imagePaths;
+  }
+
+  public get Slot() {
+    return this.slot;
   }
 
   public get Texture() {
@@ -80,6 +75,7 @@ export class Texture {
         image,
       );
       i++;
+      this.imagePaths.push(image.src);
     }
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -110,6 +106,7 @@ export class Texture {
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
         image,
       );
+      this.imagePaths.push(image.src);
     } else {
       gl.texImage2D(
         gl.TEXTURE_2D,
@@ -132,7 +129,7 @@ export class Texture {
     return texture;
   }
 
-  public bind2DArray(images: HTMLImageElement[]) {
+  public bind2DArrayTexture(images: HTMLImageElement[]) {
     const gl = Renderer.getGL;
     const tex0 = images[0];
     const texture = gl.createTexture();
@@ -152,6 +149,7 @@ export class Texture {
       gl.UNSIGNED_BYTE,
       null,
     );
+    console.log(images);
 
     images.forEach((tex, i) => {
       gl.texSubImage3D(
@@ -167,6 +165,7 @@ export class Texture {
         gl.UNSIGNED_BYTE,
         tex,
       );
+      this.imagePaths.push(tex.src);
     });
 
     gl.texParameteri(
@@ -180,7 +179,6 @@ export class Texture {
     gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
     this.glTexture = texture;
-    console.log(this.glTexture);
     return texture;
   }
 
