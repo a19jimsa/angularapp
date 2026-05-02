@@ -5,7 +5,7 @@ export class PerspectiveCamera {
   private projectionMatrix: mat4 = mat4.create();
   private viewMatrix: mat4 = mat4.create();
   private viewProjectionMatrix: mat4 = mat4.create();
-  private cameraPos: vec3 = vec3.fromValues(500, 100, 1000);
+  private cameraPos: vec3 = vec3.fromValues(500, 100, 10000);
   private cameraFront: vec3 = vec3.fromValues(0, 0, -1);
   private cameraUp: vec3 = vec3.fromValues(0, 1, 0);
   private rotation: number = 0;
@@ -17,7 +17,7 @@ export class PerspectiveCamera {
       MathUtils.degreesToRadians(45),
       width / height,
       0.1,
-      30000
+      10000
     );
     const target = vec3.create();
     vec3.add(target, this.cameraPos, this.cameraFront);

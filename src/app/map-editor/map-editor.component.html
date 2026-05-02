@@ -79,6 +79,7 @@
           <button mat-menu-item (click)="createFrog()">Frog</button>
           <button mat-menu-item>Cylinder</button>
           <button mat-menu-item (click)="createLightSource()">Light</button>
+          <button mat-menu-item (click)="createFire()">Fire</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -776,13 +777,22 @@
             class="d-flex align-items-center flex-wrap overflow-auto"
             style="height: 150px"
           >
-            <!-- @for (image of images; track $index) {
-            <img
-              (click)="setBrushTextureSlot(image[0])"
-              src="{{ image[1].src }}"
-              style="object-fit: contain; width: 150px; height: 150px"
-            />
-            } -->
+            <mat-card>
+              <mat-card-header><h3 class="center">Trees</h3></mat-card-header>
+              <mat-card-content>
+                <button
+                  (click)="openFolder()"
+                  matIconButton
+                  aria-label="Example icon button with a open in new tab icon"
+                  class="h-100"
+                  style="width: 150px"
+                >
+                  <mat-icon class="w-100" style="font-size: 100px"
+                    >folder</mat-icon
+                  >
+                </button>
+              </mat-card-content>
+            </mat-card>
           </div>
         </mat-card-content>
       </mat-card>

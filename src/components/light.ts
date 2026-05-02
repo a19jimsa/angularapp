@@ -23,7 +23,7 @@ export class Light extends Component {
     this.ambient = vec3.fromValues(1, 1, 1);
     this.diffuse = vec3.fromValues(1, 1, 1);
     this.specular = vec3.fromValues(1, 1, 1);
-    this.direction = vec3.fromValues(0, 0, 0);
+    this.direction = vec3.fromValues(0, 0, 1);
     this.color = vec3.fromValues(1, 1, 1);
   }
 

@@ -30,7 +30,7 @@ export class VertexArray {
     this.unbind();
   }
 
-  addInstanceBuffer(vbl: BufferLayout, instanceVertices: number[]) {
+  addInstanceBuffer(vbl: BufferLayout, instanceBuffer: number[]) {
     const gl = Renderer.getGL;
     gl.bindVertexArray(this.VAO);
     //Instance VBO
@@ -38,7 +38,7 @@ export class VertexArray {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array(instanceVertices),
+      new Float32Array(instanceBuffer),
       gl.DYNAMIC_DRAW,
     );
     for (const element of vbl.elements) {

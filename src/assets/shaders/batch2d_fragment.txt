@@ -10,7 +10,7 @@ in float v_texIndex;
 out vec4 FragColor;
 
 void main() {
-    vec4 color = texture(u_textures, vec3(v_texcoord, 1));
+    vec4 color = texture(u_textures, vec3(v_texcoord, 0));
     if(color.a < 0.9)
         discard;
     FragColor = color;

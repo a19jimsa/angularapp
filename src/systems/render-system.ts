@@ -8,9 +8,7 @@ import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
-import { Skeleton } from 'src/components/skeleton';
 import { BatchRenderer } from 'src/renderer/batch-renderer';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { Pivot } from 'src/components/pivot';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { Light } from 'src/components/light';
@@ -24,12 +22,18 @@ import { BufferLayout } from 'src/renderer/buffer';
 import { Model } from 'src/renderer/model';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
-import { Tree } from 'src/components/tree';
+import { Sprite2D } from 'src/components/sprite2D';
+
+type Sprite = {
+  position: Transform3D;
+  sprite: Sprite2D;
+};
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
   private loading: boolean = true;
   private batch: BatchRenderer;
+  private batches = new Map<string, Sprite[]>();
 
   constructor() {
     this.camera = Renderer.getCamera();
@@ -84,52 +88,48 @@ export class RenderSystem {
     this.loading = false;
   }
 
-  private drawBatch(ecs: Ecs) {
-    this.batch.begin();
+  private sortBatches(ecs: Ecs) {
     for (const entity of ecs.getEntities()) {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      const tree = ecs.getComponent<Tree>(entity, 'Tree');
-      if (transform3D && tree) {
+      const sprite2D = ecs.getComponent<Sprite2D>(entity, 'Sprite2D');
+      if (transform3D && sprite2D) {
+        const key = sprite2D.textureIndex;
+        let batch = this.batches.get(key);
+
+        if (!batch) {
+          batch = [];
+          this.batches.set(key, batch);
+        }
+        const sprite: Sprite = { position: transform3D, sprite: sprite2D };
+        batch.push(sprite);
+      }
+    }
+  }
+
+  private drawBatch(ecs: Ecs) {
+    this.batches.forEach((sprites, key) => {
+      this.batch.begin();
+      for (const sprite of sprites) {
         this.batch.addQuads(
-          tree.width,
-          tree.height,
+          sprite.sprite.width,
+          sprite.sprite.height,
           0,
           vec2.fromValues(1, 1),
           0,
           0,
-          tree.width,
-          tree.height,
-          transform3D.translate[0],
-          transform3D.translate[1],
-          transform3D.translate[2],
-          tree.width,
-          tree.height,
-          transform3D.translate[2],
+          sprite.sprite.width,
+          sprite.sprite.height,
+          sprite.position.translate[0],
+          sprite.position.translate[1],
+          sprite.position.translate[2],
+          sprite.sprite.width,
+          sprite.sprite.height,
+          sprite.position.translate[2],
         );
       }
-      const skeleton = ecs.getComponent<Skeleton>(entity, 'Skeleton');
-      if (!skeleton) continue;
-      for (const bone of skeleton.bones) {
-        this.batch.addQuads(
-          skeleton.image.width,
-          skeleton.image.height,
-          MathUtils.degreesToRadians(-bone.globalRotation) - Math.PI / 2,
-          vec2.fromValues(bone.pivot.x, bone.pivot.y),
-          bone.startX,
-          bone.startY,
-          bone.endX,
-          bone.endY,
-          bone.position.x + bone.pivot.x - bone.endX / 2,
-          -bone.position.y - bone.pivot.y,
-          0,
-          bone.endX,
-          bone.endY,
-          bone.order,
-        );
-      }
-    }
-
-    this.batch.end(this.camera);
+      this.batch.end(this.camera, key);
+    });
+    this.batches.clear();
   }
 
   private getLightSources(ecs: Ecs): Entity | null {
@@ -144,21 +144,12 @@ export class RenderSystem {
     return light;
   }
 
-  private drawTerrainBatch() {
-    const shader = ShaderManager.getShader('splatmap');
-    shader.bind();
-    const vao = MeshManager.getMesh('terrain');
-    if (!vao) return;
-    Renderer.drawIndexed(vao);
-    shader.unbind();
-  }
-
   private bindTextures() {
     const textures = TextureManager.getTextures();
     let slot = 0;
     for (const texture of textures) {
       const shader = ShaderManager.getShader(texture.ShaderID);
-      console.log(texture);
+      console.log(texture.ShaderID);
       shader.bind();
       shader.setUniform(
         texture.UniformName,
@@ -177,6 +168,7 @@ export class RenderSystem {
       TextureManager.dirty = false;
     }
     Renderer.begin();
+    this.sortBatches(ecs);
     const shader = ShaderManager.getShader('skybox');
     if (!shader) return;
     shader.bind();

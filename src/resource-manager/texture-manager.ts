@@ -46,11 +46,10 @@ export class TextureManager extends Manager {
 
   public static async addTexture(
     slot: string,
-    path: string,
     unifornName: string,
+    image: HTMLImageElement,
     shaderID: string,
   ) {
-    const image = await this.loadImage(path);
     const texture = new Texture(
       slot,
       Target.TEXTURE_2D,

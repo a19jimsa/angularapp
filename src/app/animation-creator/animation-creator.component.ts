@@ -269,7 +269,7 @@ export class AnimationCreatorComponent
         5,
       );
     }
-    this.batch.end(this.editorCamera);
+    this.batch.end(this.editorCamera, 'batch');
   }
 
   setKeyframesFromResource(name: string) {

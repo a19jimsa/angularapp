@@ -7,7 +7,7 @@ import { ShaderDataType, ShaderType } from './shader-data-type';
 import { vec2 } from 'gl-matrix';
 
 export class BatchRenderer {
-  private maxSprites: number = 100;
+  private maxSprites: number = 1000;
   //Hörn (2 trianglar per quad ) KAN OPTIMERAS I FRAMTIDEN GENOM IBO
   private verticesPerSprite: number = 6;
   //x y z u v texid
@@ -28,6 +28,12 @@ export class BatchRenderer {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 1, false);
     this.vertexArray.addBuffer(buffer);
+  }
+
+  updateBuffer(vertices: number[]) {
+    const buffer = new BufferLayout();
+    buffer.add(3, ShaderDataType.GetType(ShaderType.Float), 1, false);
+    this.vertexArray.addInstanceBuffer(buffer, vertices);
   }
 
   begin() {
@@ -130,12 +136,14 @@ export class BatchRenderer {
     this.vertexCount += this.floatsPerVertex;
   }
 
-  end(camera: PerspectiveCamera) {
+  end(camera: PerspectiveCamera, shaderID: string) {
     const gl = Renderer.getGL;
-    const shader = ShaderManager.getShader('batch');
-    if (!shader) throw new Error('Could not get shader ' + shader);
+    const shader = ShaderManager.getShader(shaderID);
+    if (!shader)
+      throw new Error('Could not get shader with shaderID ' + shaderID);
     shader.bind();
     shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
+    if (!this.vertexArray) throw new Error('Could not get vertex array');
     const buffer = this.vertexArray.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferSubData(
@@ -147,7 +155,6 @@ export class BatchRenderer {
       ),
     );
     this.vertexArray.bind();
-    if (!this.vertexArray) throw new Error('Could not get vertex array');
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
     this.vertexArray.unbind();
     shader.unbind();

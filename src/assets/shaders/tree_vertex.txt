@@ -1,16 +1,22 @@
-attribute vec4 a_position;
-attribute vec2 a_texcoord;
-attribute vec4 a_instancePositions;
+#version 300 es
+precision mediump float;
+
+layout(location = 0) in vec3 a_position;
+layout(location = 1) in vec2 a_texcoord;
+layout(location = 2) in vec4 a_instancePositions;
+layout(location = 3) in float a_index;
 
 uniform mat4 u_matrix;
 uniform mat4 u_view;
-varying vec2 v_texcoord;
 
-varying float v_fogDistance;
+out vec2 v_texcoord;
+out float v_fogDistance;
+out float v_index;
 
 void main() {
    gl_Position = u_matrix * (a_position + a_instancePositions);
    v_texcoord = a_texcoord;
    vec4 viewPos = u_view * (a_position + a_instancePositions);
    v_fogDistance = length(viewPos.z);
+   v_index = a_index;
 }

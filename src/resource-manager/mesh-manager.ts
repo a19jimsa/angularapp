@@ -21,11 +21,11 @@ export class MeshManager {
   public static addInstanceMesh(
     meshName: string,
     vbl: BufferLayout,
-    positions: number[],
+    buffer: number[],
   ) {
     const vertexArray = this.vertexArrays.get(meshName);
     if (!vertexArray) return;
-    vertexArray.addInstanceBuffer(vbl, positions);
+    vertexArray.addInstanceBuffer(vbl, buffer);
     console.log('Added instance buffer to ' + meshName);
   }
 

@@ -65,6 +65,9 @@ import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
+import { Sprite } from 'src/components/sprite';
+import { Sprite2D } from 'src/components/sprite2D';
+import { ParticleEmitter } from 'src/components/particle-emitter';
 
 type IsSelected = {
   select: boolean;
@@ -441,6 +444,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
+    await ShaderManager.load('fire', 'fire_vertex.txt', 'fire_fragment.txt');
   }
 
   async loadAllTextures() {}
@@ -583,15 +587,34 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'water',
     );
 
-    const tree1 = await TextureManager.loadImage('/assets/trees/tree_001.png');
-    const tree2 = await TextureManager.loadImage('/assets/trees/tree_002.png');
-    //const tree3 = await TextureManager.loadImage('/assets/trees/tree_003.png');
+    //const tree1 = await TextureManager.loadImage('/assets/trees/tree_001.png');
+    const tree2 = await TextureManager.loadImage('/assets/trees/tree_004.png');
+    const tree3 = await TextureManager.loadImage('/assets/trees/tree_005.png');
+    const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
+    const tree7 = await TextureManager.loadImage('/assets/trees/tree_007.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
       'tree',
       'u_textures',
-      [tree1, tree2],
+      [tree7],
       'batch',
+    );
+
+    const fireTexture = await TextureManager.addTextureArray(
+      'fire',
+      'u_textures',
+      [tree2],
+      'fire',
+    );
+
+    const noise = await TextureManager.loadImage(
+      '/assets/textures/noise_001.jpg',
+    );
+    const noiseTexture = await TextureManager.addTexture(
+      'noise',
+      'u_heightMap',
+      noise,
+      'splatmap',
     );
 
     //Wrong size
@@ -694,7 +717,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
-      new Transform3D(0, 0, -9000),
+      new Transform3D(0, 0, 0),
     );
     if (!transform) return;
     transform.scale[0] = 10;
@@ -1058,5 +1081,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   changeMode(mode: Mode) {
     this.mode = mode;
+  }
+
+  openFolder() {
+    throw new Error('Method not implemented.');
+  }
+
+  createFire() {
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent(entity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent(entity, new Sprite2D('fire', 100, 100));
+    this.ecs.addComponent(entity, new Name('Fire'));
   }
 }

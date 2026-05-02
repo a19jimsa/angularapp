@@ -17,12 +17,16 @@ import { BatchRenderable } from 'src/components/batch-renderable';
 import { BrushImage } from 'src/components/brush-image';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
+import { Name } from 'src/components/name';
 import { Splatmap } from 'src/components/splatmap';
+import { Sprite2D } from 'src/components/sprite2D';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
+import { BufferLayout } from 'src/renderer/buffer';
 import { Renderer } from 'src/renderer/renderer';
+import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 
@@ -269,11 +273,11 @@ export class BrushSystem {
     const tree = ecs.createEntity();
     ecs.addComponent<Transform3D>(
       tree,
-      new Transform3D(x * 10, y, z * 10 - 9000),
+      new Transform3D(x * 10, y, z * 10),
     );
-    ecs.addComponent<Tree>(tree, new Tree(566, 800, 0));
-    console.log(x, y, z);
-    console.log(x * 10, y, z * 10);
+    ecs.addComponent<Tree>(tree, new Tree(1024, 1024, 1));
+    ecs.addComponent<Sprite2D>(tree, new Sprite2D('batch', 1024, 1024));
+    ecs.addComponent<Name>(tree, new Name('Tree'));
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
