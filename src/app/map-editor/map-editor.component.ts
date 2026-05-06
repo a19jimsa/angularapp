@@ -445,6 +445,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
     await ShaderManager.load('fire', 'fire_vertex.txt', 'fire_fragment.txt');
+    await ShaderManager.load(
+      'lightning',
+      'lightning_vertex.txt',
+      'lightning_fragment.txt',
+    );
   }
 
   async loadAllTextures() {}
@@ -588,7 +593,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     //const tree1 = await TextureManager.loadImage('/assets/trees/tree_001.png');
-    const tree2 = await TextureManager.loadImage('/assets/trees/tree_004.png');
     const tree3 = await TextureManager.loadImage('/assets/trees/tree_005.png');
     const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
     const tree7 = await TextureManager.loadImage('/assets/trees/tree_007.png');
@@ -600,16 +604,40 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'batch',
     );
 
-    const fireTexture = await TextureManager.addTextureArray(
-      'fire',
-      'u_textures',
-      [tree2],
-      'fire',
+    const fireNoise = await TextureManager.loadImage(
+      '/assets/textures/fire-noise.jpg',
     );
-
+    const fireNoiseSub = await TextureManager.loadImage(
+      '/assets/textures/fire-noise-sub.jpg',
+    );
+    const fireNoiseColor = await TextureManager.loadImage(
+      '/assets/textures/fire-noise-color.jpg',
+    );
+    const fireNoiseAdd = await TextureManager.loadImage(
+      '/assets/textures/fire-noise-add.jpg',
+    );
     const noise = await TextureManager.loadImage(
       '/assets/textures/noise_001.jpg',
     );
+    const fireTexture = await TextureManager.addTextureArray(
+      'fire',
+      'u_textures',
+      [fireNoise, fireNoiseAdd, fireNoiseSub, fireNoiseColor],
+      'fire',
+    );
+    const lightning = await TextureManager.loadImage(
+      '/assets/textures/lightning.jpg',
+    );
+    const gradient = await TextureManager.loadImage(
+      '/assets/textures/gradient.jpg',
+    );
+    const lightningTextures = await TextureManager.addTextureArray(
+      'lightning',
+      'u_textures',
+      [lightning, gradient],
+      'lightning',
+    );
+
     const noiseTexture = await TextureManager.addTexture(
       'noise',
       'u_heightMap',
@@ -703,7 +731,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(1000, 1000, 'terrain' + newEntity),
+      new Mesh(1000, 1000, 'terrain' + newEntity, 'terrain' + newEntity),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
@@ -756,17 +784,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected createCylinder() {
     const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     //Add correct buffer!
     const cylinderModel = new Model(buffer);
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('whirlwind'));
+    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
     this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
     this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(50, 50, 'cylinder' + effectEntity),
+      new Mesh(50, 50, 'fire', 'cylinder' + effectEntity),
     );
     MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
   }
@@ -783,7 +813,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Transform3D(5000, 5000, 5000),
     );
     this.ecs.addComponent<Light>(entity, new Light());
-    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'light'));
+    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'light', 'light'));
     MeshManager.addMesh(model, 'light');
   }
 
@@ -800,7 +830,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(1, width, height);
     MeshManager.addMesh(model, 'water');
     //Add all components
-    this.ecs.addComponent<Mesh>(entity, new Mesh(width, height, 'water'));
+    this.ecs.addComponent<Mesh>(
+      entity,
+      new Mesh(width, height, 'water', 'water'),
+    );
     this.ecs.addComponent<Material>(entity, new Material('water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Name>(entity, new Name('Water'));
@@ -1089,8 +1122,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   createFire() {
     const entity = this.ecs.createEntity();
-    this.ecs.addComponent(entity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent(entity, new Transform3D(0, 0, 9000));
     this.ecs.addComponent(entity, new Sprite2D('fire', 100, 100));
     this.ecs.addComponent(entity, new Name('Fire'));
+  }
+
+  createLightning() {
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent(entity, new Transform3D(0, 0, 9000));
+    this.ecs.addComponent(
+      entity,
+      new Sprite2D('lightning', 1080 / 3, 1920 / 3),
+    );
+    this.ecs.addComponent(entity, new Name('Lightning'));
   }
 }

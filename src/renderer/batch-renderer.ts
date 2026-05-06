@@ -143,6 +143,7 @@ export class BatchRenderer {
       throw new Error('Could not get shader with shaderID ' + shaderID);
     shader.bind();
     shader.setUniformMat4('u_matrix', camera.getViewProjectionMatrix());
+    shader.setFloat('u_time', performance.now());
     if (!this.vertexArray) throw new Error('Could not get vertex array');
     const buffer = this.vertexArray.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);

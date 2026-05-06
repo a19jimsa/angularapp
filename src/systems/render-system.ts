@@ -111,19 +111,19 @@ export class RenderSystem {
       this.batch.begin();
       for (const sprite of sprites) {
         this.batch.addQuads(
-          sprite.sprite.width,
-          sprite.sprite.height,
+          sprite.sprite.width * sprite.position.scale[0],
+          sprite.sprite.height * sprite.position.scale[1],
           0,
           vec2.fromValues(1, 1),
           0,
           0,
-          sprite.sprite.width,
-          sprite.sprite.height,
+          sprite.sprite.width * sprite.position.scale[0],
+          sprite.sprite.height * sprite.position.scale[1],
           sprite.position.translate[0],
           sprite.position.translate[1],
           sprite.position.translate[2],
-          sprite.sprite.width,
-          sprite.sprite.height,
+          sprite.sprite.width * sprite.position.scale[0],
+          sprite.sprite.height * sprite.position.scale[1],
           sprite.position.translate[2],
         );
       }
@@ -185,8 +185,6 @@ export class RenderSystem {
       Renderer.drawSkybox(vao);
     }
 
-    this.drawBatch(ecs);
-
     const cameraMatrix = mat4.invert(
       mat4.create(),
       this.camera.getViewMatrix(),
@@ -218,9 +216,9 @@ export class RenderSystem {
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
       if (mesh && mesh.dirty) {
-        const vertexArray = MeshManager.getMesh(mesh.meshId);
+        const vertexArray = MeshManager.getMesh(mesh.shaderId);
         if (!vertexArray)
-          throw new Error('Could not get mesh with meshid' + mesh.meshId);
+          throw new Error('Could not get mesh with shaderId' + mesh.shaderId);
         if (terrain) {
           console.log(terrain.heights.size);
         }
@@ -304,7 +302,7 @@ export class RenderSystem {
         Renderer.drawIndexed(vao);
         shader.unbind();
       } else if (mesh && material && animatedTexture) {
-        const shader = ShaderManager.getShader(mesh.meshId);
+        const shader = ShaderManager.getShader(mesh.shaderId);
         shader.bind();
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.translate);
@@ -380,6 +378,7 @@ export class RenderSystem {
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
     }
+    this.drawBatch(ecs);
   }
 
   private updateNormals(vertexArray: VertexArray): void {

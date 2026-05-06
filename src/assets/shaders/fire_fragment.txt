@@ -3,9 +3,22 @@ precision mediump float;
 precision mediump sampler2DArray;
 
 uniform sampler2DArray u_textures;
+uniform float u_time;
+
+in vec2 v_texcoord;
 
 out vec4 FragColor;
 
-void main() {
-    FragColor = vec4(1.0);
+void main() { 
+    vec2 uv = v_texcoord;
+    vec2 uvScrolling = v_texcoord + vec2(0.0, u_time * 0.001); 
+    vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0)); 
+    vec4 gradientAdd = texture(u_textures, vec3(uv, 1)); 
+    vec4 gradientSub = texture(u_textures, vec3(uv, 2));
+    float heat = baseColor.r - gradientAdd.r + gradientSub.r;
+    //heat = smoothstep(0.0, 1.0, heat);
+    vec4 rampColor = texture(u_textures, vec3(heat, 0.5, 3));
+    if(heat < 0.5) discard;
+    FragColor.xyz = rampColor.rgb;
+    FragColor.w *= heat;
 }
