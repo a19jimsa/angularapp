@@ -215,6 +215,7 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+
       if (mesh && mesh.dirty) {
         const vertexArray = MeshManager.getMesh(mesh.shaderId);
         if (!vertexArray)
@@ -353,7 +354,29 @@ export class RenderSystem {
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) continue;
         Renderer.drawIndexed(vao);
+      } else if (transform3D && mesh) {
+        const shader = ShaderManager.getShader(mesh.shaderId);
+        if (!shader) throw new Error('Mesh could not found!' + mesh.shaderId);
+
+        shader.bind();
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix(),
+        );
+        shader.setFloat('u_time', performance.now());
+        const modelMatrix = mat4.create();
+        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+        shader.setUniformMat4('u_model', modelMatrix);
+        const vertexArray = MeshManager.getMesh(mesh.meshId);
+        if (!vertexArray) throw new Error('Mesh is not grass');
+        console.log(mesh.meshId);
+        Renderer.drawIndexed(vertexArray);
       }
+
       if (grass) {
         if (grass.meshId !== 'grass') throw new Error('Mesh is not grass!');
         const shader = ShaderManager.getShader(grass.meshId);
@@ -378,6 +401,7 @@ export class RenderSystem {
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
     }
+
     this.drawBatch(ecs);
   }
 

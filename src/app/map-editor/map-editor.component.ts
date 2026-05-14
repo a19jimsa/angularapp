@@ -592,7 +592,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'water',
     );
 
-    //const tree1 = await TextureManager.loadImage('/assets/trees/tree_001.png');
+    const tree1 = await TextureManager.loadImage('/assets/trees/tree_004.png');
     const tree3 = await TextureManager.loadImage('/assets/trees/tree_005.png');
     const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
     const tree7 = await TextureManager.loadImage('/assets/trees/tree_007.png');
@@ -600,7 +600,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const treeTextureArray = await TextureManager.addTextureArray(
       'tree',
       'u_textures',
-      [tree7],
+      [tree1, tree3, tree6, tree7],
       'batch',
     );
 
@@ -626,7 +626,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'fire',
     );
     const lightning = await TextureManager.loadImage(
-      '/assets/textures/lightning.jpg',
+      '/assets/textures/lightning.png',
     );
     const gradient = await TextureManager.loadImage(
       '/assets/textures/gradient.jpg',
@@ -813,7 +813,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Transform3D(5000, 5000, 5000),
     );
     this.ecs.addComponent<Light>(entity, new Light());
-    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'light', 'light'));
+    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'basic', 'light'));
     MeshManager.addMesh(model, 'light');
   }
 
@@ -1129,11 +1129,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   createLightning() {
     const entity = this.ecs.createEntity();
-    this.ecs.addComponent(entity, new Transform3D(0, 0, 9000));
-    this.ecs.addComponent(
-      entity,
-      new Sprite2D('lightning', 1080 / 3, 1920 / 3),
-    );
+    this.ecs.addComponent(entity, new Transform3D(0, 50, 9000));
+    const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
+    if (transform) {
+      transform.scale[0] = 10;
+      transform.scale[1] = 10;
+      transform.scale[2] = 10;
+    }
+    this.ecs.addComponent<Material>(entity, new Material('lightning'));
     this.ecs.addComponent(entity, new Name('Lightning'));
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const model = new Model(buffer);
+    //Change later in runtime with some parameters in UI
+    model.addLightning(100, 200, 20);
+    MeshManager.addMesh(model, 'lightning');
+    //Add all components
+    this.ecs.addComponent<Mesh>(
+      entity,
+      new Mesh(100, 100, 'lightning', 'lightning'),
+    );
+    this.ecs.addComponent<Material>(entity, new Material('lightning'));
   }
 }
