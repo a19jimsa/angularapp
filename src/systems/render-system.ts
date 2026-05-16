@@ -216,16 +216,10 @@ export class RenderSystem {
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
 
       if (mesh && mesh.dirty) {
-        const vertexArray = MeshManager.getMesh(mesh.shaderId);
-        if (!vertexArray)
-          throw new Error('Could not get mesh with shaderId' + mesh.shaderId);
-        if (terrain) {
-          console.log(terrain.heights.size);
-        }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (vao) {
           Renderer.updateMesh(vao);
-          this.updateNormals(vertexArray);
+          this.updateNormals(vao);
         }
         mesh.dirty = false;
       }
@@ -253,55 +247,7 @@ export class RenderSystem {
         shader.unbind();
       }
 
-      if (mesh && material && splatmap) {
-        const shader = ShaderManager.getShader(material.shaderId);
-        shader.bind();
-        if (light && lightPos) {
-          shader.setVec3('light.position', lightPos.translate);
-          shader.setVec3('light.direction', light.direction);
-          shader.setVec3('light.ambient', light.ambient);
-          shader.setVec3('light.diffuse', light.diffuse);
-          shader.setVec3('light.color', light.color);
-        }
-        shader.setVec3('material.ambient', material.ambient);
-        shader.setVec3('material.diffuse', material.diffuse);
-        shader.setVec3('material.specular', material.specular);
-        shader.setFloat('material.shininess', material.shininess);
-
-        const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
-        if (brushImage) {
-          shader.setVec2('u_brushUV', brushImage.UV);
-          shader.setFloat('u_brushLayer', brushImage.layer);
-        }
-
-        if (terrain) {
-          shader.setFloat('u_tiling', terrain.tiling);
-          shader.setFloat('u_fogPower', terrain.fogPower);
-          shader.setVec3('u_fogColor', terrain.fogColor);
-        }
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        shader.setFloat('u_time', performance.now() * 0.001);
-        shader.setUniformMat4('u_view', this.camera.getViewMatrix());
-        shader.setVec3('u_cameraPos', cameraPos);
-
-        if (transform3D) {
-          const modelMatrix = mat4.create();
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-          mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-          mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-          shader.setUniformMat4('u_model', modelMatrix);
-        }
-        //VAO comtains only vertexdata
-        const vao = MeshManager.getMesh(mesh.meshId);
-        if (!vao) continue;
-        Renderer.drawIndexed(vao);
-        shader.unbind();
-      } else if (mesh && material) {
+      if (mesh && material) {
         const shader = ShaderManager.getShader(mesh.shaderId);
         shader.bind();
         if (light && lightPos) {
@@ -328,6 +274,22 @@ export class RenderSystem {
         if (animatedTexture) {
           shader.setFloat('u_animationSpeed', animatedTexture.speed);
         }
+        if (splatmap) {
+          const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
+          if (brushImage) {
+            shader.setVec2('u_brushUV', brushImage.UV);
+            shader.setFloat('u_brushLayer', brushImage.layer);
+          }
+
+          if (terrain) {
+            shader.setFloat('u_tiling', terrain.tiling);
+            shader.setFloat('u_fogPower', terrain.fogPower);
+            shader.setVec3('u_fogColor', terrain.fogColor);
+          }
+
+          shader.setUniformMat4('u_view', this.camera.getViewMatrix());
+          shader.setVec3('u_cameraPos', cameraPos);
+        }
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
           'Transform3D',
@@ -349,7 +311,6 @@ export class RenderSystem {
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) throw new Error('Vao not found');
-        console.log(mesh.meshId);
         Renderer.drawIndexed(vao);
       }
 

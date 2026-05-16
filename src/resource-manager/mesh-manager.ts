@@ -43,4 +43,8 @@ export class MeshManager {
     vao.addBuffer(vertexArray.bufferLayout);
     this.vertexArrays.set(meshId, vertexArray);
   }
+
+  public static getAllMesh() {
+    return Array.from(this.vertexArrays.values());
+  }
 }

@@ -1,53 +1,66 @@
 <div class="container-fluid">
   <div class="row">
-    <mat-toolbar class="transparent d-flex justify-content-between">
-      <div>
-        <button
-          matIconButton
-          [matMenuTriggerFor]="menu"
-          class="example-icon"
-          aria-label="Example icon-button with menu icon"
-        >
-          <mat-icon>menu</mat-icon>
-        </button>
-        <span>Map Editor</span>
+    <div class="col-12">
+      <mat-card class="mt-2 mb-2">
+        <mat-toolbar class="transparent d-flex justify-content-between">
+          <div>
+            <button
+              matIconButton
+              [matMenuTriggerFor]="menu"
+              class="example-icon"
+              aria-label="Example icon-button with menu icon"
+            >
+              <mat-icon>menu</mat-icon>
+            </button>
+            <span>Map Editor</span>
 
-        <mat-menu #menu="matMenu">
-          <!-- Dold file input -->
-          <input
-            type="file"
-            #fileInput
-            hidden
-            (change)="onFileSelected($event)"
-          />
-          <button mat-menu-item (click)="fileInput.click()">
-            <mat-icon>folder_open</mat-icon>
-            <span>Open map</span>
-          </button>
-          <button mat-menu-item (click)="saveScene()">
-            <mat-icon>save</mat-icon>
-            <span>Save</span>
-          </button>
+            <mat-menu #menu="matMenu">
+              <!-- Dold file input -->
+              <input
+                type="file"
+                #fileInput
+                hidden
+                (change)="onFileSelected($event)"
+              />
+              <button mat-menu-item (click)="fileInput.click()">
+                <mat-icon>folder_open</mat-icon>
+                <span>Open map</span>
+              </button>
+              <button mat-menu-item (click)="saveScene()">
+                <mat-icon>save</mat-icon>
+                <span>Save</span>
+              </button>
 
-          <button mat-menu-item>
-            <mat-icon>notifications_off</mat-icon>
-            <span>Disable alerts</span>
-          </button>
-        </mat-menu>
-      </div>
-      <div>
-        <button matMiniFab aria-label="Example icon button with a menu icon">
-          <mat-icon>3d_rotation</mat-icon>
-        </button>
-        <button matMiniFab aria-label="Example icon button with a menu icon">
-          <mat-icon>3d</mat-icon>
-        </button>
-        <button matMiniFab aria-label="Example icon button with a menu icon">
-          <mat-icon>camera</mat-icon>
-        </button>
-      </div>
-      <div>Basj</div>
-    </mat-toolbar>
+              <button mat-menu-item>
+                <mat-icon>notifications_off</mat-icon>
+                <span>Disable alerts</span>
+              </button>
+            </mat-menu>
+          </div>
+          <div>
+            <button
+              matMiniFab
+              aria-label="Example icon button with a menu icon"
+            >
+              <mat-icon>3d_rotation</mat-icon>
+            </button>
+            <button
+              matMiniFab
+              aria-label="Example icon button with a menu icon"
+            >
+              <mat-icon>3d</mat-icon>
+            </button>
+            <button
+              matMiniFab
+              aria-label="Example icon button with a menu icon"
+            >
+              <mat-icon>camera</mat-icon>
+            </button>
+          </div>
+          <div>Basj</div>
+        </mat-toolbar>
+      </mat-card>
+    </div>
   </div>
   <div class="row">
     <div class="col-1">
@@ -82,6 +95,7 @@
           <button mat-menu-item (click)="createFire()">Fire</button>
           <button mat-menu-item (click)="createLightning()">Lightning</button>
           <button mat-menu-item (click)="createCircle()">Circle</button>
+          <button mat-menu-item (click)="createSphere()">Sphere</button>
         </mat-menu>
       </mat-card>
     </div>
@@ -282,6 +296,29 @@
                     <mat-slider min="0" max="1" step="0.1" discrete>
                       <input matSliderThumb [(ngModel)]="meshbrush.fallOff" />
                     </mat-slider>
+                  </div>
+                </mat-expansion-panel>
+              }
+              @if (item === mesh) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Mesh </mat-panel-title>
+                    <mat-panel-description>
+                      <mat-icon>texture</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="row">
+                    <mat-form-field>
+                      <mat-label>{{ mesh.shaderId }}</mat-label>
+                      <mat-select>
+                        @for (shader of shaders; track shader) {
+                          <mat-option
+                            (onSelectionChange)="mesh.shaderId = shader"
+                            >{{ shader }}</mat-option
+                          >
+                        }
+                      </mat-select>
+                    </mat-form-field>
                   </div>
                 </mat-expansion-panel>
               }

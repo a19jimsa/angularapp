@@ -1,4 +1,3 @@
-import { BufferLayout } from 'src/renderer/buffer';
 import { Renderer } from 'src/renderer/renderer';
 import { Shader } from 'src/renderer/shader';
 import { Manager } from 'src/resource-manager/manager';
@@ -84,5 +83,9 @@ export class ShaderManager extends Manager {
 
   public static restore() {
     this.shaders.clear();
+  }
+
+  public static getShaderNames(): string[] {
+    return Array.from(this.shaders.keys());
   }
 }

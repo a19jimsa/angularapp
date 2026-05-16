@@ -274,7 +274,7 @@ export class BrushSystem {
     const tree = ecs.createEntity();
     ecs.addComponent<Transform3D>(
       tree,
-      new Transform3D(x * 10 - 512, y, z * 10),
+      new Transform3D(x * 10 - 512, y * 10, z * 10),
     );
     ecs.addComponent<Tree>(tree, new Tree(1024, 1024, 1));
     ecs.addComponent<Sprite2D>(tree, new Sprite2D('batch', 1024, 1024));

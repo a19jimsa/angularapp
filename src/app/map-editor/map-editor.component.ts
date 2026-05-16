@@ -176,7 +176,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   movementSystem: MovementSystem = new MovementSystem();
   animationSystem: AnimationSystem = new AnimationSystem();
 
-  selectedShader: string = 'default';
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
   componentsList: ECSComponent[] = new Array();
@@ -245,6 +244,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // Ta bort canvas från DOM helt
     this.canvas.remove();
+  }
+
+  get shaders() {
+    return ShaderManager.getShaderNames();
   }
 
   get translateX() {
@@ -349,6 +352,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'Material',
     );
     if (material) return material;
+    return null;
+  }
+
+  get mesh(): Mesh | null {
+    const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
+    if (mesh) return mesh;
     return null;
   }
 
@@ -562,7 +571,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const textureArray2 = await TextureManager.addTextureArray(
-      'textures',
+      'splatmap',
       'u_textures',
       [texture1, texture2, texture3, texture4, texture5, texture6, texture7],
       'splatmap',
@@ -647,7 +656,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const healing = await TextureManager.loadImage(
-      '/assets/textures/wind.jpg',
+      '/assets/textures/healing.jpg',
     );
     const healing1 = await TextureManager.loadImage(
       '/assets/textures/heal_shade.jpg',
@@ -659,6 +668,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       [healing, healing1],
       'heal',
     );
+
+    // const windTextures = await TextureManager.addTextureArray(
+    //   'wind',
+    //   'u_textures',
+    //   [noise],
+    //   'wind',
+    // );
   }
 
   async init() {
@@ -677,7 +693,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.loop();
   }
 
-  protected async createCharacter() {
+  protected createCharacter() {
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
 
@@ -692,7 +708,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<BatchRenderable>(entity, new BatchRenderable(20));
   }
 
-  async createFrog() {
+  createFrog() {
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Frogman'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
@@ -729,7 +745,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     model.addPlane(50, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
-    this.ecs.addComponent(newEntity, new Material('splatmap'));
+    this.ecs.addComponent<Material>(newEntity, new Material('splatmap'));
+    this.ecs.addComponent<Mesh>(
+      newEntity,
+      new Mesh(1000, 0, 'splatmap', 'terrain' + newEntity),
+    );
+    this.ecs.addComponent<Terrain>(newEntity, new Terrain());
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
@@ -740,11 +761,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Splatmap(size, 'terrain' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
-    //Add material component to entity
-    this.ecs.addComponent<Terrain>(
-      newEntity,
-      new Terrain(texture.Slot, 50 + 1, 'terrain' + newEntity),
-    );
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
       new Transform3D(0, 0, 0),
@@ -753,12 +769,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     transform.scale[0] = 10;
     transform.scale[1] = 10;
     transform.scale[2] = 10;
-    this.addBufferLayoutToMesh(model, 'terrain' + newEntity);
+    MeshManager.addMesh(model, 'terrain' + newEntity);
     TextureManager.dirty = true;
-  }
-
-  private addBufferLayoutToMesh(model: Model, name: string) {
-    MeshManager.addMesh(model, name);
   }
 
   // private makeTerrainSeamless(mesh: Mesh) {
@@ -782,6 +794,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       list.push(component);
     }
     this.componentsList = list;
+  }
+
+  protected createSphere() {
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const sphere = new Model(buffer);
+    sphere.addSphere(10, 10, 10);
+    const effectEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
+    this.ecs.addComponent<Transform3D>(
+      effectEntity,
+      new Transform3D(0, 0, 9000),
+    );
+    this.ecs.addComponent<Name>(effectEntity, new Name('Sphere'));
+    this.ecs.addComponent<Mesh>(
+      effectEntity,
+      new Mesh(50, 50, 'fire', 'sphere' + effectEntity),
+    );
+    MeshManager.addMesh(sphere, 'sphere' + effectEntity);
   }
 
   protected createCylinder() {
@@ -810,7 +842,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     const circle = new Model(buffer);
-    circle.addFlatCircle(50, 100);
+    circle.addFlatCircle(50, 50);
     const effectEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(effectEntity, new Material('heal'));
     this.ecs.addComponent<Transform3D>(
