@@ -9,8 +9,6 @@ uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform mat4 u_model;
 
-uniform sampler2D u_heightMap;
-
 out vec2 v_texcoord;
 out float v_height;
 out vec3 v_normal;
@@ -22,23 +20,21 @@ out vec3 v_cameraPos;
 out vec3 v_fragPos;
 
 void main() {
-   float displacement = texture(u_heightMap, a_texcoord).r * 100.0;
-   vec4 displacedPosition = vec4(a_position, 1.0) + vec4(1.0, displacement, 1.0, 1.0);
 
-   // World position
    vec4 worldPos = u_model * vec4(a_position, 1.0);
 
-   // Outputs
    v_worldSpace = worldPos;
-   v_texcoord = a_texcoord;
-   v_height = vec4(a_position, 1.0).y; // viktig fix!
-   v_normal = a_normal;
-   v_depth = vec4(a_position, 1.0).z;
    v_fragPos = worldPos.xyz;
 
-   // Fog
-   v_fogDistance = length(vec4(a_position, 1.0).xyz - u_cameraPos);
+   v_texcoord = a_texcoord;
 
-   // Final position
-   gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
+   v_height = worldPos.y;
+
+   v_depth = worldPos.z;
+
+   v_fogDistance = length(worldPos.xyz - u_cameraPos);
+
+   v_normal = mat3(transpose(inverse(u_model))) * a_normal;
+
+   gl_Position = u_matrix * worldPos;
 }

@@ -1,12 +1,10 @@
-import { Component, inject, input } from '@angular/core';
-import { MatButton, MatButtonModule } from '@angular/material/button';
+import { Component, inject } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
-  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,7 +40,7 @@ export class FilterDialogComponent {
   filterKeyframes($event: Event) {
     const inputValue = ($event.target as HTMLInputElement).value;
     this.filteredKeyframes = this.data.filter((e) =>
-      e.name.includes(inputValue)
+      e.name.includes(inputValue),
     );
   }
 }

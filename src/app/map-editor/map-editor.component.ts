@@ -611,7 +611,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/fire-noise-sub.jpg',
     );
     const fireNoiseColor = await TextureManager.loadImage(
-      '/assets/textures/fire-noise-color.jpg',
+      '/assets/textures/fire-noise-color.png',
     );
     const fireNoiseAdd = await TextureManager.loadImage(
       '/assets/textures/fire-noise-add.jpg',
@@ -791,8 +791,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
-    this.ecs.addComponent<AnimatedTexture>(effectEntity, new AnimatedTexture());
-    this.ecs.addComponent<Transform3D>(effectEntity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<Transform3D>(
+      effectEntity,
+      new Transform3D(0, 0, 9000),
+    );
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
@@ -801,17 +803,36 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
   }
 
+  public createCircle() {
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const circle = new Model(buffer);
+    circle.addFlatCircle(20, 100);
+    const effectEntity = this.ecs.createEntity();
+    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
+    this.ecs.addComponent<Transform3D>(
+      effectEntity,
+      new Transform3D(0, 0, 9000),
+    );
+    this.ecs.addComponent<Name>(effectEntity, new Name('Circle'));
+    this.ecs.addComponent<Mesh>(
+      effectEntity,
+      new Mesh(50, 50, 'fire', 'circle' + effectEntity),
+    );
+    MeshManager.addMesh(circle, 'circle' + effectEntity);
+  }
+
   createLightSource() {
     const layout = new BufferLayout();
     layout.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    layout.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    layout.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(layout);
     model.addCube(10, 10, 10);
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
-    this.ecs.addComponent<Transform3D>(
-      entity,
-      new Transform3D(5000, 5000, 5000),
-    );
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 9000));
     this.ecs.addComponent<Light>(entity, new Light());
     this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'basic', 'light'));
     MeshManager.addMesh(model, 'light');

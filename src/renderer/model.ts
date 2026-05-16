@@ -4,7 +4,6 @@ import { BufferLayout } from './buffer';
 export class Model {
   vertices: number[] = new Array();
   indices: number[] = new Array();
-  shaderName: string = '';
   bufferLayout: BufferLayout;
 
   constructor(vbl: BufferLayout) {
@@ -33,7 +32,6 @@ export class Model {
       -1.0, 1.0, 1.0, -1.0, 1.0,
     ];
     this.vertices = skyboxVertices;
-    this.shaderName = 'skybox';
   }
 
   addSquares(
@@ -130,7 +128,82 @@ export class Model {
     const i4 = 2 + 4 * multiplier;
     const i5 = 3 + 4 * multiplier;
     this.indices.push(i0, i1, i2, i3, i4, i5);
-    this.shaderName = 'batch2d';
+  }
+
+  addSphere(heightSegments: number, widthSegments: number, radius: number) {
+    const vertices: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+
+    for (let y = 0; y <= heightSegments; y++) {
+      const v = y / heightSegments;
+      const theta = v * Math.PI;
+
+      const sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
+
+      for (let x = 0; x <= widthSegments; x++) {
+        const u = x / widthSegments;
+        const phi = u * Math.PI * 2;
+
+        const sinPhi = Math.sin(phi);
+        const cosPhi = Math.cos(phi);
+
+        const px = radius * sinTheta * cosPhi;
+        const py = radius * cosTheta;
+        const pz = radius * sinTheta * sinPhi;
+
+        vertices.push(px, py, pz);
+        vertices.push(u, v);
+      }
+    }
+
+    // indices
+    for (let y = 0; y < heightSegments; y++) {
+      for (let x = 0; x < widthSegments; x++) {
+        const a = y * (widthSegments + 1) + x;
+        const b = a + widthSegments + 1;
+
+        indices.push(a, b, a + 1);
+        indices.push(b, b + 1, a + 1);
+      }
+    }
+
+    this.vertices = vertices;
+    this.indices = indices;
+  }
+
+  addFlatCircle(segments: number, radius: number) {
+    const vertices: number[] = [];
+    const indices: number[] = [];
+
+    // center vertex
+    vertices.push(0, 0, 0);
+    vertices.push(0.5, 0.5);
+
+    // outer ring
+    for (let i = 0; i <= segments; i++) {
+      const t = (i / segments) * Math.PI * 2;
+
+      const x = Math.cos(t) * radius;
+      const z = Math.sin(t) * radius;
+
+      vertices.push(x, 0, z);
+
+      // uv
+      vertices.push(x / (radius * 2) + 0.5);
+      vertices.push(z / (radius * 2) + 0.5);
+    }
+
+    // triangle fan
+    for (let i = 1; i <= segments; i++) {
+      indices.push(i + 1);
+      indices.push(i);
+      indices.push(0);
+    }
+
+    this.vertices = vertices;
+    this.indices = indices;
   }
 
   addCube(width: number, height: number, depth: number) {
@@ -263,8 +336,6 @@ export class Model {
       22,
       23, // Left
     ];
-
-    this.shaderName = 'basic';
   }
 
   addPivot() {
@@ -281,7 +352,6 @@ export class Model {
     const indices = [0, 1, 2, 3, 4, 5];
     this.vertices = vertices;
     this.indices = indices;
-    this.shaderName = 'debug';
   }
 
   addGrass() {
@@ -315,7 +385,6 @@ export class Model {
       this.indices.push(topRight, bottomRight, topLeft);
       this.indices.push(bottomRight, bottomLeft, topLeft);
     }
-    this.shaderName = 'grass';
   }
 
   addPlane(quads: number, x: number, z: number) {
@@ -362,15 +431,12 @@ export class Model {
       const x = Math.cos(theta) * radius;
       const z = Math.sin(theta) * radius;
       const u = i / segments;
-      console.log(x, z);
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
-      this.vertices.push(0, 0, 0);
       //Bottom
       this.vertices.push(x, -height, z);
       this.vertices.push(u, 0);
-      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -384,7 +450,6 @@ export class Model {
       // Triangel 2
       this.indices.push(top1, bottom0, bottom1);
     }
-    this.shaderName = 'vfx';
   }
 
   addLightning(width: number, height: number, segments: number) {

@@ -95,7 +95,6 @@ export class RenderSystem {
       if (transform3D && sprite2D) {
         const key = sprite2D.textureIndex;
         let batch = this.batches.get(key);
-
         if (!batch) {
           batch = [];
           this.batches.set(key, batch);
@@ -106,7 +105,7 @@ export class RenderSystem {
     }
   }
 
-  private drawBatch(ecs: Ecs) {
+  private drawBatch() {
     this.batches.forEach((sprites, key) => {
       this.batch.begin();
       for (const sprite of sprites) {
@@ -302,7 +301,7 @@ export class RenderSystem {
         if (!vao) continue;
         Renderer.drawIndexed(vao);
         shader.unbind();
-      } else if (mesh && material && animatedTexture) {
+      } else if (mesh && material) {
         const shader = ShaderManager.getShader(mesh.shaderId);
         shader.bind();
         if (light && lightPos) {
@@ -315,11 +314,6 @@ export class RenderSystem {
         shader.setVec3('material.diffuse', material.diffuse);
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
-        // shader.setMaterialTexture(
-        //   'u_texture',
-        //   material.textureType,
-        //   material.index,
-        // );
 
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);
@@ -330,8 +324,10 @@ export class RenderSystem {
           this.camera.getViewProjectionMatrix(),
         );
         shader.setVec3('u_cameraPos', cameraPos);
-        shader.setFloat('u_time', performance.now() * 0.001);
-        shader.setFloat('u_animationSpeed', animatedTexture.speed);
+        shader.setFloat('u_time', performance.now());
+        if (animatedTexture) {
+          shader.setFloat('u_animationSpeed', animatedTexture.speed);
+        }
         const transform3D = ecs.getComponent<Transform3D>(
           entity,
           'Transform3D',
@@ -339,8 +335,8 @@ export class RenderSystem {
         if (transform3D) {
           const modelMatrix = mat4.create();
           mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+          mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
           mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           shader.setUniformMat4('u_model', modelMatrix);
@@ -352,29 +348,9 @@ export class RenderSystem {
           shader.setVec3('u_color', water.color);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
-        if (!vao) continue;
-        Renderer.drawIndexed(vao);
-      } else if (transform3D && mesh) {
-        const shader = ShaderManager.getShader(mesh.shaderId);
-        if (!shader) throw new Error('Mesh could not found!' + mesh.shaderId);
-
-        shader.bind();
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        shader.setFloat('u_time', performance.now());
-        const modelMatrix = mat4.create();
-        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
-        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-        shader.setUniformMat4('u_model', modelMatrix);
-        const vertexArray = MeshManager.getMesh(mesh.meshId);
-        if (!vertexArray) throw new Error('Mesh is not grass');
+        if (!vao) throw new Error('Vao not found');
         console.log(mesh.meshId);
-        Renderer.drawIndexed(vertexArray);
+        Renderer.drawIndexed(vao);
       }
 
       if (grass) {
@@ -401,8 +377,7 @@ export class RenderSystem {
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
     }
-
-    this.drawBatch(ecs);
+    this.drawBatch();
   }
 
   private updateNormals(vertexArray: VertexArray): void {

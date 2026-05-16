@@ -139,6 +139,7 @@ export class BatchRenderer {
   end(camera: PerspectiveCamera, shaderID: string) {
     const gl = Renderer.getGL;
     const shader = ShaderManager.getShader(shaderID);
+    console.log(shaderID);
     if (!shader)
       throw new Error('Could not get shader with shaderID ' + shaderID);
     shader.bind();

@@ -19,7 +19,7 @@ void main() {
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
     vec4 rampColor = texture(u_textures, vec3(baseColor.a, 0.5, 1));
 
-    float t = fract(u_time * 0.0035) + 0.001;
+    float t = fract(u_time * 0.0015);
 
     // mjuka ut början/slutet
     t = smoothstep(0.0, 0.7, t);
@@ -32,5 +32,5 @@ void main() {
     vec3 finalColor = mix(darkColor, brightColor, baseColor.r);
 
     // mjuk fade
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(finalColor, baseColor.a);
 }

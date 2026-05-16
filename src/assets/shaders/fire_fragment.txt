@@ -15,10 +15,12 @@ void main() {
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0)); 
     vec4 gradientAdd = texture(u_textures, vec3(uv, 1)); 
     vec4 gradientSub = texture(u_textures, vec3(uv, 2));
-    float heat = baseColor.r - gradientAdd.r + gradientSub.r;
-    //heat = smoothstep(0.0, 1.0, heat);
+    vec4 color = baseColor + gradientAdd - gradientSub;
+    float heat = clamp(color.r, 0.1, 0.9);
     vec4 rampColor = texture(u_textures, vec3(heat, 0.5, 3));
-    if(heat < 0.5) discard;
-    FragColor.xyz = rampColor.rgb;
-    FragColor.w *= heat;
+    vec3 darkColor = vec3(0.0, 0.1, 1.0); // blå
+    vec3 brightColor = vec3(1.0);         // vit
+    vec3 finalColor = mix(darkColor, brightColor, color.r);
+    if(color.r < 0.1) discard;
+    FragColor = rampColor;
 }
