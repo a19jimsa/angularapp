@@ -191,8 +191,12 @@ export class Model {
       vertices.push(x, 0, z);
 
       // uv
-      vertices.push(x / (radius * 2) + 0.5);
-      vertices.push(z / (radius * 2) + 0.5);
+      const dx = x;
+      const dz = z;
+      const dist = Math.sqrt(dx * dx + dz * dz);
+      const uv = dist / radius;
+
+      vertices.push(uv, uv);
     }
 
     // triangle fan

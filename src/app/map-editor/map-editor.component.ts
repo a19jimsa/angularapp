@@ -445,6 +445,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('water', 'water_vertex.txt', 'water_fragment.txt');
     await ShaderManager.load('debug', 'debug_vertex.txt', 'debug_fragment.txt');
     await ShaderManager.load('fire', 'fire_vertex.txt', 'fire_fragment.txt');
+    await ShaderManager.load('heal', 'heal_vertex.txt', 'heal_fragment.txt');
     await ShaderManager.load(
       'lightning',
       'lightning_vertex.txt',
@@ -645,18 +646,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'splatmap',
     );
 
-    //Wrong size
-    // const smallRoundBrushImage = await TextureManager.add(
-    //   'small_round_brush',
-    //   'assets/brushes/round_brush_small.jpg',
-    //   TextureType.Brush,
-    // );
+    const healing = await TextureManager.loadImage(
+      '/assets/textures/wind.jpg',
+    );
+    const healing1 = await TextureManager.loadImage(
+      '/assets/textures/heal_shade.jpg',
+    );
 
-    // const smallBrushImage = await TextureManager.add(
-    //   'small_brush',
-    //   'assets/brushes/small_brush.jpg',
-    //   TextureType.Brush,
-    // );
+    const healtextures = await TextureManager.addTextureArray(
+      'heal',
+      'u_textures',
+      [healing, healing1],
+      'heal',
+    );
   }
 
   async init() {
@@ -808,9 +810,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     const circle = new Model(buffer);
-    circle.addFlatCircle(20, 100);
+    circle.addFlatCircle(50, 100);
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
+    this.ecs.addComponent<Material>(effectEntity, new Material('heal'));
     this.ecs.addComponent<Transform3D>(
       effectEntity,
       new Transform3D(0, 0, 9000),
@@ -818,7 +820,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(effectEntity, new Name('Circle'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(50, 50, 'fire', 'circle' + effectEntity),
+      new Mesh(50, 50, 'heal', 'circle' + effectEntity),
     );
     MeshManager.addMesh(circle, 'circle' + effectEntity);
   }
