@@ -35,22 +35,27 @@ export class Renderer {
 
   public static drawInstancing(
     vertexArray: VertexArray,
-    positions: number[],
-    count: number,
+    instanceData: Float32Array,
+    instanceCount: number,
   ) {
     const gl = Renderer.getGL;
+
     vertexArray.bind();
-    if (!vertexArray.instanceBuffer) return;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.instanceBuffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(positions));
-    // --- Draw call ---
+
+    const buffer = vertexArray.instanceBuffer;
+    if (!buffer) return;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceData);
+
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
-      count, // rita 4 grässtrån
+      instanceCount,
     );
+
     vertexArray.unbind();
   }
 

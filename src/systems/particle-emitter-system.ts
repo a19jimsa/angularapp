@@ -1,5 +1,4 @@
 import { vec3 } from 'gl-matrix';
-import { ParticleEmitter } from 'src/components/particle-emitter';
 import { Ecs } from 'src/core/ecs';
 
 export type Particle = {
@@ -16,13 +15,5 @@ export type Particle = {
 export class ParticleEmitterSystem {
   public particles: Particle[] = new Array();
 
-  update(ecs: Ecs) {
-    for (const entity of ecs.getEntities()) {
-      const emitter = ecs.getComponent<ParticleEmitter>(
-        entity,
-        'ParticleEmitter',
-      );
-      if (!emitter) continue;
-    }
-  }
+  update(ecs: Ecs) {}
 }

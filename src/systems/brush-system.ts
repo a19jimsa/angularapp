@@ -13,7 +13,6 @@ import {
   SplatBrush,
   SplatBrushCommand,
 } from 'src/commands/splat-brush-command';
-import { BatchRenderable } from 'src/components/batch-renderable';
 import { BrushImage } from 'src/components/brush-image';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
@@ -24,12 +23,9 @@ import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
-import { BufferLayout } from 'src/renderer/buffer';
 import { Renderer } from 'src/renderer/renderer';
-import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export type Height = {
   index: number;

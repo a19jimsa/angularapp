@@ -65,9 +65,9 @@ import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
-import { Sprite } from 'src/components/sprite';
 import { Sprite2D } from 'src/components/sprite2D';
-import { ParticleEmitter } from 'src/components/particle-emitter';
+import { ParticleEmitter } from 'src/particles/particle-emitter';
+import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
 
 type IsSelected = {
   select: boolean;
@@ -460,6 +460,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'lightning_vertex.txt',
       'lightning_fragment.txt',
     );
+    await ShaderManager.load(
+      'portal',
+      'portal_vertex.txt',
+      'portal_fragment.txt',
+    );
   }
 
   async loadAllTextures() {}
@@ -669,6 +674,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'heal',
     );
 
+    const portalTextures = await TextureManager.addTextureArray(
+      'portal',
+      'u_textures',
+      [noise],
+      'portal',
+    );
+
     // const windTextures = await TextureManager.addTextureArray(
     //   'wind',
     //   'u_textures',
@@ -844,7 +856,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const circle = new Model(buffer);
     circle.addFlatCircle(50, 50);
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('heal'));
+    this.ecs.addComponent<Material>(effectEntity, new Material('portal'));
     this.ecs.addComponent<Transform3D>(
       effectEntity,
       new Transform3D(0, 0, 9000),
@@ -852,7 +864,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(effectEntity, new Name('Circle'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(50, 50, 'heal', 'circle' + effectEntity),
+      new Mesh(50, 50, 'portal', 'circle' + effectEntity),
     );
     MeshManager.addMesh(circle, 'circle' + effectEntity);
   }
@@ -930,7 +942,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addInstanceMesh(
       'grass',
       instanceBuffer,
-      grassComponent.positions,
+      Array.from(grassComponent.positions),
     );
   }
 
@@ -1196,6 +1208,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('lightning', instanceBuffer, new Array(50 * 3));
+
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addLightning(100, 200, 20);
@@ -1206,5 +1228,38 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Mesh(100, 100, 'lightning', 'lightning'),
     );
     this.ecs.addComponent<Material>(entity, new Material('lightning'));
+  }
+
+  createParticleEmitter() {
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
+    const model = new Model(buffer);
+    //Change later in runtime with some parameters in UI
+    model.addLightning(100, 200, 20);
+    MeshManager.addMesh(model, 'portal');
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh(
+      'portal',
+      instanceBuffer,
+      new Array(200000 * 6),
+    );
+    const emitter = new ParticleEmitter('portal', 'portal', 200000);
+    ParticleEmitterManager.add(emitter);
   }
 }

@@ -23,6 +23,7 @@ import { Model } from 'src/renderer/model';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
 import { Sprite2D } from 'src/components/sprite2D';
+import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
 
 type Sprite = {
   position: Transform3D;
@@ -339,6 +340,36 @@ export class RenderSystem {
       }
     }
     this.drawBatch();
+    for (const emitter of ParticleEmitterManager.emitters) {
+      const shader = ShaderManager.getShader(emitter.material.shaderId);
+      if (!shader)
+        throw new Error('Could not load shader' + emitter.material.shaderId);
+      shader.bind();
+      shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
+      shader.setFloat('u_time', performance.now());
+      const particles = [];
+      for (const particle of emitter.particlePool) {
+        particles.push(
+          particle.position[0],
+          particle.position[1],
+          particle.position[2],
+          particle.position[3],
+          particle.position[4] + Math.random() * 100,
+          particle.position[5],
+        );
+      }
+      emitter.onUpdate();
+      emitter.emit();
+      const vertexArray = MeshManager.getMesh(emitter.mesh.meshId);
+      if (!vertexArray)
+        throw new Error('Mesh is not emitter' + emitter.mesh.meshId);
+      Renderer.drawInstancing(
+        vertexArray,
+        new Float32Array(particles),
+        emitter.particlePool.length,
+      );
+      shader.unbind();
+    }
   }
 
   private updateNormals(vertexArray: VertexArray): void {

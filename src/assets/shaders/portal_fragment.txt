@@ -1,0 +1,36 @@
+#version 300 es
+precision mediump float;
+precision mediump sampler2DArray;
+
+uniform sampler2DArray u_textures;
+uniform float u_time;
+
+in vec2 v_texcoord;
+
+out vec4 FragColor;
+
+float remap(float x, float inMin, float inMax, float outMin, float outMax) {
+    return (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
+}
+
+void main() { 
+    vec2 uv = v_texcoord;
+    vec2 uvScrolling = v_texcoord + vec2(0.0, u_time * 0.0009); 
+    vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
+    vec4 rampColor = texture(u_textures, vec3(baseColor.a, 0.5, 1));
+
+    float t = fract(u_time * 0.0015);
+
+    // mjuka ut början/slutet
+    t = smoothstep(0.0, 0.7, t);
+
+    if(baseColor.r < t) discard;
+
+    vec3 darkColor = vec3(0.0, 0.1, 1.0); // blå
+    vec3 brightColor = vec3(1.0);         // vit
+
+    vec3 finalColor = mix(darkColor, brightColor, baseColor.r);
+
+    // mjuk fade
+    FragColor = vec4(finalColor, baseColor.a);
+}

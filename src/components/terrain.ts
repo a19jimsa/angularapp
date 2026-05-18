@@ -1,10 +1,9 @@
 import { vec3 } from 'gl-matrix';
 import { Component } from './component';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class Terrain extends Component {
   override type: string = 'Terrain';
-  tiling: number = 0.0001;
+  tiling: number = 0.01;
   fogPower: number = 10.0;
   fogColor: vec3 = vec3.fromValues(0, 0, 0);
   heights: Map<number, number>;
