@@ -30,7 +30,7 @@ export class BatchRenderer {
     this.vertexArray.addBuffer(buffer);
   }
 
-  updateBuffer(vertices: number[]) {
+  updateBuffer(vertices: Float32Array) {
     const buffer = new BufferLayout();
     buffer.add(3, ShaderDataType.GetType(ShaderType.Float), 1, false);
     this.vertexArray.addInstanceBuffer(buffer, vertices);

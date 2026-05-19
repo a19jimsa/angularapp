@@ -14,7 +14,6 @@ import { Ecs } from '../core/ecs';
 import { Sprite } from '../components/sprite';
 import { MouseHandler } from './mouse-handler';
 import { Projectile } from 'src/components/projectile';
-import { Particle } from 'src/effects/particle-system';
 import { WalkBox } from 'src/components/walk-box';
 import { Effect } from 'src/components/effect';
 import { Life } from 'src/components/life';
@@ -42,7 +41,7 @@ export class Renderer {
       this.ctx = context;
     } else {
       throw Error(
-        'Failed to get 2d content, come up with a solution dumbass ://'
+        'Failed to get 2d content, come up with a solution dumbass ://',
       );
     }
     this.image.src = 'assets/sprites/backgrounds/87844.png';
@@ -60,7 +59,7 @@ export class Renderer {
     x: number,
     y: number,
     radius: number,
-    color: string
+    color: string,
   ): void {
     this.ctx.fillStyle = color;
     this.ctx.strokeStyle = 'black';
@@ -77,7 +76,7 @@ export class Renderer {
     y: number,
     radius: number,
     color: string,
-    angle: number
+    angle: number,
   ) {
     this.ctx.save();
     this.ctx.translate(x, y);
@@ -105,7 +104,7 @@ export class Renderer {
     endX: number,
     endY: number,
     color: string,
-    lineWidth: number
+    lineWidth: number,
   ) {
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = lineWidth;
@@ -120,7 +119,7 @@ export class Renderer {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
   ) {
     this.ctx.drawImage(src, x, y, width, height);
   }
@@ -129,7 +128,7 @@ export class Renderer {
     const pool = ecs.getPool<[Sprite, Transform, WalkBox]>(
       'Sprite',
       'Transform',
-      'Walkbox'
+      'Walkbox',
     );
     this.ctx.save();
 
@@ -138,7 +137,7 @@ export class Renderer {
       this.ctx.drawImage(
         sprite.image,
         transform.position.x, // - this.camera.position.x,
-        transform.position.y // - this.camera.position.y
+        transform.position.y, // - this.camera.position.y
       );
     });
     this.ctx.restore();
@@ -226,7 +225,7 @@ export class Renderer {
     this.ctx.beginPath();
     this.ctx.moveTo(
       position.x, // - this.camera.position.x,
-      position.y // - this.camera.position.y
+      position.y, // - this.camera.position.y
     );
     this.ctx.lineTo(drawTo.x, drawTo.y);
     this.ctx.stroke();
@@ -238,7 +237,7 @@ export class Renderer {
       position.y, // - this.camera.position.y,
       radius,
       color,
-      angle
+      angle,
     );
   }
 
@@ -260,7 +259,7 @@ export class Renderer {
         this.ctx.save();
         this.ctx.translate(
           transform.position.x, // - this.camera.position.x,
-          transform.position.y // - this.camera.position.y
+          transform.position.y, // - this.camera.position.y
         );
         if (skeleton.flip) {
           this.ctx.scale(-1, 1);
@@ -307,14 +306,14 @@ export class Renderer {
   public renderBone(
     image: CanvasImageSource,
     transform: Transform,
-    bone: Bone
+    bone: Bone,
   ) {
     const screenX = bone.position.x;
     const screenY = bone.position.y;
     this.ctx.save();
     this.ctx.translate(screenX, screenY);
     this.ctx.rotate(
-      MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
+      MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
     );
     this.ctx.scale(bone.scale.x, bone.scale.y);
     this.ctx.translate(-screenX, -screenY);
@@ -327,7 +326,7 @@ export class Renderer {
       screenX - bone.pivot.x - bone.endX / 2,
       screenY - bone.pivot.y,
       bone.endX,
-      bone.endY
+      bone.endY,
     );
     this.ctx.restore();
   }
@@ -348,7 +347,7 @@ export class Renderer {
       transform.position.x,
       transform.position.y,
       hitBox.width,
-      hitBox.height
+      hitBox.height,
     );
   }
 
@@ -361,7 +360,7 @@ export class Renderer {
           hitBox.position.x, // - this.camera.position.x,
           hitBox.position.y, // - this.camera.position.y,
           hitBox.width,
-          hitBox.height
+          hitBox.height,
         );
       }
     }
@@ -382,7 +381,7 @@ export class Renderer {
     this.ctx.drawImage(
       sprite.image,
       screenX - weapon.pivot.x - sprite.image.width / 2,
-      screenY - weapon.pivot.y
+      screenY - weapon.pivot.y,
     );
     this.ctx.restore();
   }
@@ -399,14 +398,14 @@ export class Renderer {
       this.ctx.save();
       this.ctx.translate(screenX, screenY);
       this.ctx.rotate(
-        MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2
+        MathUtils.degreesToRadians(weapon.rotation) - Math.PI / 2,
       );
       this.ctx.scale(weapon.scale.x, weapon.scale.y);
       this.ctx.translate(-screenX, -screenY);
       this.ctx.drawImage(
         sprite.image,
         screenX - weapon.pivot.x - sprite.image.width / 2,
-        screenY - weapon.pivot.y
+        screenY - weapon.pivot.y,
       );
       this.ctx.restore();
     }
@@ -420,7 +419,7 @@ export class Renderer {
           hurtBox.position.x, // - this.camera.position.x,
           hurtBox.position.y, // - this.camera.position.y,
           hurtBox.width,
-          hurtBox.height
+          hurtBox.height,
         );
       }
     }
@@ -437,7 +436,7 @@ export class Renderer {
         smear.positions[i + 1].x,
         smear.positions[i + 1].y,
         smear.positions[i + 1].x,
-        smear.positions[i + 1].y
+        smear.positions[i + 1].y,
       );
     }
     this.ctx.stroke();
@@ -447,7 +446,7 @@ export class Renderer {
     const pool = ecs.getPool<[Transform, Skeleton, Camera]>(
       'Transform',
       'Skeleton',
-      'Camera'
+      'Camera',
     );
     pool.forEach(({ entity, components }) => {
       const [transform, skeleton, camera] = components;
@@ -466,22 +465,22 @@ export class Renderer {
     });
   }
 
-  renderParticles(particlePool: Particle[]) {
-    this.ctx.save();
-    for (const particle of particlePool) {
-      if (!particle.active) continue;
-      const life = particle.lifeRemaining / particle.lifetime;
-      this.ctx.globalAlpha = life;
-      this.ctx.fillStyle = 'red';
-      this.ctx.fillRect(
-        particle.position.x,
-        particle.position.y,
-        20 * (particle.sizeEnd - particle.sizeBegin),
-        20 * (particle.sizeEnd - particle.sizeBegin)
-      );
-    }
-    this.ctx.restore();
-  }
+  // renderParticles(particlePool: Particle[]) {
+  //   this.ctx.save();
+  //   for (const particle of particlePool) {
+  //     if (!particle.active) continue;
+  //     const life = particle.lifeRemaining / particle.lifetime;
+  //     this.ctx.globalAlpha = life;
+  //     this.ctx.fillStyle = 'red';
+  //     this.ctx.fillRect(
+  //       particle.position.x,
+  //       particle.position.y,
+  //       20 * (particle.sizeEnd - particle.sizeBegin),
+  //       20 * (particle.sizeEnd - particle.sizeBegin),
+  //     );
+  //   }
+  //   this.ctx.restore();
+  // }
 
   renderWalkBox(ecs: Ecs) {
     const pool = ecs.getPool<[Transform, WalkBox]>('Transform', 'WalkBox');
@@ -491,7 +490,7 @@ export class Renderer {
         transform.position.x,
         transform.position.y,
         this.canvas.nativeElement.width,
-        100
+        100,
       );
     });
   }
@@ -510,7 +509,7 @@ export class Renderer {
         // Flytta till sprite-positionen på skärmen
         this.ctx.translate(
           screenX + sprite.position.x,
-          screenY + sprite.position.y
+          screenY + sprite.position.y,
         );
 
         // Rotera kring pivotpunkten
@@ -529,7 +528,7 @@ export class Renderer {
           -sprite.pivot.x - sprite.endX / 2,
           -sprite.pivot.y, // Målposition
           sprite.endX,
-          sprite.endY // Storlek
+          sprite.endY, // Storlek
         );
 
         this.ctx.restore();
@@ -550,7 +549,7 @@ export class Renderer {
     const pool = ecs.getPool<[Inventory, Player, Skeleton]>(
       'Inventory',
       'Player',
-      'Skeleton'
+      'Skeleton',
     );
     let x = 0;
     let y = 0;
@@ -563,7 +562,7 @@ export class Renderer {
         margin,
         margin,
         this.width - margin * 2,
-        this.height - margin * 2
+        this.height - margin * 2,
       );
 
       if (skeleton) {
@@ -573,7 +572,7 @@ export class Renderer {
           this.ctx.save();
           this.ctx.translate(screenX, screenY);
           this.ctx.rotate(
-            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2
+            MathUtils.degreesToRadians(bone.globalRotation) - Math.PI / 2,
           );
           this.ctx.scale(bone.scale.x, bone.scale.y);
           this.ctx.translate(-screenX, -screenY);
@@ -586,7 +585,7 @@ export class Renderer {
             screenX - bone.pivot.x - bone.endX / 2,
             screenY - bone.pivot.y,
             bone.endX,
-            bone.endY
+            bone.endY,
           );
           this.ctx.restore();
         }
@@ -601,7 +600,7 @@ export class Renderer {
               isOver.position.x,
               isOver.position.y,
               sprite.clip.endX,
-              sprite.clip.endY
+              sprite.clip.endY,
             );
           }
 
@@ -609,14 +608,14 @@ export class Renderer {
           this.ctx.drawImage(
             sprite.image,
             isOver.position.x,
-            isOver.position.y
+            isOver.position.y,
           );
           if (skeleton && skeleton.heldEntity === item[1]) {
             this.ctx.fillRect(
               isOver.position.x,
               isOver.position.y,
               sprite.clip.endX,
-              sprite.clip.endY
+              sprite.clip.endY,
             );
             this.ctx.fill();
           }

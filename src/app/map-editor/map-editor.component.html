@@ -81,10 +81,10 @@
             </button>
           }
         </mat-card-content>
-        <button matButton="tonal" [matMenuTriggerFor]="animals">
+        <button matButton="tonal" [matMenuTriggerFor]="scene">
           Add to scene
         </button>
-        <mat-menu #animals="matMenu">
+        <mat-menu #scene="matMenu">
           <button mat-menu-item (click)="createWater()">Water</button>
           <button mat-menu-item (click)="createTerrainWithSplatmap()">
             Terrain
@@ -802,11 +802,94 @@
                   </div>
                 </mat-expansion-panel>
               }
+              @if (item === particleEmitter) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> {{ item.type }} </mat-panel-title>
+                    <mat-panel-description> </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Lifetime</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.lifetime
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="100" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.particleProp.lifetime"
+                      />
+                    </mat-slider>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Position X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.position[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Position Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.position[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Position Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.position[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Velocity X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.velocity[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Velocity Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.velocity[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Velocity Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.velocity[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                </mat-expansion-panel>
+              }
             }
           </mat-accordion>
         </mat-card-content>
         <mat-card-footer></mat-card-footer>
-        <button mat-button (click)="addGrass()">Add Component</button>
+        <button matButton="tonal" [matMenuTriggerFor]="components">
+          Add component
+        </button>
+        <mat-menu #components="matMenu">
+          <button mat-menu-item (click)="addParticleEmitterComponent()">
+            Add Particle Emitter
+          </button>
+        </mat-menu>
       </mat-card>
     </div>
   </div>

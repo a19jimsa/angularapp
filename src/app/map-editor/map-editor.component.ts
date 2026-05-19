@@ -67,7 +67,7 @@ import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
-import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
+import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 
 type IsSelected = {
   select: boolean;
@@ -175,6 +175,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   controllerSystem: ControllerSystem = new ControllerSystem();
   movementSystem: MovementSystem = new MovementSystem();
   animationSystem: AnimationSystem = new AnimationSystem();
+  particleEmitterSystem: ParticleEmitterSystem = new ParticleEmitterSystem();
 
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
@@ -244,6 +245,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // Ta bort canvas från DOM helt
     this.canvas.remove();
+  }
+
+  get particleEmitter() {
+    const emitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (emitter) return emitter;
+    return null;
   }
 
   get shaders() {
@@ -942,7 +952,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addInstanceMesh(
       'grass',
       instanceBuffer,
-      Array.from(grassComponent.positions),
+      grassComponent.positions,
     );
   }
 
@@ -1017,6 +1027,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+    this.particleEmitterSystem.update(this.ecs);
   }
 
   draw() {
@@ -1216,7 +1227,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('lightning', instanceBuffer, new Array(50 * 3));
+    MeshManager.addInstanceMesh(
+      'lightning',
+      instanceBuffer,
+      new Float32Array(50 * 3),
+    );
 
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
@@ -1231,13 +1246,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   createParticleEmitter() {
+    const entity = this.ecs.createEntity();
+    this.ecs.addComponent<Name>(entity, new Name('Particle System'));
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addLightning(100, 200, 20);
+    model.addSphere(10, 10, 20);
     MeshManager.addMesh(model, 'portal');
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
@@ -1257,9 +1274,46 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addInstanceMesh(
       'portal',
       instanceBuffer,
-      new Array(200000 * 6),
+      new Float32Array(500 * 6),
     );
-    const emitter = new ParticleEmitter('portal', 'portal', 200000);
-    ParticleEmitterManager.add(emitter);
+    this.ecs.addComponent<ParticleEmitter>(
+      entity,
+      new ParticleEmitter('portal', 'portal', 500),
+    );
+  }
+
+  addParticleEmitterComponent() {
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
+    const model = new Model(buffer);
+    //Change later in runtime with some parameters in UI
+    model.addSphere(10, 10, 20);
+    MeshManager.addMesh(model, 'portal');
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh(
+      'portal',
+      instanceBuffer,
+      new Float32Array(10 * 6),
+    );
+    this.ecs.addComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      new ParticleEmitter('portal', 'portal', 10),
+    );
   }
 }

@@ -40,7 +40,6 @@ import { IdleAiSystem } from 'src/systems/idle-ai-system';
 import { Idle } from 'src/components/idle';
 import { DamageAiSystem } from 'src/systems/damage-ai-system';
 import { AttackAiSystem } from 'src/systems/attack-ai-system';
-import { ParticleProp, ParticleSystem } from 'src/effects/particle-system';
 import { Life } from 'src/components/life';
 import { EffectSystem } from 'src/systems/effect-system';
 import { Inventory } from 'src/components/inventory';
@@ -77,8 +76,6 @@ export class AnimationScene {
   idleSystem: IdleAiSystem;
   damageSystem: DamageAiSystem;
   attackAiSystem: AttackAiSystem;
-  particleSystem: ParticleSystem;
-  particle: ParticleProp;
   effectSystem: EffectSystem;
   inventorySystem: InventorySystem;
   loopId = 0;
@@ -88,7 +85,7 @@ export class AnimationScene {
     canvasWidth: number,
     canvasheight: number,
     width: number,
-    height: number
+    height: number,
   ) {
     this.canvas = canvas;
     this.ecs = new Ecs();
@@ -124,18 +121,8 @@ export class AnimationScene {
     this.idleSystem = new IdleAiSystem();
     this.damageSystem = new DamageAiSystem();
     this.attackAiSystem = new AttackAiSystem();
-    this.particleSystem = new ParticleSystem();
     this.effectSystem = new EffectSystem();
     this.inventorySystem = new InventorySystem();
-    this.particle = {
-      position: new Vec(200, 200),
-      lifetime: 1,
-      velocity: new Vec(10, 10),
-      velocityVariation: new Vec(3, 0),
-      sizeBegin: 0.5,
-      sizeEnd: 0,
-      sizeVariation: 0.3,
-    };
   }
 
   init() {
@@ -149,22 +136,22 @@ export class AnimationScene {
       const background = this.ecs.createEntity();
       this.ecs.addComponent<Sprite>(
         background,
-        new Sprite('assets/sprites/backgrounds/87844.png')
+        new Sprite('assets/sprites/backgrounds/87844.png'),
       );
       const backgroundSprite = this.ecs.getComponent<Sprite>(
         background,
-        'Sprite'
+        'Sprite',
       );
       this.ecs.addComponent<Transform>(
         background,
         new Transform(
           new Vec(
             (i - 1) * backgroundSprite.image.width,
-            this.canvasHeight - backgroundSprite.image.height
+            this.canvasHeight - backgroundSprite.image.height,
           ),
           new Vec(0, 0),
-          0
-        )
+          0,
+        ),
       );
     }
 
@@ -172,48 +159,48 @@ export class AnimationScene {
     const walkBox = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       walkBox,
-      new Transform(new Vec(0, this.canvasHeight - 200), new Vec(0, 0), 0)
+      new Transform(new Vec(0, this.canvasHeight - 200), new Vec(0, 0), 0),
     );
     this.ecs.addComponent<WalkBox>(walkBox, new WalkBox());
 
     this.ecs.addComponent<Transform>(
       player,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 10)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 10),
     );
 
     this.ecs.addComponent<Transform>(
       draug,
-      new Transform(new Vec(300, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(300, 0), new Vec(0, 0), 0),
     );
     this.ecs.addComponent<Transform>(
       enemy,
-      new Transform(new Vec(1000, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(1000, 0), new Vec(0, 0), 0),
     );
 
     //TODO Add sprites to resource manager instead
     const playerSkeleton = new Skeleton(
       'assets/sprites/character-animation.png',
-      'playerAnimations'
+      'playerAnimations',
     );
     const dragonSkeleton = new Skeleton(
       'assets/sprites/Dragon.png',
-      'playerAnimations'
+      'playerAnimations',
     );
     const flyerSkeleton = new Skeleton(
       'assets/sprites/161452.png',
-      'playerAnimations'
+      'playerAnimations',
     );
     const draugSkeleton = new Skeleton(
       'assets/sprites/104085.png',
-      'playerAnimations'
+      'playerAnimations',
     );
     const horseSkeleton = new Skeleton(
       'assets/sprites/115616.png',
-      'playerAnimations'
+      'playerAnimations',
     );
     const enemySkeleton = new Skeleton(
       'assets/sprites/104085.png',
-      'playerAnimations'
+      'playerAnimations',
     );
 
     playerSkeleton.bones = Loader.getBones('skeleton');
@@ -223,10 +210,7 @@ export class AnimationScene {
     this.ecs.addComponent<Skeleton>(draug, draugSkeleton);
     this.ecs.addComponent<Skeleton>(enemy, enemySkeleton);
 
-    this.ecs.addComponent<Controlable>(
-      player,
-      new Controlable()
-    );
+    this.ecs.addComponent<Controlable>(player, new Controlable());
     this.ecs.addComponent<Camera>(player, new Camera());
     this.ecs.addComponent<Player>(player, new Player());
 
@@ -242,82 +226,82 @@ export class AnimationScene {
     const newWeapon = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       newWeapon,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
     this.ecs.addComponent<Weapon>(
       newWeapon,
-      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword)
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword),
     );
     this.ecs.addComponent<Sprite>(
       newWeapon,
-      new Sprite('assets/sprites/wep_sw046.png')
+      new Sprite('assets/sprites/wep_sw046.png'),
     );
     this.ecs.addComponent<Enemy>(newWeapon, new Enemy());
 
     const bow = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       bow,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
 
     this.ecs.addComponent<Weapon>(
       bow,
-      new Weapon('left_hand', new Vec(20, 0), WeaponType.Bow)
+      new Weapon('left_hand', new Vec(20, 0), WeaponType.Bow),
     );
 
     const arrow = this.ecs.createEntity();
 
     this.ecs.addComponent<Transform>(
       arrow,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
 
     this.ecs.addComponent<Weapon>(
       arrow,
-      new Weapon('right_hand', new Vec(0, 120), WeaponType.Projectile)
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Projectile),
     );
 
     const book = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       book,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
     this.ecs.addComponent<Weapon>(
       book,
-      new Weapon('right_hand', new Vec(0, 70), WeaponType.Dagger)
+      new Weapon('right_hand', new Vec(0, 70), WeaponType.Dagger),
     );
     this.ecs.addComponent<Sprite>(
       book,
-      new Sprite('assets/sprites/wep_dg000.png')
+      new Sprite('assets/sprites/wep_dg000.png'),
     );
 
     const schyte = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       schyte,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
 
     this.ecs.addComponent<Weapon>(
       schyte,
-      new Weapon('right_hand', new Vec(-45, 140), WeaponType.Schyte)
+      new Weapon('right_hand', new Vec(-45, 140), WeaponType.Schyte),
     );
     this.ecs.addComponent<Sprite>(
       schyte,
-      new Sprite('assets/sprites/wep_ax039.png')
+      new Sprite('assets/sprites/wep_ax039.png'),
     );
 
     const sword2 = this.ecs.createEntity();
     this.ecs.addComponent<Transform>(
       sword2,
-      new Transform(new Vec(0, 0), new Vec(0, 0), 0)
+      new Transform(new Vec(0, 0), new Vec(0, 0), 0),
     );
     this.ecs.addComponent<Weapon>(
       sword2,
-      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword)
+      new Weapon('right_hand', new Vec(0, 120), WeaponType.Sword),
     );
     this.ecs.addComponent<Sprite>(
       sword2,
-      new Sprite('assets/sprites/wep_sw008.png')
+      new Sprite('assets/sprites/wep_sw008.png'),
     );
 
     //this.ecs.addComponent<Enemy>(sword2, new Enemy());
@@ -385,11 +369,8 @@ export class AnimationScene {
       this.canvasWidth,
       this.canvasHeight,
       this.width,
-      this.height
+      this.height,
     );
-
-    this.particleSystem.emit(this.particle);
-    this.particleSystem.onUpdate();
 
     // this.attackDurationSystem.update(this.ecs);
     // this.deadSystem.update(this.ecs);
@@ -405,7 +386,6 @@ export class AnimationScene {
     this.renderer.renderLifebar(this.ecs);
     //this.renderer.renderWalkBox(this.ecs);
 
-    this.renderer.renderParticles(this.particleSystem.particlePool);
     this.renderer.renderInventory(this.ecs);
 
     //this.renderer.drawProjectile(this.ecs);

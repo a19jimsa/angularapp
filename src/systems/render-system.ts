@@ -24,6 +24,7 @@ import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
 import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
+import { ParticleEmitter } from 'src/particles/particle-emitter';
 
 type Sprite = {
   position: Transform3D;
@@ -338,38 +339,43 @@ export class RenderSystem {
         if (!vertexArray) throw new Error('Mesh is not grass');
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
-    }
-    this.drawBatch();
-    for (const emitter of ParticleEmitterManager.emitters) {
-      const shader = ShaderManager.getShader(emitter.material.shaderId);
+      //Render particles
+      const particleEmitter = ecs.getComponent<ParticleEmitter>(
+        entity,
+        'ParticleEmitter',
+      );
+      if (!particleEmitter) continue;
+      const shader = ShaderManager.getShader(particleEmitter.shaderId);
       if (!shader)
-        throw new Error('Could not load shader' + emitter.material.shaderId);
+        throw new Error('Could not load shader' + particleEmitter.shaderId);
       shader.bind();
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now());
-      const particles = [];
-      for (const particle of emitter.particlePool) {
-        particles.push(
-          particle.position[0],
-          particle.position[1],
-          particle.position[2],
-          particle.position[3],
-          particle.position[4] + Math.random() * 100,
-          particle.position[5],
+      const particles = new Float32Array(particleEmitter.particlePool.length);
+      //Do this with SoA
+      for (let i = 0; i < particleEmitter.particlePool.length; i++) {
+        particles.set(
+          Array.from([
+            (particles[i] = particleEmitter.particlePool[i].position[0]),
+            (particles[i + 1] = particleEmitter.particlePool[i].position[1]),
+            (particles[i + 2] = particleEmitter.particlePool[i].position[2]),
+            (particles[i + 3] = particleEmitter.particlePool[i].velocity[0]),
+            (particles[i + 4] = particleEmitter.particlePool[i].velocity[1]),
+            (particles[i + 5] = particleEmitter.particlePool[i].velocity[2]),
+          ]),
         );
       }
-      emitter.onUpdate();
-      emitter.emit();
-      const vertexArray = MeshManager.getMesh(emitter.mesh.meshId);
+      const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
       if (!vertexArray)
-        throw new Error('Mesh is not emitter' + emitter.mesh.meshId);
+        throw new Error('Mesh is not emitter' + particleEmitter.meshId);
       Renderer.drawInstancing(
         vertexArray,
         new Float32Array(particles),
-        emitter.particlePool.length,
+        particleEmitter.particlePool.length,
       );
       shader.unbind();
     }
+    this.drawBatch();
   }
 
   private updateNormals(vertexArray: VertexArray): void {
