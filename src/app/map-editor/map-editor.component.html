@@ -876,6 +876,41 @@
                       />
                     </mat-form-field>
                   </div>
+                  <div class="d-flex flex-column justify-content-center">
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Amount of particles</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.amount
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="100000" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.amount"
+                        (valueChange)="changeNrOfParticles($event)"
+                      />
+                    </mat-slider>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-6">
+                      <mat-label>Mesh ID</mat-label>
+                      <input
+                        matInput
+                        type="text"
+                        [(ngModel)]="particleEmitter.meshId"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-6">
+                      <mat-label>Shader ID</mat-label>
+                      <input
+                        matInput
+                        type="text"
+                        [(ngModel)]="particleEmitter.shaderId"
+                      />
+                    </mat-form-field>
+                  </div>
                 </mat-expansion-panel>
               }
             }

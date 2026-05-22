@@ -10,6 +10,83 @@ export class Model {
     this.bufferLayout = vbl;
   }
 
+  addTornado(
+    radialSegments = 32,
+    heightSegments = 64,
+    height = 20,
+    bottomRadius = 4,
+    middleRadius = 1,
+    topRadius = 6,
+    twist = 8,
+  ) {
+    const vertices: number[] = [];
+    const indices: number[] = [];
+
+    // radius curve
+    function radiusAt(t: number): number {
+      // tornado shape:
+      // wide bottom -> thin middle -> wide top
+
+      if (t < 0.5) {
+        const k = t / 0.5;
+        return bottomRadius + (middleRadius - bottomRadius) * k;
+      }
+
+      const k = (t - 0.5) / 0.5;
+      return middleRadius + (topRadius - middleRadius) * k;
+    }
+
+    for (let y = 0; y <= heightSegments; y++) {
+      const v = y / heightSegments;
+
+      const py = v * height;
+
+      const radius = radiusAt(v);
+
+      // twist increases upwards
+      const twistAngle = v * twist * Math.PI * 2;
+
+      for (let x = 0; x <= radialSegments; x++) {
+        const u = x / radialSegments;
+
+        const angle = u * Math.PI * 2 + twistAngle;
+
+        // slight wobble/noise
+        const wobble = Math.sin(v * 20 + angle * 3) * 0.15;
+
+        const finalRadius = radius + wobble;
+
+        const px = Math.cos(angle) * finalRadius;
+        const pz = Math.sin(angle) * finalRadius;
+
+        vertices.push(px, py, pz);
+
+        vertices.push(u, v);
+      }
+    }
+
+    // indices
+    const stride = radialSegments + 1;
+
+    for (let y = 0; y < heightSegments; y++) {
+      for (let x = 0; x < radialSegments; x++) {
+        const i0 = y * stride + x;
+        const i1 = i0 + 1;
+        const i2 = i0 + stride;
+        const i3 = i2 + 1;
+
+        // triangle 1
+        indices.push(i0, i2, i1);
+
+        // triangle 2
+        indices.push(i1, i2, i3);
+      }
+    }
+
+    this.vertices = vertices;
+    this.indices = indices;
+  }
+
   addSkybox() {
     const skyboxVertices = [
       // positions

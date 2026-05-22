@@ -1,5 +1,5 @@
-import { vec3 } from 'gl-matrix';
 import { Ecs } from 'src/core/ecs';
+import { ParticleProp } from 'src/particles/particle';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 
 export class ParticleEmitterSystem {
@@ -10,22 +10,24 @@ export class ParticleEmitterSystem {
         'ParticleEmitter',
       );
       if (!particleEmitter) continue;
-      //Updates all particles
-      for (const particle of particleEmitter.particlePool) {
-        if (!particle.active) {
+      for (let i = 0; i < particleEmitter.maxParticles; i++) {
+        if (particleEmitter.active[i] === 0) continue;
+        if (particleEmitter.life[i] <= 0) {
+          particleEmitter.active[i] = 0;
           continue;
         }
-        if (particle.lifeRemaining <= 0) {
-          particle.active = false;
-          continue;
-        }
-        particle.lifeRemaining -= 0.16;
-        particle.position = vec3.add(
-          particle.position,
-          particle.position,
-          particle.velocity,
-        );
-        particle.rotation += 0.01 * 0.16;
+        //Updates all particles
+        particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
+        particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
+        particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
+        particleEmitter.life[i] -= 0.16;
+      }
+      for (let i = 0; i < particleEmitter.maxParticles; i++) {
+        const j = i * 3;
+
+        particleEmitter.particles[j] = particleEmitter.positionsX[i];
+        particleEmitter.particles[j + 1] = particleEmitter.positionsY[i];
+        particleEmitter.particles[j + 2] = particleEmitter.positionsZ[i];
       }
       this.emit(particleEmitter);
     }
@@ -33,26 +35,21 @@ export class ParticleEmitterSystem {
 
   //Create new particles
   emit(particleEmitter: ParticleEmitter) {
-    const particle = particleEmitter.particlePool[particleEmitter.poolIndex];
-
-    if (!particle.active) {
-      console.log(particleEmitter.particleProp);
-      particle.active = true;
-      particle.lifeRemaining = particleEmitter.particleProp.lifetime;
-      particle.lifetime = particleEmitter.particleProp.lifetime;
-      particle.position[0] = particleEmitter.particleProp.position[0];
-      particle.position[1] = particleEmitter.particleProp.position[1];
-      particle.position[2] = particleEmitter.particleProp.position[2];
-      particle.velocity[0] = particleEmitter.particleProp.velocity[0];
-      particle.velocity[1] = particleEmitter.particleProp.velocity[1];
-      particle.velocity[2] = particleEmitter.particleProp.velocity[2];
-      particle.rotation = 0;
-      particle.sizeBegin = particleEmitter.particleProp.sizeBegin;
-      particle.sizeEnd = particleEmitter.particleProp.sizeEnd;
-      particle.velocity = particleEmitter.particleProp.velocity;
+    const index = particleEmitter.poolIndex;
+    if (particleEmitter.active[index] === 0) {
+      const particleProp = new ParticleProp();
+      particleEmitter.active[index] = 1;
+      particleEmitter.positionsX[index] = particleProp.position[0];
+      particleEmitter.positionsY[index] = particleProp.position[1];
+      particleEmitter.positionsZ[index] = particleProp.position[2];
+      particleEmitter.velocityX[index] = particleProp.velocity[0];
+      particleEmitter.velocityY[index] = particleProp.velocity[1];
+      particleEmitter.velocityZ[index] = particleProp.velocity[2];
+      particleEmitter.life[index] = 10;
     }
+
     particleEmitter.poolIndex =
-      (particleEmitter.poolIndex - 1 + particleEmitter.particlePool.length) %
-      particleEmitter.particlePool.length;
+      (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
+      particleEmitter.amount;
   }
 }

@@ -339,6 +339,7 @@ export class RenderSystem {
         if (!vertexArray) throw new Error('Mesh is not grass');
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
       }
+
       //Render particles
       const particleEmitter = ecs.getComponent<ParticleEmitter>(
         entity,
@@ -351,27 +352,14 @@ export class RenderSystem {
       shader.bind();
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now());
-      const particles = new Float32Array(particleEmitter.particlePool.length);
-      //Do this with SoA
-      for (let i = 0; i < particleEmitter.particlePool.length; i++) {
-        particles.set(
-          Array.from([
-            (particles[i] = particleEmitter.particlePool[i].position[0]),
-            (particles[i + 1] = particleEmitter.particlePool[i].position[1]),
-            (particles[i + 2] = particleEmitter.particlePool[i].position[2]),
-            (particles[i + 3] = particleEmitter.particlePool[i].velocity[0]),
-            (particles[i + 4] = particleEmitter.particlePool[i].velocity[1]),
-            (particles[i + 5] = particleEmitter.particlePool[i].velocity[2]),
-          ]),
-        );
-      }
       const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
       if (!vertexArray)
         throw new Error('Mesh is not emitter' + particleEmitter.meshId);
+      console.log(particleEmitter.particles);
       Renderer.drawInstancing(
         vertexArray,
-        new Float32Array(particles),
-        particleEmitter.particlePool.length,
+        particleEmitter.particles,
+        particleEmitter.maxParticles,
       );
       shader.unbind();
     }

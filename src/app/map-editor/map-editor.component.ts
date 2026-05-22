@@ -68,6 +68,7 @@ import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
+import { Particle } from 'src/particles/particle';
 
 type IsSelected = {
   select: boolean;
@@ -475,6 +476,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'portal_vertex.txt',
       'portal_fragment.txt',
     );
+    await ShaderManager.load(
+      'tornado',
+      'tornado_vertex.txt',
+      'tornado_fragment.txt',
+    );
   }
 
   async loadAllTextures() {}
@@ -823,7 +829,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     const sphere = new Model(buffer);
-    sphere.addSphere(10, 10, 10);
+    sphere.addTornado();
     const effectEntity = this.ecs.createEntity();
     this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
     this.ecs.addComponent<Transform3D>(
@@ -1264,21 +1270,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    instanceBuffer.add(
-      3,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
     MeshManager.addInstanceMesh(
       'portal',
       instanceBuffer,
-      new Float32Array(500 * 6),
+      new Float32Array(100000 * 4),
     );
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('portal', 'portal', 500),
+      new ParticleEmitter('portal', 'portal', 100000),
     );
   }
 
@@ -1286,7 +1285,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addSphere(10, 10, 20);
@@ -1299,21 +1297,22 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    instanceBuffer.add(
-      3,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
     MeshManager.addInstanceMesh(
       'portal',
       instanceBuffer,
-      new Float32Array(10 * 6),
+      new Float32Array(100 * 3),
     );
     this.ecs.addComponent<ParticleEmitter>(
       this.meshbrush.entity,
-      new ParticleEmitter('portal', 'portal', 10),
+      new ParticleEmitter('portal', 'portal', 100),
     );
+  }
+
+  changeNrOfParticles(event: number) {
+    const emitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!emitter) return;
   }
 }

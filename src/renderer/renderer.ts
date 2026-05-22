@@ -42,10 +42,10 @@ export class Renderer {
 
     vertexArray.bind();
 
-    const buffer = vertexArray.instanceBuffer;
-    if (!buffer) return;
+    const instanceBuffer = vertexArray.instanceBuffer;
+    if (!instanceBuffer) throw new Error('Could not get buffer' + instanceBuffer);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceData);
 
     gl.drawElementsInstanced(
