@@ -262,27 +262,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   get translateX() {
-    return this.transform.translate[0];
+    return this.transform.position[0];
   }
 
   get translateY() {
-    return this.transform.translate[1];
+    return this.transform.position[1];
   }
 
   get translateZ() {
-    return this.transform.translate[2];
+    return this.transform.position[2];
   }
 
   set translateX(value: number) {
-    this.transform.translate[0] = value;
+    this.transform.position[0] = value;
   }
 
   set translateY(value: number) {
-    this.transform.translate[1] = value;
+    this.transform.position[1] = value;
   }
 
   set translateZ(value: number) {
-    this.transform.translate[2] = value;
+    this.transform.position[2] = value;
   }
 
   get scaleX() {
@@ -1306,6 +1306,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       new ParticleEmitter('portal', 'portal', 100),
     );
+  }
+
+  addAnimationPlayer() {
+    const entity = this.ecs.createEntity();
   }
 
   changeNrOfParticles(event: number) {

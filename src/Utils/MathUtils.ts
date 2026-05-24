@@ -7,8 +7,8 @@ export class MathUtils {
   static interpolateKeyframe(
     startValue: number,
     endValue: number,
-    progress: number
-  ) {
+    progress: number,
+  ): any {
     return startValue + (endValue - startValue) * progress;
   }
 
@@ -29,7 +29,7 @@ export class MathUtils {
   static calculateParentPosition(
     position: Vec,
     length: number,
-    rotation: number
+    rotation: number,
   ) {
     const x = position.x + length * Math.cos(this.degreesToRadians(rotation));
     const y = position.y + length * Math.sin(this.degreesToRadians(rotation));

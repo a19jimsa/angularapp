@@ -129,7 +129,7 @@ export class BrushSystem {
       const model = mat4.create();
 
       // translation
-      mat4.translate(model, model, transform3D.translate);
+      mat4.translate(model, model, transform3D.position);
 
       // rotation (ordning är viktig – välj en och håll den konsekvent)
       mat4.rotateX(model, model, transform3D.rotation[0]);
@@ -187,13 +187,13 @@ export class BrushSystem {
     if (!vertexArray) return;
 
     if (mouse.isSelected.select && mouse.isSelected.element === 6) {
-      transform3D.translate[0] -= mouse.deltaX;
+      transform3D.position[0] -= mouse.deltaX;
       return;
     } else if (mouse.isSelected.select && mouse.isSelected.element === 18) {
-      transform3D.translate[1] += mouse.deltaY;
+      transform3D.position[1] += mouse.deltaY;
       return;
     } else if (mouse.isSelected.select && mouse.isSelected.element === 30) {
-      transform3D.translate[2] -= mouse.deltaY;
+      transform3D.position[2] -= mouse.deltaY;
       return;
     }
     if (index === 6) {

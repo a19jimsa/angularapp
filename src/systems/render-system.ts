@@ -120,12 +120,12 @@ export class RenderSystem {
           0,
           sprite.sprite.width * sprite.position.scale[0],
           sprite.sprite.height * sprite.position.scale[1],
-          sprite.position.translate[0],
-          sprite.position.translate[1],
-          sprite.position.translate[2],
+          sprite.position.position[0],
+          sprite.position.position[1],
+          sprite.position.position[2],
           sprite.sprite.width * sprite.position.scale[0],
           sprite.sprite.height * sprite.position.scale[1],
-          sprite.position.translate[2],
+          sprite.position.position[2],
         );
       }
       this.batch.end(this.camera, key);
@@ -241,7 +241,7 @@ export class RenderSystem {
           this.camera.getViewProjectionMatrix(),
         );
         const modelMatrix = mat4.create();
-        mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+        mat4.translate(modelMatrix, modelMatrix, transform3D.position);
         shader.setUniformMat4('u_model', modelMatrix);
         const vao = MeshManager.getMesh('pivot');
         if (!vao) continue;
@@ -253,7 +253,7 @@ export class RenderSystem {
         const shader = ShaderManager.getShader(mesh.shaderId);
         shader.bind();
         if (light && lightPos) {
-          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.position', lightPos.position);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
           shader.setVec3('light.direction', light.direction);
@@ -298,7 +298,7 @@ export class RenderSystem {
         );
         if (transform3D) {
           const modelMatrix = mat4.create();
-          mat4.translate(modelMatrix, modelMatrix, transform3D.translate);
+          mat4.translate(modelMatrix, modelMatrix, transform3D.position);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
@@ -327,7 +327,7 @@ export class RenderSystem {
         shader.setFloat('u_time', performance.now() * 0.001);
         shader.setVec3('u_cameraPos', cameraPos);
         if (light && lightPos) {
-          shader.setVec3('light.position', lightPos.translate);
+          shader.setVec3('light.position', lightPos.position);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
         }
