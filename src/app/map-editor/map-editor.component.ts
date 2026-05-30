@@ -68,7 +68,11 @@ import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
-import { Particle } from 'src/particles/particle';
+import { Animation } from 'src/components/animation';
+import { AnimationPlayer, Keyframe, Track } from 'src/core/animation-player';
+import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
+import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
 
 type IsSelected = {
   select: boolean;
@@ -151,6 +155,7 @@ export type Brush = {
     MatMenuModule,
     MatToolbarModule,
     BrushImageComponent,
+    CdkDrag,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -184,6 +189,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   editorCamera: PerspectiveCamera;
   mode: Mode = 0;
   private http = inject(HttpClient);
+  animationPlayer: AnimationPlayer;
+  animationPlayerSystem: AnimationPlayerSystem = new AnimationPlayerSystem();
+  position = { x: 0, y: 0 };
 
   mouse: Mouse = {
     x: 0,
@@ -232,6 +240,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.editorCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
+    this.animationPlayer = new AnimationPlayer('Init');
+    AnimationPlayerManager.animationPlayers.set('Init', this.animationPlayer);
   }
 
   ngOnDestroy(): void {
@@ -246,6 +256,21 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     // Ta bort canvas från DOM helt
     this.canvas.remove();
+  }
+
+  get name() {
+    const name = this.ecs.getComponent<Name>(this.meshbrush.entity, 'Name');
+    if (name) return name.value;
+    return null;
+  }
+
+  get animation() {
+    const animation = this.ecs.getComponent<Animation>(
+      this.meshbrush.entity,
+      'Animation',
+    );
+    if (animation) return animation;
+    return null;
   }
 
   get particleEmitter() {
@@ -773,6 +798,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     model.addPlane(50, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
+    const transform = this.ecs.addComponent<Transform3D>(
+      newEntity,
+      new Transform3D(0, 0, 0),
+    );
     this.ecs.addComponent<Material>(newEntity, new Material('splatmap'));
     this.ecs.addComponent<Mesh>(
       newEntity,
@@ -789,10 +818,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Splatmap(size, 'terrain' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
-    const transform = this.ecs.addComponent<Transform3D>(
-      newEntity,
-      new Transform3D(0, 0, 0),
-    );
+
     if (!transform) return;
     transform.scale[0] = 10;
     transform.scale[1] = 10;
@@ -1033,6 +1059,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   update() {
     this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+    this.animationPlayerSystem.update(this.ecs);
     this.particleEmitterSystem.update(this.ecs);
   }
 
@@ -1308,8 +1335,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  addAnimationPlayer() {
-    const entity = this.ecs.createEntity();
+  addAnimationToComponent() {
+    this.ecs.addComponent<Animation>(
+      this.meshbrush.entity,
+      new Animation('Init'),
+    );
   }
 
   changeNrOfParticles(event: number) {
@@ -1318,5 +1348,66 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'ParticleEmitter',
     );
     if (!emitter) return;
+  }
+
+  addKeyframe(type: string) {
+    const anim = this.ecs.getComponent<Animation>(
+      this.meshbrush.entity,
+      'Animation',
+    );
+    if (!anim) return;
+  }
+
+  addTrack(
+    componentID: string,
+    property: string,
+    item: vec3 | boolean | number,
+  ) {
+    const track = this.animationPlayer.tracks.find(
+      (e) =>
+        e.componentID === componentID &&
+        e.entity === this.meshbrush.entity &&
+        e.property === property,
+    );
+    if (track) {
+      if (componentID === 'Transform3D') {
+        const vec = item as vec3;
+        track.keyframes.push({
+          value: vec3.fromValues(vec[0], vec[1], vec[2]),
+          time: 0,
+        });
+        console.log('Added keyframe');
+      } else {
+        track.keyframes.push({ value: item, time: 0 });
+      }
+    } else {
+      const component = this.ecs.getComponent(
+        this.meshbrush.entity,
+        componentID,
+      );
+      this.animationPlayer.tracks.push(
+        new Track(componentID, property, this.meshbrush.entity, component),
+      );
+      console.log('Added track ');
+      console.log(this.animationPlayer.tracks);
+    }
+  }
+
+  playAnimation(cursor: HTMLDivElement, timeline: HTMLDivElement) {
+    this.animationPlayer.loopedTime += 10;
+  }
+
+  togglePlayAnimation() {
+    this.animationPlayer.playing = !this.animationPlayer.playing;
+  }
+
+  onDropped(
+    event: CdkDragEnd,
+    keyframe: Keyframe<vec3 | boolean | number>,
+    index: number,
+  ) {
+    const x = event.source.getFreeDragPosition().x;
+    keyframe.time = x;
+    this.animationPlayer.lifetime = x;
   }
 }

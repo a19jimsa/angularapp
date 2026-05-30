@@ -19,3 +19,35 @@ canvas {
 .transparent {
   background-color: transparent;
 }
+
+.track {
+  width: 100%;
+  height: 20px;
+  border: 1px solid black;
+}
+
+.player {
+  width: 100%;
+  height: 100%;
+  border: 1px solid red;
+}
+
+.player-buttons {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  border: 1px solid black;
+  height: 30px;
+}
+
+.player-buttons > button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timeline {
+  width: 100%;
+  height: 100%;
+  background-color: grey;
+}

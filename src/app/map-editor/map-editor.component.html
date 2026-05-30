@@ -115,69 +115,110 @@
             <mat-card-title
               class="d-flex flex-row justify-content-between w-100"
               ><div>Toolbox</div>
-              <div>Toolbox</div></mat-card-title
-            >
+            </mat-card-title>
             <mat-card-subtitle></mat-card-subtitle>
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content class="d-flex flex-column h-100 overflow-auto">
           <mat-accordion class="example-headers-align" multi>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> Transform </mat-panel-title>
-                <mat-panel-description>
-                  <mat-icon>transform</mat-icon>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>X</mat-label>
-                  <input matInput type="number" [(ngModel)]="translateX" />
-                </mat-form-field>
-
-                <mat-form-field class="col-4">
-                  <mat-label>Y</mat-label>
-                  <input matInput type="number" [(ngModel)]="translateY" />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Z</mat-label>
-                  <input matInput type="number" [(ngModel)]="translateZ" />
-                </mat-form-field>
-              </div>
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>X</mat-label>
-                  <input matInput type="number" [(ngModel)]="scaleX" />
-                </mat-form-field>
-
-                <mat-form-field class="col-4">
-                  <mat-label>Y</mat-label>
-                  <input matInput type="number" [(ngModel)]="scaleY" />
-                </mat-form-field>
-
-                <mat-form-field class="col-4">
-                  <mat-label>Z</mat-label>
-                  <input matInput type="number" [(ngModel)]="scaleZ" />
-                </mat-form-field>
-              </div>
-
-              <div class="row">
-                <mat-form-field class="col-4">
-                  <mat-label>X</mat-label>
-                  <input matInput type="number" [(ngModel)]="rotateX" />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Y</mat-label>
-                  <input matInput type="number" [(ngModel)]="rotateY" />
-                </mat-form-field>
-                <mat-form-field class="col-4">
-                  <mat-label>Z</mat-label>
-                  <input matInput type="number" [(ngModel)]="rotateZ" />
-                </mat-form-field>
-              </div>
-            </mat-expansion-panel>
-
             @for (item of componentsList; track $index) {
+              @if (item === transform) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Transform </mat-panel-title>
+                    <mat-panel-description>
+                      <mat-icon>transform</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="row">
+                    <mat-form-field class="col-3">
+                      <mat-label>X</mat-label>
+                      <input matInput type="number" [(ngModel)]="translateX" />
+                    </mat-form-field>
+
+                    <mat-form-field class="col-3">
+                      <mat-label>Y</mat-label>
+                      <input matInput type="number" [(ngModel)]="translateY" />
+                    </mat-form-field>
+                    <mat-form-field class="col-3">
+                      <mat-label>Z</mat-label>
+                      <input matInput type="number" [(ngModel)]="translateZ" />
+                    </mat-form-field>
+                    @if (animation) {
+                      <button
+                        mat-fab
+                        class="col-3"
+                        (click)="
+                          addTrack(
+                            transform.type,
+                            'position',
+                            transform.position
+                          )
+                        "
+                      >
+                        <mat-icon>key</mat-icon>
+                      </button>
+                    }
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-3">
+                      <mat-label>X</mat-label>
+                      <input matInput type="number" [(ngModel)]="scaleX" />
+                    </mat-form-field>
+
+                    <mat-form-field class="col-3">
+                      <mat-label>Y</mat-label>
+                      <input matInput type="number" [(ngModel)]="scaleY" />
+                    </mat-form-field>
+
+                    <mat-form-field class="col-3">
+                      <mat-label>Z</mat-label>
+                      <input matInput type="number" [(ngModel)]="scaleZ" />
+                    </mat-form-field>
+                    @if (animation) {
+                      <button
+                        mat-fab
+                        class="col-3"
+                        (click)="
+                          addTrack(transform.type, 'scale', transform.scale)
+                        "
+                      >
+                        <mat-icon>key</mat-icon>
+                      </button>
+                    }
+                  </div>
+
+                  <div class="row">
+                    <mat-form-field class="col-3">
+                      <mat-label>X</mat-label>
+                      <input matInput type="number" [(ngModel)]="rotateX" />
+                    </mat-form-field>
+                    <mat-form-field class="col-3">
+                      <mat-label>Y</mat-label>
+                      <input matInput type="number" [(ngModel)]="rotateY" />
+                    </mat-form-field>
+                    <mat-form-field class="col-3">
+                      <mat-label>Z</mat-label>
+                      <input matInput type="number" [(ngModel)]="rotateZ" />
+                    </mat-form-field>
+                    @if (animation) {
+                      <button
+                        mat-fab
+                        class="col-3"
+                        (click)="
+                          addTrack(
+                            transform.type,
+                            'rotation',
+                            transform.rotation
+                          )
+                        "
+                      >
+                        <mat-icon>key</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </mat-expansion-panel>
+              }
               @if (item === terrain) {
                 <mat-expansion-panel>
                   <mat-expansion-panel-header>
@@ -924,12 +965,15 @@
           <button mat-menu-item (click)="addParticleEmitterComponent()">
             Add Particle Emitter
           </button>
+          <button mat-menu-item (click)="addAnimationToComponent()">
+            Add Animation
+          </button>
         </mat-menu>
       </mat-card>
     </div>
   </div>
   <div class="row mt-2">
-    <div class="col-12">
+    <div class="col-6">
       <mat-card>
         <mat-card-header><h2>Assets</h2></mat-card-header>
         <mat-card-content>
@@ -957,18 +1001,75 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <div class="col-6">
+      <mat-card>
+        <mat-card-header>
+          <div class="row">
+            <div
+              class="col-12 d-flex justify-content-around row-direction align-items-center"
+            >
+              <h2>Animation Player</h2>
+              <h2>{{ animationPlayer.lifetime }}</h2>
+              <mat-form-field>
+                <mat-label>Name</mat-label>
+                <mat-select>
+                  @for (track of animationPlayer.tracks; track track) {
+                    <mat-option>{{ track.property }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="row">
+            <div class="col-2">
+              <div class="player-buttons">
+                <button matIconButton (click)="togglePlayAnimation()">
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+                <button matIconButton><mat-icon>stop</mat-icon></button>
+              </div>
+            </div>
+            <div class="col-10">
+              <div class="timeline" #timeline>
+                <div
+                  #cursor
+                  style="width: 10px; color: blue"
+                  class="h-100 border"
+                  cdkDragLockAxis="x"
+                  cdkDragBoundary=".timeline"
+                  [cdkDragFreeDragPosition]="position"
+                  cdkDrag
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            @for (track of animationPlayer.tracks; track $index) {
+              <div class="col-2">
+                {{ track.componentID }} {{ track.property }}
+              </div>
+              <div class="col-10">
+                <div class="track">
+                  @for (keyframe of track.keyframes; track $index) {
+                    <div
+                      style="width: 20px; height: 20px"
+                      class="border"
+                      cdkDragLockAxis="x"
+                      cdkDragBoundary=".track"
+                      (cdkDragEnded)="onDropped($event, keyframe, $index)"
+                      cdkDrag
+                    ></div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
-  <!-- <div class="row">
-    <mat-card>
-      <mat-slider min="-200" max="20" step="1" discrete>
-        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[0]" />
-      </mat-slider>
-      <mat-slider min="-200" max="20" step="1" discrete>
-        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[1]" />
-      </mat-slider>
-      <mat-slider min="-200" max="20" step="1" discrete>
-        <input matSliderThumb [(ngModel)]="perspectiveCamera.position[2]" />
-      </mat-slider>
-    </mat-card>
-  </div> -->
 </div>

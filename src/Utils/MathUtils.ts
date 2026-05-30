@@ -8,7 +8,7 @@ export class MathUtils {
     startValue: number,
     endValue: number,
     progress: number,
-  ): any {
+  ): number {
     return startValue + (endValue - startValue) * progress;
   }
 
