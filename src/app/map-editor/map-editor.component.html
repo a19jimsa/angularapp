@@ -926,11 +926,10 @@
                         particleEmitter.amount
                       }}</label>
                     </div>
-                    <mat-slider min="0" max="100000" step="1">
+                    <mat-slider min="1" max="10000" step="1">
                       <input
                         matSliderThumb
                         [(ngModel)]="particleEmitter.amount"
-                        (valueChange)="changeNrOfParticles($event)"
                       />
                     </mat-slider>
                   </div>
@@ -962,9 +961,6 @@
           Add component
         </button>
         <mat-menu #components="matMenu">
-          <button mat-menu-item (click)="addParticleEmitterComponent()">
-            Add Particle Emitter
-          </button>
           <button mat-menu-item (click)="addAnimationToComponent()">
             Add Animation
           </button>

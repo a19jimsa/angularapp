@@ -1280,7 +1280,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   createParticleEmitter() {
     const entity = this.ecs.createEntity();
-    this.ecs.addComponent<Name>(entity, new Name('Particle System'));
+    this.ecs.addComponent<Name>(entity, new Name('Particle System ' + entity));
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
@@ -1300,37 +1300,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     MeshManager.addInstanceMesh(
       'portal',
       instanceBuffer,
-      new Float32Array(100000 * 4),
+      new Float32Array(10000 * 3),
     );
+
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 9000));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('portal', 'portal', 100000),
-    );
-  }
-
-  addParticleEmitterComponent() {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    const model = new Model(buffer);
-    //Change later in runtime with some parameters in UI
-    model.addSphere(10, 10, 20);
-    MeshManager.addMesh(model, 'portal');
-    const instanceBuffer = new BufferLayout();
-    instanceBuffer.add(
-      2,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    MeshManager.addInstanceMesh(
-      'portal',
-      instanceBuffer,
-      new Float32Array(100 * 3),
-    );
-    this.ecs.addComponent<ParticleEmitter>(
-      this.meshbrush.entity,
       new ParticleEmitter('portal', 'portal', 100),
     );
   }
@@ -1340,14 +1315,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       new Animation('Init'),
     );
-  }
-
-  changeNrOfParticles(event: number) {
-    const emitter = this.ecs.getComponent<ParticleEmitter>(
-      this.meshbrush.entity,
-      'ParticleEmitter',
-    );
-    if (!emitter) return;
   }
 
   addKeyframe(type: string) {

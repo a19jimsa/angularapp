@@ -37,6 +37,6 @@ export class ParticleProp {
   sizeBegin: number = 1;
   sizeEnd: number = 2;
   sizeVariation: number = 0;
-  lifetime: number = 5;
+  lifetime: number = 0;
   age: number = 0;
 }

@@ -11,7 +11,6 @@ export class AnimationPlayerSystem {
     player.loopedTime += 0.16;
     const time = player.loopedTime % player.lifetime;
     for (const track of player.tracks) {
-
       const value = track.evaluate(time);
       if (!value) continue;
       console.log(value);

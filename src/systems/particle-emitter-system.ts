@@ -10,7 +10,7 @@ export class ParticleEmitterSystem {
         'ParticleEmitter',
       );
       if (!particleEmitter) continue;
-      for (let i = 0; i < particleEmitter.maxParticles; i++) {
+      for (let i = 0; i < particleEmitter.amount; i++) {
         if (particleEmitter.active[i] === 0) continue;
         if (particleEmitter.life[i] <= 0) {
           particleEmitter.active[i] = 0;
@@ -22,7 +22,7 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.life[i] -= 0.16;
       }
-      for (let i = 0; i < particleEmitter.maxParticles; i++) {
+      for (let i = 0; i < particleEmitter.amount; i++) {
         const j = i * 3;
 
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
@@ -33,11 +33,11 @@ export class ParticleEmitterSystem {
     }
   }
 
-  //Create new particles
+  //Activate particles from the deadpool
   emit(particleEmitter: ParticleEmitter) {
     const index = particleEmitter.poolIndex;
     if (particleEmitter.active[index] === 0) {
-      const particleProp = new ParticleProp();
+      const particleProp = particleEmitter.particleProp;
       particleEmitter.active[index] = 1;
       particleEmitter.positionsX[index] = particleProp.position[0];
       particleEmitter.positionsY[index] = particleProp.position[1];
@@ -45,11 +45,12 @@ export class ParticleEmitterSystem {
       particleEmitter.velocityX[index] = particleProp.velocity[0];
       particleEmitter.velocityY[index] = particleProp.velocity[1];
       particleEmitter.velocityZ[index] = particleProp.velocity[2];
-      particleEmitter.life[index] = 10;
+      particleEmitter.life[index] = particleProp.lifetime;
     }
 
     particleEmitter.poolIndex =
       (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
       particleEmitter.amount;
+    console.log(particleEmitter.poolIndex);
   }
 }

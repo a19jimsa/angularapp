@@ -43,10 +43,15 @@ export class Renderer {
     vertexArray.bind();
 
     const instanceBuffer = vertexArray.instanceBuffer;
-    if (!instanceBuffer) throw new Error('Could not get buffer' + instanceBuffer);
+    if (!instanceBuffer)
+      throw new Error('Could not get buffer' + instanceBuffer);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceData);
+    gl.bufferSubData(
+      gl.ARRAY_BUFFER,
+      0,
+      instanceData.subarray(0, instanceCount * 3),
+    );
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,

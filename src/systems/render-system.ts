@@ -352,14 +352,22 @@ export class RenderSystem {
       shader.bind();
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now());
+      if (transform3D) {
+        const modelMatrix = mat4.create();
+        mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+        shader.setUniformMat4('u_model', modelMatrix);
+      }
       const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
       if (!vertexArray)
         throw new Error('Mesh is not emitter' + particleEmitter.meshId);
-      console.log(particleEmitter.particles);
       Renderer.drawInstancing(
         vertexArray,
         particleEmitter.particles,
-        particleEmitter.maxParticles,
+        particleEmitter.amount,
       );
       shader.unbind();
     }
