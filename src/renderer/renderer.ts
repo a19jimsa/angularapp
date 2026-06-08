@@ -39,18 +39,16 @@ export class Renderer {
     instanceCount: number,
   ) {
     const gl = Renderer.getGL;
-
     vertexArray.bind();
-
     const instanceBuffer = vertexArray.instanceBuffer;
     if (!instanceBuffer)
-      throw new Error('Could not get buffer' + instanceBuffer);
+      throw new Error('Could not get instance buffer' + instanceBuffer);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
     gl.bufferSubData(
       gl.ARRAY_BUFFER,
       0,
-      instanceData.subarray(0, instanceCount * 3),
+      instanceData.subarray(0, instanceData.length),
     );
 
     gl.drawElementsInstanced(
@@ -58,7 +56,7 @@ export class Renderer {
       vertexArray.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
-      instanceCount,
+      instanceData.length / 8,
     );
 
     vertexArray.unbind();
@@ -70,8 +68,8 @@ export class Renderer {
     Renderer.canvas.height = 1080;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
-    gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
+    gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     //gl.blendFunc(gl.ONE, gl.ONE);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

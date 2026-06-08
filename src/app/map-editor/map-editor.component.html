@@ -893,11 +893,37 @@
                   </div>
                   <div class="row">
                     <mat-form-field class="col-4">
+                      <mat-label>Gravity X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.gravity[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Gravity Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.gravity[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Gravity Z</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.gravity[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
                       <mat-label>Velocity X</mat-label>
                       <input
                         matInput
                         type="number"
-                        [(ngModel)]="particleEmitter.particleProp.velocity[0]"
+                        [(ngModel)]="particleEmitter.particleProp.direction[0]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -905,7 +931,7 @@
                       <input
                         matInput
                         type="number"
-                        [(ngModel)]="particleEmitter.particleProp.velocity[1]"
+                        [(ngModel)]="particleEmitter.particleProp.direction[1]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -913,7 +939,51 @@
                       <input
                         matInput
                         type="number"
-                        [(ngModel)]="particleEmitter.particleProp.velocity[2]"
+                        [(ngModel)]="particleEmitter.particleProp.direction[2]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-6">
+                      <mat-label>Speed X</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.speed[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-6">
+                      <mat-label>Speed Y</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.speed[1]"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-4">
+                      <mat-label>Color R</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.color[0]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Color G</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.color[1]"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-4">
+                      <mat-label>Color B</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.color[2]"
                       />
                     </mat-form-field>
                   </div>
@@ -932,23 +1002,121 @@
                         [(ngModel)]="particleEmitter.amount"
                       />
                     </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Burst mode</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.burst
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="1" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.burst"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Randomness</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.randomness
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="10" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.particleProp.randomness"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Lifetime randomness</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.lifetimeRandomness
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="1" step="0.1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="
+                          particleEmitter.particleProp.lifetimeRandomness
+                        "
+                      />
+                    </mat-slider>
                   </div>
                   <div class="row">
-                    <mat-form-field class="col-6">
-                      <mat-label>Mesh ID</mat-label>
-                      <input
-                        matInput
-                        type="text"
-                        [(ngModel)]="particleEmitter.meshId"
-                      />
+                    <div class="col-12">
+                      @if (ring) {
+                        <div>Emission Ring Axis</div>
+                        <mat-form-field class="col-12">
+                          <mat-label>Emission Ring Height</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="ring.height"
+                          />
+                        </mat-form-field>
+                        <div>Emission Ring Axis</div>
+                        <mat-form-field class="col-12">
+                          <mat-label>Emission Ring Radius</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="ring.radius"
+                          />
+                        </mat-form-field>
+                        <div>Emission Ring Axis</div>
+                        <mat-form-field class="col-12">
+                          <mat-label>Emission Ring Inner Radius</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="ring.innerRadius"
+                          />
+                        </mat-form-field>
+                      }
+                    </div>
+                  </div>
+                  <div class="row">
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.meshId }}</mat-label>
+                      <mat-select>
+                        @for (mesh of meshes; track mesh) {
+                          <mat-option
+                            (onSelectionChange)="particleEmitter.meshId = mesh"
+                            >{{ mesh }}</mat-option
+                          >
+                        }
+                      </mat-select>
                     </mat-form-field>
-                    <mat-form-field class="col-6">
-                      <mat-label>Shader ID</mat-label>
-                      <input
-                        matInput
-                        type="text"
-                        [(ngModel)]="particleEmitter.shaderId"
-                      />
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.shaderId }}</mat-label>
+                      <mat-select>
+                        @for (shader of shaders; track shader) {
+                          <mat-option
+                            (onSelectionChange)="
+                              particleEmitter.shaderId = shader
+                            "
+                            >{{ shader }}</mat-option
+                          >
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.shape.type }}</mat-label>
+                      <mat-select>
+                        @for (mesh of meshes; track mesh) {
+                          <mat-option
+                            (onSelectionChange)="particleEmitter.meshId = mesh"
+                            >{{ mesh }}</mat-option
+                          >
+                        }
+                      </mat-select>
                     </mat-form-field>
                   </div>
                 </mat-expansion-panel>
@@ -997,7 +1165,6 @@
         </mat-card-content>
       </mat-card>
     </div>
-
     <div class="col-6">
       <mat-card>
         <mat-card-header>

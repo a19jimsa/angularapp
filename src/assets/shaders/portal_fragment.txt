@@ -14,5 +14,5 @@ void main() {
     vec2 uvScrolling = v_texcoord + vec2(0.0, u_time * 0.009); 
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
     
-    FragColor = vec4(1.0);
+    FragColor = baseColor;
 }

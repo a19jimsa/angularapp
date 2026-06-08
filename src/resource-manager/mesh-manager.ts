@@ -47,4 +47,8 @@ export class MeshManager {
   public static getAllMesh() {
     return Array.from(this.vertexArrays.values());
   }
+
+  public static getMeshNames() {
+    return Array.from(this.vertexArrays.keys());
+  }
 }

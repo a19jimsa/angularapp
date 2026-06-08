@@ -66,7 +66,7 @@ import { HttpClient } from '@angular/common/http';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
-import { ParticleEmitter } from 'src/particles/particle-emitter';
+import { ParticleEmitter, RingShape } from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 import { Animation } from 'src/components/animation';
 import { AnimationPlayer, Keyframe, Track } from 'src/core/animation-player';
@@ -286,6 +286,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return ShaderManager.getShaderNames();
   }
 
+  get meshes() {
+    return MeshManager.getMeshNames();
+  }
+
   get translateX() {
     return this.transform.position[0];
   }
@@ -356,6 +360,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   set rotateZ(value: number) {
     this.transform.rotation[2] = value;
+  }
+
+  get ring() {
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!particleEmitter) return null;
+    return particleEmitter.shape as RingShape;
   }
 
   get water(): Water | null {
@@ -506,6 +519,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'tornado_vertex.txt',
       'tornado_fragment.txt',
     );
+    await ShaderManager.load('aura', 'aura_vertex.txt', 'aura_fragment.txt');
+    await ShaderManager.load('vfx', 'vfx_vertex.txt', 'vfx_fragment.txt');
+    await ShaderManager.load(
+      'fire_vfx',
+      'fire_vfx_vertex.txt',
+      'fire_vfx_fragment.txt',
+    );
   }
 
   async loadAllTextures() {}
@@ -649,14 +669,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const tree1 = await TextureManager.loadImage('/assets/trees/tree_004.png');
-    const tree3 = await TextureManager.loadImage('/assets/trees/tree_005.png');
+    const tree5 = await TextureManager.loadImage('/assets/trees/tree_005.png');
     const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
-    const tree7 = await TextureManager.loadImage('/assets/trees/tree_007.png');
+    const tree8 = await TextureManager.loadImage('/assets/trees/tree_008.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
-      'tree',
+      'batch',
       'u_textures',
-      [tree1, tree3, tree6, tree7],
+      [tree6],
       'batch',
     );
 
@@ -722,12 +742,33 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'portal',
     );
 
-    // const windTextures = await TextureManager.addTextureArray(
-    //   'wind',
-    //   'u_textures',
-    //   [noise],
-    //   'wind',
-    // );
+    const colorCurve = await TextureManager.loadImage(
+      '/assets/textures/color-curve.jpg',
+    );
+
+    const auraTextures = await TextureManager.addTextureArray(
+      'aura',
+      'u_textures',
+      [noise, colorCurve],
+      'aura',
+    );
+
+    const fireImage = await TextureManager.loadImage(
+      '/assets/textures/fire_vfx.jpg',
+    );
+    const alphaCurve = await TextureManager.loadImage(
+      '/assets/textures/alpha-curve.jpg',
+    );
+    const colorRamp = await TextureManager.loadImage(
+      '/assets/textures/color-ramp.jpg',
+    );
+
+    const fireTextures = await TextureManager.addTextureArray(
+      'fire_vfx',
+      'u_textures',
+      [fireImage, alphaCurve, colorRamp],
+      'fire_vfx',
+    );
   }
 
   async init() {
@@ -878,17 +919,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const cylinderModel = new Model(buffer);
     cylinderModel.addCylinder();
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
     this.ecs.addComponent<Transform3D>(
       effectEntity,
       new Transform3D(0, 0, 9000),
     );
+    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
     this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(50, 50, 'fire', 'cylinder' + effectEntity),
+      new Mesh(50, 50, 'fire', 'cylinder'),
     );
-    MeshManager.addMesh(cylinderModel, 'cylinder' + effectEntity);
+    MeshManager.addMesh(cylinderModel, 'cylinder');
   }
 
   public createCircle() {
@@ -1287,8 +1328,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addSphere(10, 10, 20);
-    MeshManager.addMesh(model, 'portal');
+    model.addQuad();
+    MeshManager.addMesh(model, 'fire_vfx');
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       2,
@@ -1297,16 +1338,37 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      4,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      5,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
     MeshManager.addInstanceMesh(
-      'portal',
+      'fire_vfx',
       instanceBuffer,
-      new Float32Array(10000 * 3),
+      new Float32Array(10000 * 8),
     );
 
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 9000));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('portal', 'portal', 100),
+      new ParticleEmitter('fire_vfx', 'fire_vfx', 100),
     );
   }
 

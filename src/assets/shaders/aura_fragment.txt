@@ -9,15 +9,15 @@ uniform vec2 u_speed;
 in vec2 v_texcoord;
 in float v_lifetime;
 in float v_age;
-in vec3 v_color;
 
 out vec4 FragColor;
 
 void main() { 
-    float t = 1.0 - v_age / v_lifetime;
+    float t = v_age / v_lifetime;
     vec2 uv = v_texcoord;
-    vec4 baseColor = texture(u_textures, vec3(v_texcoord, 0));
+    vec2 uvScrolling = v_texcoord + vec2(u_time * u_speed.x, u_time * u_speed.y); 
+    float baseColor = texture(u_textures, vec3(uvScrolling, 0)).r; 
     float curveColor = texture(u_textures, vec3(t, 0.5, 1)).r;
-    float opacity = baseColor.r * curveColor;
-    FragColor = vec4(v_color, t);
+    float opacity = baseColor * curveColor;
+    FragColor = vec4(1.0,0.0,0.0, opacity);
 }

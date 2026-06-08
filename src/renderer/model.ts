@@ -111,7 +111,37 @@ export class Model {
     this.vertices = skyboxVertices;
   }
 
-  addSquares(
+  addQuad() {
+    const vertices = [
+      -10, // v0
+      -10,
+      0,
+      0,
+      0,
+      10, // v1
+      -10,
+      0,
+      1,
+      0,
+      -10, // v2
+      10,
+      0,
+      0,
+      1,
+      10, // v3
+      10,
+      0,
+      1,
+      1,
+    ];
+
+    const indices = [0, 1, 2, 2, 1, 3];
+
+    this.vertices = vertices;
+    this.indices = indices;
+  }
+
+  addSprite(
     width: number,
     height: number,
     rotation: number,

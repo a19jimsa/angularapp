@@ -1,5 +1,44 @@
 import { Component } from 'src/components/component';
 import { Particle, ParticleProp } from './particle';
+import { vec2, vec3 } from 'gl-matrix';
+
+interface Shape {
+  type: string;
+  offset: vec3;
+  scale: vec3;
+  spawnPosition(): vec3;
+}
+
+export class RingShape implements Shape {
+  type: string = 'Ring';
+  offset: vec3 = vec3.fromValues(0, 0, 0);
+  scale: vec3 = vec3.fromValues(0, 0, 0);
+  radius: number = 0;
+  height: number = 0;
+  innerRadius: number = 0;
+
+  spawnPosition() {
+    const out = vec3.fromValues(0, 0, 0);
+    const angle = Math.random() * Math.PI * 2;
+
+    const r = this.radius + (Math.random() - 0.5) * 10;
+
+    out[0] = Math.cos(angle) * r;
+    out[1] = 0;
+    out[2] = Math.sin(angle) * r;
+    return out;
+  }
+}
+
+export class Point implements Shape {
+  type: string = 'Point';
+  offset: vec3 = vec3.fromValues(0, 0, 0);
+  scale: vec3 = vec3.fromValues(1, 1, 1);
+  spawnPosition() {
+    const out = vec3.fromValues(0, 0, 0);
+    return out;
+  }
+}
 
 export class ParticleEmitter extends Component {
   override type: string = 'ParticleEmitter';
@@ -9,6 +48,10 @@ export class ParticleEmitter extends Component {
   amount: number;
   particles: Float32Array;
   particleProp: ParticleProp;
+  burst: number;
+  timer: number = 0;
+  speed: vec2 = vec2.fromValues(0, 0);
+  shape: Shape = new RingShape();
 
   maxParticles: number;
 
@@ -20,18 +63,24 @@ export class ParticleEmitter extends Component {
   velocityY: Float32Array;
   velocityZ: Float32Array;
 
-  life: Float32Array;
+  colorR: Float32Array;
+  colorG: Float32Array;
+  colorB: Float32Array;
+
+  age: Float32Array;
+  lifetime: Float32Array;
   active: Uint8Array;
 
   constructor(shaderId: string, meshId: string, amount: number) {
     super();
     this.maxParticles = 10000;
-    this.particles = new Float32Array(10000 * 3);
+    this.particles = new Float32Array(10000 * 8);
     this.particleProp = new ParticleProp();
 
     this.shaderId = shaderId;
     this.meshId = meshId;
     this.amount = amount;
+    this.burst = 0;
 
     this.positionsX = new Float32Array(this.maxParticles);
     this.positionsY = new Float32Array(this.maxParticles);
@@ -41,19 +90,12 @@ export class ParticleEmitter extends Component {
     this.velocityY = new Float32Array(this.maxParticles);
     this.velocityZ = new Float32Array(this.maxParticles);
 
-    this.life = new Float32Array(this.maxParticles);
-    this.active = new Uint8Array(this.maxParticles);
+    this.age = new Float32Array(this.maxParticles);
+    this.lifetime = new Float32Array(this.maxParticles);
 
-    for (let i = 0; i < amount; i++) {
-      const particleProp = this.particleProp;
-      this.active[i] = 1;
-      this.positionsX[i] = particleProp.position[0];
-      this.positionsY[i] = particleProp.position[1];
-      this.positionsZ[i] = particleProp.position[2];
-      this.velocityX[i] = particleProp.velocity[0];
-      this.velocityY[i] = particleProp.velocity[1];
-      this.velocityZ[i] = particleProp.velocity[2];
-      this.life[i] = 10;
-    }
+    this.colorR = new Float32Array(this.maxParticles);
+    this.colorG = new Float32Array(this.maxParticles);
+    this.colorB = new Float32Array(this.maxParticles);
+    this.active = new Uint8Array(this.maxParticles);
   }
 }
