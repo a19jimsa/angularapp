@@ -67,14 +67,17 @@ export class ParticleEmitter extends Component {
   colorG: Float32Array;
   colorB: Float32Array;
 
+  rotation: Float32Array;
+
   age: Float32Array;
+  size: Float32Array;
   lifetime: Float32Array;
   active: Uint8Array;
 
   constructor(shaderId: string, meshId: string, amount: number) {
     super();
     this.maxParticles = 10000;
-    this.particles = new Float32Array(10000 * 8);
+    this.particles = new Float32Array(10000 * 9);
     this.particleProp = new ParticleProp();
 
     this.shaderId = shaderId;
@@ -93,9 +96,13 @@ export class ParticleEmitter extends Component {
     this.age = new Float32Array(this.maxParticles);
     this.lifetime = new Float32Array(this.maxParticles);
 
+    this.size = new Float32Array(this.maxParticles);
+    this.rotation = new Float32Array(this.maxParticles);
+
     this.colorR = new Float32Array(this.maxParticles);
     this.colorG = new Float32Array(this.maxParticles);
     this.colorB = new Float32Array(this.maxParticles);
+
     this.active = new Uint8Array(this.maxParticles);
   }
 }

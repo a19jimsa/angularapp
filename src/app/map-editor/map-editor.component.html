@@ -1032,6 +1032,34 @@
                     </mat-slider>
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"
+                        >Size</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.size
+                      }}</label>
+                    </div>
+                    <mat-slider min="1" max="10" step="0.1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.particleProp.size"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Size</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.rotation
+                      }}</label>
+                    </div>
+                    <mat-slider min="-180" max="180" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.particleProp.rotation"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
                         >Lifetime randomness</label
                       >
                       <label class="example-value-label">{{

@@ -1,5 +1,6 @@
 import { Ecs } from 'src/core/ecs';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 export class ParticleEmitterSystem {
   update(ecs: Ecs) {
@@ -9,6 +10,7 @@ export class ParticleEmitterSystem {
         'ParticleEmitter',
       );
       if (!particleEmitter) continue;
+      //Update particles
       for (let i = 0; i < particleEmitter.amount; i++) {
         if (particleEmitter.active[i] === 0) continue;
         if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
@@ -22,8 +24,9 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.age[i] += 0.16;
       }
+      //Create particle buffer
       for (let i = 0; i < particleEmitter.amount; i++) {
-        const j = i * 8;
+        const j = i * 10;
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
         particleEmitter.particles[j + 1] = particleEmitter.positionsY[i];
         particleEmitter.particles[j + 2] = particleEmitter.positionsZ[i];
@@ -32,6 +35,10 @@ export class ParticleEmitterSystem {
         particleEmitter.particles[j + 5] = particleEmitter.colorR[i];
         particleEmitter.particles[j + 6] = particleEmitter.colorG[i];
         particleEmitter.particles[j + 7] = particleEmitter.colorB[i];
+        particleEmitter.particles[j + 8] = particleEmitter.size[i];
+        particleEmitter.particles[j + 9] = MathUtils.degreesToRadians(
+          particleEmitter.rotation[i],
+        );
       }
       this.emit(particleEmitter);
       particleEmitter.poolIndex =
@@ -110,6 +117,8 @@ export class ParticleEmitterSystem {
       particleEmitter.colorR[index] = particleProp.color[0];
       particleEmitter.colorG[index] = particleProp.color[1];
       particleEmitter.colorB[index] = particleProp.color[2];
+      particleEmitter.size[index] = particleProp.size;
+      particleEmitter.rotation[index] = MathUtils.random(-180, 180);
     }
   }
 }

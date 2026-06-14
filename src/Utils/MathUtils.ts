@@ -56,4 +56,9 @@ export class MathUtils {
       hitBox.position.y < hurtBox.position.y + hurtBox.height
     );
   }
+
+  static random(min: number, max: number) {
+    const value = min + Math.random() * (max - min);
+    return value;
+  }
 }

@@ -2,35 +2,36 @@
 precision mediump float;
 precision mediump sampler2DArray;
 
+uniform sampler2D u_texture;
 uniform sampler2DArray u_textures;
 uniform float u_time;
+uniform vec2 u_speed;
 
 in vec2 v_texcoord;
+in float v_lifetime;
+in float v_age;
+in vec3 v_color;
 
 out vec4 FragColor;
 
-float remap(float x, float inMin, float inMax, float outMin, float outMax) {
-    return (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
+float remap(float value, float inMin, float inMax, float outMin, float outMax)
+{
+    return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
 }
 
 void main() { 
-    vec2 uv = v_texcoord;
-    vec2 uvScrolling = v_texcoord + vec2(0.0, u_time * 0.0009); 
-    vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
-    vec4 rampColor = texture(u_textures, vec3(baseColor.a, 0.5, 1));
+    float t = clamp(v_age / v_lifetime, 0.0, 1.0);
 
-    float t = fract(u_time * 0.0015);
+    vec2 uv = v_texcoord + u_speed * u_time;
+    vec4 baseColor = texture(u_texture, uv);
+    baseColor = clamp(baseColor, 0.0, 1.0);
+    vec4 colorRamp = texture(u_textures, vec3(vec2(t, 0.5), 0));
 
-    // mjuka ut början/slutet
-    t = smoothstep(0.0, 0.7, t);
+    float x = remap(colorRamp.r, 0.0, 1.0, 0.0, 0.7);
 
-    if(baseColor.r < t) discard;
+    float opacity = smoothstep(x, 1.0, baseColor.r);
 
-    vec3 darkColor = vec3(0.0, 0.1, 1.0); // blå
-    vec3 brightColor = vec3(1.0);         // vit
+    vec3 color = texture(u_textures, vec3(vec2(opacity, 0.5), 1)).rgb;
 
-    vec3 finalColor = mix(darkColor, brightColor, baseColor.r);
-
-    // mjuk fade
-    FragColor = vec4(finalColor, baseColor.a);
+    FragColor = vec4(color, opacity);
 }

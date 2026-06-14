@@ -10,6 +10,7 @@ export class TextureManager extends Manager {
     uniformName: string,
     images: HTMLImageElement[],
     shaderID: string,
+    repeat: boolean,
   ) {
     const texture = new Texture(
       slot,
@@ -19,7 +20,7 @@ export class TextureManager extends Manager {
       uniformName,
       shaderID,
     );
-    texture.bind2DArrayTexture(images);
+    texture.bind2DArrayTexture(images, repeat);
     this.textures.push(texture);
     this.dirty = true;
     return texture;
@@ -49,6 +50,7 @@ export class TextureManager extends Manager {
     unifornName: string,
     image: HTMLImageElement,
     shaderID: string,
+    repeat: boolean,
   ) {
     const texture = new Texture(
       slot,
@@ -58,7 +60,7 @@ export class TextureManager extends Manager {
       unifornName,
       shaderID,
     );
-    texture.bindTexture(image, image.width, image.height);
+    texture.bindTexture(image, image.width, image.height, repeat);
     this.textures.push(texture);
     this.dirty = true;
     return texture;
@@ -70,6 +72,7 @@ export class TextureManager extends Manager {
     height: number,
     uniformName: string,
     shaderID: string,
+    repeat: boolean,
   ) {
     const texture = new Texture(
       slot,
@@ -79,7 +82,7 @@ export class TextureManager extends Manager {
       uniformName,
       shaderID,
     );
-    texture.bindTexture(null, width, height);
+    texture.bindTexture(null, width, height, repeat);
     this.textures.push(texture);
     this.dirty = true;
     return texture;

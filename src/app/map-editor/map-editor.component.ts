@@ -634,6 +634,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         textureImage,
       ],
       'splatmap',
+      false,
     );
 
     const textureArray2 = await TextureManager.addTextureArray(
@@ -641,6 +642,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [texture1, texture2, texture3, texture4, texture5, texture6, texture7],
       'splatmap',
+      true,
     );
 
     this.brushImages.push(
@@ -666,6 +668,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [waterNormal],
       'water',
+      true,
     );
 
     const tree1 = await TextureManager.loadImage('/assets/trees/tree_004.png');
@@ -678,6 +681,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [tree6],
       'batch',
+      false,
     );
 
     const fireNoise = await TextureManager.loadImage(
@@ -700,18 +704,34 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [fireNoise, fireNoiseAdd, fireNoiseSub, fireNoiseColor],
       'fire',
+      false,
     );
     const lightning = await TextureManager.loadImage(
-      '/assets/textures/lightning.png',
+      '/assets/textures/lightning.jpg',
     );
     const gradient = await TextureManager.loadImage(
       '/assets/textures/gradient.jpg',
     );
+    const alphaCurve = await TextureManager.loadImage(
+      '/assets/textures/alpha-curve.jpg',
+    );
+    const lightningColor = await TextureManager.loadImage(
+      '/assets/textures/lightning-color.jpg',
+    );
+    const lightningTexture = await TextureManager.addTexture(
+      'lightning',
+      'u_texture',
+      lightning,
+      'lightning',
+      true,
+    );
+
     const lightningTextures = await TextureManager.addTextureArray(
       'lightning',
       'u_textures',
-      [lightning, gradient],
+      [gradient, lightningColor],
       'lightning',
+      false,
     );
 
     const noiseTexture = await TextureManager.addTexture(
@@ -719,6 +739,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_heightMap',
       noise,
       'splatmap',
+      true,
     );
 
     const healing = await TextureManager.loadImage(
@@ -733,6 +754,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [healing, healing1],
       'heal',
+      false,
     );
 
     const portalTextures = await TextureManager.addTextureArray(
@@ -740,6 +762,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [noise],
       'portal',
+      false,
     );
 
     const colorCurve = await TextureManager.loadImage(
@@ -751,14 +774,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [noise, colorCurve],
       'aura',
+      false,
     );
 
     const fireImage = await TextureManager.loadImage(
       '/assets/textures/fire_vfx.jpg',
     );
-    const alphaCurve = await TextureManager.loadImage(
-      '/assets/textures/alpha-curve.jpg',
-    );
+
     const colorRamp = await TextureManager.loadImage(
       '/assets/textures/color-ramp.jpg',
     );
@@ -768,6 +790,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_textures',
       [fireImage, alphaCurve, colorRamp],
       'fire_vfx',
+      false,
     );
   }
 
@@ -830,6 +853,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       size,
       'u_splatmap',
       'splatmap',
+      true,
     );
 
     const buffer = new BufferLayout();
@@ -1022,11 +1046,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh(
-      'grass',
-      instanceBuffer,
-      grassComponent.positions,
-    );
+    MeshManager.addInstanceMesh('grass', instanceBuffer, 100);
   }
 
   loop() {
@@ -1301,11 +1321,42 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh(
-      'lightning',
-      instanceBuffer,
-      new Float32Array(50 * 3),
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
     );
+    instanceBuffer.add(
+      4,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      5,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      6,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      7,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('lightning', instanceBuffer, 1);
 
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
@@ -1328,8 +1379,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addQuad();
-    MeshManager.addMesh(model, 'fire_vfx');
+    model.addLightning(10, 20, 50);
+    MeshManager.addMesh(model, 'lightning');
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       2,
@@ -1359,16 +1410,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh(
-      'fire_vfx',
-      instanceBuffer,
-      new Float32Array(10000 * 8),
+    instanceBuffer.add(
+      6,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
     );
+    instanceBuffer.add(
+      7,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('lightning', instanceBuffer, 10000);
 
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('fire_vfx', 'fire_vfx', 100),
+      new ParticleEmitter('lightning', 'lightning', 100),
     );
   }
 

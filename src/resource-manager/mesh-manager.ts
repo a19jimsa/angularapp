@@ -21,10 +21,12 @@ export class MeshManager {
   public static addInstanceMesh(
     meshName: string,
     vbl: BufferLayout,
-    instanceBuffer: Float32Array,
+    instances: number,
   ) {
     const vertexArray = this.vertexArrays.get(meshName);
     if (!vertexArray) return;
+    //Add instances * count of values
+    const instanceBuffer = new Float32Array(instances * vbl.amount);
     vertexArray.addInstanceBuffer(vbl, instanceBuffer);
     console.log('Added instance buffer to ' + meshName);
   }

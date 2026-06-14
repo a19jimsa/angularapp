@@ -36,7 +36,7 @@ export class Renderer {
   public static drawInstancing(
     vertexArray: VertexArray,
     instanceData: Float32Array,
-    instanceCount: number,
+    count: number,
   ) {
     const gl = Renderer.getGL;
     vertexArray.bind();
@@ -48,17 +48,18 @@ export class Renderer {
     gl.bufferSubData(
       gl.ARRAY_BUFFER,
       0,
-      instanceData.subarray(0, instanceData.length),
+      instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
-
+    console.log(count * vertexArray.bufferLayout.amount);
+    gl.disable(gl.DEPTH_TEST);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
-      instanceData.length / 8,
+      count,
     );
-
+    gl.enable(gl.DEPTH_TEST);
     vertexArray.unbind();
   }
 
@@ -69,10 +70,10 @@ export class Renderer {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
     gl.frontFace(gl.CCW);
-    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
-    //gl.blendFunc(gl.ONE, gl.ONE);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
   static begin() {

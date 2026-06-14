@@ -12,6 +12,7 @@ type BufferElement = {
 export class BufferLayout {
   public elements: BufferElement[] = [];
   public stride = 0;
+  public amount = 0;
 
   add(
     location: number,
@@ -31,6 +32,7 @@ export class BufferLayout {
     });
 
     this.stride += count * this.getSizeOfType(type);
+    this.amount += count;
     console.log('Added to buffer element' + type);
   }
 
