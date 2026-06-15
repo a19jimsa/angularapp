@@ -7,7 +7,7 @@ layout(location = 3) in float a_age;
 layout(location = 4) in float a_lifetime;
 layout(location = 5) in vec3 a_color;
 layout(location = 6) in float a_size;
-layout(location = 7) in float a_angle;
+layout(location = 7) in float a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
@@ -16,7 +16,6 @@ out vec2 v_texcoord;
 out float v_lifetime;
 out float v_age;
 out vec3 v_color;
-out float v_size;
 
 vec3 rotateZ(float angle, vec3 pos){
     float c = cos(angle);
@@ -36,8 +35,7 @@ void main() {
     v_age = a_age;
     v_lifetime = a_lifetime;
     v_color = a_color;
-    v_size = a_size;
     vec3 pos = a_position * a_size;
-    vec3 rotatedPos = rotateZ(a_angle, pos);
+    vec3 rotatedPos = rotateZ(a_rotation, pos);
     gl_Position = u_matrix * vec4(rotatedPos + a_instances, 1.0);
 }

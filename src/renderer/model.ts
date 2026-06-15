@@ -317,10 +317,10 @@ export class Model {
     this.indices = indices;
   }
 
-  addCube(width: number, height: number, depth: number) {
-    const hw = width / 2;
-    const hh = height / 2;
-    const hd = depth / 2;
+  addCube() {
+    const hw = 10;
+    const hh = 10;
+    const hd = 10;
 
     this.vertices = [
       // Front

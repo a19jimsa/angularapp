@@ -1046,16 +1046,30 @@
                     </mat-slider>
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"
-                        >Size</label
+                        >Min Angle</label
                       >
                       <label class="example-value-label">{{
-                        particleEmitter.particleProp.rotation
+                        particleEmitter.particleProp.minAngle
                       }}</label>
                     </div>
                     <mat-slider min="-180" max="180" step="1">
                       <input
                         matSliderThumb
-                        [(ngModel)]="particleEmitter.particleProp.rotation"
+                        [(ngModel)]="particleEmitter.particleProp.minAngle"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Max Angle</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.particleProp.maxAngle
+                      }}</label>
+                    </div>
+                    <mat-slider min="-180" max="180" step="1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.particleProp.maxAngle"
                       />
                     </mat-slider>
                     <div class="example-label-container">
@@ -1087,22 +1101,26 @@
                             [(ngModel)]="ring.height"
                           />
                         </mat-form-field>
-                        <div>Emission Ring Axis</div>
-                        <mat-form-field class="col-12">
-                          <mat-label>Emission Ring Radius</mat-label>
+                        <div>Emission Ring Radius</div>
+                        <mat-slider min="0" max="1000" step="1">
+                          <input matSliderThumb [(ngModel)]="ring.radius" />
+                        </mat-slider>
+                        <div>Emission Ring Inner Radius</div>
+                        <mat-slider min="0" max="1000" step="1">
                           <input
-                            matInput
-                            type="number"
-                            [(ngModel)]="ring.radius"
-                          />
-                        </mat-form-field>
-                        <div>Emission Ring Axis</div>
-                        <mat-form-field class="col-12">
-                          <mat-label>Emission Ring Inner Radius</mat-label>
-                          <input
-                            matInput
-                            type="number"
+                            matSliderThumb
                             [(ngModel)]="ring.innerRadius"
+                          />
+                        </mat-slider>
+                      }
+                      @if (point) {
+                        <div>Emission Ring Axis</div>
+                        <mat-form-field class="col-12">
+                          <mat-label>Emission Ring Height</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="point.offset"
                           />
                         </mat-form-field>
                       }
@@ -1112,10 +1130,14 @@
                     <mat-form-field>
                       <mat-label>{{ particleEmitter.meshId }}</mat-label>
                       <mat-select>
-                        @for (mesh of meshes; track mesh) {
+                        @for (
+                          model of models;
+                          track model;
+                          let index = $index
+                        ) {
                           <mat-option
-                            (onSelectionChange)="particleEmitter.meshId = mesh"
-                            >{{ mesh }}</mat-option
+                            (onSelectionChange)="this.changeParticleMesh(index)"
+                            >{{ model }}</mat-option
                           >
                         }
                       </mat-select>

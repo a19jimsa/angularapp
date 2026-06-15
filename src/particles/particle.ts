@@ -12,10 +12,10 @@ export class Particle {
 }
 
 export class ParticleProp {
-  position: vec3 = vec3.fromValues(0, 0, 0);
+  position: vec3 = vec3.fromValues(0, 0, 9000);
   velocity: vec3 = vec3.fromValues(0, 0, 0);
   direction: vec3 = vec3.fromValues(0, 0, 0);
-  gravity: vec3 = vec3.fromValues(0, -9.8, 0);
+  gravity: vec3 = vec3.fromValues(0, -0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
   size: number = 1;
   velocityMin: number = 0;
@@ -23,8 +23,10 @@ export class ParticleProp {
   lifetime: number = 1;
   lifetimeRandomness: number = 0;
   age: number = 0;
-  emissionOffset: vec3 = vec3.fromValues(0, 0, 0);
+  emissionOffset: vec3 = vec3.fromValues(1, 1, 1);
   emissionScale: vec3 = vec3.fromValues(0, 0, 0);
   randomness: number = 0;
   rotation: number = 0;
+  minAngle: number = 0;
+  maxAngle: number = 0;
 }

@@ -22,8 +22,9 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
-        particleEmitter.age[i] += 0.16;
+        particleEmitter.age[i] += 0.016;
       }
+
       //Create particle buffer
       for (let i = 0; i < particleEmitter.amount; i++) {
         const j = i * 10;
@@ -118,7 +119,10 @@ export class ParticleEmitterSystem {
       particleEmitter.colorG[index] = particleProp.color[1];
       particleEmitter.colorB[index] = particleProp.color[2];
       particleEmitter.size[index] = particleProp.size;
-      particleEmitter.rotation[index] = MathUtils.random(-180, 180);
+      particleEmitter.rotation[index] = MathUtils.random(
+        particleProp.minAngle,
+        particleProp.maxAngle,
+      );
     }
   }
 }

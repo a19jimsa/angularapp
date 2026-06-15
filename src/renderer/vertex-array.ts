@@ -16,6 +16,9 @@ export class VertexArray {
 
     //VBO
     this.vertexBuffer = VertexBuffer.create(vertices);
+    if (!this.vertexBuffer.buffer) {
+      console.error('Error indices');
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
@@ -26,8 +29,24 @@ export class VertexArray {
     }
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-    this.bufferLayout = new BufferLayout();
     this.unbind();
+    this.bufferLayout = new BufferLayout();
+  }
+
+  bindVertexBuffer(vertices: number[]) {
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  }
+
+  bindIndicesBuffer(indices: number[]) {
+    const gl = Renderer.getGL;
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.vertexBuffer.buffer);
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(indices),
+      gl.STATIC_DRAW,
+    );
   }
 
   addInstanceBuffer(vbl: BufferLayout, instanceBuffer: Float32Array) {

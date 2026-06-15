@@ -66,7 +66,11 @@ import { HttpClient } from '@angular/common/http';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
-import { ParticleEmitter, RingShape } from 'src/particles/particle-emitter';
+import {
+  ParticleEmitter,
+  Point,
+  RingShape,
+} from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 import { Animation } from 'src/components/animation';
 import { AnimationPlayer, Keyframe, Track } from 'src/core/animation-player';
@@ -193,6 +197,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   animationPlayerSystem: AnimationPlayerSystem = new AnimationPlayerSystem();
   position = { x: 0, y: 0 };
 
+  models: Set<string>;
+
   mouse: Mouse = {
     x: 0,
     y: 0,
@@ -242,6 +248,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs = new Ecs();
     this.animationPlayer = new AnimationPlayer('Init');
     AnimationPlayerManager.animationPlayers.set('Init', this.animationPlayer);
+    this.models = new Set<string>([
+      'Quad',
+      'Lightning',
+      'Cylinder',
+      'Sphere',
+      'Plane',
+      'Tornado',
+    ]);
   }
 
   ngOnDestroy(): void {
@@ -369,6 +383,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     if (!particleEmitter) return null;
     return particleEmitter.shape as RingShape;
+  }
+
+  get point() {
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!particleEmitter) return null;
+    return particleEmitter.shape as Point;
   }
 
   get water(): Water | null {
@@ -749,10 +772,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/heal_shade.jpg',
     );
 
-    const healtextures = await TextureManager.addTextureArray(
+    const healtextures = await TextureManager.addTexture(
       'heal',
       'u_textures',
-      [healing, healing1],
+      healing,
+      'heal',
+      true,
+    );
+
+    const healtexture = await TextureManager.addTexture(
+      'heal',
+      'u_texture',
+      healing1,
       'heal',
       false,
     );
@@ -769,12 +800,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/color-curve.jpg',
     );
 
+    const auraTexture = await TextureManager.addTexture(
+      'aura',
+      'u_texture',
+      colorCurve,
+      'aura',
+      false,
+    );
+
     const auraTextures = await TextureManager.addTextureArray(
       'aura',
       'u_textures',
-      [noise, colorCurve],
+      [noise],
       'aura',
-      false,
+      true,
     );
 
     const fireImage = await TextureManager.loadImage(
@@ -960,10 +999,57 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    const circle = new Model(buffer);
-    circle.addFlatCircle(50, 50);
+    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
+    const model = new Model(buffer);
+    //Change later in runtime with some parameters in UI
+    model.addFlatCircle(10, 10);
+    MeshManager.addMesh(model, 'circle');
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      4,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      5,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      6,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      7,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('circle', instanceBuffer, 1);
     const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('portal'));
+    this.ecs.addComponent<Material>(effectEntity, new Material('heal'));
     this.ecs.addComponent<Transform3D>(
       effectEntity,
       new Transform3D(0, 0, 9000),
@@ -971,9 +1057,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(effectEntity, new Name('Circle'));
     this.ecs.addComponent<Mesh>(
       effectEntity,
-      new Mesh(50, 50, 'portal', 'circle' + effectEntity),
+      new Mesh(50, 50, 'heal', 'circle'),
     );
-    MeshManager.addMesh(circle, 'circle' + effectEntity);
   }
 
   createLightSource() {
@@ -982,10 +1067,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     layout.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     layout.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(layout);
-    model.addCube(10, 10, 10);
+    model.addCube();
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Light'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 9000));
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Light>(entity, new Light());
     this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'basic', 'light'));
     MeshManager.addMesh(model, 'light');
@@ -1313,6 +1398,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const model = new Model(buffer);
+    //Change later in runtime with some parameters in UI
+    model.addLightning(100, 200, 20);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       2,
@@ -1358,9 +1446,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     MeshManager.addInstanceMesh('lightning', instanceBuffer, 1);
 
-    const model = new Model(buffer);
-    //Change later in runtime with some parameters in UI
-    model.addLightning(100, 200, 20);
     MeshManager.addMesh(model, 'lightning');
     //Add all components
     this.ecs.addComponent<Mesh>(
@@ -1379,8 +1464,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addLightning(10, 20, 50);
-    MeshManager.addMesh(model, 'lightning');
+    model.addLightning(10, 10, 10);
+    MeshManager.addMesh(model, 'lightning' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       2,
@@ -1424,13 +1509,48 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('lightning', instanceBuffer, 10000);
+    MeshManager.addInstanceMesh('lightning' + entity, instanceBuffer, 10000);
 
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('lightning', 'lightning', 100),
+      new ParticleEmitter('lightning', 'lightning' + entity, 100),
     );
+  }
+
+  changeParticleMesh(index: number) {
+    const emitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!emitter) return;
+    const mesh = MeshManager.getMesh(emitter.meshId);
+    if (!mesh) return;
+    const model = new Model(mesh.bufferLayout);
+    switch (index) {
+      case 0:
+        model.addQuad();
+        break;
+      case 1:
+        model.addLightning(10, 10, 20);
+        break;
+      case 2:
+        model.addFlatCircle(50, 100);
+        break;
+      case 3:
+        model.addCylinder();
+        break;
+      case 4:
+        model.addSphere(10, 10, 10);
+        break;
+      case 5:
+        model.addTornado();
+        break;
+      default:
+        model.addQuad();
+        break;
+    }
+    MeshManager.updateMesh(model, emitter.meshId);
   }
 
   addAnimationToComponent() {

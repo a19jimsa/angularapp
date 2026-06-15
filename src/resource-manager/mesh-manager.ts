@@ -1,5 +1,6 @@
 import { BufferLayout } from 'src/renderer/buffer';
 import { Model } from 'src/renderer/model';
+import { Renderer } from 'src/renderer/renderer';
 import { VertexArray } from 'src/renderer/vertex-array';
 
 export class MeshManager {
@@ -38,12 +39,30 @@ export class MeshManager {
   public static updateMesh(newModel: Model, meshId: string) {
     const vertexArray = this.vertexArrays.get(meshId);
     if (!vertexArray) return;
-    const vao = VertexArray.create(
+
+    const gl = Renderer.getGL;
+
+    gl.bindVertexArray(vertexArray.VAO);
+    // VBO
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
       new Float32Array(newModel.vertices),
-      new Uint16Array(newModel.indices),
+      gl.DYNAMIC_DRAW,
     );
-    vao.addBuffer(vertexArray.bufferLayout);
-    this.vertexArrays.set(meshId, vertexArray);
+
+    // IBO
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexArray.indexBuffer.buffer);
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(newModel.indices),
+      gl.DYNAMIC_DRAW,
+    );
+
+    gl.bindVertexArray(null);
+
+    vertexArray.vertexBuffer.vertices = new Float32Array(newModel.vertices);
+    vertexArray.indexBuffer.indices = new Uint16Array(newModel.indices);
   }
 
   public static getAllMesh() {

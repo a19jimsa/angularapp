@@ -21,17 +21,17 @@ float remap(float value, float inMin, float inMax, float outMin, float outMax)
 
 void main() { 
     float t = clamp(v_age / v_lifetime, 0.0, 1.0);
-
     vec2 uv = v_texcoord + u_speed * u_time;
     vec4 baseColor = texture(u_texture, uv);
-    baseColor = clamp(baseColor, 0.0, 1.0);
     vec4 colorRamp = texture(u_textures, vec3(vec2(t, 0.5), 0));
+    if(baseColor.r <= 0.05)
+        discard;
 
     float x = remap(colorRamp.r, 0.0, 1.0, 0.0, 0.7);
 
-    float opacity = smoothstep(x, 1.0, baseColor.r);
+    float opacity = smoothstep(x, 0.7, baseColor.r);
 
-    vec3 color = texture(u_textures, vec3(vec2(opacity, 0.5), 1)).rgb;
+    vec3 color = texture(u_textures, vec3(vec2(baseColor.r, 0.5), 1)).rgb;
 
     FragColor = vec4(color, opacity);
 }

@@ -51,7 +51,7 @@ export class ParticleEmitter extends Component {
   burst: number;
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);
-  shape: Shape = new RingShape();
+  shape: Shape = new Point();
 
   maxParticles: number;
 

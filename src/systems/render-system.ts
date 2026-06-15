@@ -356,7 +356,6 @@ export class RenderSystem {
       const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
       if (!vertexArray)
         throw new Error('Mesh is not emitter' + particleEmitter.meshId);
-
       Renderer.drawInstancing(
         vertexArray,
         particleEmitter.particles,

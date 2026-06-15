@@ -13,21 +13,16 @@ in vec3 v_color;
 
 out vec4 FragColor;
 
-
-
 void main() { 
     float t = v_age / v_lifetime;
     t = clamp(t, 0.0, 1.0);
     vec2 uv = v_texcoord;
     vec4 baseColor = texture(u_textures, vec3(v_texcoord, 0));
-    if (baseColor.r == 0.0)
-        discard;
     vec3 coloring = mix(vec3(1.0, 0.0, 0.0), vec3(1.0, 1.0, 0.0), baseColor.r);
 
     float alphaCurve = texture(u_textures, vec3(t, 0.5, 1)).r;
     vec3 colorRamp = texture(u_textures, vec3(t, 0.5, 2)).rgb;
     vec3 color = colorRamp * coloring;
-    color = clamp(color, 0.0, 1.0);
     float opacity = baseColor.r * alphaCurve;
 
     FragColor = vec4(color, opacity);
