@@ -546,7 +546,41 @@ export class Model {
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
       //Bottom
-      this.vertices.push(x, -height, z);
+      this.vertices.push(x, 0, z);
+      this.vertices.push(u, 0);
+    }
+
+    for (let i = 0; i < segments; i++) {
+      const top0 = i * 2 + 1;
+      const bottom0 = i * 2;
+      const top1 = (i + 1) * 2 + 1;
+      const bottom1 = (i + 1) * 2;
+
+      // Triangel 1
+      this.indices.push(top0, bottom0, top1);
+      // Triangel 2
+      this.indices.push(top1, bottom0, bottom1);
+    }
+  }
+
+  addCone() {
+    this.vertices = [];
+    this.indices = [];
+
+    const height = 10;
+    const segments = 30;
+    const radius = 10;
+
+    for (let i = 0; i <= segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      const x = Math.cos(theta) * radius;
+      const z = Math.sin(theta) * radius;
+      const u = i / segments;
+      //Top
+      this.vertices.push(x, height, z);
+      this.vertices.push(u, 1);
+      //Bottom
+      this.vertices.push(x / 2, 0, z / 2);
       this.vertices.push(u, 0);
     }
 

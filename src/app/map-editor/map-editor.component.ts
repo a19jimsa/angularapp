@@ -255,6 +255,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'Sphere',
       'Plane',
       'Tornado',
+      'Cone',
     ]);
   }
 
@@ -549,6 +550,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'fire_vfx_vertex.txt',
       'fire_vfx_fragment.txt',
     );
+    await ShaderManager.load('beam', 'beam_vertex.txt', 'beam_fragment.txt');
   }
 
   async loadAllTextures() {}
@@ -720,7 +722,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/fire-noise-add.jpg',
     );
     const noise = await TextureManager.loadImage(
-      '/assets/textures/noise_001.jpg',
+      '/assets/textures/noise_002.jpg',
     );
     const fireTexture = await TextureManager.addTextureArray(
       'fire',
@@ -830,6 +832,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       [fireImage, alphaCurve, colorRamp],
       'fire_vfx',
       false,
+    );
+
+    const curve = await TextureManager.loadImage(
+      '/assets/textures/size-curve.jpg',
+    );
+
+    const beamTexture = await TextureManager.addTexture(
+      'beam',
+      'u_texture',
+      curve,
+      'beam',
+      false,
+    );
+
+    const beamTextures = await TextureManager.addTextureArray(
+      'beam',
+      'u_textures',
+      [noise],
+      'beam',
+      true,
     );
   }
 
@@ -1545,6 +1567,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         break;
       case 5:
         model.addTornado();
+        break;
+      case 6:
+        model.addCone();
         break;
       default:
         model.addQuad();

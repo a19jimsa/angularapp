@@ -51,6 +51,7 @@ export class Renderer {
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
     gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
@@ -58,6 +59,7 @@ export class Renderer {
       0,
       count,
     );
+    gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     vertexArray.unbind();
   }

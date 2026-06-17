@@ -987,6 +987,24 @@
                       />
                     </mat-form-field>
                   </div>
+                  <div class="row">
+                    <mat-form-field class="col-6">
+                      <mat-label>Size Begin</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.sizeBegin"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-6">
+                      <mat-label>Size end</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.sizeEnd"
+                      />
+                    </mat-form-field>
+                  </div>
                   <div class="d-flex flex-column justify-content-center">
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"

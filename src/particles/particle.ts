@@ -1,4 +1,4 @@
-import { vec3, vec4 } from 'gl-matrix';
+import { vec3 } from 'gl-matrix';
 
 export class Particle {
   position: vec3 = vec3.fromValues(0, 0, 0);
@@ -12,12 +12,14 @@ export class Particle {
 }
 
 export class ParticleProp {
-  position: vec3 = vec3.fromValues(0, 0, 9000);
+  position: vec3 = vec3.fromValues(500, 0, 9000);
   velocity: vec3 = vec3.fromValues(0, 0, 0);
   direction: vec3 = vec3.fromValues(0, 0, 0);
-  gravity: vec3 = vec3.fromValues(0, -0, 0);
+  gravity: vec3 = vec3.fromValues(0, 0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
   size: number = 1;
+  sizeBegin: number = 1;
+  sizeEnd: number = 1;
   velocityMin: number = 0;
   velocityMax: number = 0;
   lifetime: number = 1;

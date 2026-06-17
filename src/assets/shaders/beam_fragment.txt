@@ -1,0 +1,24 @@
+#version 300 es
+precision mediump float;
+precision mediump sampler2DArray;
+
+uniform sampler2DArray u_textures;
+uniform sampler2D u_texture;
+uniform float u_time;
+uniform vec2 u_speed;
+
+in vec2 v_texcoord;
+in float v_lifetime;
+in float v_age;
+in vec3 v_color;
+
+out vec4 FragColor;
+
+void main() { 
+    float t = v_age / v_lifetime;
+    vec2 uv = v_texcoord;
+    vec2 uvScrolling = uv + vec2(u_time * u_speed.x, u_time * u_speed.y); 
+    float baseColor = texture(u_textures, vec3(uvScrolling, 0)).r;
+    float x = pow(baseColor, 2.0);
+    FragColor = vec4(v_color, x);
+}
