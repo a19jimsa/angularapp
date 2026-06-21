@@ -67,9 +67,11 @@ import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
 import { Sprite2D } from 'src/components/sprite2D';
 import {
+  BoxShape,
   ParticleEmitter,
-  Point,
+  PointShape,
   RingShape,
+  SpawnShape,
 } from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 import { Animation } from 'src/components/animation';
@@ -198,6 +200,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   position = { x: 0, y: 0 };
 
   models: Set<string>;
+  spawnShapes: Set<SpawnShape>;
 
   mouse: Mouse = {
     x: 0,
@@ -256,6 +259,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'Plane',
       'Tornado',
       'Cone',
+    ]);
+    this.spawnShapes = new Set<SpawnShape>([
+      new PointShape(),
+      new RingShape(),
+      new BoxShape(),
     ]);
   }
 
@@ -382,8 +390,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       'ParticleEmitter',
     );
-    if (!particleEmitter) return null;
-    return particleEmitter.shape as RingShape;
+    if (particleEmitter.shape instanceof RingShape) {
+      return particleEmitter.shape as RingShape;
+    }
+    return null;
   }
 
   get point() {
@@ -391,8 +401,21 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       'ParticleEmitter',
     );
-    if (!particleEmitter) return null;
-    return particleEmitter.shape as Point;
+    if (particleEmitter.shape instanceof PointShape) {
+      return particleEmitter.shape as PointShape;
+    }
+    return null;
+  }
+
+  get box() {
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (particleEmitter.shape instanceof BoxShape) {
+      return particleEmitter.shape as BoxShape;
+    }
+    return null;
   }
 
   get water(): Water | null {
@@ -551,6 +574,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'fire_vfx_fragment.txt',
     );
     await ShaderManager.load('beam', 'beam_vertex.txt', 'beam_fragment.txt');
+
+    await ShaderManager.load('wave', 'wave_vertex.txt', 'wave_fragment.txt');
   }
 
   async loadAllTextures() {}
@@ -704,7 +729,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const treeTextureArray = await TextureManager.addTextureArray(
       'batch',
       'u_textures',
-      [tree6],
+      [tree8],
       'batch',
       false,
     );
@@ -802,10 +827,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/color-curve.jpg',
     );
 
+    const eraseCurve = await TextureManager.loadImage(
+      '/assets/textures/erase.jpg',
+    );
+
     const auraTexture = await TextureManager.addTexture(
       'aura',
       'u_texture',
-      colorCurve,
+      eraseCurve,
       'aura',
       false,
     );
@@ -853,10 +882,32 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'beam',
       true,
     );
+
+    const wave = await TextureManager.loadImage(
+      '/assets/textures/expansive_wave.jpg',
+    );
+
+    const waveTextures = await TextureManager.addTextureArray(
+      'wave',
+      'u_textures',
+      [wave],
+      'wave',
+      true,
+    );
+
+    const waveTexture = await TextureManager.addTexture(
+      'wave',
+      'u_texture',
+      healing1,
+      'wave',
+      false,
+    );
   }
 
   async init() {
     //Add all entities with names to the scene list to display them in the scene list
+    await this.createTerrainWithSplatmap();
+    this.createParticleEmitter();
     for (const entity of this.ecs.getEntities()) {
       const name = this.ecs.getComponent<Name>(entity, 'Name');
       if (!name) continue;
@@ -1310,7 +1361,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 20;
+    const speed = 10;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1531,12 +1582,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
+    instanceBuffer.add(
+      8,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceBuffer.add(
+      9,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
     MeshManager.addInstanceMesh('lightning' + entity, instanceBuffer, 10000);
-
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('lightning', 'lightning' + entity, 100),
+      new ParticleEmitter('lightning', 'lightning' + entity, 100, 12),
     );
   }
 

@@ -1,15 +1,16 @@
 import { Component } from 'src/components/component';
-import { Particle, ParticleProp } from './particle';
+import { ParticleProp } from './particle';
 import { vec2, vec3 } from 'gl-matrix';
+import { MathUtils } from 'src/Utils/MathUtils';
 
-interface Shape {
+export interface SpawnShape {
   type: string;
   offset: vec3;
   scale: vec3;
   spawnPosition(): vec3;
 }
 
-export class RingShape implements Shape {
+export class RingShape implements SpawnShape {
   type: string = 'Ring';
   offset: vec3 = vec3.fromValues(0, 0, 0);
   scale: vec3 = vec3.fromValues(0, 0, 0);
@@ -18,25 +19,41 @@ export class RingShape implements Shape {
   innerRadius: number = 0;
 
   spawnPosition() {
-    const out = vec3.fromValues(0, 0, 0);
     const angle = Math.random() * Math.PI * 2;
 
     const r = this.radius + (Math.random() - 0.5) * 10;
 
-    out[0] = Math.cos(angle) * r;
-    out[1] = 0;
-    out[2] = Math.sin(angle) * r;
-    return out;
+    this.offset[0] = Math.cos(angle) * r;
+    this.offset[1] = 0;
+    this.offset[2] = Math.sin(angle) * r;
+    return this.offset;
   }
 }
 
-export class Point implements Shape {
+export class PointShape implements SpawnShape {
   type: string = 'Point';
   offset: vec3 = vec3.fromValues(0, 0, 0);
   scale: vec3 = vec3.fromValues(1, 1, 1);
   spawnPosition() {
-    const out = vec3.fromValues(0, 0, 0);
-    return out;
+    return this.offset;
+  }
+}
+
+export class BoxShape implements SpawnShape {
+  type: string = 'Box';
+  offset: vec3 = vec3.fromValues(0, 0, 0);
+  scale: vec3 = vec3.fromValues(0, 0, 0);
+  width: number = 0;
+  height: number = 0;
+  depth: number = 0;
+  spawnPosition(): vec3 {
+    this.offset[0] = MathUtils.random(0, this.width);
+
+    this.offset[1] = MathUtils.random(0, this.height);
+
+    this.offset[2] = MathUtils.random(0, this.depth);
+
+    return this.offset;
   }
 }
 
@@ -46,12 +63,15 @@ export class ParticleEmitter extends Component {
   meshId: string;
   poolIndex: number = 1;
   amount: number;
+  aliveCount: number = 0;
   particles: Float32Array;
   particleProp: ParticleProp;
   burst: number;
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);
-  shape: Shape = new Point();
+  shape: SpawnShape = new PointShape();
+  stride: number = 12;
+  explosiveness: number = 0;
 
   maxParticles: number;
 
@@ -74,10 +94,19 @@ export class ParticleEmitter extends Component {
   lifetime: Float32Array;
   active: Uint8Array;
 
-  constructor(shaderId: string, meshId: string, amount: number) {
+  sizeBegin: Float32Array;
+  sizeEnd: Float32Array;
+
+  constructor(
+    shaderId: string,
+    meshId: string,
+    amount: number,
+    stride: number,
+  ) {
     super();
     this.maxParticles = 10000;
-    this.particles = new Float32Array(10000 * 9);
+    this.stride = stride;
+    this.particles = new Float32Array(10000 * stride);
     this.particleProp = new ParticleProp();
 
     this.shaderId = shaderId;
@@ -104,5 +133,8 @@ export class ParticleEmitter extends Component {
     this.colorB = new Float32Array(this.maxParticles);
 
     this.active = new Uint8Array(this.maxParticles);
+
+    this.sizeBegin = new Float32Array(this.maxParticles);
+    this.sizeEnd = new Float32Array(this.maxParticles);
   }
 }

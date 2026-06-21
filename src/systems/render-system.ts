@@ -359,7 +359,7 @@ export class RenderSystem {
       Renderer.drawInstancing(
         vertexArray,
         particleEmitter.particles,
-        particleEmitter.amount,
+        particleEmitter.aliveCount,
       );
       shader.unbind();
     }

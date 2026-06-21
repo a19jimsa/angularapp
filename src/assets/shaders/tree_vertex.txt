@@ -14,9 +14,9 @@ out float v_fogDistance;
 out float v_index;
 
 void main() {
-   gl_Position = u_matrix * (a_position + a_instancePositions);
    v_texcoord = a_texcoord;
    vec4 viewPos = u_view * (a_position + a_instancePositions);
    v_fogDistance = length(viewPos.z);
    v_index = a_index;
+   gl_Position = u_matrix * (a_position + a_instancePositions);
 }

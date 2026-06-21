@@ -43,15 +43,12 @@ export class Renderer {
     const instanceBuffer = vertexArray.instanceBuffer;
     if (!instanceBuffer)
       throw new Error('Could not get instance buffer ' + instanceBuffer);
-
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
-    gl.bufferSubData(
-      gl.ARRAY_BUFFER,
-      0,
-      instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
-    );
-    gl.disable(gl.DEPTH_TEST);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceData.subarray(0, count * 12));
+    gl.enable(gl.BLEND);
+    gl.depthMask(false);
     gl.disable(gl.CULL_FACE);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
@@ -59,8 +56,9 @@ export class Renderer {
       0,
       count,
     );
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(true);
     gl.enable(gl.CULL_FACE);
-    gl.enable(gl.DEPTH_TEST);
     vertexArray.unbind();
   }
 
@@ -69,12 +67,16 @@ export class Renderer {
     Renderer.canvas.width = 1920;
     Renderer.canvas.height = 1080;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
     gl.enable(gl.CULL_FACE);
     gl.frontFace(gl.CCW);
+
     gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.depthMask(true); // <-- viktigt
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
   static begin() {

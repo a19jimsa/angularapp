@@ -18,8 +18,8 @@ void main() {
     float t = v_age / v_lifetime;
     vec2 uv = v_texcoord;
     vec2 uvScrolling = v_texcoord + vec2(u_time * u_speed.x, u_time * u_speed.y); 
-    float baseColor = texture(u_textures, vec3(uvScrolling, 0)).r; 
-    float curveColor = texture(u_texture, vec2(t, 0.5)).r;
-    float opacity = baseColor * curveColor;
+    vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0)); 
+    vec4 substractColor = texture(u_texture, uv);
+    float opacity = baseColor.r - substractColor.r;
     FragColor = vec4(v_color, opacity);
 }

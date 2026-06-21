@@ -157,7 +157,9 @@ export class BatchRenderer {
       ),
     );
     this.vertexArray.bind();
+    gl.depthMask(false);
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
+    gl.depthMask(true);
     this.vertexArray.unbind();
     shader.unbind();
   }

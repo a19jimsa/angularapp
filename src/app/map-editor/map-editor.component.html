@@ -1022,16 +1022,16 @@
                     </mat-slider>
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"
-                        >Burst mode</label
+                        >Explosiveness</label
                       >
                       <label class="example-value-label">{{
-                        particleEmitter.burst
+                        particleEmitter.explosiveness
                       }}</label>
                     </div>
-                    <mat-slider min="0" max="1" step="1">
+                    <mat-slider min="0" max="1" step="0.1">
                       <input
                         matSliderThumb
-                        [(ngModel)]="particleEmitter.burst"
+                        [(ngModel)]="particleEmitter.explosiveness"
                       />
                     </mat-slider>
                     <div class="example-label-container">
@@ -1062,34 +1062,30 @@
                         [(ngModel)]="particleEmitter.particleProp.size"
                       />
                     </mat-slider>
-                    <div class="example-label-container">
-                      <label id="example-name-label" class="example-name-label"
-                        >Min Angle</label
-                      >
-                      <label class="example-value-label">{{
-                        particleEmitter.particleProp.minAngle
-                      }}</label>
+                    <div class="row">
+                      <mat-form-field class="col-6">
+                        <mat-label>Min angle</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          min="-180"
+                          max="180"
+                          step="1"
+                          [(ngModel)]="particleEmitter.particleProp.minAngle"
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-6">
+                        <mat-label>Max angle</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          min="-180"
+                          max="180"
+                          step="1"
+                          [(ngModel)]="particleEmitter.particleProp.maxAngle"
+                        />
+                      </mat-form-field>
                     </div>
-                    <mat-slider min="-180" max="180" step="1">
-                      <input
-                        matSliderThumb
-                        [(ngModel)]="particleEmitter.particleProp.minAngle"
-                      />
-                    </mat-slider>
-                    <div class="example-label-container">
-                      <label id="example-name-label" class="example-name-label"
-                        >Max Angle</label
-                      >
-                      <label class="example-value-label">{{
-                        particleEmitter.particleProp.maxAngle
-                      }}</label>
-                    </div>
-                    <mat-slider min="-180" max="180" step="1">
-                      <input
-                        matSliderThumb
-                        [(ngModel)]="particleEmitter.particleProp.maxAngle"
-                      />
-                    </mat-slider>
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"
                         >Lifetime randomness</label
@@ -1106,6 +1102,49 @@
                         "
                       />
                     </mat-slider>
+                  </div>
+                  <div class="row">
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.meshId }}</mat-label>
+                      <mat-select>
+                        @for (
+                          model of models;
+                          track model;
+                          let index = $index
+                        ) {
+                          <mat-option
+                            (onSelectionChange)="this.changeParticleMesh(index)"
+                            >{{ model }}</mat-option
+                          >
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.shaderId }}</mat-label>
+                      <mat-select>
+                        @for (shader of shaders; track shader) {
+                          <mat-option
+                            (onSelectionChange)="
+                              particleEmitter.shaderId = shader
+                            "
+                            >{{ shader }}</mat-option
+                          >
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field>
+                      <mat-label>{{ particleEmitter.shape.type }}</mat-label>
+                      <mat-select>
+                        @for (shape of spawnShapes; track shape) {
+                          <mat-option
+                            (onSelectionChange)="particleEmitter.shape = shape"
+                            >{{ shape.type }}</mat-option
+                          >
+                        }
+                      </mat-select>
+                    </mat-form-field>
                   </div>
                   <div class="row">
                     <div class="col-12">
@@ -1142,50 +1181,34 @@
                           />
                         </mat-form-field>
                       }
+                      @if (box) {
+                        <div>Box</div>
+                        <mat-form-field class="col-4">
+                          <mat-label>Width</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="box.width"
+                          />
+                        </mat-form-field>
+                        <mat-form-field class="col-4">
+                          <mat-label>Height</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="box.height"
+                          />
+                        </mat-form-field>
+                        <mat-form-field class="col-4">
+                          <mat-label>Depth</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            [(ngModel)]="box.depth"
+                          />
+                        </mat-form-field>
+                      }
                     </div>
-                  </div>
-                  <div class="row">
-                    <mat-form-field>
-                      <mat-label>{{ particleEmitter.meshId }}</mat-label>
-                      <mat-select>
-                        @for (
-                          model of models;
-                          track model;
-                          let index = $index
-                        ) {
-                          <mat-option
-                            (onSelectionChange)="this.changeParticleMesh(index)"
-                            >{{ model }}</mat-option
-                          >
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field>
-                      <mat-label>{{ particleEmitter.shaderId }}</mat-label>
-                      <mat-select>
-                        @for (shader of shaders; track shader) {
-                          <mat-option
-                            (onSelectionChange)="
-                              particleEmitter.shaderId = shader
-                            "
-                            >{{ shader }}</mat-option
-                          >
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="row">
-                    <mat-form-field>
-                      <mat-label>{{ particleEmitter.shape.type }}</mat-label>
-                      <mat-select>
-                        @for (mesh of meshes; track mesh) {
-                          <mat-option
-                            (onSelectionChange)="particleEmitter.meshId = mesh"
-                            >{{ mesh }}</mat-option
-                          >
-                        }
-                      </mat-select>
-                    </mat-form-field>
                   </div>
                 </mat-expansion-panel>
               }

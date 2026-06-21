@@ -640,21 +640,18 @@ export class Model {
       8, 92, 0, 1, 1.0,
     ];
 
-    for (let i = 0; i <= 6; i++) {
-      // skapa trianglar
-      if (i < segments) {
-        const index = i * 2;
+    for (let i = 0; i < 5; i++) {
+      const index = i * 2;
 
-        indices.push(
-          index,
-          index + 1,
-          index + 2,
+      indices.push(
+        index,
+        index + 1,
+        index + 2,
 
-          index + 1,
-          index + 3,
-          index + 2,
-        );
-      }
+        index + 1,
+        index + 3,
+        index + 2,
+      );
     }
 
     this.vertices = vertices;

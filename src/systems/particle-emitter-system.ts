@@ -24,10 +24,11 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.age[i] += 0.016;
       }
-
-      //Create particle buffer
+      let aliveCount = 0;
+      //Fill particle buffer with values
       for (let i = 0; i < particleEmitter.amount; i++) {
-        const j = i * 10;
+        if (particleEmitter.active[i] === 0) continue;
+        const j = aliveCount * particleEmitter.stride;
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
         particleEmitter.particles[j + 1] = particleEmitter.positionsY[i];
         particleEmitter.particles[j + 2] = particleEmitter.positionsZ[i];
@@ -40,7 +41,11 @@ export class ParticleEmitterSystem {
         particleEmitter.particles[j + 9] = MathUtils.degreesToRadians(
           particleEmitter.rotation[i],
         );
+        particleEmitter.particles[j + 10] = particleEmitter.sizeBegin[i];
+        particleEmitter.particles[j + 11] = particleEmitter.sizeEnd[i];
+        aliveCount++;
       }
+      particleEmitter.aliveCount = aliveCount;
       this.emit(particleEmitter);
       particleEmitter.poolIndex =
         (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
@@ -62,54 +67,30 @@ export class ParticleEmitterSystem {
       const randVel =
         particleProp.velocityMin +
         Math.random() * (particleProp.velocityMax - particleProp.velocityMin);
-      if (particleEmitter.shape.type === 'Point') {
-        particleEmitter.positionsX[index] =
-          particleProp.position[0] * particleProp.emissionOffset[0];
-        particleEmitter.positionsY[index] =
-          particleProp.position[1] * particleProp.emissionOffset[1];
-        particleEmitter.positionsZ[index] =
-          particleProp.position[2] * particleProp.emissionOffset[2];
+      const position = particleEmitter.shape.spawnPosition();
+      particleEmitter.positionsX[index] =
+        particleProp.position[0] + position[0];
+      particleEmitter.positionsY[index] =
+        particleProp.position[1] + position[1];
+      particleEmitter.positionsZ[index] =
+        particleProp.position[2] + position[2];
 
-        particleEmitter.velocityX[index] =
-          particleProp.velocity[0] +
-          particleProp.direction[0] +
-          particleProp.gravity[0] +
-          randVel;
-        particleEmitter.velocityY[index] =
-          particleProp.velocity[1] +
-          particleProp.direction[1] +
-          particleProp.gravity[1] +
-          randVel;
-        particleEmitter.velocityZ[index] =
-          particleProp.velocity[2] +
-          particleProp.direction[2] +
-          particleProp.gravity[2] +
-          randVel;
-      } else if (particleEmitter.shape.type === 'Ring') {
-        const position = particleEmitter.shape.spawnPosition();
-        particleEmitter.positionsX[index] =
-          particleProp.position[0] + position[0];
-        particleEmitter.positionsY[index] =
-          particleProp.position[1] + position[1];
-        particleEmitter.positionsZ[index] =
-          particleProp.position[2] + position[2];
+      particleEmitter.velocityX[index] =
+        particleProp.velocity[0] +
+        particleProp.direction[0] +
+        particleProp.gravity[0] +
+        randVel;
+      particleEmitter.velocityY[index] =
+        particleProp.velocity[1] +
+        particleProp.direction[1] +
+        particleProp.gravity[1] +
+        randVel;
+      particleEmitter.velocityZ[index] =
+        particleProp.velocity[2] +
+        particleProp.direction[2] +
+        particleProp.gravity[2] +
+        randVel;
 
-        particleEmitter.velocityX[index] =
-          particleProp.velocity[0] +
-          particleProp.direction[0] +
-          particleProp.gravity[0] +
-          randVel;
-        particleEmitter.velocityY[index] =
-          particleProp.velocity[1] +
-          particleProp.direction[1] +
-          particleProp.gravity[1] +
-          randVel;
-        particleEmitter.velocityZ[index] =
-          particleProp.velocity[2] +
-          particleProp.direction[2] +
-          particleProp.gravity[2] +
-          randVel;
-      }
       particleEmitter.active[index] = 1;
       particleEmitter.age[index] = particleProp.age;
       particleEmitter.lifetime[index] =
@@ -123,6 +104,8 @@ export class ParticleEmitterSystem {
         particleProp.minAngle,
         particleProp.maxAngle,
       );
+      particleEmitter.sizeBegin[index] = particleProp.sizeBegin;
+      particleEmitter.sizeEnd[index] = particleProp.sizeEnd;
     }
   }
 }
