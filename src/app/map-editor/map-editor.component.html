@@ -849,6 +849,28 @@
                     <mat-panel-title> {{ item.type }} </mat-panel-title>
                     <mat-panel-description> </mat-panel-description>
                   </mat-expansion-panel-header>
+                  <section class="example-section">
+                    <mat-checkbox
+                      class="example-margin"
+                      [(ngModel)]="particleEmitter.emitting"
+                      >Emitting</mat-checkbox
+                    >
+                    @if (animation) {
+                      <button
+                        mat-fab
+                        class="col-3"
+                        (click)="
+                          addTrack(
+                            particleEmitter.type,
+                            'emitting',
+                            particleEmitter
+                          )
+                        "
+                      >
+                        <mat-icon>key</mat-icon>
+                      </button>
+                    }
+                  </section>
                   <div class="d-flex flex-column justify-content-center">
                     <div class="example-label-container">
                       <label id="example-name-label" class="example-name-label"
@@ -945,6 +967,44 @@
                   </div>
                   <div class="row">
                     <mat-form-field class="col-6">
+                      <mat-label>Velocity Min</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.velocityMin"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-6">
+                      <mat-label>Velocity Max</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.velocityMax"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="example-label-container">
+                        <label
+                          id="example-name-label"
+                          class="example-name-label"
+                          >Spread</label
+                        >
+                        <label class="example-value-label">{{
+                          particleEmitter.particleProp.spread
+                        }}</label>
+                      </div>
+                      <mat-slider min="0" max="180" step="1">
+                        <input
+                          matSliderThumb
+                          [(ngModel)]="particleEmitter.particleProp.spread"
+                        />
+                      </mat-slider>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-6">
                       <mat-label>Speed X</mat-label>
                       <input
                         matInput
@@ -1014,7 +1074,11 @@
                         particleEmitter.amount
                       }}</label>
                     </div>
-                    <mat-slider min="1" max="10000" step="1">
+                    <mat-slider
+                      min="1"
+                      [max]="particleEmitter.maxParticles"
+                      step="1"
+                    >
                       <input
                         matSliderThumb
                         [(ngModel)]="particleEmitter.amount"
@@ -1287,10 +1351,10 @@
               </div>
             </div>
             <div class="col-10">
-              <div class="timeline" #timeline>
+              <div class="timeline" id="timeline" #timeline>
                 <div
                   #cursor
-                  style="width: 10px; color: blue"
+                  style="width: 10px; color: blue; position: absolute"
                   class="h-100 border"
                   cdkDragLockAxis="x"
                   cdkDragBoundary=".timeline"

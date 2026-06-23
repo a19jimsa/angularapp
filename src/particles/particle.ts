@@ -22,6 +22,7 @@ export class ParticleProp {
   sizeEnd: number = 1;
   velocityMin: number = 0;
   velocityMax: number = 0;
+  spread: number = 45;
   lifetime: number = 1;
   lifetimeRandomness: number = 0;
   age: number = 0;

@@ -46,7 +46,10 @@ export class ParticleEmitterSystem {
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
-      this.emit(particleEmitter);
+      particleEmitter.spawnAccumulator += 0.016;
+      if (particleEmitter.emitting) {
+        this.emit(particleEmitter);
+      }
       particleEmitter.poolIndex =
         (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
         particleEmitter.amount;
@@ -55,8 +58,9 @@ export class ParticleEmitterSystem {
 
   //Activate particles from the deadpool
   emit(particleEmitter: ParticleEmitter) {
-    if (particleEmitter.shape) {
+    if (particleEmitter.spawnAccumulator >= 0.1) {
       this.spawnParticles(particleEmitter);
+      particleEmitter.spawnAccumulator -= 0.1;
     }
   }
 
@@ -64,9 +68,7 @@ export class ParticleEmitterSystem {
     const index = particleEmitter.poolIndex;
     if (particleEmitter.active[index] === 0) {
       const particleProp = particleEmitter.particleProp;
-      const randVel =
-        particleProp.velocityMin +
-        Math.random() * (particleProp.velocityMax - particleProp.velocityMin);
+
       const position = particleEmitter.shape.spawnPosition();
       particleEmitter.positionsX[index] =
         particleProp.position[0] + position[0];
@@ -75,21 +77,30 @@ export class ParticleEmitterSystem {
       particleEmitter.positionsZ[index] =
         particleProp.position[2] + position[2];
 
-      particleEmitter.velocityX[index] =
-        particleProp.velocity[0] +
-        particleProp.direction[0] +
-        particleProp.gravity[0] +
-        randVel;
-      particleEmitter.velocityY[index] =
-        particleProp.velocity[1] +
-        particleProp.direction[1] +
-        particleProp.gravity[1] +
-        randVel;
+      const randVel = MathUtils.random(
+        particleProp.velocityMin,
+        particleProp.velocityMax,
+      );
+
+      const angle = Math.atan2(
+        particleProp.direction[1],
+        particleProp.direction[0],
+      );
+
+      const spreadAngle =
+        angle +
+        MathUtils.random(-1, 1) *
+          MathUtils.degreesToRadians(particleProp.spread);
+
+      const x = Math.cos(spreadAngle);
+      const y = Math.sin(spreadAngle);
+
+      particleEmitter.velocityX[index] = x * randVel + particleProp.gravity[0];
+      particleEmitter.velocityY[index] = y * randVel + particleProp.gravity[1];
       particleEmitter.velocityZ[index] =
-        particleProp.velocity[2] +
+        particleProp.velocity[2] * randVel +
         particleProp.direction[2] +
-        particleProp.gravity[2] +
-        randVel;
+        particleProp.gravity[2];
 
       particleEmitter.active[index] = 1;
       particleEmitter.age[index] = particleProp.age;

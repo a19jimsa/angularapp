@@ -2,25 +2,27 @@
 precision mediump float;
 precision mediump sampler2DArray;
 
+uniform sampler2D u_texture;
 uniform sampler2DArray u_textures;
+
 uniform float u_time;
+uniform vec2 u_speed;
 
 in vec2 v_texcoord;
+in float v_lifetime;
+in float v_age;
+in vec3 v_color;
 
 out vec4 FragColor;
 
 void main() { 
     vec2 uv = v_texcoord;
-    vec2 uvScrolling = v_texcoord + vec2(0.0, u_time * 0.001); 
-    vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0)); 
-    vec4 gradientAdd = texture(u_textures, vec3(uv, 1)); 
-    vec4 gradientSub = texture(u_textures, vec3(uv, 2));
+    vec2 uvScrolling = uv + vec2(u_time * u_speed.x, u_time * u_speed.y);
+    vec4 baseColor = texture(u_texture, uvScrolling); 
+    vec4 gradientAdd = texture(u_textures, vec3(uv, 0)); 
+    vec4 gradientSub = texture(u_textures, vec3(uv, 1));
     vec4 color = baseColor + gradientAdd - gradientSub;
     float heat = clamp(color.r, 0.1, 0.9);
-    vec4 rampColor = texture(u_textures, vec3(heat, 0.5, 3));
-    vec3 darkColor = vec3(0.0, 0.1, 1.0); // blå
-    vec3 brightColor = vec3(1.0);         // vit
-    vec3 finalColor = mix(darkColor, brightColor, color.r);
-    if(color.r < 0.1) discard;
+    vec4 rampColor = texture(u_textures, vec3(heat, 0.5, 2));
     FragColor = rampColor;
 }

@@ -9,6 +9,7 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -162,6 +163,7 @@ export type Brush = {
     MatToolbarModule,
     BrushImageComponent,
     CdkDrag,
+    MatCheckboxModule,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -749,13 +751,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const noise = await TextureManager.loadImage(
       '/assets/textures/noise_002.jpg',
     );
-    const fireTexture = await TextureManager.addTextureArray(
+
+    const fireTexture = await TextureManager.addTexture(
+      'fire',
+      'u_texture',
+      fireNoise,
+      'fire',
+      true,
+    );
+
+    const fires = await TextureManager.addTextureArray(
       'fire',
       'u_textures',
-      [fireNoise, fireNoiseAdd, fireNoiseSub, fireNoiseColor],
+      [fireNoiseAdd, fireNoiseSub, fireNoiseColor],
       'fire',
       false,
     );
+
     const lightning = await TextureManager.loadImage(
       '/assets/textures/lightning.jpg',
     );
@@ -1280,6 +1292,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
     this.animationPlayerSystem.update(this.ecs);
     this.particleEmitterSystem.update(this.ecs);
+    if (this.animationPlayer.playing) {
+      this.updateAnimationPlayer();
+    }
   }
 
   draw() {
@@ -1657,11 +1672,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (!anim) return;
   }
 
-  addTrack(
-    componentID: string,
-    property: string,
-    item: vec3 | boolean | number,
-  ) {
+  addTrack(componentID: string, property: string, item: any) {
     const track = this.animationPlayer.tracks.find(
       (e) =>
         e.componentID === componentID &&
@@ -1669,16 +1680,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         e.property === property,
     );
     if (track) {
-      if (componentID === 'Transform3D') {
-        const vec = item as vec3;
-        track.keyframes.push({
-          value: vec3.fromValues(vec[0], vec[1], vec[2]),
-          time: 0,
-        });
-        console.log('Added keyframe');
-      } else {
-        track.keyframes.push({ value: item, time: 0 });
-      }
+      track.keyframes.push({ value: item[property], time: 0 });
     } else {
       const component = this.ecs.getComponent(
         this.meshbrush.entity,
@@ -1692,10 +1694,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  playAnimation(cursor: HTMLDivElement, timeline: HTMLDivElement) {
-    this.animationPlayer.loopedTime += 10;
-  }
-
   togglePlayAnimation() {
     this.animationPlayer.playing = !this.animationPlayer.playing;
   }
@@ -1706,7 +1704,22 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     index: number,
   ) {
     const x = event.source.getFreeDragPosition().x;
-    keyframe.time = x;
-    this.animationPlayer.lifetime = x;
+    const width = this.timeline.nativeElement.clientWidth;
+    keyframe.time = x / width;
+    this.animationPlayer.lifetime = x / width;
+  }
+
+  @ViewChild('cursor')
+  cursor!: ElementRef<HTMLDivElement>;
+  @ViewChild('timeline')
+  timeline!: ElementRef<HTMLDivElement>;
+  updateAnimationPlayer() {
+    const currentTime = this.animationPlayer.loopedTime;
+    const duration = this.animationPlayer.lifetime;
+    const width = this.timeline.nativeElement.clientWidth;
+    const x = (currentTime % duration) * 300;
+
+    this.position = { x, y: 0 };
+    this.cdr.detectChanges();
   }
 }

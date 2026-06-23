@@ -19,6 +19,19 @@ out vec2 v_texcoord;
 out float v_lifetime;
 out float v_age;
 out vec3 v_color;
+
+vec3 rotateZ(float angle, vec3 pos){
+    float c = cos(angle);
+    float s = sin(angle);
+
+    // Rotera kring Y-axeln (normals riktning ändras också)
+    
+    return vec3(
+        pos.x * c - pos.y * s,
+        pos.x * s + pos.y * c,
+        pos.z
+    );
+}
  
 void main() {
     v_texcoord = a_texcoord;
@@ -26,5 +39,6 @@ void main() {
     v_lifetime = a_lifetime;
     v_color = a_color;
     vec3 pos = a_position * a_size;
-    gl_Position = u_matrix * vec4(a_position + a_instances, 1.0);
+    vec3 rotatedPos = rotateZ(a_rotation, pos);
+    gl_Position = u_matrix * vec4(rotatedPos + a_instances, 1.0);
 }

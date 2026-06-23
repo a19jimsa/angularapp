@@ -5,7 +5,7 @@ import { MathUtils } from 'src/Utils/MathUtils';
 
 export class AnimationPlayer {
   name: string;
-  tracks: Track<vec3 | number | boolean>[] = [];
+  tracks: Track<any>[] = [];
   loopedTime: number = 0;
   lifetime: number = 0;
   playing: boolean = false;

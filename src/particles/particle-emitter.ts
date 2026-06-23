@@ -66,12 +66,13 @@ export class ParticleEmitter extends Component {
   aliveCount: number = 0;
   particles: Float32Array;
   particleProp: ParticleProp;
-  burst: number;
+  spawnAccumulator: number = 0;
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);
   shape: SpawnShape = new PointShape();
   stride: number = 12;
   explosiveness: number = 0;
+  emitting: boolean = true;
 
   maxParticles: number;
 
@@ -106,13 +107,14 @@ export class ParticleEmitter extends Component {
     super();
     this.maxParticles = 10000;
     this.stride = stride;
-    this.particles = new Float32Array(10000 * stride);
+    this.particles = new Float32Array(this.maxParticles * stride);
     this.particleProp = new ParticleProp();
+
+    this.emitting = true;
 
     this.shaderId = shaderId;
     this.meshId = meshId;
     this.amount = amount;
-    this.burst = 0;
 
     this.positionsX = new Float32Array(this.maxParticles);
     this.positionsY = new Float32Array(this.maxParticles);

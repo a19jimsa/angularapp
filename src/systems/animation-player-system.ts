@@ -8,12 +8,11 @@ export class AnimationPlayerSystem {
     const player = AnimationPlayerManager.animationPlayers.get('Init');
     if (!player) return;
     if (!player.playing) return;
-    player.loopedTime += 0.16;
+    //dt maybe later or fixed time
+    player.loopedTime += 0.016;
     const time = player.loopedTime % player.lifetime;
     for (const track of player.tracks) {
       const value = track.evaluate(time);
-      if (!value) continue;
-      console.log(value);
       const transform = ecs.getComponent<Transform3D>(
         track.entity,
         track.componentID,
@@ -26,6 +25,7 @@ export class AnimationPlayerSystem {
         if (!transform) continue;
         transform[track.property] = value as vec3;
       } else {
+        console.log(value);
         track.target[track.property] = value;
       }
     }
