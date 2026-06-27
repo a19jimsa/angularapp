@@ -17,6 +17,9 @@ export class ParticleProp {
   direction: vec3 = vec3.fromValues(0, 0, 0);
   gravity: vec3 = vec3.fromValues(0, 0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
+  rotation: vec3 = vec3.fromValues(0, 0, 0);
+  rotationSpeed: number = 0;
+  scaleRandomness: number = 0;
   size: number = 1;
   sizeBegin: number = 1;
   sizeEnd: number = 1;
@@ -29,7 +32,6 @@ export class ParticleProp {
   emissionOffset: vec3 = vec3.fromValues(1, 1, 1);
   emissionScale: vec3 = vec3.fromValues(0, 0, 0);
   randomness: number = 0;
-  rotation: number = 0;
   minAngle: number = 0;
   maxAngle: number = 0;
 }

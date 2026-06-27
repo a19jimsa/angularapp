@@ -44,11 +44,15 @@ export class Renderer {
     if (!instanceBuffer)
       throw new Error('Could not get instance buffer ' + instanceBuffer);
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceData.subarray(0, count * 12));
+    gl.bufferSubData(
+      gl.ARRAY_BUFFER,
+      0,
+      instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
+    );
     gl.enable(gl.BLEND);
     gl.depthMask(false);
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.ONE, gl.ONE);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),

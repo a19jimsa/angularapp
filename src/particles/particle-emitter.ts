@@ -61,7 +61,7 @@ export class ParticleEmitter extends Component {
   override type: string = 'ParticleEmitter';
   shaderId: string;
   meshId: string;
-  poolIndex: number = 1;
+  poolIndex: number = 0;
   amount: number;
   aliveCount: number = 0;
   particles: Float32Array;
@@ -70,7 +70,7 @@ export class ParticleEmitter extends Component {
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);
   shape: SpawnShape = new PointShape();
-  stride: number = 12;
+  stride: number;
   explosiveness: number = 0;
   emitting: boolean = true;
 
@@ -88,7 +88,10 @@ export class ParticleEmitter extends Component {
   colorG: Float32Array;
   colorB: Float32Array;
 
-  rotation: Float32Array;
+  rotationX: Float32Array;
+  rotationY: Float32Array;
+  rotationZ: Float32Array;
+  rotationSpeed: Float32Array;
 
   age: Float32Array;
   size: Float32Array;
@@ -128,7 +131,11 @@ export class ParticleEmitter extends Component {
     this.lifetime = new Float32Array(this.maxParticles);
 
     this.size = new Float32Array(this.maxParticles);
-    this.rotation = new Float32Array(this.maxParticles);
+
+    this.rotationX = new Float32Array(this.maxParticles);
+    this.rotationY = new Float32Array(this.maxParticles);
+    this.rotationZ = new Float32Array(this.maxParticles);
+    this.rotationSpeed = new Float32Array(this.maxParticles);
 
     this.colorR = new Float32Array(this.maxParticles);
     this.colorG = new Float32Array(this.maxParticles);

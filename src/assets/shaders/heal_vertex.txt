@@ -7,7 +7,10 @@ layout(location = 3) in float a_age;
 layout(location = 4) in float a_lifetime;
 layout(location = 5) in vec3 a_color;
 layout(location = 6) in float a_size;
-layout(location = 7) in float a_rotation;
+layout(location = 7) in float a_rotationSpeed;
+layout(location = 8) in float a_sizeBegin;
+layout(location = 9) in float a_sizeEnd;
+layout(location = 10) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;

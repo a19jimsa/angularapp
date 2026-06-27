@@ -25,6 +25,7 @@ import { VertexArray } from 'src/renderer/vertex-array';
 import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 type Sprite = {
   position: Transform3D;

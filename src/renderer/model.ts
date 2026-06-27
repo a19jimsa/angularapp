@@ -657,4 +657,69 @@ export class Model {
     this.vertices = vertices;
     this.indices = indices;
   }
+
+  addRingMesh(innerRadius: number, outerRadius: number, segments: number) {
+    const vertices: number[] = [];
+    const indices: number[] = [];
+
+    for (let i = 0; i <= segments; i++) {
+      const t = (i / segments) * Math.PI * 2;
+
+      const cos = Math.cos(t);
+      const sin = Math.sin(t);
+
+      // Inner vertex
+      vertices.push(cos * innerRadius, 0, sin * innerRadius);
+      vertices.push(t, 1);
+
+      // Outer vertex
+      vertices.push(cos * outerRadius, 0, sin * outerRadius);
+      vertices.push(t, 0);
+    }
+
+    for (let i = 0; i < segments; i++) {
+      const inner0 = i * 2;
+      const outer0 = i * 2 + 1;
+      const inner1 = (i + 1) * 2;
+      const outer1 = (i + 1) * 2 + 1;
+
+      indices.push(inner0, outer0, outer1);
+
+      indices.push(inner0, outer1, inner1);
+    }
+
+    this.vertices = vertices;
+    this.indices = indices;
+  }
+
+  addSpiral(segments: number, turns: number, radius: number, height: number) {
+    const vertices = [];
+    const indices = [];
+
+    const width = 3; // tjocklek på spiralen
+
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+
+      const angle = t * Math.PI * 2 * turns;
+
+      const x = Math.cos(angle) * radius;
+      const y = t * height;
+      const z = Math.sin(angle) * radius;
+
+      vertices.push(x, y, z, t, 1);
+      vertices.push(x, y + width, z, t, 0);
+    }
+
+    for (let i = 0; i < segments; i++) {
+      let a = i * 2;
+      let b = a + 1;
+      let c = a + 2;
+      let d = a + 3;
+
+      indices.push(a, b, c, b, d, c);
+    }
+    this.vertices = vertices;
+    this.indices = indices;
+  }
 }

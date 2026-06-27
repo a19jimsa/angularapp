@@ -261,6 +261,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'Plane',
       'Tornado',
       'Cone',
+      'Ring',
+      'Spiral',
     ]);
     this.spawnShapes = new Set<SpawnShape>([
       new PointShape(),
@@ -811,10 +813,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/heal_shade.jpg',
     );
 
-    const healtextures = await TextureManager.addTexture(
+    const healtextures = await TextureManager.addTextureArray(
       'heal',
       'u_textures',
-      healing,
+      [healing],
       'heal',
       true,
     );
@@ -1553,7 +1555,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addLightning(10, 10, 10);
-    MeshManager.addMesh(model, 'lightning' + entity);
+    MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       2,
@@ -1611,11 +1613,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('lightning' + entity, instanceBuffer, 10000);
+    instanceBuffer.add(
+      10,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+
+    MeshManager.addInstanceMesh(
+      'particleEmitter' + entity,
+      instanceBuffer,
+      10000,
+    );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('lightning', 'lightning' + entity, 100, 12),
+      new ParticleEmitter('lightning', 'particleEmitter' + entity, 100, instanceBuffer.amount),
     );
   }
 
@@ -1628,6 +1642,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const mesh = MeshManager.getMesh(emitter.meshId);
     if (!mesh) return;
     const model = new Model(mesh.bufferLayout);
+
     switch (index) {
       case 0:
         model.addQuad();
@@ -1649,6 +1664,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         break;
       case 6:
         model.addCone();
+        break;
+      case 7:
+        model.addRingMesh(64, 100, 50);
+        console.log('Added spiral');
+        break;
+      case 8:
+        model.addSpiral(50, 5, 10, 50);
         break;
       default:
         model.addQuad();

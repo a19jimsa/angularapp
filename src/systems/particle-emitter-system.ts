@@ -38,11 +38,12 @@ export class ParticleEmitterSystem {
         particleEmitter.particles[j + 6] = particleEmitter.colorG[i];
         particleEmitter.particles[j + 7] = particleEmitter.colorB[i];
         particleEmitter.particles[j + 8] = particleEmitter.size[i];
-        particleEmitter.particles[j + 9] = MathUtils.degreesToRadians(
-          particleEmitter.rotation[i],
-        );
+        particleEmitter.particles[j + 9] = particleEmitter.rotationSpeed[i];
         particleEmitter.particles[j + 10] = particleEmitter.sizeBegin[i];
         particleEmitter.particles[j + 11] = particleEmitter.sizeEnd[i];
+        particleEmitter.particles[j + 12] = particleEmitter.rotationX[i];
+        particleEmitter.particles[j + 13] = particleEmitter.rotationY[i];
+        particleEmitter.particles[j + 14] = particleEmitter.rotationZ[i];
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
@@ -103,20 +104,28 @@ export class ParticleEmitterSystem {
         particleProp.gravity[2];
 
       particleEmitter.active[index] = 1;
-      particleEmitter.age[index] = particleProp.age;
+      particleEmitter.age[index] = 0;
       particleEmitter.lifetime[index] =
         particleProp.lifetime *
         (1 + (Math.random() * 2 - 1) * particleProp.lifetimeRandomness);
-      particleEmitter.colorR[index] = particleProp.color[0];
-      particleEmitter.colorG[index] = particleProp.color[1];
-      particleEmitter.colorB[index] = particleProp.color[2];
-      particleEmitter.size[index] = particleProp.size;
-      particleEmitter.rotation[index] = MathUtils.random(
-        particleProp.minAngle,
-        particleProp.maxAngle,
-      );
+      particleEmitter.colorR[index] = MathUtils.degreesToRadians(particleProp.color[0]);
+      particleEmitter.colorG[index] = MathUtils.degreesToRadians(particleProp.color[1]);
+      particleEmitter.colorB[index] = MathUtils.degreesToRadians(particleProp.color[2]);
+      particleEmitter.size[index] =
+        particleProp.size *
+        (1 + (Math.random() * 2 - 1) * particleProp.scaleRandomness);
+      particleEmitter.rotationSpeed[index] = particleProp.rotationSpeed;
       particleEmitter.sizeBegin[index] = particleProp.sizeBegin;
       particleEmitter.sizeEnd[index] = particleProp.sizeEnd;
+      particleEmitter.rotationX[index] = MathUtils.degreesToRadians(
+        particleProp.rotation[0],
+      );
+      particleEmitter.rotationY[index] = MathUtils.degreesToRadians(
+        particleProp.rotation[1],
+      );
+      particleEmitter.rotationZ[index] = MathUtils.degreesToRadians(
+        particleProp.rotation[2],
+      );
     }
   }
 }
