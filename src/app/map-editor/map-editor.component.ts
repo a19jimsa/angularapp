@@ -309,6 +309,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  get emitters() {
+    const emitters: ParticleEmitter[] = new Array();
+    for (const entity of this.ecs.getEntities()) {
+      const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+        entity,
+        'ParticleEmitter',
+      );
+      if (!particleEmitter) continue;
+      emitters.push(particleEmitter);
+    }
+    return emitters;
+  }
+
   get shaders() {
     return ShaderManager.getShaderNames();
   }
@@ -1629,7 +1642,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('lightning', 'particleEmitter' + entity, 100, instanceBuffer.amount),
+      new ParticleEmitter(
+        'lightning',
+        'particleEmitter' + entity,
+        100,
+        instanceBuffer.amount,
+      ),
     );
   }
 
@@ -1743,5 +1761,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.position = { x, y: 0 };
     this.cdr.detectChanges();
+  }
+
+  subEmitter(subEmitter: ParticleEmitter) {
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!particleEmitter) return;
+    particleEmitter.subEmitter = subEmitter;
   }
 }

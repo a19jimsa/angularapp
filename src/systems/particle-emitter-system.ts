@@ -11,11 +11,18 @@ export class ParticleEmitterSystem {
       );
       if (!particleEmitter) continue;
       //Update particles
-      for (let i = 0; i < particleEmitter.amount; i++) {
+      for (let i = 0; i < particleEmitter.maxParticles; i++) {
         if (particleEmitter.active[i] === 0) continue;
         if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
           particleEmitter.active[i] = 0;
-          particleEmitter.age[i] = particleEmitter.lifetime[i];
+          if (particleEmitter.subEmitter) {
+            particleEmitter.subEmitter.particleProp.position[0] =
+              particleEmitter.positionsX[i];
+            particleEmitter.subEmitter.particleProp.position[1] =
+              particleEmitter.positionsY[i];
+            particleEmitter.subEmitter.particleProp.position[2] =
+              particleEmitter.positionsZ[i];
+          }
           continue;
         }
         //Updates all particles
@@ -24,9 +31,10 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.age[i] += 0.016;
       }
+
       let aliveCount = 0;
       //Fill particle buffer with values
-      for (let i = 0; i < particleEmitter.amount; i++) {
+      for (let i = 0; i < particleEmitter.maxParticles; i++) {
         if (particleEmitter.active[i] === 0) continue;
         const j = aliveCount * particleEmitter.stride;
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
@@ -57,11 +65,24 @@ export class ParticleEmitterSystem {
     }
   }
 
+  spawnSubParticles(particleEmitter: ParticleEmitter) {
+    //Trigger sub particles
+    for (let i = 0; i < particleEmitter.amount; i++) {
+      const spawnedParticles = this.spawnParticles(particleEmitter);
+      particleEmitter.poolIndex =
+        (particleEmitter.poolIndex - 1 + particleEmitter.maxParticles) %
+        particleEmitter.maxParticles;
+    }
+  }
+
   //Activate particles from the deadpool
   emit(particleEmitter: ParticleEmitter) {
-    if (particleEmitter.spawnAccumulator >= 0.1) {
+    if (particleEmitter.spawnAccumulator <= 0.5) {
       this.spawnParticles(particleEmitter);
-      particleEmitter.spawnAccumulator -= 0.1;
+      particleEmitter.spawnAccumulator -= 0.5;
+    }
+    if (particleEmitter.subEmitter) {
+      this.spawnSubParticles(particleEmitter.subEmitter);
     }
   }
 
@@ -69,7 +90,6 @@ export class ParticleEmitterSystem {
     const index = particleEmitter.poolIndex;
     if (particleEmitter.active[index] === 0) {
       const particleProp = particleEmitter.particleProp;
-
       const position = particleEmitter.shape.spawnPosition();
       particleEmitter.positionsX[index] =
         particleProp.position[0] + position[0];
@@ -108,9 +128,9 @@ export class ParticleEmitterSystem {
       particleEmitter.lifetime[index] =
         particleProp.lifetime *
         (1 + (Math.random() * 2 - 1) * particleProp.lifetimeRandomness);
-      particleEmitter.colorR[index] = MathUtils.degreesToRadians(particleProp.color[0]);
-      particleEmitter.colorG[index] = MathUtils.degreesToRadians(particleProp.color[1]);
-      particleEmitter.colorB[index] = MathUtils.degreesToRadians(particleProp.color[2]);
+      particleEmitter.colorR[index] = particleProp.color[0];
+      particleEmitter.colorG[index] = particleProp.color[1];
+      particleEmitter.colorB[index] = particleProp.color[2];
       particleEmitter.size[index] =
         particleProp.size *
         (1 + (Math.random() * 2 - 1) * particleProp.scaleRandomness);
@@ -126,6 +146,8 @@ export class ParticleEmitterSystem {
       particleEmitter.rotationZ[index] = MathUtils.degreesToRadians(
         particleProp.rotation[2],
       );
+      return 1;
     }
+    return 0;
   }
 }

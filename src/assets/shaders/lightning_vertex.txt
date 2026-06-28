@@ -65,9 +65,11 @@ void main() {
 
     vec3 pos = a_position;
 
-    pos = rotateX(pos, a_rotation.x * u_time);
-    pos = rotateY(pos, a_rotation.y * u_time);
-    pos = rotateZ(pos, a_rotation.z * u_time);
+    float t = a_age / a_lifetime;
+
+    pos = rotateX(pos, a_rotation.x * a_rotationSpeed * t);
+    pos = rotateY(pos, a_rotation.y * a_rotationSpeed * t);
+    pos = rotateZ(pos, a_rotation.z * a_rotationSpeed * t);
 
     pos *= a_size;
     pos += a_instances;

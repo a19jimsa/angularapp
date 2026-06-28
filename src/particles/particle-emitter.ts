@@ -73,6 +73,8 @@ export class ParticleEmitter extends Component {
   stride: number;
   explosiveness: number = 0;
   emitting: boolean = true;
+  loop: boolean = true;
+  oneShot: boolean = false;
 
   maxParticles: number;
 
@@ -100,6 +102,8 @@ export class ParticleEmitter extends Component {
 
   sizeBegin: Float32Array;
   sizeEnd: Float32Array;
+
+  subEmitter: ParticleEmitter | null;
 
   constructor(
     shaderId: string,
@@ -145,5 +149,7 @@ export class ParticleEmitter extends Component {
 
     this.sizeBegin = new Float32Array(this.maxParticles);
     this.sizeEnd = new Float32Array(this.maxParticles);
+
+    this.subEmitter = null;
   }
 }

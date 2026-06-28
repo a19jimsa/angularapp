@@ -113,29 +113,30 @@ export class Model {
 
   addQuad() {
     const vertices = [
-      -10, // v0
-      -10,
+      // x   y   z   u   v
       0,
       0,
       0,
-      10, // v1
-      -10,
       0,
-      1,
-      0,
-      -10, // v2
+      1, // v0 (bottom-left)
       10,
       0,
       0,
       1,
-      10, // v3
+      1, // v1 (bottom-right)
+      10,
       10,
       0,
       1,
-      1,
+      0, // v2 (top-right)
+      0,
+      10,
+      0,
+      0,
+      0, // v3 (top-left)
     ];
 
-    const indices = [0, 1, 2, 2, 1, 3];
+    const indices = [0, 1, 2, 0, 2, 3];
 
     this.vertices = vertices;
     this.indices = indices;

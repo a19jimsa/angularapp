@@ -15,8 +15,9 @@ in vec3 v_color;
 out vec4 FragColor;
 
 void main() { 
+    float t = v_age / v_lifetime;
     vec2 uv = v_texcoord;
-    vec2 uvScrolling = v_texcoord + u_speed * u_time; 
+    vec2 uvScrolling = v_texcoord + u_speed * t;
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
     vec4 multColor = texture(u_texture, uv);
     float opacity = baseColor.r + 0.5;
