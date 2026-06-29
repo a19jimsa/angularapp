@@ -664,7 +664,7 @@ export class Model {
     const indices: number[] = [];
 
     for (let i = 0; i <= segments; i++) {
-      const t = (i / segments) * Math.PI * 2;
+      const t = (i / segments) * Math.PI;
 
       const cos = Math.cos(t);
       const sin = Math.sin(t);

@@ -19,6 +19,9 @@ export class ParticleProp {
   color: vec3 = vec3.fromValues(0, 0, 0);
   rotation: vec3 = vec3.fromValues(0, 0, 0);
   rotationSpeed: number = 0;
+  rotationRandom: number = 0;
+  startRotation: number = 0;
+  endRotation: number = 0;
   scaleRandomness: number = 0;
   size: number = 1;
   sizeBegin: number = 1;

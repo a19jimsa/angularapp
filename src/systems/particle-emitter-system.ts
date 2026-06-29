@@ -138,13 +138,16 @@ export class ParticleEmitterSystem {
       particleEmitter.sizeBegin[index] = particleProp.sizeBegin;
       particleEmitter.sizeEnd[index] = particleProp.sizeEnd;
       particleEmitter.rotationX[index] = MathUtils.degreesToRadians(
-        particleProp.rotation[0],
+        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
+          particleProp.rotation[0],
       );
       particleEmitter.rotationY[index] = MathUtils.degreesToRadians(
-        particleProp.rotation[1],
+        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
+          particleProp.rotation[1],
       );
       particleEmitter.rotationZ[index] = MathUtils.degreesToRadians(
-        particleProp.rotation[2],
+        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
+          particleProp.rotation[2],
       );
       return 1;
     }

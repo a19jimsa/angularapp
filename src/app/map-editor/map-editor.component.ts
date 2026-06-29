@@ -689,6 +689,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/ground_01.jpg',
     );
 
+    const texture8 = await TextureManager.loadImage(
+      'assets/textures/stone.jpg',
+    );
+
     const textureArray = await TextureManager.addTextureArray(
       'brushes',
       'u_brushes',
@@ -707,7 +711,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const textureArray2 = await TextureManager.addTextureArray(
       'splatmap',
       'u_textures',
-      [texture1, texture2, texture3, texture4, texture5, texture6, texture7],
+      [texture1, texture2, texture3, texture8, texture5, texture6, texture7],
       'splatmap',
       true,
     );
@@ -928,6 +932,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       healing1,
       'wave',
       false,
+    );
+
+    const windImage = await TextureManager.loadImage(
+      '/assets/textures/wind.jpg',
+    );
+
+    const windTexture = await TextureManager.addTexture(
+      'tornado',
+      'u_texture',
+      healing1,
+      'tornado',
+      true,
     );
   }
 
@@ -1684,11 +1700,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addCone();
         break;
       case 7:
-        model.addRingMesh(64, 100, 50);
-        console.log('Added spiral');
+        model.addRingMesh(5, 10, 50);
         break;
       case 8:
-        model.addSpiral(50, 5, 10, 50);
+        model.addSpiral(50, 0.5, 10, 1);
         break;
       default:
         model.addQuad();

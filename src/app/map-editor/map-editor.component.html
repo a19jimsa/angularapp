@@ -1034,6 +1034,24 @@
                     </mat-form-field>
                   </div>
                   <div class="row">
+                    <mat-form-field class="col-6">
+                      <mat-label>Rotation min</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.startRotation"
+                      />
+                    </mat-form-field>
+                    <mat-form-field class="col-6">
+                      <mat-label>Rotation max</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="particleEmitter.particleProp.endRotation"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
                     <div class="col-12">
                       <div class="example-label-container">
                         <label

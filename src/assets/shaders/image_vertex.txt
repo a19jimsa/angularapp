@@ -22,19 +22,12 @@ out vec3 v_fragPos;
 void main() {
 
    vec4 worldPos = u_model * vec4(a_position, 1.0);
-
    v_worldSpace = worldPos;
    v_fragPos = worldPos.xyz;
-
    v_texcoord = a_texcoord;
-
    v_height = worldPos.y;
-
    v_depth = worldPos.z;
-
    v_fogDistance = length(worldPos.xyz - u_cameraPos);
-
    v_normal = mat3(transpose(inverse(u_model))) * a_normal;
-
    gl_Position = u_matrix * worldPos;
 }

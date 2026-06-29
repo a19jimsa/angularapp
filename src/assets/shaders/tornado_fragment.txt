@@ -15,10 +15,10 @@ in vec3 v_color;
 out vec4 FragColor;
 
 void main() { 
-    float t = v_age / v_lifetime;
+    float t = 1.0 - v_age / v_lifetime;
     vec2 uv = v_texcoord;
-    vec2 uvScrolling = uv + vec2(u_time * u_speed.x, u_time * u_speed.y); 
-    vec3 baseColor = texture(u_textures, vec3(uvScrolling, 0)).rgb;
+    vec2 uvScrolling = uv + vec2(t * u_speed.x, t * u_speed.y); 
+    vec3 baseColor = texture(u_texture, uvScrolling).rgb;
     vec3 color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), baseColor);
-    FragColor = vec4(color, baseColor.r);
+    FragColor = vec4(color, t);
 }

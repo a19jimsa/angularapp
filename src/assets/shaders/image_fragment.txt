@@ -73,7 +73,7 @@ void main() {
    vec4 leaf_color = TriplarMapping(norm, u_textures, 0);
    vec4 sand_color = TriplarMapping(norm, u_textures, 1);
    vec4 snow_color = TriplarMapping(norm, u_textures, 2);
-   vec4 ground_color = TriplarMapping(norm, u_textures, 6);
+   vec4 ground_color = TriplarMapping(norm, u_textures, 3);
 
    vec4 splat = texture(u_splatmap, v_texcoord);
 
