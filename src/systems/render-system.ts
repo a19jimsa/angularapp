@@ -282,6 +282,7 @@ export class RenderSystem {
           if (brushImage) {
             shader.setVec2('u_brushUV', brushImage.UV);
             shader.setFloat('u_brushLayer', brushImage.layer);
+            shader.setFloat('u_brushSize', brushImage.size);
           }
 
           if (terrain) {

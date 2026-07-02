@@ -39,7 +39,6 @@ export class BrushSystem {
     const vertexArray = MeshManager.getMesh(mesh.meshId);
     if (!vertexArray) return;
     const vertices = vertexArray.vertexBuffer.vertices;
-    const indices = vertexArray.indexBuffer.indices;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
@@ -63,6 +62,9 @@ export class BrushSystem {
       //   this.movePivot(transform3D, mouse, pivotIndex);
       // }
       if (meshBrush.type === ToolBrush.Height) {
+        if (brushImage) {
+          brushImage.size = meshBrush.radius;
+        }
         this.heightBrush(
           meshBrush,
           vec4.fromValues(
@@ -90,6 +92,9 @@ export class BrushSystem {
           vertices[index + 2],
         );
       } else if (meshBrush.type === ToolBrush.Splat) {
+        if (brushImage) {
+          brushImage.size = meshBrush.radius;
+        }
         this.paintImage(
           ecs,
           meshBrush,
@@ -298,7 +303,7 @@ export class BrushSystem {
           const splatmapIndex = (dz * splatmap.size + dx) * 4;
           const imageIndex = (y * image.width + x) * 4;
           const red = image.data[imageIndex];
-          const color = 255 - red; // 0-255 Om vandla svart till färg. 255 om svart
+          const color = red; // 0-255 Om vandla svart till färg. 255 om svart
           if (splatColor === 'red') {
             const r = splatmap.coords[splatmapIndex + 0];
             const g = splatmap.coords[splatmapIndex + 1];
@@ -548,8 +553,6 @@ export class BrushSystem {
       );
       const dx = pos[0] - position[0];
       const dz = pos[2] - position[2];
-      const dist = Math.sqrt(dx * dx + dz * dz);
-      if (dist > brushRadius) continue;
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
@@ -558,14 +561,11 @@ export class BrushSystem {
       if (px > 0 && px < imageData.width && pz > 0 && pz < imageData.height) {
         const pixelIndex = (pz * imageData.width + px) * 4;
         const red = imageData.data[pixelIndex];
-        if (red < 255) {
-          const influence =
-            (1 - (dist / brushRadius) * fallOff) * brushStrength;
-          //Now we have commands instead!
-          //Just save all affected vertices in an array and send it to commands.
-          //It saves index ys position and send it to the height or just take it - stride so it fits terrains heights index?
-          commandList.set(i + 1, influence);
-        }
+        const influence = (red / 255.0) * brushStrength;
+        //Now we have commands instead!
+        //Just save all affected vertices in an array and send it to commands.
+        //It saves index ys position and send it to the height or just take it - stride so it fits terrains heights index?
+        commandList.set(i + 1, influence);
       }
     }
     CommandManager.add(

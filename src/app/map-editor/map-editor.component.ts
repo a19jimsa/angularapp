@@ -666,6 +666,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/brushes/square_brush.jpg',
     );
 
+    const mountainBrushImage0 = await TextureManager.loadImage(
+      'assets/brushes/mountain_brush.jpg',
+    );
+
+    const mountainBrushImage1 = await TextureManager.loadImage(
+      'assets/brushes/mountain_brush_001.jpg',
+    );
+
     const textureImage = await TextureManager.loadImage(
       'assets/brushes/texture_brush.jpg',
     );
@@ -703,15 +711,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         roundBrushImage,
         squareBrushImage,
         textureImage,
+        mountainBrushImage0,
+        mountainBrushImage1,
       ],
       'splatmap',
       false,
     );
 
+    const mountaintexture = await TextureManager.loadImage(
+      'assets/textures/marble_rock_01.jpg',
+    );
+
+    const mountainNormal = await TextureManager.loadImage(
+      'assets/textures/marble_rock_01_normal.jpg',
+    );
+
     const textureArray2 = await TextureManager.addTextureArray(
       'splatmap',
       'u_textures',
-      [texture1, texture2, texture3, texture8, texture5, texture6, texture7],
+      [texture1, texture2, texture3, mountaintexture, mountainNormal],
       'splatmap',
       true,
     );
@@ -724,6 +742,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         roundBrushImage,
         squareBrushImage,
         textureImage,
+        mountainBrushImage0,
+        mountainBrushImage1,
       ],
     );
 
@@ -1016,7 +1036,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(50, 1000, 1000);
+    model.addPlane(100, 1000, 1000);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
@@ -1040,9 +1060,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
 
     if (!transform) return;
-    transform.scale[0] = 10;
-    transform.scale[1] = 10;
-    transform.scale[2] = 10;
+    transform.scale[0] = 30;
+    transform.scale[1] = 30;
+    transform.scale[2] = 30;
     MeshManager.addMesh(model, 'terrain' + newEntity);
     TextureManager.dirty = true;
   }
