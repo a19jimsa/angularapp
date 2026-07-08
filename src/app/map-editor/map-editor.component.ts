@@ -628,17 +628,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   changeTool(name: string) {
-    if (name === 'grass') {
-      this.meshbrush.type = ToolBrush.Grass;
-    } else if (name === 'tree') {
-      this.meshbrush.type = ToolBrush.Trees;
-    } else if (name === 'height') {
-      this.meshbrush.type = ToolBrush.Height;
-    } else if (name === 'splat') {
-      this.meshbrush.type = ToolBrush.Splat;
-    } else if (name === 'pivot') {
-      this.meshbrush.type = ToolBrush.Pivot;
-    }
+    const toolMap: Record<string, ToolBrush> = {
+      grass: ToolBrush.Grass,
+      tree: ToolBrush.Trees,
+      height: ToolBrush.Height,
+      splat: ToolBrush.Splat,
+      pivot: ToolBrush.Pivot,
+    };
+
+    this.meshbrush.type = toolMap[name];
   }
 
   addToScene() {
@@ -647,7 +645,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async loadAllbrushes() {
     const smokeBrushImage = await TextureManager.loadImage(
-      'assets/brushes/smoke_brush.jpg',
+      'assets/brushes/mountain_brush_002.jpg',
     );
 
     const starBrushImage = await TextureManager.loadImage(
@@ -659,7 +657,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const roundBrushImage = await TextureManager.loadImage(
-      'assets/brushes/round_brush.jpg',
+      'assets/brushes/round_brush_001.jpg',
     );
 
     const squareBrushImage = await TextureManager.loadImage(
@@ -1022,6 +1020,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   protected async createTerrainWithSplatmap() {
     const newEntity = this.ecs.createEntity();
     const size = 128;
+    const width = 500;
+    const depth = 500;
+    const height = 500;
     const texture = await TextureManager.addNonImage(
       'terrain' + newEntity,
       size,
@@ -1036,7 +1037,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(100, 1000, 1000);
+    model.addPlane(100, width, depth);
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
@@ -1045,24 +1046,45 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Material>(newEntity, new Material('splatmap'));
     this.ecs.addComponent<Mesh>(
       newEntity,
-      new Mesh(1000, 0, 'splatmap', 'terrain' + newEntity),
+      new Mesh(500, 500, 'splatmap', 'terrain' + newEntity),
     );
-    this.ecs.addComponent<Terrain>(newEntity, new Terrain());
+    this.ecs.addComponent<Terrain>(
+      newEntity,
+      new Terrain(width, depth, height),
+    );
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
       newEntity,
-      new Mesh(1000, 1000, 'terrain' + newEntity, 'terrain' + newEntity),
+      new Mesh(width, height, 'terrain' + newEntity, 'terrain' + newEntity),
     );
     this.ecs.addComponent<Splatmap>(
       newEntity,
       new Splatmap(size, 'terrain' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
+    this.ecs.addComponent<Grass>(newEntity, new Grass(128));
 
-    if (!transform) return;
-    transform.scale[0] = 30;
-    transform.scale[1] = 30;
-    transform.scale[2] = 30;
+    const grassBuffer = new BufferLayout();
+    grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    grassBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    grassBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const shader = await ShaderManager.load(
+      'grass',
+      'grass_vertex.txt',
+      'grass_fragment.txt',
+    );
+    const grassModel = new Model(grassBuffer);
+    grassModel.addGrass();
+    MeshManager.addMesh(grassModel, 'grass');
+    const instanceBuffer = new BufferLayout();
+    instanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('grass', instanceBuffer, 1000000);
     MeshManager.addMesh(model, 'terrain' + newEntity);
     TextureManager.dirty = true;
   }
@@ -1213,8 +1235,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   protected async createWater() {
-    const width = 1000;
-    const height = 1000;
+    const width = 500;
+    const height = 500;
     const entity = this.ecs.createEntity();
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1225,49 +1247,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     model.addPlane(1, width, height);
     MeshManager.addMesh(model, 'water');
     //Add all components
+    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Mesh>(
       entity,
       new Mesh(width, height, 'water', 'water'),
     );
+    this.ecs.addComponent<Name>(entity, new Name('Water'));
     this.ecs.addComponent<Material>(entity, new Material('water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
-    this.ecs.addComponent<Name>(entity, new Name('Water'));
-    this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Water>(entity, new Water());
   }
 
   protected async addGrass() {
-    const grassBuffer = new BufferLayout();
-    grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    grassBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    grassBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    const shader = await ShaderManager.load(
-      'grass',
-      'grass_vertex.txt',
-      'grass_fragment.txt',
-    );
-
     const grassComponent = this.ecs.addComponent<Grass>(
       this.meshbrush.entity,
-      new Grass(),
+      new Grass(128),
     );
     this.ecs.addComponent<Material>(
       this.meshbrush.entity,
       new Material('grass'),
     );
     if (!grassComponent) return;
-    const grassModel = new Model(grassBuffer);
-    grassModel.addGrass();
-    MeshManager.addMesh(grassModel, 'grass');
-    const instanceBuffer = new BufferLayout();
-    instanceBuffer.add(
-      3,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    MeshManager.addInstanceMesh('grass', instanceBuffer, 100);
   }
 
   loop() {

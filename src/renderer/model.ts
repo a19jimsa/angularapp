@@ -468,9 +468,9 @@ export class Model {
 
   addGrass() {
     const width = 1; // 1 quad i bredd
-    const height = 5; // 5 quads i höjd
-    const sizeX = 1; // bredd på hela strået
-    const sizeY = 3; // höjd på hela strået
+    const height = 10; // 5 quads i höjd
+    const sizeX = 0.2; // bredd på hela strået
+    const sizeY = 1; // höjd på hela strået
     let index = 0;
     for (let y = 0; y <= height; y++) {
       const v = y / height;

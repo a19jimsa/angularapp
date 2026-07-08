@@ -105,7 +105,7 @@ void main() {
 
    vec3 result = (ambient + diffuse) * splatColor.rgb;
 
-   float fogFactor = smoothstep(0.0 , 30000.0 * u_fogPower, v_fogDistance);
+   float fogFactor = smoothstep(0.0 , 500.0 * u_fogPower, v_fogDistance);
    vec3 fogColor = u_fogColor;
    vec3 color = mix(result, fogColor, fogFactor);
 
@@ -113,7 +113,7 @@ void main() {
 
    //Brush size and position
    vec2 position = u_brushUV;
-   vec2 size = vec2(u_brushSize * 0.002); // hur stor brushen ska vara
+   vec2 size = vec2(u_brushSize * 0.01); // hur stor brushen ska vara
    vec2 brushUV = (v_texcoord - position) / size + 0.5;
 
    if(brushUV.x >= 0.0 && brushUV.x <= 1.0 &&

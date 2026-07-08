@@ -44,7 +44,7 @@ vec3 rotateZ(float angle, vec3 pos){
 
 void main() {
     v_random_Id = hash(float(gl_InstanceID)) * 6.28318530718;
-    float sway = sin(u_time * 0.2 + (a_offset.x) * 0.1);
+    float sway = sin(u_time + (a_offset.x));
     v_height = a_position.y;
     // Slumpa en vinkel mellan 0 och 2π
     float angle = hash(float(gl_InstanceID)) * 6.28318530718;

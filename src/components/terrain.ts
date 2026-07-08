@@ -3,14 +3,22 @@ import { Component } from './component';
 
 export class Terrain extends Component {
   override type: string = 'Terrain';
-  tiling: number = 0.01;
+  tiling: number = 1;
   fogPower: number = 10.0;
   fogColor: vec3 = vec3.fromValues(0, 0, 0);
   heights: Map<number, number>;
   dirty = false;
-  constructor() {
+  width: number;
+  depth: number;
+  height: number;
+
+  constructor
+  (width: number, depth: number, height: number) {
     super();
     this.heights = new Map();
+    this.width = width;
+    this.depth = depth;
+    this.height = height;
   }
 
   serialize() {

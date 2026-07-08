@@ -314,24 +314,24 @@ export class RenderSystem {
           shader.setVec3('u_color', water.color);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
-        if (!vao) throw new Error('Vao not found');
+        if (!vao) throw new Error('VAO not found');
         Renderer.drawIndexed(vao);
       }
 
       if (grass) {
-        if (grass.meshId !== 'grass') throw new Error('Mesh is not grass!');
         const shader = ShaderManager.getShader(grass.meshId);
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
-        shader.setFloat('u_time', performance.now() * 0.001);
+        shader.setFloat('u_time', performance.now() * 0.01);
         shader.setVec3('u_cameraPos', cameraPos);
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.position);
           shader.setVec3('light.ambient', light.ambient);
           shader.setVec3('light.diffuse', light.diffuse);
+          shader.setVec3('light.direction', light.direction);
         }
         shader.setVec3('material.ambient', material.ambient);
         shader.setVec3('material.diffuse', material.diffuse);

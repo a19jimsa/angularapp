@@ -1,6 +1,5 @@
 import { SceneManager } from 'src/scene/scene-manager';
 import { Component } from './component';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 
 export class Splatmap extends Component {
   override type: string = 'Splatmap';

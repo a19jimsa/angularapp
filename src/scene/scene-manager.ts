@@ -30,7 +30,7 @@ export class SceneManager {
           ecs.addComponent<Splatmap>(entity, splatmap);
         } else if (type === 'Terrain') {
           const newData = data as Terrain;
-          const terrain = new Terrain();
+          const terrain = new Terrain(500, 500, 500);
           terrain.deserialize(terrain, newData);
           ecs.addComponent<Terrain>(entity, terrain);
         } else if (type === 'Name') {

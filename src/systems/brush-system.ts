@@ -16,9 +16,7 @@ import {
 import { BrushImage } from 'src/components/brush-image';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
-import { Name } from 'src/components/name';
 import { Splatmap } from 'src/components/splatmap';
-import { Sprite2D } from 'src/components/sprite2D';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
@@ -75,18 +73,10 @@ export class BrushSystem {
           ),
           ecs,
         );
-      } else if (meshBrush.type === ToolBrush.Grass) {
-        //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
-        this.grassBrushWithImage(
-          ecs,
-          meshBrush,
-          vertices[index],
-          vertices[index + 1],
-          vertices[index + 2],
-        );
       } else if (meshBrush.type === ToolBrush.Trees) {
         this.treeBrush(
           ecs,
+          meshBrush,
           vertices[index],
           vertices[index + 1],
           vertices[index + 2],
@@ -101,6 +91,7 @@ export class BrushSystem {
           vertices[index + 3],
           vertices[index + 4],
         );
+        this.updateGrassMap(ecs, meshBrush);
       }
     }
   }
@@ -247,39 +238,56 @@ export class BrushSystem {
     }
   }
 
-  private grassBrush(
+  private treeBrush(
     ecs: Ecs,
+    meshBrush: Brush,
     x: number,
     y: number,
     z: number,
-    mesh: Mesh,
-    meshBrush: Brush,
   ) {
-    for (const entity of ecs.getEntities()) {
-      const grass = ecs.getComponent<Grass>(entity, 'Grass');
-      if (grass) {
-        const radius = meshBrush.radius;
-        for (let j = -radius; j < meshBrush.radius; j++) {
-          for (let i = -radius; i < meshBrush.radius; i++) {
-            if (j * j + i * i <= radius * radius) {
-              if (grass.positions.length > grass.maxAmount) return;
-              //grass.positions.push(x * 2 + j * 0.5, y, z * 2 + i * 0.5);
-            }
+    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+    const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
+    if (!splatmap || !tree) return;
+  }
+
+  private updateGrassMap(ecs: Ecs, meshBrush: Brush) {
+    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+    const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+    if (!splatmap || !grass || !terrain) return;
+    grass.amount = 0;
+    const grassPositions = new Array();
+    //Splatmap is a image basically
+    for (let z = 0; z < splatmap.size; z++) {
+      for (let x = 0; x < splatmap.size; x++) {
+        const splatmapIndex = (z * splatmap.size + x) * 4;
+        const r = splatmap.coords[splatmapIndex + 0];
+        const g = splatmap.coords[splatmapIndex + 1];
+        const b = splatmap.coords[splatmapIndex + 2];
+        const a = splatmap.coords[splatmapIndex + 3];
+        const dx = x;
+        const dz = z;
+        const density = 0.05; // gräs per m²
+        if (g === 255) {
+          const worldX = (dx / 128) * terrain.width;
+          const worldZ = (dz / 128) * terrain.depth;
+
+          for (let i = 0; i < 500; i++) {
+            if (grass.amount >= grass.maxAmount) return;
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.sqrt(Math.random()) * meshBrush.radius;
+
+            const grassX = worldX + Math.cos(angle) * distance;
+            const grassZ = worldZ + Math.sin(angle) * distance;
+
+            grass.amount++;
+            grassPositions.push(grassX, 1, grassZ);
           }
         }
       }
     }
-  }
-
-  private treeBrush(ecs: Ecs, x: number, y: number, z: number) {
-    const tree = ecs.createEntity();
-    ecs.addComponent<Transform3D>(
-      tree,
-      new Transform3D(x * 10 - 512, y * 10, z * 10),
-    );
-    ecs.addComponent<Tree>(tree, new Tree(1024, 1024, 1));
-    ecs.addComponent<Sprite2D>(tree, new Sprite2D('batch', 1024, 1024));
-    ecs.addComponent<Name>(tree, new Name('Tree'));
+    grass.positions.set(grassPositions);
   }
 
   private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
@@ -412,123 +420,12 @@ export class BrushSystem {
     }
   }
 
-  private paintCircle(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
-    const alpha = meshBrush.alpha;
-    const radius = meshBrush.radius;
-    const splatColor = meshBrush.color;
-    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
-    if (splatmap) {
-      const texX = Math.floor(uv0 * splatmap.size); // Omvandla u till texel X
-      const texZ = Math.floor(uv1 * splatmap.size); // Omvandla v till texel Y
-      for (let z = -radius; z <= radius; z++) {
-        for (let x = -radius; x <= radius; x++) {
-          const dx = x;
-          const dz = z;
-          if (dx * dx + dz * dz <= radius * radius) {
-            const px = texX + dx;
-            const pz = texZ + dz;
-            //To not draw outside of width and height
-
-            const idx = (pz * splatmap.size + px) * 4;
-            const distance = Math.sqrt(dx * dx + dz * dz);
-            const strength = 255 * alpha * (1 - distance / radius);
-            if (splatColor === 'red') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] + strength,
-                255,
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255,
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255,
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255,
-              );
-            } else if (splatColor === 'green') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255,
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] + strength,
-                255,
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255,
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255,
-              );
-            } else if (splatColor === 'blue') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255,
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255,
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] + strength,
-                255,
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] - strength,
-                255,
-              );
-            } else if (splatColor === 'alpha') {
-              //Red
-              splatmap.coords[idx + 0] = Math.min(
-                splatmap.coords[idx + 0] - strength,
-                255,
-              );
-              //Green
-              splatmap.coords[idx + 1] = Math.min(
-                splatmap.coords[idx + 1] - strength,
-                255,
-              );
-              //Blue
-              splatmap.coords[idx + 2] = Math.min(
-                splatmap.coords[idx + 2] - strength,
-                255,
-              );
-              //Alpha
-              splatmap.coords[idx + 3] = Math.min(
-                splatmap.coords[idx + 3] + strength,
-                255,
-              );
-            }
-          }
-        }
-      }
-    }
-  }
-
   private heightBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
-    const imageData = this.getImageData(meshBrush.image, 1);
-    if (!imageData) throw new Error('Could not get image data!');
-    const brushRadius = meshBrush.radius;
+    const brushRadius = meshBrush.radius * 2;
     const brushStrength = meshBrush.strength;
-    const fallOff = meshBrush.fallOff;
+    const imageData = this.getImageData(meshBrush.image, 0.5);
+    if (!imageData) throw new Error('Could not get image data!');
+
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
