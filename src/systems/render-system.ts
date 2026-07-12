@@ -26,6 +26,7 @@ import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { TrailRenderer } from 'src/components/trail-renderer';
 
 type Sprite = {
   position: Transform3D;
@@ -340,6 +341,24 @@ export class RenderSystem {
         const vertexArray = MeshManager.getMesh(grass.meshId);
         if (!vertexArray) throw new Error('Mesh is not grass');
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
+      }
+      const trailRenderer = ecs.getComponent<TrailRenderer>(
+        entity,
+        'TrailRenderer',
+      );
+      if (trailRenderer) {
+        const shader = ShaderManager.getShader('trail');
+        if (!shader) throw new Error('Could not get shader trail');
+        shader.bind();
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix(),
+        );
+        const vertexArray = MeshManager.getMesh(trailRenderer.meshId);
+        if (!vertexArray)
+          throw new Error('Mesh is not trail' + trailRenderer.meshId);
+        Renderer.drawStrip(vertexArray);
+        shader.unbind();
       }
 
       //Render particles

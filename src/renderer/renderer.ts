@@ -96,6 +96,24 @@ export class Renderer {
     vertexArray.unbind();
   }
 
+  static drawStrip(vertexArray: VertexArray) {
+    vertexArray.bind();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
+    this.gl.bufferSubData(
+      this.gl.ARRAY_BUFFER,
+      0,
+      vertexArray.vertexBuffer.vertices,
+    );
+    this.gl.disable(this.gl.CULL_FACE);
+    this.gl.drawArrays(
+      this.gl.TRIANGLE_STRIP,
+      0,
+      vertexArray.vertexBuffer.vertices.length / 3,
+    );
+    this.gl.enable(this.gl.CULL_FACE);
+    vertexArray.unbind();
+  }
+
   static drawLines(vertexArray: VertexArray) {
     vertexArray.bind();
     this.gl.drawElements(
@@ -104,6 +122,7 @@ export class Renderer {
       this.gl.UNSIGNED_SHORT,
       0,
     );
+    vertexArray.unbind();
   }
 
   static end(camera: PerspectiveCamera | OrtographicCamera) {}

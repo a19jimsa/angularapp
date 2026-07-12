@@ -80,6 +80,8 @@ import { AnimationPlayer, Keyframe, Track } from 'src/core/animation-player';
 import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
+import { TrailRenderer } from 'src/components/trail-renderer';
+import { TrailRendererSystem } from 'src/systems/trail-renderer-system';
 
 type IsSelected = {
   select: boolean;
@@ -190,6 +192,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   movementSystem: MovementSystem = new MovementSystem();
   animationSystem: AnimationSystem = new AnimationSystem();
   particleEmitterSystem: ParticleEmitterSystem = new ParticleEmitterSystem();
+  trailSystem: TrailRendererSystem = new TrailRendererSystem();
 
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
@@ -593,6 +596,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('beam', 'beam_vertex.txt', 'beam_fragment.txt');
 
     await ShaderManager.load('wave', 'wave_vertex.txt', 'wave_fragment.txt');
+
+    await ShaderManager.load('trail', 'trail_vertex.txt', 'trail_fragment.txt');
   }
 
   async loadAllTextures() {}
@@ -1343,6 +1348,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
     this.animationPlayerSystem.update(this.ecs);
     this.particleEmitterSystem.update(this.ecs);
+    this.trailSystem.update(this.ecs);
     if (this.animationPlayer.playing) {
       this.updateAnimationPlayer();
     }
@@ -1805,5 +1811,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     if (!particleEmitter) return;
     particleEmitter.subEmitter = subEmitter;
+  }
+
+  addTrailRendererComponent() {
+    const buffer = new BufferLayout();
+    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const model = new Model(buffer);
+    model.vertices = new Array(30000);
+    MeshManager.addMesh(model, 'trail');
+    this.ecs.addComponent<TrailRenderer>(
+      this.meshbrush.entity,
+      new TrailRenderer('trail'),
+    );
   }
 }
