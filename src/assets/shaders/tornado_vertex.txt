@@ -70,7 +70,7 @@ void main() {
     float size = mix(a_sizeBegin, a_sizeEnd, t);
     pos *= size;
     pos = rotateX(pos, a_rotation.x);
-    pos = rotateY(pos, a_rotation.y * t);
+    pos = rotateY(pos, a_rotation.y);
     pos = rotateZ(pos, a_rotation.z);
     gl_Position = u_matrix * vec4(pos + a_instances, 1.0);
 }

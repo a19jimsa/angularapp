@@ -23,9 +23,9 @@ void main() {
     float t = clamp(v_age / v_lifetime, 0.0, 1.0);
     vec2 uv = v_texcoord + u_speed * u_time;
     vec4 baseColor = texture(u_texture, uv);
-    vec4 colorRamp = texture(u_textures, vec3(vec2(t, 0.5), 0));
     if(baseColor.r <= 0.05)
         discard;
+    vec4 colorRamp = texture(u_textures, vec3(vec2(t, 0.5), 0));
 
     float x = remap(colorRamp.r, 0.0, 1.0, 0.0, 0.7);
 

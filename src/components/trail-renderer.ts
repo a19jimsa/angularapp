@@ -6,7 +6,8 @@ export class TrailRenderer extends Component {
   vertices: number[] = new Array();
   lastPosition: vec3 = vec3.create();
   width: number = 2;
-  time: number = 1;
+  time: number = 0.2;
+  accumulator: number = 0;
   minVertexDistance: number = 0.1;
   emitting: boolean = true;
   color: vec3 = vec3.create();

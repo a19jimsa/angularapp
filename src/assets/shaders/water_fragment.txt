@@ -81,5 +81,5 @@ void main() {
       + ambient
       + waterReflect;
       
-   FragColor = vec4(result, 0.8);
+   FragColor = vec4(result, 0.5);
 }

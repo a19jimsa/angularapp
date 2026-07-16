@@ -87,12 +87,12 @@ void main() {
       ground_color * splat.a;
    
    vec3 splatNormal =
-      worldNormal.rgb * splat.r +
-      worldNormal.rgb * splat.g +
-      worldNormal.rgb * splat.b +
-      ground_normal.rgb * splat.a;
+      worldNormal * splat.r +
+      worldNormal * splat.g +
+      worldNormal * splat.b +
+      (ground_normal.rgb + worldNormal) * splat.a;
 
-   vec3 normal = normalize(worldNormal + splatNormal);
+   vec3 normal = normalize(splatNormal);
 
    // ambient
    vec3 ambient = material.ambient;
@@ -123,7 +123,7 @@ void main() {
 
       float highlightMask = brush.r;
 
-      vec3 highlightColor = vec3(0.0, 0.2, 1.0); // blue
+      vec3 highlightColor = vec3(0.0, 0.2, 1.0);
 
       finalColor = mix(finalColor, highlightColor, highlightMask * 0.8);
    }

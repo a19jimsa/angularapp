@@ -960,13 +960,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const windImage = await TextureManager.loadImage(
       '/assets/textures/wind.jpg',
     );
+    const wind001Image = await TextureManager.loadImage(
+      '/assets/textures/wind_001.png',
+    );
 
     const windTexture = await TextureManager.addTexture(
       'tornado',
       'u_texture',
-      healing1,
+      wind001Image,
       'tornado',
       true,
+    );
+    const windTexture2 = await TextureManager.addTexture(
+      'tornado',
+      'u_texture2',
+      healing1,
+      'tornado',
+      false,
     );
   }
 
@@ -1433,7 +1443,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 10;
+    const speed = 5;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1609,7 +1619,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addLightning(10, 10, 10);
+    model.addCone();
     MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
@@ -1685,7 +1695,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
-        'lightning',
+        'tornado',
         'particleEmitter' + entity,
         100,
         instanceBuffer.amount,
