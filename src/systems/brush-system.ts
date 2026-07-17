@@ -82,16 +82,35 @@ export class BrushSystem {
           vertices[index + 2],
         );
       } else if (meshBrush.type === ToolBrush.Splat) {
+        const splatmap = ecs.getComponent<Splatmap>(
+          meshBrush.entity,
+          'Splatmap',
+        );
+        if (!splatmap) return;
         if (brushImage) {
           brushImage.size = meshBrush.radius;
         }
         this.paintImage(
           ecs,
+          splatmap.size,
+          splatmap.coords,
           meshBrush,
           vertices[index + 3],
           vertices[index + 4],
         );
-        this.updateGrassMap(ecs, meshBrush);
+      } else if (meshBrush.type === ToolBrush.Grass) {
+        const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+        if (!grass) return;
+
+        this.paintImage(
+          ecs,
+          grass.size,
+          grass.coords,
+          meshBrush,
+          vertices[index + 3],
+          vertices[index + 4],
+        );
+        this.drawGrass(ecs, meshBrush);
       }
     }
   }
@@ -250,21 +269,20 @@ export class BrushSystem {
     if (!splatmap || !tree) return;
   }
 
-  private updateGrassMap(ecs: Ecs, meshBrush: Brush) {
-    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+  private drawGrass(ecs: Ecs, meshBrush: Brush) {
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!splatmap || !grass || !terrain) return;
+    if (!grass || !terrain) return;
     grass.amount = 0;
     const grassPositions = new Array();
     //Splatmap is a image basically
-    for (let z = 0; z < splatmap.size; z++) {
-      for (let x = 0; x < splatmap.size; x++) {
-        const splatmapIndex = (z * splatmap.size + x) * 4;
-        const r = splatmap.coords[splatmapIndex + 0];
-        const g = splatmap.coords[splatmapIndex + 1];
-        const b = splatmap.coords[splatmapIndex + 2];
-        const a = splatmap.coords[splatmapIndex + 3];
+    for (let z = 0; z < grass.size; z++) {
+      for (let x = 0; x < grass.size; x++) {
+        const splatmapIndex = (z * grass.size + x) * 4;
+        const r = grass.coords[splatmapIndex + 0];
+        const g = grass.coords[splatmapIndex + 1];
+        const b = grass.coords[splatmapIndex + 2];
+        const a = grass.coords[splatmapIndex + 3];
         const dx = x;
         const dz = z;
         const density = 0.05; // gräs per m²
@@ -282,7 +300,7 @@ export class BrushSystem {
             const grassZ = worldZ + Math.sin(angle) * distance;
 
             grass.amount++;
-            grassPositions.push(grassX, 1, grassZ);
+            grassPositions.push(grassX, 0, grassZ);
           }
         }
       }
@@ -290,134 +308,133 @@ export class BrushSystem {
     grass.positions.set(grassPositions);
   }
 
-  private paintImage(ecs: Ecs, meshBrush: Brush, uv0: number, uv1: number) {
-    //const alpha = meshBrush.alpha;
+  private paintImage(
+    ecs: Ecs,
+    size: number,
+    coords: Uint8ClampedArray,
+    meshBrush: Brush,
+    uv0: number,
+    uv1: number,
+  ) {
     const radius = meshBrush.radius * 0.01;
     const splatColor = meshBrush.color;
-    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+    const image = this.getImageData(meshBrush.image, radius);
+    if (!image) return;
+    const texX = Math.floor(uv0 * size) - Math.floor(image.width / 2);
+    const texZ = Math.floor(uv1 * size) - Math.floor(image.height / 2);
+    const splatmapList: SplatBrush[] = [];
+    for (let y = 0; y < image.height; y++) {
+      for (let x = 0; x < image.width; x++) {
+        const dx = texX + x;
+        const dz = texZ + y;
+        const splatmapIndex = (dz * size + dx) * 4;
+        const imageIndex = (y * image.width + x) * 4;
+        const red = image.data[imageIndex];
+        const color = red; // 0-255 Om vandla svart till färg. 255 om svart
+        if (splatColor === 'red') {
+          const r = coords[splatmapIndex + 0];
+          const g = coords[splatmapIndex + 1];
+          const b = coords[splatmapIndex + 2];
+          const a = coords[splatmapIndex + 3];
+          // öka r
+          let nr = Math.min(r + color, 255);
 
-    if (splatmap) {
-      const image = this.getImageData(meshBrush.image, radius);
-      if (!image) return;
-      const texX =
-        Math.floor(uv0 * splatmap.size) - Math.floor(image.width / 2);
-      const texZ =
-        Math.floor(uv1 * splatmap.size) - Math.floor(image.height / 2);
-      const splatmapList: SplatBrush[] = [];
-      for (let y = 0; y < image.height; y++) {
-        for (let x = 0; x < image.width; x++) {
-          const dx = texX + x;
-          const dz = texZ + y;
-          const splatmapIndex = (dz * splatmap.size + dx) * 4;
-          const imageIndex = (y * image.width + x) * 4;
-          const red = image.data[imageIndex];
-          const color = red; // 0-255 Om vandla svart till färg. 255 om svart
-          if (splatColor === 'red') {
-            const r = splatmap.coords[splatmapIndex + 0];
-            const g = splatmap.coords[splatmapIndex + 1];
-            const b = splatmap.coords[splatmapIndex + 2];
-            const a = splatmap.coords[splatmapIndex + 3];
-            // öka r
-            let nr = Math.min(r + color, 255);
+          // hur mycket som "saknas"
+          const delta = nr - r;
 
-            // hur mycket som "saknas"
-            const delta = nr - r;
+          // fördela bort från andra kanaler
+          const sumOthers = g + b + a || 1;
 
-            // fördela bort från andra kanaler
-            const sumOthers = g + b + a || 1;
+          const ng = Math.max(g - delta * (g / sumOthers), 0);
+          const nb = Math.max(b - delta * (b / sumOthers), 0);
+          const na = Math.max(a - delta * (a / sumOthers), 0);
+          splatmapList.push({
+            index: splatmapIndex,
+            colorR: nr,
+            colorG: ng,
+            colorB: nb,
+            colorA: na,
+          });
+        } else if (splatColor === 'green') {
+          const r = coords[splatmapIndex + 0];
+          const g = coords[splatmapIndex + 1];
+          const b = coords[splatmapIndex + 2];
+          const a = coords[splatmapIndex + 3];
 
-            const ng = Math.max(g - delta * (g / sumOthers), 0);
-            const nb = Math.max(b - delta * (b / sumOthers), 0);
-            const na = Math.max(a - delta * (a / sumOthers), 0);
-            splatmapList.push({
-              index: splatmapIndex,
-              colorR: nr,
-              colorG: ng,
-              colorB: nb,
-              colorA: na,
-            });
-          } else if (splatColor === 'green') {
-            const r = splatmap.coords[splatmapIndex + 0];
-            const g = splatmap.coords[splatmapIndex + 1];
-            const b = splatmap.coords[splatmapIndex + 2];
-            const a = splatmap.coords[splatmapIndex + 3];
+          // öka r
+          let ng = Math.min(g + color, 255);
 
-            // öka r
-            let ng = Math.min(g + color, 255);
+          // hur mycket som "saknas"
+          const delta = ng - g;
 
-            // hur mycket som "saknas"
-            const delta = ng - g;
+          // fördela bort från andra kanaler
+          const sumOthers = r + b + a || 1;
 
-            // fördela bort från andra kanaler
-            const sumOthers = r + b + a || 1;
+          const nr = Math.max(r - delta * (r / sumOthers), 0);
+          const nb = Math.max(b - delta * (b / sumOthers), 0);
+          const na = Math.max(a - delta * (a / sumOthers), 0);
+          splatmapList.push({
+            index: splatmapIndex,
+            colorR: nr,
+            colorG: ng,
+            colorB: nb,
+            colorA: na,
+          });
+        } else if (splatColor === 'blue') {
+          const r = coords[splatmapIndex + 0];
+          const g = coords[splatmapIndex + 1];
+          const b = coords[splatmapIndex + 2];
+          const a = coords[splatmapIndex + 3];
 
-            const nr = Math.max(r - delta * (r / sumOthers), 0);
-            const nb = Math.max(b - delta * (b / sumOthers), 0);
-            const na = Math.max(a - delta * (a / sumOthers), 0);
-            splatmapList.push({
-              index: splatmapIndex,
-              colorR: nr,
-              colorG: ng,
-              colorB: nb,
-              colorA: na,
-            });
-          } else if (splatColor === 'blue') {
-            const r = splatmap.coords[splatmapIndex + 0];
-            const g = splatmap.coords[splatmapIndex + 1];
-            const b = splatmap.coords[splatmapIndex + 2];
-            const a = splatmap.coords[splatmapIndex + 3];
+          // öka r
+          let nb = Math.min(b + color, 255);
 
-            // öka r
-            let nb = Math.min(b + color, 255);
+          // hur mycket som "saknas"
+          const delta = nb - b;
 
-            // hur mycket som "saknas"
-            const delta = nb - b;
+          // fördela bort från andra kanaler
+          const sumOthers = r + g + a || 1;
 
-            // fördela bort från andra kanaler
-            const sumOthers = r + g + a || 1;
+          const nr = Math.max(r - delta * (r / sumOthers), 0);
+          const ng = Math.max(g - delta * (g / sumOthers), 0);
+          const na = Math.max(a - delta * (a / sumOthers), 0);
+          splatmapList.push({
+            index: splatmapIndex,
+            colorR: nr,
+            colorG: ng,
+            colorB: nb,
+            colorA: na,
+          });
+        } else if (splatColor === 'alpha') {
+          const r = coords[splatmapIndex + 0];
+          const g = coords[splatmapIndex + 1];
+          const b = coords[splatmapIndex + 2];
+          const a = coords[splatmapIndex + 3];
 
-            const nr = Math.max(r - delta * (r / sumOthers), 0);
-            const ng = Math.max(g - delta * (g / sumOthers), 0);
-            const na = Math.max(a - delta * (a / sumOthers), 0);
-            splatmapList.push({
-              index: splatmapIndex,
-              colorR: nr,
-              colorG: ng,
-              colorB: nb,
-              colorA: na,
-            });
-          } else if (splatColor === 'alpha') {
-            const r = splatmap.coords[splatmapIndex + 0];
-            const g = splatmap.coords[splatmapIndex + 1];
-            const b = splatmap.coords[splatmapIndex + 2];
-            const a = splatmap.coords[splatmapIndex + 3];
+          // öka r
+          let na = Math.min(a + color, 255);
 
-            // öka r
-            let na = Math.min(a + color, 255);
+          // hur mycket som "saknas"
+          const delta = na - a;
 
-            // hur mycket som "saknas"
-            const delta = na - a;
+          // fördela bort från andra kanaler
+          const sumOthers = r + g + b || 1;
 
-            // fördela bort från andra kanaler
-            const sumOthers = r + g + b || 1;
-
-            const nr = Math.max(r - delta * (r / sumOthers), 0);
-            const ng = Math.max(g - delta * (g / sumOthers), 0);
-            const nb = Math.max(b - delta * (b / sumOthers), 0);
-            splatmapList.push({
-              index: splatmapIndex,
-              colorR: nr,
-              colorG: ng,
-              colorB: nb,
-              colorA: na,
-            });
-          }
+          const nr = Math.max(r - delta * (r / sumOthers), 0);
+          const ng = Math.max(g - delta * (g / sumOthers), 0);
+          const nb = Math.max(b - delta * (b / sumOthers), 0);
+          splatmapList.push({
+            index: splatmapIndex,
+            colorR: nr,
+            colorG: ng,
+            colorB: nb,
+            colorA: na,
+          });
         }
       }
-      CommandManager.add(
-        new SplatBrushCommand(meshBrush.entity, ecs, splatmapList),
-      );
     }
+    //Fix generic drawable instead of splashmap?
+    CommandManager.add(new SplatBrushCommand(coords, splatmapList));
   }
 
   private heightBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {

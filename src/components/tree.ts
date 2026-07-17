@@ -4,16 +4,14 @@ export class Tree extends Component {
   override type: string = 'Tree';
   size: number = 128;
   coords: Uint8ClampedArray;
-  maxAmount: number = 100000;
+  maxAmount: number = 1000000;
   amount: number = 0;
   index: number = 0;
-  meshId: string;
   //Max grass per buffer * xyz
   positions: Float32Array = new Float32Array(this.maxAmount * 3);
-  constructor(size: number, meshId: string) {
+  constructor(size: number) {
     super();
     this.size = size;
-    this.meshId = meshId;
     //rgba
     this.coords = new Uint8ClampedArray(size * size * 4);
     for (let i = 0; i < this.coords.length; i += 4) {

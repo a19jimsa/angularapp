@@ -11,14 +11,15 @@ export class Terrain extends Component {
   width: number;
   depth: number;
   height: number;
+  size: number;
 
-  constructor
-  (width: number, depth: number, height: number) {
+  constructor(width: number, depth: number, height: number, size: number) {
     super();
     this.heights = new Map();
     this.width = width;
     this.depth = depth;
     this.height = height;
+    this.size = size;
   }
 
   serialize() {

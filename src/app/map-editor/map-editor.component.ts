@@ -82,6 +82,7 @@ import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { TrailRendererSystem } from 'src/systems/trail-renderer-system';
+import { Tree } from 'src/components/tree';
 
 type IsSelected = {
   select: boolean;
@@ -982,7 +983,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async init() {
     //Add all entities with names to the scene list to display them in the scene list
-    await this.createTerrainWithSplatmap();
+    await this.createTerrain();
+    this.createLightSource();
     this.createParticleEmitter();
     for (const entity of this.ecs.getEntities()) {
       const name = this.ecs.getComponent<Name>(entity, 'Name');
@@ -1032,13 +1034,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return this.ecs.getComponent<Name>(entity, 'Name').value;
   }
 
-  protected async createTerrainWithSplatmap() {
+  protected async createTerrain() {
     const newEntity = this.ecs.createEntity();
     const size = 128;
     const width = 500;
     const depth = 500;
     const height = 500;
-    const texture = await TextureManager.addNonImage(
+    const splatmap = await TextureManager.addNonImage(
       'terrain' + newEntity,
       size,
       size,
@@ -1065,7 +1067,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Terrain>(
       newEntity,
-      new Terrain(width, depth, height),
+      new Terrain(width, depth, height, size),
     );
     //Add mesh component to entity VAO splatmap id meshId
     this.ecs.addComponent(
@@ -1078,6 +1080,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
     this.ecs.addComponent<Grass>(newEntity, new Grass(128));
+    this.ecs.addComponent<Tree>(newEntity, new Tree(size));
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1237,8 +1240,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   createLightSource() {
     const layout = new BufferLayout();
     layout.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    layout.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    layout.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(layout);
     model.addCube();
     const entity = this.ecs.createEntity();
@@ -1246,6 +1247,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Light>(entity, new Light());
     this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'basic', 'light'));
+    this.ecs.addComponent<Material>(entity, new Material('basic'));
     MeshManager.addMesh(model, 'light');
   }
 

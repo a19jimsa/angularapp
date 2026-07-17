@@ -30,6 +30,9 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.age[i] += 0.016;
+        if (particleEmitter.loop) {
+          particleEmitter.age[i] = 0;
+        }
       }
 
       let aliveCount = 0;

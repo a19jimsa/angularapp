@@ -319,135 +319,35 @@ export class Model {
   }
 
   addCube() {
-    const hw = 10;
-    const hh = 10;
-    const hd = 10;
-
     this.vertices = [
-      // Front
-      -hw,
-      -hh,
-      hd,
-      hw,
-      -hh,
-      hd,
-      hw,
-      hh,
-      hd,
-      -hw,
-      hh,
-      hd,
+      // Front face
+      -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
 
-      // Back
-      -hw,
-      -hh,
-      -hd,
-      -hw,
-      hh,
-      -hd,
-      hw,
-      hh,
-      -hd,
-      hw,
-      -hh,
-      -hd,
+      // Back face
+      -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
 
-      // Top
-      -hw,
-      hh,
-      -hd,
-      -hw,
-      hh,
-      hd,
-      hw,
-      hh,
-      hd,
-      hw,
-      hh,
-      -hd,
+      // Top face
+      -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
 
-      // Bottom
-      -hw,
-      -hh,
-      -hd,
-      hw,
-      -hh,
-      -hd,
-      hw,
-      -hh,
-      hd,
-      -hw,
-      -hh,
-      hd,
+      // Bottom face
+      -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
 
-      // Right
-      hw,
-      -hh,
-      -hd,
-      hw,
-      hh,
-      -hd,
-      hw,
-      hh,
-      hd,
-      hw,
-      -hh,
-      hd,
+      // Right face
+      1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
 
-      // Left
-      -hw,
-      -hh,
-      -hd,
-      -hw,
-      -hh,
-      hd,
-      -hw,
-      hh,
-      hd,
-      -hw,
-      hh,
-      -hd,
+      // Left face
+      -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
     ];
 
-    // 2 triangles per face
+    // prettier-ignore
     this.indices = [
-      0,
-      1,
-      2,
-      0,
-      2,
-      3, // Front
-      4,
-      5,
-      6,
-      4,
-      6,
-      7, // Back
-      8,
-      9,
-      10,
-      8,
-      10,
-      11, // Top
-      12,
-      13,
-      14,
-      12,
-      14,
-      15, // Bottom
-      16,
-      17,
-      18,
-      16,
-      18,
-      19, // Right
-      20,
-      21,
-      22,
-      20,
-      22,
-      23, // Left
-    ];
+     0,  1,  2,      0,  2,  3,    // front
+     4,  5,  6,      4,  6,  7,    // back
+     8,  9,  10,     8,  10, 11,   // top
+     12, 13, 14,     12, 14, 15,   // bottom
+     16, 17, 18,     16, 18, 19,   // right
+     20, 21, 22,     20, 22, 23,   // left
+  ];
   }
 
   addPivot() {
