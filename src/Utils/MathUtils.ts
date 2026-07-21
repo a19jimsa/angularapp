@@ -4,6 +4,7 @@ import { Vec } from '../app/vec';
 import { HurtBox } from 'src/components/hurt-box';
 
 export class MathUtils {
+  
   static interpolateKeyframe(
     startValue: number,
     endValue: number,

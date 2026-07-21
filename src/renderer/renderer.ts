@@ -50,9 +50,9 @@ export class Renderer {
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
     gl.enable(gl.BLEND);
-    gl.depthMask(true);
+    gl.depthMask(false);
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
@@ -61,8 +61,8 @@ export class Renderer {
       count,
     );
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.depthMask(true);
     gl.enable(gl.CULL_FACE);
+    gl.depthMask(true);
     vertexArray.unbind();
   }
 

@@ -44,7 +44,7 @@ export class Track<T> {
 
   evaluate(time: number) {
     const keyframe = this.keyframes;
-    if (keyframe.length === 0) return null;
+    console.log(keyframe);
 
     for (let i = 0; i < keyframe.length - 1; i++) {
       const a = keyframe[i];
@@ -52,7 +52,6 @@ export class Track<T> {
 
       if (time >= a.time && time <= b.time) {
         const t = (time - a.time) / (b.time - a.time);
-
         const va = a.value;
         const vb = b.value;
 
@@ -78,9 +77,7 @@ export class Track<T> {
             MathUtils.interpolateKeyframe(v1[2], v2[2], t),
           );
         }
-        throw new Error('Could not evaulate any keyframe of ' + this.property);
       }
-      return keyframe[keyframe.length - 1].value;
     }
     return null;
   }

@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
@@ -13,6 +12,7 @@ export class AnimationPlayerSystem {
     player.loopedTime = player.loopedTime % player.lifetime;
     for (const track of player.tracks) {
       const value = track.evaluate(player.loopedTime);
+      if (value === null) return;
       const transform = ecs.getComponent<Transform3D>(
         track.entity,
         track.componentID,
@@ -23,7 +23,9 @@ export class AnimationPlayerSystem {
         track.property == 'scale'
       ) {
         if (!transform) continue;
-        transform[track.property] = value as vec3;
+        transform[track.property][0] = value[0];
+        transform[track.property][1] = value[1];
+        transform[track.property][2] = value[2];
       } else {
         console.log(value);
         console.log(player.loopedTime);

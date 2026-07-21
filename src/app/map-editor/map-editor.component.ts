@@ -1757,14 +1757,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  addKeyframe(type: string) {
-    const anim = this.ecs.getComponent<Animation>(
-      this.meshbrush.entity,
-      'Animation',
-    );
-    if (!anim) return;
-  }
-
   addTrack(componentID: string, property: string, item: any) {
     const track = this.animationPlayer.tracks.find(
       (e) =>
@@ -1773,7 +1765,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         e.property === property,
     );
     if (track) {
-      track.keyframes.push({ value: item[property], time: 0 });
+      console.log(item);
+      track.keyframes.push({ value: { ...item[property] }, time: 0 });
     } else {
       const component = this.ecs.getComponent(
         this.meshbrush.entity,
@@ -1803,6 +1796,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const position = (x * amount) / width;
     keyframe.time = position;
     console.log(keyframe);
+  }
+
+  setLoopedTime(event: CdkDragEnd) {
+    const x = event.source.getFreeDragPosition().x;
+    const width = this.timeline.nativeElement.clientWidth;
+    const zoom = this.animationPlayer.zoom;
+    const amount = zoom / 10;
+    const position = (x * amount) / width;
+    this.animationPlayer.loopedTime = position;
   }
 
   @ViewChild('cursor')
@@ -1859,5 +1861,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         position: boxWidth * i,
       });
     }
+  }
+
+  onRemove(track: Track<any>, $index: number) {
+    track.keyframes.splice($index, 1);
   }
 }

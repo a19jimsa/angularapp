@@ -147,11 +147,7 @@
                         mat-fab
                         class="col-3"
                         (click)="
-                          addTrack(
-                            transform.type,
-                            'position',
-                            transform.position
-                          )
+                          addTrack(transform.type, 'position', transform)
                         "
                       >
                         <mat-icon>key</mat-icon>
@@ -177,9 +173,7 @@
                       <button
                         mat-fab
                         class="col-3"
-                        (click)="
-                          addTrack(transform.type, 'scale', transform.scale)
-                        "
+                        (click)="addTrack(transform.type, 'scale', transform)"
                       >
                         <mat-icon>key</mat-icon>
                       </button>
@@ -204,11 +198,7 @@
                         mat-fab
                         class="col-3"
                         (click)="
-                          addTrack(
-                            transform.type,
-                            'rotation',
-                            transform.rotation
-                          )
+                          addTrack(transform.type, 'rotation', transform)
                         "
                       >
                         <mat-icon>key</mat-icon>
@@ -329,7 +319,9 @@
                       </mat-slider>
                     </div>
                     <div class="row justify-content-center">
-                      <div class="col-12">
+                      <div
+                        class="col-12 d-flex justify-content-center gap-2 p-2"
+                      >
                         <button
                           matMiniFab
                           aria-label="Example icon button with a menu icon"
@@ -1474,12 +1466,12 @@
                   cdkDragLockAxis="x"
                   cdkDragBoundary=".timeline"
                   [cdkDragFreeDragPosition]="position"
+                  (cdkDragEnded)="setLoopedTime($event)"
                   cdkDrag
                 ></div>
               </div>
             </div>
             <div class="col-2">
-              {{ animationPlayer.loopedTime }}
               <mat-form-field class="w-100">
                 <mat-label>Time</mat-label>
                 <input
@@ -1509,6 +1501,7 @@
                       cdkDragLockAxis="x"
                       cdkDragBoundary=".track"
                       (cdkDragEnded)="onDropped($event, keyframe, $index)"
+                      (dblclick)="onRemove(track, $index)"
                       cdkDrag
                     ></div>
                   }
