@@ -61,20 +61,20 @@ export class ParticleEmitterSystem {
       particleEmitter.spawnAccumulator += 0.016;
       if (particleEmitter.emitting) {
         this.emit(particleEmitter);
+        particleEmitter.poolIndex =
+          (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
+          particleEmitter.amount;
       }
-      particleEmitter.poolIndex =
-        (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
-        particleEmitter.amount;
     }
   }
 
-  spawnSubParticles(particleEmitter: ParticleEmitter) {
+  spawnSubParticles(particleSubEmitter: ParticleEmitter) {
     //Trigger sub particles
-    for (let i = 0; i < particleEmitter.amount; i++) {
-      const spawnedParticles = this.spawnParticles(particleEmitter);
-      particleEmitter.poolIndex =
-        (particleEmitter.poolIndex - 1 + particleEmitter.maxParticles) %
-        particleEmitter.maxParticles;
+    for (let i = 0; i < particleSubEmitter.amount; i++) {
+      this.spawnParticles(particleSubEmitter);
+      particleSubEmitter.poolIndex =
+        (particleSubEmitter.poolIndex - 1 + particleSubEmitter.maxParticles) %
+        particleSubEmitter.maxParticles;
     }
   }
 
@@ -82,9 +82,11 @@ export class ParticleEmitterSystem {
   emit(particleEmitter: ParticleEmitter) {
     if (particleEmitter.spawnAccumulator >= particleEmitter.spawnRate) {
       this.spawnParticles(particleEmitter);
+
       if (particleEmitter.subEmitter) {
         this.spawnSubParticles(particleEmitter.subEmitter);
       }
+
       particleEmitter.spawnAccumulator -= particleEmitter.spawnRate;
     }
   }
@@ -152,6 +154,7 @@ export class ParticleEmitterSystem {
         MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
           particleProp.rotation[2],
       );
+
       return 1;
     }
     return 0;

@@ -28,7 +28,6 @@ export class AnimationPlayerSystem {
         transform[track.property][2] = value[2];
       } else {
         console.log(value);
-        console.log(player.loopedTime);
         track.target[track.property] = value;
       }
     }

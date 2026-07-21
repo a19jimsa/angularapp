@@ -1766,7 +1766,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     if (track) {
       console.log(item);
-      track.keyframes.push({ value: { ...item[property] }, time: 0 });
+      if (
+        property === 'position' ||
+        property === 'rotation' ||
+        property === 'scale'
+      ) {
+        track.keyframes.push({ value: { ...item[property] }, time: 0 });
+      } else {
+        track.keyframes.push({ value: item[property], time: 0 });
+      }
     } else {
       const component = this.ecs.getComponent(
         this.meshbrush.entity,
