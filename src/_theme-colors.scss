@@ -162,4 +162,10 @@ body.dark-mode {
       container-text-color: var(--mat-sys-primary),
     )
   );
+  @include mat.form-field-overrides(
+    (
+      container-height: 10px,
+      container-vertical-padding: 10px,
+    )
+  );
 }

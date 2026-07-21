@@ -891,7 +891,7 @@
                     <mat-checkbox
                       class="example-margin"
                       [(ngModel)]="particleEmitter.oneShot"
-                      >One Sot</mat-checkbox
+                      >One Shot</mat-checkbox
                     >
                   </section>
                   <div class="d-flex flex-column justify-content-center">
@@ -907,6 +907,20 @@
                       <input
                         matSliderThumb
                         [(ngModel)]="particleEmitter.particleProp.lifetime"
+                      />
+                    </mat-slider>
+                    <div class="example-label-container">
+                      <label id="example-name-label" class="example-name-label"
+                        >Spawn Rate</label
+                      >
+                      <label class="example-value-label">{{
+                        particleEmitter.spawnRate
+                      }}</label>
+                    </div>
+                    <mat-slider min="0" max="100" step="0.1">
+                      <input
+                        matSliderThumb
+                        [(ngModel)]="particleEmitter.spawnRate"
                       />
                     </mat-slider>
                   </div>
@@ -1413,15 +1427,13 @@
         </mat-card-content>
       </mat-card>
     </div>
+
     <div class="col-6">
-      <mat-card>
+      <mat-card class="h-100">
         <mat-card-header>
           <div class="row">
-            <div
-              class="col-12 d-flex justify-content-around row-direction align-items-center"
-            >
-              <h2>Animation Player</h2>
-              <h2>{{ animationPlayer.lifetime }}</h2>
+            <div class="col-10"><h2>Animation Player</h2></div>
+            <div class="col-2">
               <mat-form-field>
                 <mat-label>Name</mat-label>
                 <mat-select>
@@ -1443,8 +1455,18 @@
                 <button matIconButton><mat-icon>stop</mat-icon></button>
               </div>
             </div>
-            <div class="col-10">
-              <div class="timeline" id="timeline" #timeline>
+            <div class="col-8">
+              <div class="timeline border" id="timeline" #timeline>
+                <div class="colorBox" #colorBox></div>
+                @for (item of animationPlayer.timelines; track $index) {
+                  <div
+                    class="timeBox"
+                    [style.left.px]="item.position"
+                    [style.width.px]="item.width"
+                  >
+                    {{ item.value }}
+                  </div>
+                }
                 <div
                   #cursor
                   style="width: 10px; color: blue; position: absolute"
@@ -1456,14 +1478,29 @@
                 ></div>
               </div>
             </div>
+            <div class="col-2">
+              {{ animationPlayer.loopedTime }}
+              <mat-form-field class="w-100">
+                <mat-label>Time</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [(ngModel)]="animationPlayer.lifetime"
+                  (change)="animationPlayerZoom()"
+                />
+              </mat-form-field>
+            </div>
           </div>
-
+          <div class="row">
+            <div class="col-2">Add Track</div>
+            <div class="col-8">Timeline</div>
+          </div>
           <div class="row">
             @for (track of animationPlayer.tracks; track $index) {
               <div class="col-2">
                 {{ track.componentID }} {{ track.property }}
               </div>
-              <div class="col-10">
+              <div class="col-8">
                 <div class="track">
                   @for (keyframe of track.keyframes; track $index) {
                     <div
@@ -1478,6 +1515,21 @@
                 </div>
               </div>
             }
+          </div>
+          <div class="row border">
+            <div class="col-12">
+              <div class="example-label-container">
+                <label id="example-name-label" class="example-name-label"
+                  >Zoom</label
+                >
+                <label class="example-value-label">{{
+                  animationPlayer.zoom
+                }}</label>
+              </div>
+              <mat-slider min="100" max="500" step="1">
+                <input matSliderThumb [(ngModel)]="animationPlayer.zoom" />
+              </mat-slider>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>

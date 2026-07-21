@@ -3,12 +3,20 @@ import { Entity } from 'src/app/entity';
 import { Component } from 'src/components/component';
 import { MathUtils } from 'src/Utils/MathUtils';
 
+type TimeBox = {
+  width: number;
+  value: number;
+  position: number;
+};
+
 export class AnimationPlayer {
   name: string;
   tracks: Track<any>[] = [];
   loopedTime: number = 0;
   lifetime: number = 0;
   playing: boolean = false;
+  zoom: number = 100;
+  timelines: TimeBox[] = new Array();
 
   constructor(name: string) {
     this.name = name;
@@ -35,12 +43,12 @@ export class Track<T> {
   }
 
   evaluate(time: number) {
-    const kf = this.keyframes;
-    if (kf.length === 0) return null;
+    const keyframe = this.keyframes;
+    if (keyframe.length === 0) return null;
 
-    for (let i = 0; i < kf.length - 1; i++) {
-      const a = kf[i];
-      const b = kf[i + 1];
+    for (let i = 0; i < keyframe.length - 1; i++) {
+      const a = keyframe[i];
+      const b = keyframe[i + 1];
 
       if (time >= a.time && time <= b.time) {
         const t = (time - a.time) / (b.time - a.time);
@@ -53,7 +61,7 @@ export class Track<T> {
         }
 
         if (typeof va === 'boolean') {
-          return t > 0.5 ? vb : va;
+          return time >= b.time ? vb : va;
         }
 
         if (
@@ -72,7 +80,7 @@ export class Track<T> {
         }
         throw new Error('Could not evaulate any keyframe of ' + this.property);
       }
-      return kf[kf.length - 1].value;
+      return keyframe[keyframe.length - 1].value;
     }
     return null;
   }

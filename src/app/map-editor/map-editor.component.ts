@@ -1798,8 +1798,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   ) {
     const x = event.source.getFreeDragPosition().x;
     const width = this.timeline.nativeElement.clientWidth;
-    keyframe.time = x / width;
-    this.animationPlayer.lifetime = x / width;
+    const zoom = this.animationPlayer.zoom;
+    const amount = zoom / 10;
+    const position = (x * amount) / width;
+    keyframe.time = position;
+    console.log(keyframe);
   }
 
   @ViewChild('cursor')
@@ -1808,11 +1811,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   timeline!: ElementRef<HTMLDivElement>;
   updateAnimationPlayer() {
     const currentTime = this.animationPlayer.loopedTime;
-    const duration = this.animationPlayer.lifetime;
     const width = this.timeline.nativeElement.clientWidth;
-    const x = (currentTime % duration) * 300;
+    const zoom = this.animationPlayer.zoom;
+    const amount = zoom / 10;
+    const position = (width / amount) * currentTime;
 
-    this.position = { x, y: 0 };
+    this.position = { x: position, y: 0 };
     this.cdr.detectChanges();
   }
 
@@ -1835,5 +1839,25 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       new TrailRenderer('trail'),
     );
+  }
+
+  @ViewChild('colorBox')
+  colorBox!: ElementRef<HTMLDivElement>;
+  animationPlayerZoom() {
+    const width = this.timeline.nativeElement.clientWidth;
+    const zoom = this.animationPlayer.zoom;
+    const time = this.animationPlayer.lifetime;
+    const amount = zoom / 10;
+    const colorWidth = (width / amount) * time;
+    this.colorBox.nativeElement.style.width = colorWidth + 'px';
+    this.animationPlayer.timelines = [];
+    for (let i = 0; i < amount; i++) {
+      const boxWidth = width / amount;
+      this.animationPlayer.timelines.push({
+        width: boxWidth,
+        value: i,
+        position: boxWidth * i,
+      });
+    }
   }
 }

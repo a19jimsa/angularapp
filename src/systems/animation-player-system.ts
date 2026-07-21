@@ -10,9 +10,9 @@ export class AnimationPlayerSystem {
     if (!player.playing) return;
     //dt maybe later or fixed time
     player.loopedTime += 0.016;
-    const time = player.loopedTime % player.lifetime;
+    player.loopedTime = player.loopedTime % player.lifetime;
     for (const track of player.tracks) {
-      const value = track.evaluate(time);
+      const value = track.evaluate(player.loopedTime);
       const transform = ecs.getComponent<Transform3D>(
         track.entity,
         track.componentID,
@@ -26,6 +26,7 @@ export class AnimationPlayerSystem {
         transform[track.property] = value as vec3;
       } else {
         console.log(value);
+        console.log(player.loopedTime);
         track.target[track.property] = value;
       }
     }

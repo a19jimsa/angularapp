@@ -48,6 +48,18 @@ canvas {
 
 .timeline {
   width: 100%;
+  height: 50px;
+  position: relative;
+}
+
+.timeBox {
+  position: absolute;
+  height: 50px;
+  border: 1px solid white;
+}
+
+.colorBox {
+  position: absolute;
   height: 100%;
-  background-color: grey;
+  background-color: blue;
 }

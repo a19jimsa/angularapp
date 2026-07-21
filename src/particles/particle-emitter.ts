@@ -66,6 +66,7 @@ export class ParticleEmitter extends Component {
   aliveCount: number = 0;
   particles: Float32Array;
   particleProp: ParticleProp;
+  spawnRate: number = 0.5;
   spawnAccumulator: number = 0;
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);

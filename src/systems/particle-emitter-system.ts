@@ -80,12 +80,12 @@ export class ParticleEmitterSystem {
 
   //Activate particles from the deadpool
   emit(particleEmitter: ParticleEmitter) {
-    if (particleEmitter.spawnAccumulator <= 0.5) {
+    if (particleEmitter.spawnAccumulator >= particleEmitter.spawnRate) {
       this.spawnParticles(particleEmitter);
-      particleEmitter.spawnAccumulator -= 0.5;
-    }
-    if (particleEmitter.subEmitter) {
-      this.spawnSubParticles(particleEmitter.subEmitter);
+      if (particleEmitter.subEmitter) {
+        this.spawnSubParticles(particleEmitter.subEmitter);
+      }
+      particleEmitter.spawnAccumulator -= particleEmitter.spawnRate;
     }
   }
 
