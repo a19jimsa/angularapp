@@ -17,16 +17,19 @@ export class ParticleProp {
   angleMax: number = 0;
   velocity: vec3 = vec3.fromValues(0, 0, 0);
   direction: vec3 = vec3.fromValues(0, 0, 0);
+  angularVelocity: vec3 = vec3.fromValues(0, 0, 0);
   spread: number = 45;
   initialVelocityMin: number = 0;
   initialVelocityMax: number = 0;
   gravity: vec3 = vec3.fromValues(0, 0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
   rotation: vec3 = vec3.fromValues(0, 0, 0);
-  rotationSpeed: number = 0;
-  rotationRandom: number = 0;
-  startRotation: number = 1;
-  endRotation: number = 1;
+  minRotationX: number = 0;
+  maxRotationX: number = 0;
+  minRotationY: number = 0;
+  maxRotationY: number = 0;
+  minRotationZ: number = 0;
+  maxRotationZ: number = 0;
   minScale: number = 0;
   maxScale: number = 0;
   scaleRandomness: number = 0;
@@ -40,7 +43,4 @@ export class ParticleProp {
   age: number = 0;
   emissionOffset: vec3 = vec3.fromValues(1, 1, 1);
   emissionScale: vec3 = vec3.fromValues(0, 0, 0);
-  randomness: number = 0;
-  minAngle: number = 0;
-  maxAngle: number = 0;
 }

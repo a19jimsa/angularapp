@@ -30,6 +30,7 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
+
         particleEmitter.age[i] += 0.016;
       }
 
@@ -80,14 +81,12 @@ export class ParticleEmitterSystem {
     particleEmitter.spawnAccumulator += 0.016;
 
     if (particleEmitter.explosiveness > 0) {
-      while (particleEmitter.spawnAccumulator >= spawnInterval) {
+      if (particleEmitter.spawnAccumulator >= spawnInterval) {
         const amount = particleEmitter.amount * particleEmitter.explosiveness;
         for (let i = 0; i < amount; i++) {
-          if (particleEmitter.spawnAccumulator >= spawnInterval) {
-            this.spawnParticles(particleEmitter);
-          }
+          this.spawnParticles(particleEmitter);
+          particleEmitter.spawnAccumulator -= spawnInterval;
         }
-        particleEmitter.spawnAccumulator -= spawnInterval;
       }
     } else {
       if (particleEmitter.spawnAccumulator >= spawnInterval) {
@@ -166,20 +165,17 @@ export class ParticleEmitterSystem {
       particleEmitter.size[index] =
         particleProp.size *
         (1 + (Math.random() * 2 - 1) * particleProp.scaleRandomness);
-      particleEmitter.rotationSpeed[index] = particleProp.rotationSpeed;
+      particleEmitter.rotationSpeed[index] = 0; // Remove later
       particleEmitter.sizeBegin[index] = particleProp.sizeBegin;
       particleEmitter.sizeEnd[index] = particleProp.sizeEnd;
       particleEmitter.rotationX[index] = MathUtils.degreesToRadians(
-        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
-          particleProp.rotation[0],
+        MathUtils.random(particleProp.minRotationX, particleProp.maxRotationX),
       );
       particleEmitter.rotationY[index] = MathUtils.degreesToRadians(
-        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
-          particleProp.rotation[1],
+        MathUtils.random(particleProp.minRotationY, particleProp.maxRotationY),
       );
       particleEmitter.rotationZ[index] = MathUtils.degreesToRadians(
-        MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
-          particleProp.rotation[2],
+        MathUtils.random(particleProp.minRotationZ, particleProp.maxRotationZ),
       );
       value++;
     }

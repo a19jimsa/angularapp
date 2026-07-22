@@ -65,9 +65,9 @@ void main() {
 
     float t = a_age / a_lifetime;
 
-    pos = rotateX(pos, a_rotation.x * a_rotationSpeed * t);
-    pos = rotateY(pos, a_rotation.y * a_rotationSpeed * t);
-    pos = rotateZ(pos, a_rotation.z * a_rotationSpeed * t);
+    pos = rotateX(pos, a_rotation.x);
+    pos = rotateY(pos, a_rotation.y);
+    pos = rotateZ(pos, a_rotation.z);
 
     pos *= a_size;
     pos += a_instances;
