@@ -164,8 +164,8 @@ body.dark-mode {
   );
   @include mat.form-field-overrides(
     (
-      container-height: 10px,
-      container-vertical-padding: 10px,
+      //container-height: 10px,
+      //container-vertical-padding: 16px,
     )
   );
 }

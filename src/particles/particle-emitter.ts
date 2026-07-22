@@ -74,7 +74,6 @@ export class ParticleEmitter extends Component {
   stride: number;
   explosiveness: number = 0;
   emitting: boolean = true;
-  loop: boolean = true;
   oneShot: boolean = false;
 
   maxParticles: number;

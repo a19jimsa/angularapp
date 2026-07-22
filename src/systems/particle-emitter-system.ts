@@ -1,3 +1,4 @@
+import { vec3 } from 'gl-matrix';
 import { Ecs } from 'src/core/ecs';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { MathUtils } from 'src/Utils/MathUtils';
@@ -10,7 +11,7 @@ export class ParticleEmitterSystem {
         'ParticleEmitter',
       );
       if (!particleEmitter) continue;
-      //Update particles
+      //Update sub particles
       for (let i = 0; i < particleEmitter.maxParticles; i++) {
         if (particleEmitter.active[i] === 0) continue;
         if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
@@ -30,9 +31,6 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.age[i] += 0.016;
-        if (particleEmitter.loop) {
-          particleEmitter.age[i] = 0;
-        }
       }
 
       let aliveCount = 0;
@@ -58,12 +56,8 @@ export class ParticleEmitterSystem {
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
-      particleEmitter.spawnAccumulator += 0.016;
       if (particleEmitter.emitting) {
         this.emit(particleEmitter);
-        particleEmitter.poolIndex =
-          (particleEmitter.poolIndex - 1 + particleEmitter.amount) %
-          particleEmitter.amount;
       }
     }
   }
@@ -78,21 +72,65 @@ export class ParticleEmitterSystem {
     }
   }
 
-  //Activate particles from the deadpool
+  //Spawn from deadpool with spawninterval depending on lifetime / amount
   emit(particleEmitter: ParticleEmitter) {
-    if (particleEmitter.spawnAccumulator >= particleEmitter.spawnRate) {
-      this.spawnParticles(particleEmitter);
+    const spawnInterval =
+      particleEmitter.particleProp.lifetime / particleEmitter.amount;
 
-      if (particleEmitter.subEmitter) {
-        this.spawnSubParticles(particleEmitter.subEmitter);
+    particleEmitter.spawnAccumulator += 0.016;
+
+    if (particleEmitter.explosiveness > 0) {
+      while (particleEmitter.spawnAccumulator >= spawnInterval) {
+        const amount = particleEmitter.amount * particleEmitter.explosiveness;
+        for (let i = 0; i < amount; i++) {
+          if (particleEmitter.spawnAccumulator >= spawnInterval) {
+            this.spawnParticles(particleEmitter);
+          }
+        }
+        particleEmitter.spawnAccumulator -= spawnInterval;
       }
-
-      particleEmitter.spawnAccumulator -= particleEmitter.spawnRate;
+    } else {
+      if (particleEmitter.spawnAccumulator >= spawnInterval) {
+        this.spawnParticles(particleEmitter);
+        particleEmitter.spawnAccumulator -= spawnInterval;
+      }
     }
+  }
+
+  getFreeParticles(particleEmitter: ParticleEmitter, amount: number) {
+    const freeParticles: number[] = [];
+    while (freeParticles.length < amount) {
+      const index = particleEmitter.poolIndex;
+      if (particleEmitter.active[index] === 0) {
+        freeParticles.push(index);
+        console.log('Added particle index ' + index);
+      }
+      particleEmitter.poolIndex =
+        (particleEmitter.poolIndex - 1 + particleEmitter.maxParticles) %
+        particleEmitter.maxParticles;
+    }
+    return freeParticles;
+  }
+
+  applySpread(direction: vec3, spreadDegrees: number): vec3 {
+    const spread = MathUtils.degreesToRadians(spreadDegrees);
+
+    // slumpa vinkel inom spread
+    const angle = MathUtils.random(-1, 1) * spread;
+
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    return vec3.fromValues(
+      direction[0] * cos - direction[1] * sin,
+      direction[0] * sin + direction[1] * cos,
+      direction[2],
+    );
   }
 
   spawnParticles(particleEmitter: ParticleEmitter) {
     const index = particleEmitter.poolIndex;
+    let value = 0;
     if (particleEmitter.active[index] === 0) {
       const particleProp = particleEmitter.particleProp;
       const position = particleEmitter.shape.spawnPosition();
@@ -103,30 +141,19 @@ export class ParticleEmitterSystem {
       particleEmitter.positionsZ[index] =
         particleProp.position[2] + position[2];
 
-      const randVel = MathUtils.random(
+      const direction = this.applySpread(
+        particleProp.direction,
+        particleProp.spread,
+      );
+
+      const speed = MathUtils.random(
         particleProp.velocityMin,
         particleProp.velocityMax,
       );
 
-      const angle = Math.atan2(
-        particleProp.direction[1],
-        particleProp.direction[0],
-      );
-
-      const spreadAngle =
-        angle +
-        MathUtils.random(-1, 1) *
-          MathUtils.degreesToRadians(particleProp.spread);
-
-      const x = Math.cos(spreadAngle);
-      const y = Math.sin(spreadAngle);
-
-      particleEmitter.velocityX[index] = x * randVel + particleProp.gravity[0];
-      particleEmitter.velocityY[index] = y * randVel + particleProp.gravity[1];
-      particleEmitter.velocityZ[index] =
-        particleProp.velocity[2] * randVel +
-        particleProp.direction[2] +
-        particleProp.gravity[2];
+      particleEmitter.velocityX[index] = direction[0] * speed;
+      particleEmitter.velocityY[index] = direction[1] * speed;
+      particleEmitter.velocityZ[index] = direction[2] * speed;
 
       particleEmitter.active[index] = 1;
       particleEmitter.age[index] = 0;
@@ -154,9 +181,11 @@ export class ParticleEmitterSystem {
         MathUtils.random(particleProp.startRotation, particleProp.endRotation) *
           particleProp.rotation[2],
       );
-
-      return 1;
+      value++;
     }
-    return 0;
+    particleEmitter.poolIndex =
+      (particleEmitter.poolIndex - 1 + particleEmitter.maxParticles) %
+      particleEmitter.maxParticles;
+    return value;
   }
 }

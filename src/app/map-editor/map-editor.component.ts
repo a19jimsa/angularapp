@@ -260,9 +260,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.models = new Set<string>([
       'Quad',
       'Lightning',
+      'Plane',
       'Cylinder',
       'Sphere',
-      'Plane',
       'Tornado',
       'Cone',
       'Ring',
@@ -1699,7 +1699,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new ParticleEmitter(
         'tornado',
         'particleEmitter' + entity,
-        100,
+        1,
         instanceBuffer.amount,
       ),
     );
@@ -1873,5 +1873,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   onRemove(track: Track<any>, $index: number) {
     track.keyframes.splice($index, 1);
+  }
+
+  resetAllParticles() {
+    for (const entity of this.ecs.getEntities()) {
+      const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+        entity,
+        'ParticleEmitter',
+      );
+      if (!particleEmitter) continue;
+      particleEmitter.active.fill(0);
+      particleEmitter.spawnAccumulator = 0;
+    }
   }
 }
