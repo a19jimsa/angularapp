@@ -14,9 +14,15 @@ export class ParticleEmitterSystem {
       //Update sub particles
       for (let i = 0; i < particleEmitter.maxParticles; i++) {
         if (particleEmitter.active[i] === 0) continue;
+        //On death of particle emitt subparticles
         if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
           particleEmitter.active[i] = 0;
           if (particleEmitter.subEmitter) {
+            particleEmitter.subEmitter.emitting = true;
+            const spawnInterval =
+              particleEmitter.particleProp.lifetime / particleEmitter.amount;
+
+            particleEmitter.subEmitter.spawnAccumulator += spawnInterval;
             particleEmitter.subEmitter.particleProp.position[0] =
               particleEmitter.positionsX[i];
             particleEmitter.subEmitter.particleProp.position[1] =
@@ -26,6 +32,7 @@ export class ParticleEmitterSystem {
           }
           continue;
         }
+
         //Updates all particles
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
@@ -57,19 +64,10 @@ export class ParticleEmitterSystem {
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
+
       if (particleEmitter.emitting) {
         this.emit(particleEmitter);
       }
-    }
-  }
-
-  spawnSubParticles(particleSubEmitter: ParticleEmitter) {
-    //Trigger sub particles
-    for (let i = 0; i < particleSubEmitter.amount; i++) {
-      this.spawnParticles(particleSubEmitter);
-      particleSubEmitter.poolIndex =
-        (particleSubEmitter.poolIndex - 1 + particleSubEmitter.maxParticles) %
-        particleSubEmitter.maxParticles;
     }
   }
 
@@ -80,18 +78,14 @@ export class ParticleEmitterSystem {
 
     particleEmitter.spawnAccumulator += 0.016;
 
-    if (particleEmitter.explosiveness > 0) {
-      if (particleEmitter.spawnAccumulator >= spawnInterval) {
-        const amount = particleEmitter.amount * particleEmitter.explosiveness;
-        for (let i = 0; i < amount; i++) {
-          this.spawnParticles(particleEmitter);
-          particleEmitter.spawnAccumulator -= spawnInterval;
-        }
-      }
-    } else {
-      if (particleEmitter.spawnAccumulator >= spawnInterval) {
+    if (particleEmitter.spawnAccumulator >= spawnInterval) {
+      const amount = particleEmitter.amount * particleEmitter.explosiveness;
+      for (let i = 0; i < amount; i++) {
         this.spawnParticles(particleEmitter);
         particleEmitter.spawnAccumulator -= spawnInterval;
+      }
+      if (particleEmitter.oneShot) {
+        particleEmitter.emitting = false;
       }
     }
   }
