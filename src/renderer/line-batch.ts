@@ -16,17 +16,7 @@ export class LineBatch {
   private static vertexCount = 0;
   private static vertexArray: VertexArray;
 
-  static init(): void {
-    this.vertexArray = VertexArray.create(
-      LineBatch.vertices,
-      new Uint16Array(0),
-    );
-    //Add bufferlayout to vertexArray
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false, false);
-    this.vertexArray.addBuffer(buffer);
-  }
+  static init(): void {}
 
   static begin(): void {
     this.floatOffset = 0;

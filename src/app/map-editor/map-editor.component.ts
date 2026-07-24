@@ -608,7 +608,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     debug.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     debug.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false);
     this.ecs.addComponent<Pivot>(newEntity, new Pivot());
-    const model = new Model();
+    const model = new Model(debug);
     model.addPivot();
     MeshManager.addMesh(model, 'pivot');
     const transform = this.ecs.getComponent<Transform3D>(

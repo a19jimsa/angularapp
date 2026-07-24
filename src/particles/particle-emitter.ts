@@ -75,6 +75,7 @@ export class ParticleEmitter extends Component {
   explosiveness: number = 0;
   emitting: boolean = true;
   oneShot: boolean = false;
+  tiling: vec2 = vec2.create();
 
   maxParticles: number;
 

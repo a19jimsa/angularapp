@@ -7,6 +7,7 @@ uniform sampler2DArray u_textures;
 
 uniform float u_time;
 uniform vec2 u_speed;
+uniform vec2 u_tiling;
 
 in vec2 v_texcoord;
 in float v_lifetime;
@@ -17,7 +18,7 @@ out vec4 FragColor;
 
 void main() { 
     vec2 uv = v_texcoord;
-    vec2 uvScrolling = uv + vec2(u_time * u_speed.x, u_time * u_speed.y);
+    vec2 uvScrolling = uv * u_tiling + vec2(u_time * u_speed.x, u_time * u_speed.y);
     vec4 baseColor = texture(u_texture, uvScrolling); 
     vec4 gradientAdd = texture(u_textures, vec3(uv, 0)); 
     vec4 gradientSub = texture(u_textures, vec3(uv, 1));

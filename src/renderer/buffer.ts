@@ -57,6 +57,28 @@ export class BufferLayout {
         throw new Error(`Unknown buffer element type: ${type}`);
     }
   }
+
+  apply() {
+    const gl = Renderer.getGL;
+    for (const element of this.elements) {
+      gl.enableVertexAttribArray(element.location);
+      {
+        gl.vertexAttribPointer(
+          element.location,
+          element.count,
+          element.type,
+          element.normalized,
+          this.stride,
+          element.offset,
+        );
+        if (element.isInstanced) {
+          gl.vertexAttribDivisor(element.location, 1);
+        } else {
+          gl.vertexAttribDivisor(element.location, 0);
+        }
+      }
+    }
+  }
 }
 
 //VBO
@@ -96,5 +118,24 @@ export class IndexBuffer {
 
   static create(indices: Uint16Array): IndexBuffer {
     return new IndexBuffer(indices);
+  }
+}
+
+export class InstanceBuffer {
+  buffer: WebGLBuffer | null;
+  amount: number;
+
+  constructor(amount: number) {
+    const gl = Renderer.getGL;
+    this.buffer = gl.createBuffer();
+    this.amount = amount;
+  }
+
+  getAmount(): number {
+    return this.amount;
+  }
+
+  static create(amount: number): InstanceBuffer {
+    return new InstanceBuffer(amount);
   }
 }

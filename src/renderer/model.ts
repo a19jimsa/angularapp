@@ -113,24 +113,24 @@ export class Model {
 
   addQuad() {
     const vertices = [
-      // x   y   z   u   v
-      0,
-      0,
+      // x     y     z     u   v
+      -0.5,
+      -0.5,
       0,
       0,
       1, // v0 (bottom-left)
-      10,
-      0,
+      0.5,
+      -0.5,
       0,
       1,
       1, // v1 (bottom-right)
-      10,
-      10,
+      0.5,
+      0.5,
       0,
       1,
       0, // v2 (top-right)
-      0,
-      10,
+      -0.5,
+      0.5,
       0,
       0,
       0, // v3 (top-left)
@@ -307,7 +307,6 @@ export class Model {
       vertices.push(uv, uv);
     }
 
-    // triangle fan
     for (let i = 1; i <= segments; i++) {
       indices.push(i + 1);
       indices.push(i);
@@ -368,8 +367,8 @@ export class Model {
 
   addGrass() {
     const width = 1; // 1 quad i bredd
-    const height = 10; // 5 quads i höjd
-    const sizeX = 0.2; // bredd på hela strået
+    const height = 5; // 5 quads i höjd
+    const sizeX = 0.1; // bredd på hela strået
     const sizeY = 1; // höjd på hela strået
     let index = 0;
     for (let y = 0; y <= height; y++) {
@@ -564,7 +563,7 @@ export class Model {
     const indices: number[] = [];
 
     for (let i = 0; i <= segments; i++) {
-      const t = (i / segments) * Math.PI;
+      const t = (i / segments) * Math.PI * 2;
 
       const cos = Math.cos(t);
       const sin = Math.sin(t);

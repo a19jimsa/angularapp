@@ -73,14 +73,15 @@ export class ParticleEmitterSystem {
 
   //Spawn from deadpool with spawninterval depending on lifetime / amount
   emit(particleEmitter: ParticleEmitter) {
+    const amount = particleEmitter.amount;
     const spawnInterval =
-      particleEmitter.particleProp.lifetime / particleEmitter.amount;
+      particleEmitter.particleProp.lifetime / amount;
 
     particleEmitter.spawnAccumulator += 0.016;
 
     if (particleEmitter.spawnAccumulator >= spawnInterval) {
-      const amount = particleEmitter.amount * particleEmitter.explosiveness;
-      for (let i = 0; i < amount; i++) {
+      const spawnAmount = Math.floor(particleEmitter.amount * particleEmitter.explosiveness) + 1;
+      for (let i = 0; i < spawnAmount; i++) {
         this.spawnParticles(particleEmitter);
         particleEmitter.spawnAccumulator -= spawnInterval;
       }
