@@ -810,11 +810,19 @@
                     <mat-panel-title> {{ item.type }} </mat-panel-title>
                     <mat-panel-description>Grass</mat-panel-description>
                   </mat-expansion-panel-header>
-                  <button mat-fab (click)="changeTool('grass')">
-                    <mat-icon>grass</mat-icon>
-                  </button>
                   {{ grass.amount }}
                   {{ grass.maxAmount }}
+                </mat-expansion-panel>
+              }
+              @if (item === tree) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> {{ item.type }} </mat-panel-title>
+                    <mat-panel-description>Tree</mat-panel-description>
+                  </mat-expansion-panel-header>
+
+                  {{ tree.amount }}
+                  {{ tree.maxAmount }}
                 </mat-expansion-panel>
               }
               @if (item === animatedTexture) {

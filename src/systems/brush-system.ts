@@ -52,6 +52,7 @@ export class BrushSystem {
     if (brushImage) {
       brushImage.UV[0] = vertexArray.vertexBuffer.vertices[index + 3];
       brushImage.UV[1] = vertexArray.vertexBuffer.vertices[index + 4];
+      brushImage.size = meshBrush.radius;
     }
 
     if (mouse.dragging || mouse.clicked) {
@@ -61,9 +62,6 @@ export class BrushSystem {
       //   this.movePivot(transform3D, mouse, pivotIndex);
       // }
       if (meshBrush.type === ToolBrush.Height) {
-        if (brushImage) {
-          brushImage.size = meshBrush.radius;
-        }
         this.heightBrush(
           meshBrush,
           vec4.fromValues(
@@ -74,23 +72,13 @@ export class BrushSystem {
           ),
           ecs,
         );
-      } else if (meshBrush.type === ToolBrush.Trees) {
-        this.treeBrush(
-          ecs,
-          meshBrush,
-          vertices[index],
-          vertices[index + 1],
-          vertices[index + 2],
-        );
       } else if (meshBrush.type === ToolBrush.Splat) {
         const splatmap = ecs.getComponent<Splatmap>(
           meshBrush.entity,
           'Splatmap',
         );
         if (!splatmap) return;
-        if (brushImage) {
-          brushImage.size = meshBrush.radius;
-        }
+
         this.paintImage(
           ecs,
           splatmap.size,
@@ -110,7 +98,7 @@ export class BrushSystem {
           vertices[index + 3],
           vertices[index + 4],
         );
-        this.drawGrass(vertices, ecs, meshBrush);
+        this.createFoliage(vertices, ecs, meshBrush);
       }
     }
   }
@@ -299,26 +287,15 @@ export class BrushSystem {
     }
   }
 
-  private treeBrush(
-    ecs: Ecs,
-    meshBrush: Brush,
-    x: number,
-    y: number,
-    z: number,
-  ) {
-    const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
-    const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
-    if (!splatmap || !tree) return;
-  }
-
-  private findVertex(u: number, v: number) {}
-
-  private drawGrass(vertices: Float32Array, ecs: Ecs, meshBrush: Brush) {
+  private createFoliage(vertices: Float32Array, ecs: Ecs, meshBrush: Brush) {
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+    const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!grass || !terrain) return;
+    if (!grass || !terrain || !tree) return;
     grass.amount = 0;
+    tree.amount = 0;
     const grassPositions = new Array();
+    const treePositions = new Array();
     const stride = 8;
 
     for (let i = 0; i < vertices.length; i += stride) {
@@ -339,6 +316,7 @@ export class BrushSystem {
       const pixelIndex = (pz * grass.size + px) * 4;
 
       const green = grass.coords[pixelIndex + 1];
+      const blue = grass.coords[pixelIndex + 2];
 
       if (green === 255) {
         for (let j = 0; j < 100; j++) {
@@ -357,9 +335,24 @@ export class BrushSystem {
 
           if (grass.amount >= grass.maxAmount) return;
         }
+      } else if (blue === 255) {
+        const offset = 50 * Math.random();
+        const treeX = x + nx * offset;
+        const treeY = y + ny;
+        const treeZ = z + nz * offset;
+        const size = MathUtils.random(10, 20);
+        const id = MathUtils.random(0, 2);
+
+        treePositions.push(treeX, treeY, treeZ);
+        treePositions.push(size, id);
+
+        tree.amount++;
+
+        if (tree.amount >= tree.maxAmount) return;
       }
     }
     grass.positions.set(grassPositions);
+    tree.positions.set(treePositions);
   }
 
   private paintImage(

@@ -17,7 +17,7 @@ export class PerspectiveCamera {
       MathUtils.degreesToRadians(45),
       width / height,
       0.1,
-      5000,
+      1000,
     );
     const target = vec3.create();
     vec3.add(target, this.cameraPos, this.cameraFront);
@@ -155,7 +155,7 @@ export class PerspectiveCamera {
   }
 
   resetCamera() {
-    this.cameraPos = vec3.fromValues(500, 0, 1000);
+    this.cameraPos = vec3.fromValues(500, 1.5, 1000);
     this.cameraFront = vec3.fromValues(0, 0, -1);
     this.cameraUp = vec3.fromValues(0, 1, 0);
     this.yaw = -90;

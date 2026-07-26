@@ -8,12 +8,13 @@ export class Grass extends Component {
   maxAmount: number = 1000000;
   amount: number = 0;
   index: number = 0;
-  meshId: string = 'grass';
+  meshId: string;
   //Max grass per buffer * xyz
   positions: Float32Array = new Float32Array(this.maxAmount * 3);
-  constructor(size: number) {
+  constructor(size: number, meshId: string) {
     super();
     this.size = size;
+    this.meshId = meshId;
     this.coords = new Uint8ClampedArray(size * size * 4);
     for (let i = 0; i < this.coords.length; i += 4) {
       this.coords[i + 0] = 0;

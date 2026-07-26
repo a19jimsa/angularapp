@@ -20,10 +20,10 @@ export class Light extends Component {
   constructor() {
     super();
     this.lightType = 0;
-    this.ambient = vec3.fromValues(1, 1, 1);
+    this.ambient = vec3.fromValues(0.4, 0.4, 0.4);
     this.diffuse = vec3.fromValues(1, 1, 1);
     this.specular = vec3.fromValues(1, 1, 1);
-    this.direction = vec3.fromValues(0, 0, -1);
+    this.direction = vec3.fromValues(0, -1, 0);
     this.color = vec3.fromValues(1, 1, 1);
   }
 

@@ -484,6 +484,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  get tree(): Tree | null {
+    const tree = this.ecs.getComponent<Tree>(this.meshbrush.entity, 'Tree');
+    if (tree) return tree;
+    return null;
+  }
+
   get light(): Light | null {
     const light = this.ecs.getComponent<Light>(this.meshbrush.entity, 'Light');
     if (light) return light;
@@ -730,10 +736,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/marble_rock_01_normal.jpg',
     );
 
+    const brus = await TextureManager.loadImage('assets/textures/brus.png');
+
     const textureArray2 = await TextureManager.addTextureArray(
       'splatmap',
       'u_textures',
-      [texture1, texture2, texture3, mountaintexture, mountainNormal],
+      [texture1, texture2, texture3, mountaintexture, mountainNormal, brus],
       'splatmap',
       true,
     );
@@ -767,15 +775,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const tree1 = await TextureManager.loadImage('/assets/trees/tree_004.png');
-    const tree5 = await TextureManager.loadImage('/assets/trees/tree_005.png');
     const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
     const tree8 = await TextureManager.loadImage('/assets/trees/tree_008.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
-      'batch',
+      'tree',
       'u_textures',
-      [tree8],
-      'batch',
+      [tree1, tree6, tree8],
+      'tree',
       false,
     );
 
@@ -1055,6 +1062,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     model.addPlane(100, width, depth);
+    MeshManager.addMesh(model, 'terrain' + newEntity);
+
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
     const transform = this.ecs.addComponent<Transform3D>(
       newEntity,
@@ -1079,8 +1088,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Splatmap(size, 'terrain' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
-    this.ecs.addComponent<Grass>(newEntity, new Grass(128));
-    this.ecs.addComponent<Tree>(newEntity, new Tree(size));
+    this.ecs.addComponent<Grass>(
+      newEntity,
+      new Grass(size, 'grass' + newEntity),
+    );
+    this.ecs.addComponent<Tree>(newEntity, new Tree("tree" + newEntity));
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1093,7 +1105,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     const grassModel = new Model(grassBuffer);
     grassModel.addGrass();
-    MeshManager.addMesh(grassModel, 'grass');
+    MeshManager.addMesh(grassModel, 'grass' + newEntity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       3,
@@ -1102,8 +1114,46 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('grass', instanceBuffer, 1000000);
-    MeshManager.addMesh(model, 'terrain' + newEntity);
+    MeshManager.addInstanceMesh('grass' + newEntity, instanceBuffer, 1000000);
+    const treeBuffer = new BufferLayout();
+    treeBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    treeBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    const treeShader = await ShaderManager.load(
+      'tree',
+      'tree_vertex.txt',
+      'tree_fragment.txt',
+    );
+    const treeModel = new Model(treeBuffer);
+    treeModel.addQuad();
+    MeshManager.addMesh(treeModel, 'tree' + newEntity);
+    const instanceTreeBuffer = new BufferLayout();
+    instanceTreeBuffer.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    instanceTreeBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    instanceTreeBuffer.add(
+      4,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh(
+      'tree' + newEntity,
+      instanceTreeBuffer,
+      1000000,
+    );
+
     TextureManager.dirty = true;
   }
 
@@ -1275,18 +1325,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Water>(entity, new Water());
   }
 
-  protected async addGrass() {
-    const grassComponent = this.ecs.addComponent<Grass>(
-      this.meshbrush.entity,
-      new Grass(128),
-    );
-    this.ecs.addComponent<Material>(
-      this.meshbrush.entity,
-      new Material('grass'),
-    );
-    if (!grassComponent) return;
-  }
-
   loop() {
     //FPS
     //console.log(Math.floor(performance.now() / 1000));
@@ -1445,7 +1483,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 5;
+    const speed = 1;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1621,7 +1659,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addCone();
+    model.addRingMesh(0, 10, 50);
     MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
@@ -1697,7 +1735,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
-        'tornado',
+        'wave',
         'particleEmitter' + entity,
         1,
         instanceBuffer.amount,

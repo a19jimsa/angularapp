@@ -22,7 +22,7 @@ void main() {
     vec4 multColor = texture(u_texture, uv);
     float t = baseColor.r;
     vec3 color = mix(vec3(0.0, 0.0, 1.0), vec3(1.0), t);
-    baseColor.rgb *= color + 0.5;
+    baseColor.rgb *= color;
     baseColor.rgb *= opacity;
     FragColor = vec4(baseColor.rgb, baseColor.r);
 }

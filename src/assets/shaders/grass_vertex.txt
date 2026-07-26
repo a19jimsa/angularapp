@@ -11,6 +11,7 @@ out vec3 v_normal;
 out vec3 v_fragPos;
 
 uniform mat4 u_matrix;
+uniform mat4 u_model;
 uniform float u_time;
 
 float hash(float n) {
@@ -56,5 +57,5 @@ void main() {
     rotatedNormal = rotateZ(bend * 0.2, rotatedNormal);
     v_normal = normalize(rotatedNormal);
     v_fragPos = newPos + a_offset;
-    gl_Position = u_matrix * vec4(newPos + a_offset, 1.0);
+    gl_Position = u_matrix * u_model * vec4(newPos + a_offset, 1.0);
 }

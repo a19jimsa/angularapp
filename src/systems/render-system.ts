@@ -23,10 +23,9 @@ import { Model } from 'src/renderer/model';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
 import { Sprite2D } from 'src/components/sprite2D';
-import { ParticleEmitterManager } from 'src/resource-manager/particle-emitter-manager';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
-import { MathUtils } from 'src/Utils/MathUtils';
 import { TrailRenderer } from 'src/components/trail-renderer';
+import { Tree } from 'src/components/tree';
 
 type Sprite = {
   position: Transform3D;
@@ -210,6 +209,7 @@ export class RenderSystem {
       const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
+      const tree = ecs.getComponent<Tree>(entity, 'Tree');
       const animatedTexture = ecs.getComponent<AnimatedTexture>(
         entity,
         'AnimatedTexture',
@@ -218,7 +218,7 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-
+      const modelMatrix = mat4.create();
       if (mesh && mesh.dirty) {
         const vao = MeshManager.getMesh(mesh.meshId);
         if (vao) {
@@ -299,8 +299,8 @@ export class RenderSystem {
           entity,
           'Transform3D',
         );
+
         if (transform3D) {
-          const modelMatrix = mat4.create();
           mat4.translate(modelMatrix, modelMatrix, transform3D.position);
           mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
@@ -320,12 +320,13 @@ export class RenderSystem {
       }
 
       if (grass) {
-        const shader = ShaderManager.getShader(grass.meshId);
+        const shader = ShaderManager.getShader('grass');
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
+        shader.setUniformMat4('u_model', modelMatrix);
         shader.setFloat('u_time', performance.now() * 0.01);
         shader.setVec3('u_cameraPos', cameraPos);
         if (light && lightPos) {
@@ -339,8 +340,30 @@ export class RenderSystem {
         shader.setVec3('material.specular', material.specular);
         shader.setFloat('material.shininess', material.shininess);
         const vertexArray = MeshManager.getMesh(grass.meshId);
-        if (!vertexArray) throw new Error('Mesh is not grass');
+        if (!vertexArray) {
+          console.log('Could not get vertex array' + grass.meshId);
+          break;
+        }
         Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
+      }
+      if (tree && terrain) {
+        const shader = ShaderManager.getShader('tree');
+        if (!shader) throw new Error('Could not get batch shader');
+        shader.bind();
+        shader.setUniformMat4(
+          'u_matrix',
+          this.camera.getViewProjectionMatrix(),
+        );
+        shader.setUniformMat4('u_model', modelMatrix);
+        shader.setFloat('u_fogPower', terrain.fogPower);
+        shader.setVec3('u_fogColor', terrain.fogColor);
+        shader.setVec3('u_cameraPos', cameraPos);
+        const vertexArray = MeshManager.getMesh(tree.meshId);
+        if (!vertexArray) {
+          console.log('Could not get vertex array' + tree.meshId);
+          break;
+        }
+        Renderer.drawInstancing(vertexArray, tree.positions, tree.amount);
       }
       const trailRenderer = ecs.getComponent<TrailRenderer>(
         entity,
