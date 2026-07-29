@@ -89,8 +89,6 @@
           <button mat-menu-item (click)="createTerrain()">Terrain</button>
           <button mat-menu-item (click)="createFrog()">Frog</button>
           <button mat-menu-item (click)="createLightSource()">Light</button>
-          <button mat-menu-item (click)="createFire()">Fire</button>
-          <button mat-menu-item (click)="createLightning()">Lightning</button>
           <button mat-menu-item (click)="createParticleEmitter()">
             Particles
           </button>
@@ -98,7 +96,7 @@
       </mat-card>
     </div>
     <div class="col-8">
-      <canvas #canvas></canvas>
+      <mat-card class="h-100"><canvas #canvas></canvas></mat-card>
     </div>
     <div class="col-3">
       <mat-card
@@ -1159,6 +1157,7 @@
                         />
                       </mat-form-field>
                     </div>
+                    <app-gradient-creator></app-gradient-creator>
                   </mat-expansion-panel>
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -1295,24 +1294,7 @@
                         />
                       </mat-form-field>
                     </div>
-                    <div class="row">
-                      <mat-form-field class="col-6">
-                        <mat-label>Size Begin</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          [(ngModel)]="particleEmitter.particleProp.sizeBegin"
-                        />
-                      </mat-form-field>
-                      <mat-form-field class="col-6">
-                        <mat-label>Size end</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          [(ngModel)]="particleEmitter.particleProp.sizeEnd"
-                        />
-                      </mat-form-field>
-                    </div>
+
                     <div class="row">
                       <mat-form-field class="col-6">
                         <mat-label>Speed X</mat-label>

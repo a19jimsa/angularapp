@@ -1,0 +1,16 @@
+.example-box {
+  width: 10px;
+  height: 100%;
+  background-color: white;
+  position: absolute;
+}
+
+.canvas {
+  height: 10px;
+  width: 100%;
+}
+
+.boundry {
+  height: 10px;
+  width: 100%;
+}

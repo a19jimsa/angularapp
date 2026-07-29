@@ -33,7 +33,7 @@ export class ParticleEmitterSystem {
           continue;
         }
 
-        //Updates all particles
+        //Updates all particles positions
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
@@ -49,18 +49,11 @@ export class ParticleEmitterSystem {
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
         particleEmitter.particles[j + 1] = particleEmitter.positionsY[i];
         particleEmitter.particles[j + 2] = particleEmitter.positionsZ[i];
-        particleEmitter.particles[j + 3] = particleEmitter.age[i];
-        particleEmitter.particles[j + 4] = particleEmitter.lifetime[i];
-        particleEmitter.particles[j + 5] = particleEmitter.colorR[i];
-        particleEmitter.particles[j + 6] = particleEmitter.colorG[i];
-        particleEmitter.particles[j + 7] = particleEmitter.colorB[i];
-        particleEmitter.particles[j + 8] = particleEmitter.size[i];
-        particleEmitter.particles[j + 9] = particleEmitter.rotationSpeed[i];
-        particleEmitter.particles[j + 10] = particleEmitter.sizeBegin[i];
-        particleEmitter.particles[j + 11] = particleEmitter.sizeEnd[i];
-        particleEmitter.particles[j + 12] = particleEmitter.rotationX[i];
-        particleEmitter.particles[j + 13] = particleEmitter.rotationY[i];
-        particleEmitter.particles[j + 14] = particleEmitter.rotationZ[i];
+        particleEmitter.particles[j + 3] =
+          particleEmitter.age[i] / particleEmitter.lifetime[i];
+        particleEmitter.particles[j + 4] = particleEmitter.rotationX[i];
+        particleEmitter.particles[j + 5] = particleEmitter.rotationY[i];
+        particleEmitter.particles[j + 6] = particleEmitter.rotationZ[i];
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
@@ -74,13 +67,13 @@ export class ParticleEmitterSystem {
   //Spawn from deadpool with spawninterval depending on lifetime / amount
   emit(particleEmitter: ParticleEmitter) {
     const amount = particleEmitter.amount;
-    const spawnInterval =
-      particleEmitter.particleProp.lifetime / amount;
+    const spawnInterval = particleEmitter.particleProp.lifetime / amount;
 
     particleEmitter.spawnAccumulator += 0.016;
 
     if (particleEmitter.spawnAccumulator >= spawnInterval) {
-      const spawnAmount = Math.floor(particleEmitter.amount * particleEmitter.explosiveness) + 1;
+      const spawnAmount =
+        Math.floor(particleEmitter.amount * particleEmitter.explosiveness) + 1;
       for (let i = 0; i < spawnAmount; i++) {
         this.spawnParticles(particleEmitter);
         particleEmitter.spawnAccumulator -= spawnInterval;
@@ -154,15 +147,6 @@ export class ParticleEmitterSystem {
       particleEmitter.lifetime[index] =
         particleProp.lifetime *
         (1 + (Math.random() * 2 - 1) * particleProp.lifetimeRandomness);
-      particleEmitter.colorR[index] = particleProp.color[0];
-      particleEmitter.colorG[index] = particleProp.color[1];
-      particleEmitter.colorB[index] = particleProp.color[2];
-      particleEmitter.size[index] =
-        particleProp.size *
-        (1 + (Math.random() * 2 - 1) * particleProp.scaleRandomness);
-      particleEmitter.rotationSpeed[index] = 0; // Remove later
-      particleEmitter.sizeBegin[index] = particleProp.sizeBegin;
-      particleEmitter.sizeEnd[index] = particleProp.sizeEnd;
       particleEmitter.rotationX[index] = MathUtils.degreesToRadians(
         MathUtils.random(particleProp.minRotationX, particleProp.maxRotationX),
       );

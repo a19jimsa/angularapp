@@ -26,6 +26,7 @@ import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { Tree } from 'src/components/tree';
+import { Target } from 'src/renderer/texture';
 
 type Sprite = {
   position: Transform3D;
@@ -64,11 +65,14 @@ export class RenderSystem {
       '/assets/textures/skybox/back.bmp',
     );
 
-    const texture = TextureManager.addCubeMap(
-      'skybox',
-      [top, right, left, bottom, front, back],
-      'skybox',
-    );
+    const texture = TextureManager.addCubeMap('skybox', 'u_skybox', [
+      top,
+      right,
+      left,
+      bottom,
+      front,
+      back,
+    ]);
 
     console.log('Setup skybox');
 
@@ -146,29 +150,8 @@ export class RenderSystem {
     return light;
   }
 
-  private bindTextures() {
-    const textures = TextureManager.getTextures();
-    let slot = 0;
-    for (const texture of textures) {
-      const shader = ShaderManager.getShader(texture.ShaderID);
-      console.log(texture.ShaderID);
-      shader.bind();
-      shader.setUniform(
-        texture.UniformName,
-        texture.Texture,
-        slot,
-        texture.Target,
-      );
-      slot++;
-    }
-  }
-
   public update(ecs: Ecs) {
     if (this.loading) return;
-    if (TextureManager.dirty) {
-      this.bindTextures();
-      TextureManager.dirty = false;
-    }
     Renderer.begin();
     this.sortBatches(ecs);
     const shader = ShaderManager.getShader('skybox');
@@ -228,11 +211,11 @@ export class RenderSystem {
         mesh.dirty = false;
       }
 
-      if (splatmap) {
-        const texture = TextureManager.getTexture(splatmap.slot);
-        if (!texture)
-          throw new Error('Could not get texture of ' + splatmap.slot);
-        texture.updateTexture(splatmap.coords);
+      if (splatmap && material) {
+        // const texture = TextureManager.getTexture(material.textures);
+        // if (!texture)
+        //   throw new Error('Could not get texture of ' + splatmap.slot);
+        // texture.updateTexture(splatmap.coords);
       }
 
       if (pivot && transform3D) {
@@ -278,6 +261,7 @@ export class RenderSystem {
         if (animatedTexture) {
           shader.setFloat('u_animationSpeed', animatedTexture.speed);
         }
+
         if (splatmap) {
           const brushImage = ecs.getComponent<BrushImage>(entity, 'BrushImage');
           if (brushImage) {
@@ -313,6 +297,17 @@ export class RenderSystem {
           shader.setFloat('u_tiling', water.tiling);
           shader.setFloat('u_flowSpeed', water.flowSpeed);
           shader.setVec3('u_color', water.color);
+        }
+        let slot = 0;
+        for (const texture of material.textures) {
+          shader.setUniform(
+            slot,
+            texture.UniformName,
+            texture.Texture,
+            texture.Target,
+          );
+          slot++;
+          console.log(texture);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) throw new Error('VAO not found');
@@ -358,6 +353,7 @@ export class RenderSystem {
         shader.setFloat('u_fogPower', terrain.fogPower);
         shader.setVec3('u_fogColor', terrain.fogColor);
         shader.setVec3('u_cameraPos', cameraPos);
+
         const vertexArray = MeshManager.getMesh(tree.meshId);
         if (!vertexArray) {
           console.log('Could not get vertex array' + tree.meshId);

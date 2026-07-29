@@ -31,9 +31,9 @@ export class Shader {
   }
 
   setUniform(
+    slot: number,
     uniformName: string,
     texture: WebGLTexture,
-    slot: number,
     target: number,
   ) {
     const gl = Renderer.getGL;

@@ -7,37 +7,28 @@ export const Target = {
 } as const;
 
 export class Texture {
-  private slot: string;
-  private imagePaths: string[] = new Array();
+  private imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray;
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
   private height: number;
   private uniformName: string;
-  private shaderID: string;
+  private repeat: boolean;
 
   constructor(
-    slot: string,
+    imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
     target: number,
     width: number,
     height: number,
     uniformName: string,
-    shaderID: string,
+    repeat: boolean,
   ) {
-    this.slot = slot;
+    this.imageData = imageData;
     this.target = target;
     this.width = width;
     this.height = height;
     this.uniformName = uniformName;
-    this.shaderID = shaderID;
-  }
-
-  public get Paths() {
-    return this.imagePaths;
-  }
-
-  public get Slot() {
-    return this.slot;
+    this.repeat = repeat;
   }
 
   public get Texture() {
@@ -49,18 +40,15 @@ export class Texture {
     return this.target;
   }
 
-  public get ShaderID() {
-    return this.shaderID;
-  }
-
   public get UniformName() {
     return this.uniformName;
   }
 
-  public bindCubemap(images: HTMLImageElement[]) {
+  public bindCubemap() {
+    const images = this.imageData as HTMLImageElement[];
     const gl = Renderer.getGL;
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    this.glTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.glTexture);
     let i = 0;
     for (const image of images) {
       gl.texImage2D(
@@ -75,79 +63,66 @@ export class Texture {
         image,
       );
       i++;
-      this.imagePaths.push(image.src);
     }
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-    this.glTexture = texture;
-    return texture;
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    return this;
   }
 
-  public bindTexture(
-    image: HTMLImageElement | null,
-    width: number,
-    height: number,
-    repeat: boolean,
-  ) {
+  public bindTexture() {
     const gl = Renderer.getGL;
-    const texture = gl.createTexture();
-    if (!texture) {
+    this.glTexture = gl.createTexture();
+    if (!this.glTexture) {
       throw new Error('Could not create texture');
     }
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    if (image instanceof HTMLImageElement) {
+    gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
+    if (this.imageData instanceof HTMLImageElement) {
       gl.texImage2D(
         gl.TEXTURE_2D,
         0, // Level (mipmap nivå)
         gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
         gl.RGBA, // Format
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        image,
+        this.imageData,
       );
-      this.imagePaths.push(image.src);
     } else {
       gl.texImage2D(
         gl.TEXTURE_2D,
         0, // mipmap level
         gl.RGBA, // internal format
-        width,
-        height,
+        this.width,
+        this.height,
         0, // border
         gl.RGBA, // format
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
-        null,
+        this.imageData as Uint8ClampedArray,
       );
     }
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    if (repeat) {
-      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    if (this.repeat) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     } else {
-      gl.texParameteri(
-        gl.TEXTURE_2D_ARRAY,
-        gl.TEXTURE_WRAP_S,
-        gl.CLAMP_TO_EDGE,
-      );
-      gl.texParameteri(
-        gl.TEXTURE_2D_ARRAY,
-        gl.TEXTURE_WRAP_T,
-        gl.CLAMP_TO_EDGE,
-      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
-    this.glTexture = texture;
-    return texture;
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return this;
   }
 
-  public bind2DArrayTexture(images: HTMLImageElement[], repeat: boolean) {
+  public bind2DArrayTexture() {
+    const images = this.imageData as HTMLImageElement[];
     const gl = Renderer.getGL;
     const tex0 = images[0];
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+    this.glTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.glTexture);
     const width = tex0.width;
     const height = tex0.height;
     const layers = images.length;
@@ -179,7 +154,6 @@ export class Texture {
         gl.UNSIGNED_BYTE,
         tex,
       );
-      this.imagePaths.push(tex.src);
     });
 
     gl.texParameteri(
@@ -188,7 +162,7 @@ export class Texture {
       gl.LINEAR_MIPMAP_LINEAR,
     );
     gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    if (repeat) {
+    if (this.repeat) {
       gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.REPEAT);
     } else {
@@ -203,11 +177,9 @@ export class Texture {
         gl.CLAMP_TO_EDGE,
       );
     }
-
     gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-    this.glTexture = texture;
-    return texture;
+    return this;
   }
 
   public updateTexture(coords: Uint8ClampedArray) {

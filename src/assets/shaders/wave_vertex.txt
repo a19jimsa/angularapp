@@ -4,21 +4,13 @@ layout(location = 1) in vec2 a_texcoord;
 
 layout(location = 2) in vec3 a_instances;
 layout(location = 3) in float a_age;
-layout(location = 4) in float a_lifetime;
-layout(location = 5) in vec3 a_color;
-layout(location = 6) in float a_size;
-layout(location = 7) in float a_rotationSpeed;
-layout(location = 8) in float a_sizeBegin;
-layout(location = 9) in float a_sizeEnd;
-layout(location = 10) in vec3 a_rotation;
+layout(location = 4) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
 
 out vec2 v_texcoord;
-out float v_lifetime;
 out float v_age;
-out vec3 v_color;
 
 vec3 rotateX(vec3 p, float angle)
 {
@@ -59,19 +51,13 @@ vec3 rotateZ(vec3 p, float angle)
 void main() {
     v_texcoord = a_texcoord;
     v_age = a_age;
-    v_lifetime = a_lifetime;
-    v_color = a_color;
 
     vec3 pos = a_position;
-
-    float t = a_age / a_lifetime;
 
     pos = rotateX(pos, a_rotation.x);
     pos = rotateY(pos, a_rotation.y);
     pos = rotateZ(pos, a_rotation.z);
 
-    float size = mix(a_sizeBegin, a_sizeEnd, t);
-    pos *= size;
     pos += a_instances;
     gl_Position = u_matrix * vec4(pos, 1.0);
 }

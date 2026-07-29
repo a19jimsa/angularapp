@@ -1,16 +1,11 @@
-import { Component } from 'src/components/component';
+
 import { Light } from 'src/components/light';
 import { Material } from 'src/components/material';
-import { Mesh } from 'src/components/mesh';
 import { Name } from 'src/components/name';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
-import { BufferLayout } from 'src/renderer/buffer';
-import { Model } from 'src/renderer/model';
-import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
-import { MeshManager } from 'src/resource-manager/mesh-manager';
 
 type Scene = {
   entities: [];

@@ -8,14 +8,12 @@ uniform float u_time;
 uniform vec2 u_speed;
 
 in vec2 v_texcoord;
-in float v_lifetime;
 in float v_age;
-in vec3 v_color;
 
 out vec4 FragColor;
 
 void main() { 
-    float t = 1.0 - v_age / v_lifetime;
+    float t = 1.0 - v_age;
     vec2 uv = v_texcoord;
     vec2 uvScrolling = uv + vec2(u_time * u_speed.x, u_time * u_speed.y); 
     vec3 baseColor = texture(u_textures, vec3(uvScrolling, 0)).rgb;

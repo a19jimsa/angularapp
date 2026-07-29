@@ -1,3 +1,4 @@
+import { Texture } from 'src/renderer/texture';
 import { Component } from './component';
 import { vec3 } from 'gl-matrix';
 
@@ -8,9 +9,11 @@ export class Material extends Component {
   specular = vec3.fromValues(1, 1, 1);
   shininess: number = 1;
   shaderId: string;
+  textures: Set<Texture>;
   constructor(shaderId: string) {
     super();
     this.shaderId = shaderId;
+    this.textures = new Set();
   }
 
   serialize() {

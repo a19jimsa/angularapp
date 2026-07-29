@@ -66,7 +66,6 @@ import { SceneManager } from 'src/scene/scene-manager';
 import { HttpClient } from '@angular/common/http';
 import { BrushImage } from 'src/components/brush-image';
 import { BrushImageComponent } from '../brush-image/brush-image.component';
-import { Sprite2D } from 'src/components/sprite2D';
 import {
   BoxShape,
   ParticleEmitter,
@@ -83,6 +82,7 @@ import { AnimationPlayerManager } from 'src/resource-manager/animation-player-ma
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { TrailRendererSystem } from 'src/systems/trail-renderer-system';
 import { Tree } from 'src/components/tree';
+import { GradientCreatorComponent } from '../gradient-creator/gradient-creator.component';
 
 type IsSelected = {
   select: boolean;
@@ -167,6 +167,7 @@ export type Brush = {
     BrushImageComponent,
     CdkDrag,
     MatCheckboxModule,
+    GradientCreatorComponent,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -276,7 +277,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    TextureManager.restore();
     ShaderManager.restore();
     cancelAnimationFrame(this.gameId);
     // WebGL cleanup
@@ -724,7 +724,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         mountainBrushImage0,
         mountainBrushImage1,
       ],
-      'splatmap',
       false,
     );
 
@@ -739,10 +738,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const brus = await TextureManager.loadImage('assets/textures/brus.png');
 
     const textureArray2 = await TextureManager.addTextureArray(
-      'splatmap',
+      'terrain',
       'u_textures',
       [texture1, texture2, texture3, mountaintexture, mountainNormal, brus],
-      'splatmap',
       true,
     );
 
@@ -767,10 +765,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const waterTextureArray = await TextureManager.addTextureArray(
-      'noise',
+      'waterNormal',
       'u_textures',
       [waterNormal],
-      'water',
       true,
     );
 
@@ -779,10 +776,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const tree8 = await TextureManager.loadImage('/assets/trees/tree_008.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
-      'tree',
+      'trees',
       'u_textures',
       [tree1, tree6, tree8],
-      'tree',
       false,
     );
 
@@ -803,18 +799,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const fireTexture = await TextureManager.addTexture(
-      'fire',
+      'fireNoise',
+      fireNoise.width,
+      fireNoise.height,
       'u_texture',
       fireNoise,
-      'fire',
       true,
     );
 
     const fires = await TextureManager.addTextureArray(
-      'fire',
+      'fires',
       'u_textures',
       [fireNoiseAdd, fireNoiseSub, fireNoiseColor],
-      'fire',
       false,
     );
 
@@ -831,26 +827,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/lightning-color.jpg',
     );
     const lightningTexture = await TextureManager.addTexture(
-      'lightning',
+      'lightning1',
+      lightning.width,
+      lightning.height,
       'u_texture',
       lightning,
-      'lightning',
       true,
     );
 
     const lightningTextures = await TextureManager.addTextureArray(
-      'lightning',
+      'lightning2',
       'u_textures',
       [gradient, lightningColor],
-      'lightning',
       false,
     );
 
     const noiseTexture = await TextureManager.addTexture(
       'noise',
+      noise.width,
+      noise.height,
       'u_heightMap',
       noise,
-      'splatmap',
       true,
     );
 
@@ -865,15 +862,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'heal',
       'u_textures',
       [healing],
-      'heal',
       true,
     );
 
     const healtexture = await TextureManager.addTexture(
-      'heal',
+      'healing1',
+      healing1.width,
+      healing1.height,
       'u_texture',
       healing1,
-      'heal',
       false,
     );
 
@@ -881,7 +878,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'portal',
       'u_textures',
       [noise],
-      'portal',
       false,
     );
 
@@ -894,10 +890,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const auraTexture = await TextureManager.addTexture(
-      'aura',
+      'erase',
+      eraseCurve.width,
+      eraseCurve.height,
       'u_texture',
       eraseCurve,
-      'aura',
       false,
     );
 
@@ -905,7 +902,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'aura',
       'u_textures',
       [noise],
-      'aura',
       true,
     );
 
@@ -918,10 +914,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const fireTextures = await TextureManager.addTextureArray(
-      'fire_vfx',
+      'fire',
       'u_textures',
       [fireImage, alphaCurve, colorRamp],
-      'fire_vfx',
       false,
     );
 
@@ -930,10 +925,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const beamTexture = await TextureManager.addTexture(
-      'beam',
+      'curve',
+      curve.width,
+      curve.height,
       'u_texture',
       curve,
-      'beam',
       false,
     );
 
@@ -941,7 +937,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'beam',
       'u_textures',
       [noise],
-      'beam',
       true,
     );
 
@@ -953,37 +948,37 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'wave',
       'u_textures',
       [wave],
-      'wave',
       true,
     );
 
     const waveTexture = await TextureManager.addTexture(
-      'wave',
+      'healing',
+      healing1.width,
+      healing1.height,
       'u_texture',
       healing1,
-      'wave',
       false,
     );
 
-    const windImage = await TextureManager.loadImage(
-      '/assets/textures/wind.jpg',
-    );
     const wind001Image = await TextureManager.loadImage(
       '/assets/textures/wind_001.png',
     );
 
     const windTexture = await TextureManager.addTexture(
-      'tornado',
+      'wind1',
+      wind001Image.width,
+      wind001Image.height,
       'u_texture',
       wind001Image,
-      'tornado',
       true,
     );
+
     const windTexture2 = await TextureManager.addTexture(
-      'tornado',
+      'wind2',
+      healing1.width,
+      healing1.height,
       'u_texture2',
       healing1,
-      'tornado',
       false,
     );
   }
@@ -1002,7 +997,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         this.sceneObjects.set(name, [entity]); // skapa ny lista
       }
     }
-
     this.cdr.detectChanges();
     this.loop();
   }
@@ -1047,14 +1041,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const width = 500;
     const depth = 500;
     const height = 500;
-    const splatmap = await TextureManager.addNonImage(
-      'terrain' + newEntity,
-      size,
-      size,
-      'u_splatmap',
-      'splatmap',
-      true,
-    );
 
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1069,7 +1055,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Transform3D(0, 0, 0),
     );
-    this.ecs.addComponent<Material>(newEntity, new Material('splatmap'));
+    const material = this.ecs.addComponent<Material>(
+      newEntity,
+      new Material('splatmap'),
+    );
+
     this.ecs.addComponent<Mesh>(
       newEntity,
       new Mesh(500, 500, 'splatmap', 'terrain' + newEntity),
@@ -1083,7 +1073,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Mesh(width, height, 'terrain' + newEntity, 'terrain' + newEntity),
     );
-    this.ecs.addComponent<Splatmap>(
+    const splatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
       new Splatmap(size, 'terrain' + newEntity),
     );
@@ -1092,7 +1082,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Grass(size, 'grass' + newEntity),
     );
-    this.ecs.addComponent<Tree>(newEntity, new Tree("tree" + newEntity));
+    this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
+
+    if (!splatmap) throw new Error('Could not get splatmap');
+    const texture = await TextureManager.addTexture(
+      'splatmap' + newEntity,
+      size,
+      size,
+      'u_splatmap',
+      splatmap.coords,
+      false,
+    );
+    if (material) {
+      const brushes = TextureManager.getTexture('brushes')!;
+      const terrain = TextureManager.getTexture('terrain')!;
+      material.textures.add(texture);
+      material.textures.add(brushes);
+      material.textures.add(terrain);
+    }
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1153,7 +1160,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       instanceTreeBuffer,
       1000000,
     );
-
     TextureManager.dirty = true;
   }
 
@@ -1178,113 +1184,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       list.push(component);
     }
     this.componentsList = list;
-  }
-
-  protected createSphere() {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    const sphere = new Model(buffer);
-    sphere.addTornado();
-    const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
-    this.ecs.addComponent<Transform3D>(
-      effectEntity,
-      new Transform3D(0, 0, 9000),
-    );
-    this.ecs.addComponent<Name>(effectEntity, new Name('Sphere'));
-    this.ecs.addComponent<Mesh>(
-      effectEntity,
-      new Mesh(50, 50, 'fire', 'sphere' + effectEntity),
-    );
-    MeshManager.addMesh(sphere, 'sphere' + effectEntity);
-  }
-
-  protected createCylinder() {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    //Add correct buffer!
-    const cylinderModel = new Model(buffer);
-    cylinderModel.addCylinder();
-    const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Transform3D>(
-      effectEntity,
-      new Transform3D(0, 0, 9000),
-    );
-    this.ecs.addComponent<Material>(effectEntity, new Material('fire'));
-    this.ecs.addComponent<Name>(effectEntity, new Name('Cylinder'));
-    this.ecs.addComponent<Mesh>(
-      effectEntity,
-      new Mesh(50, 50, 'fire', 'cylinder'),
-    );
-    MeshManager.addMesh(cylinderModel, 'cylinder');
-  }
-
-  public createCircle() {
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
-    const model = new Model(buffer);
-    //Change later in runtime with some parameters in UI
-    model.addFlatCircle(10, 10);
-    MeshManager.addMesh(model, 'circle');
-    const instanceBuffer = new BufferLayout();
-    instanceBuffer.add(
-      2,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      3,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      4,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      5,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      6,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      7,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    MeshManager.addInstanceMesh('circle', instanceBuffer, 1);
-    const effectEntity = this.ecs.createEntity();
-    this.ecs.addComponent<Material>(effectEntity, new Material('heal'));
-    this.ecs.addComponent<Transform3D>(
-      effectEntity,
-      new Transform3D(0, 0, 9000),
-    );
-    this.ecs.addComponent<Name>(effectEntity, new Name('Circle'));
-    this.ecs.addComponent<Mesh>(
-      effectEntity,
-      new Mesh(50, 50, 'heal', 'circle'),
-    );
   }
 
   createLightSource() {
@@ -1483,7 +1382,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 1;
+    const speed = 5;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1572,91 +1471,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     throw new Error('Method not implemented.');
   }
 
-  createFire() {
-    const entity = this.ecs.createEntity();
-    this.ecs.addComponent(entity, new Transform3D(0, 0, 9000));
-    this.ecs.addComponent(entity, new Sprite2D('fire', 100, 100));
-    this.ecs.addComponent(entity, new Name('Fire'));
-  }
-
-  createLightning() {
-    const entity = this.ecs.createEntity();
-    this.ecs.addComponent(entity, new Transform3D(0, 50, 9000));
-    const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
-    if (transform) {
-      transform.scale[0] = 10;
-      transform.scale[1] = 10;
-      transform.scale[2] = 10;
-    }
-    this.ecs.addComponent<Material>(entity, new Material('lightning'));
-    this.ecs.addComponent(entity, new Name('Lightning'));
-    const buffer = new BufferLayout();
-    buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    const model = new Model(buffer);
-    //Change later in runtime with some parameters in UI
-    model.addLightning(100, 200, 20);
-    const instanceBuffer = new BufferLayout();
-    instanceBuffer.add(
-      2,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      3,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      4,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      5,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      6,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      7,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    MeshManager.addInstanceMesh('lightning', instanceBuffer, 1);
-
-    MeshManager.addMesh(model, 'lightning');
-    //Add all components
-    this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(100, 100, 'lightning', 'lightning'),
-    );
-    this.ecs.addComponent<Material>(entity, new Material('lightning'));
-  }
-
   createParticleEmitter() {
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Particle System ' + entity));
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    //buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, true); I am not there yeti..
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addRingMesh(0, 10, 50);
@@ -1679,48 +1499,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     instanceBuffer.add(
       4,
       ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      5,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      6,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      7,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      8,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      9,
-      ShaderDataType.GetType(ShaderType.Float),
-      1,
-      false,
-      true,
-    );
-    instanceBuffer.add(
-      10,
-      ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
       true,
@@ -1732,6 +1510,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       10000,
     );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
+    this.ecs.addComponent<Material>(entity, new Material('wave'));
     this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(

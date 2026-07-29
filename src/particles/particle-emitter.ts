@@ -87,22 +87,13 @@ export class ParticleEmitter extends Component {
   velocityY: Float32Array;
   velocityZ: Float32Array;
 
-  colorR: Float32Array;
-  colorG: Float32Array;
-  colorB: Float32Array;
-
   rotationX: Float32Array;
   rotationY: Float32Array;
   rotationZ: Float32Array;
-  rotationSpeed: Float32Array;
 
   age: Float32Array;
-  size: Float32Array;
   lifetime: Float32Array;
   active: Uint8Array;
-
-  sizeBegin: Float32Array;
-  sizeEnd: Float32Array;
 
   subEmitter: ParticleEmitter | null;
 
@@ -135,21 +126,11 @@ export class ParticleEmitter extends Component {
     this.age = new Float32Array(this.maxParticles);
     this.lifetime = new Float32Array(this.maxParticles);
 
-    this.size = new Float32Array(this.maxParticles);
-
     this.rotationX = new Float32Array(this.maxParticles);
     this.rotationY = new Float32Array(this.maxParticles);
     this.rotationZ = new Float32Array(this.maxParticles);
-    this.rotationSpeed = new Float32Array(this.maxParticles);
-
-    this.colorR = new Float32Array(this.maxParticles);
-    this.colorG = new Float32Array(this.maxParticles);
-    this.colorB = new Float32Array(this.maxParticles);
 
     this.active = new Uint8Array(this.maxParticles);
-
-    this.sizeBegin = new Float32Array(this.maxParticles);
-    this.sizeEnd = new Float32Array(this.maxParticles);
 
     this.subEmitter = null;
   }

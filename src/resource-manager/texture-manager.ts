@@ -1,89 +1,66 @@
 import { Target, Texture } from 'src/renderer/texture';
 import { Manager } from './manager';
-
 export class TextureManager extends Manager {
-  private static textures = new Array<Texture>();
+  private static textures = new Map<string, Texture>();
   public static dirty = false;
 
   public static async addTextureArray(
-    slot: string,
+    name: string,
     uniformName: string,
     images: HTMLImageElement[],
-    shaderID: string,
     repeat: boolean,
   ) {
     const texture = new Texture(
-      slot,
+      images,
       Target.TEXTURE_2D_ARRAY,
       images[0].height,
       images[0].width,
       uniformName,
-      shaderID,
+      repeat,
     );
-    texture.bind2DArrayTexture(images, repeat);
-    this.textures.push(texture);
+    texture.bind2DArrayTexture();
+    this.textures.set(name, texture);
     this.dirty = true;
     return texture;
   }
 
   public static addCubeMap(
-    slot: string,
+    name: string,
+    uniformName: string,
     images: HTMLImageElement[],
-    shaderID: string,
   ) {
     const texture = new Texture(
-      slot,
+      images,
       Target.TEXTURE_CUBE_MAP,
       images[0].width,
       images[0].height,
-      'u_skybox',
-      shaderID,
+      uniformName,
+      false,
     );
-    texture.bindCubemap(images);
-    this.textures.push(texture);
+    texture.bindCubemap();
+    this.textures.set(name, texture);
     this.dirty = true;
     return texture;
   }
 
   public static async addTexture(
-    slot: string,
-    unifornName: string,
-    image: HTMLImageElement,
-    shaderID: string,
-    repeat: boolean,
-  ) {
-    const texture = new Texture(
-      slot,
-      Target.TEXTURE_2D,
-      image.width,
-      image.height,
-      unifornName,
-      shaderID,
-    );
-    texture.bindTexture(image, image.width, image.height, repeat);
-    this.textures.push(texture);
-    this.dirty = true;
-    return texture;
-  }
-
-  public static async addNonImage(
-    slot: string,
+    name: string,
     width: number,
     height: number,
     uniformName: string,
-    shaderID: string,
+    image: HTMLImageElement | Uint8ClampedArray,
     repeat: boolean,
   ) {
     const texture = new Texture(
-      slot,
+      image,
       Target.TEXTURE_2D,
       width,
       height,
       uniformName,
-      shaderID,
+      repeat,
     );
-    texture.bindTexture(null, width, height, repeat);
-    this.textures.push(texture);
+    texture.bindTexture();
+    this.textures.set(name, texture);
     this.dirty = true;
     return texture;
   }
@@ -105,15 +82,11 @@ export class TextureManager extends Manager {
     return this.textures.keys();
   }
 
-  static restore() {
-    this.textures.length = 0;
-  }
-
-  static getTexture(slot: string) {
-    return this.textures.find((e) => e.Slot === slot);
-  }
-
   static getTextures() {
     return this.textures;
+  }
+
+  static getTexture(name: string) {
+    return this.textures.get(name);
   }
 }
