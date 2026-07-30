@@ -1,23 +1,30 @@
 <div class="row">
   <div class="col-12">
-    <div class="boundry w-100">
+    {{ input }}
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="boundry">
       @for (item of colorStops; track $index) {
         <input
-          class="example-box border"
+          class="example-box"
           [style.background]="item.color"
           type="color"
           id="background"
           name="background"
           cdkDragBoundary=".boundry"
           cdkDragLockAxis="x"
-          [formControl]="color"
-          [cdkDragFreeDragPosition]="position"
+          [cdkDragFreeDragPosition]="item.position"
           (cdkDragEnded)="onDropped($event, item, color.value)"
+          (dblclick)="addColorStop(item.stop, item.color)"
           cdkDrag
+          [(ngModel)]="item.color"
+          (input)="createCanvas()"
         />
         <label for="background"></label>
       }
+      <canvas class="canvas w-100 h-100" #canvas> </canvas>
     </div>
-    <canvas class="canvas border w-100" #canvas> </canvas>
   </div>
 </div>
