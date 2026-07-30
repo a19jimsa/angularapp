@@ -40,7 +40,7 @@ export class GradientCreatorComponent {
 
   ngAfterViewInit() {
     this.addColorStop(0, 'white');
-    this.addColorStop(1, 'black');
+    this.addColorStop(1, 'white');
     this.createCanvas();
   }
 
