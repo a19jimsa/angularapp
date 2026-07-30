@@ -7,7 +7,12 @@ export const Target = {
 } as const;
 
 export class Texture {
-  private imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray;
+  private imageData:
+    | HTMLImageElement
+    | HTMLImageElement[]
+    | Uint8ClampedArray
+    | HTMLCanvasElement
+    | null;
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
@@ -16,7 +21,12 @@ export class Texture {
   private repeat: boolean;
 
   constructor(
-    imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
+    imageData:
+      | HTMLImageElement
+      | HTMLImageElement[]
+      | Uint8ClampedArray
+      | HTMLCanvasElement
+      | null,
     target: number,
     width: number,
     height: number,
@@ -89,6 +99,15 @@ export class Texture {
         gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
         this.imageData,
       );
+    } else if (this.imageData instanceof HTMLCanvasElement) {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0, // Level (mipmap nivå)
+        gl.RGBA, // Intern format (RGBA eftersom vi lagrar normaler i 3 kanaler + alpha)
+        gl.RGBA, // Format
+        gl.UNSIGNED_BYTE, // Datatyp (Uint8Array)
+        this.imageData,
+      );
     } else {
       gl.texImage2D(
         gl.TEXTURE_2D,
@@ -112,7 +131,9 @@ export class Texture {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
-    gl.generateMipmap(gl.TEXTURE_2D);
+    if (this.width === this.height) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+    }
     gl.bindTexture(gl.TEXTURE_2D, null);
     return this;
   }
@@ -182,19 +203,23 @@ export class Texture {
     return this;
   }
 
-  public updateTexture(coords: Uint8ClampedArray) {
+  public updateTexture(coords: Uint8ClampedArray | HTMLCanvasElement) {
     const gl = Renderer.getGL;
     gl.bindTexture(this.Target, this.Texture);
-    gl.texSubImage2D(
-      this.Target,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      coords,
-    );
+    if (coords instanceof Uint8ClampedArray) {
+      gl.texSubImage2D(
+        this.Target,
+        0,
+        0,
+        0,
+        this.width,
+        this.height,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        coords,
+      );
+    } else {
+      gl.texSubImage2D(this.Target, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, coords);
+    }
   }
 }

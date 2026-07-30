@@ -8,6 +8,9 @@ layout(location = 4) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
+uniform sampler2D u_scaleX;
+uniform sampler2D u_scaleY;
+uniform sampler2D u_scaleZ;
 
 out vec2 v_texcoord;
 out float v_age;
@@ -58,6 +61,12 @@ void main() {
     pos = rotateY(pos, a_rotation.y);
     pos = rotateZ(pos, a_rotation.z);
 
+    float scaleX = texture(u_scaleX, vec2(v_age, 1.0)).r;
+    float scaleY = texture(u_scaleY, vec2(v_age, 1.0)).r;
+    float scaleZ = texture(u_scaleZ, vec2(v_age, 1.0)).r;
+    pos.x *= scaleX;
+    pos.y *= scaleY;
+    pos.z *= scaleZ;
     pos += a_instances;
     gl_Position = u_matrix * vec4(pos, 1.0);
 }

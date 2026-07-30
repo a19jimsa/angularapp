@@ -165,6 +165,8 @@ export class RenderSystem {
     const perspectiveMatrix = mat4.create();
     mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
     shader.setUniformMat4('u_matrix', perspectiveMatrix);
+    const texture = TextureManager.getTexture('skybox');
+    shader.setUniform(0, texture.UniformName, texture.Texture, texture.Target);
     const vao = MeshManager.getMesh('skybox');
     if (vao) {
       Renderer.drawSkybox(vao);
@@ -212,10 +214,10 @@ export class RenderSystem {
       }
 
       if (splatmap && material) {
-        // const texture = TextureManager.getTexture(material.textures);
-        // if (!texture)
-        //   throw new Error('Could not get texture of ' + splatmap.slot);
-        // texture.updateTexture(splatmap.coords);
+        const texture = TextureManager.getTexture(splatmap.slot);
+        if (!texture)
+          throw new Error('Could not get texture of ' + splatmap.slot);
+        texture.updateTexture(splatmap.coords);
       }
 
       if (pivot && transform3D) {
@@ -307,7 +309,6 @@ export class RenderSystem {
             texture.Target,
           );
           slot++;
-          console.log(texture);
         }
         const vao = MeshManager.getMesh(mesh.meshId);
         if (!vao) throw new Error('VAO not found');
@@ -353,7 +354,13 @@ export class RenderSystem {
         shader.setFloat('u_fogPower', terrain.fogPower);
         shader.setVec3('u_fogColor', terrain.fogColor);
         shader.setVec3('u_cameraPos', cameraPos);
-
+        const texture = TextureManager.getTexture('trees');
+        shader.setUniform(
+          0,
+          texture.UniformName,
+          texture.Texture,
+          texture.Target,
+        );
         const vertexArray = MeshManager.getMesh(tree.meshId);
         if (!vertexArray) {
           console.log('Could not get vertex array' + tree.meshId);
@@ -393,6 +400,16 @@ export class RenderSystem {
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now() * 0.001);
       shader.setVec2('u_speed', particleEmitter.speed);
+      let slot = 0;
+      for (const texture of material.textures) {
+        shader.setUniform(
+          slot,
+          texture.UniformName,
+          texture.Texture,
+          texture.Target,
+        );
+        slot++;
+      }
       const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
       if (!vertexArray)
         throw new Error('Mesh is not emitter' + particleEmitter.meshId);

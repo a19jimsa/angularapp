@@ -1157,7 +1157,15 @@
                         />
                       </mat-form-field>
                     </div>
-                    <app-gradient-creator></app-gradient-creator>
+                    <app-gradient-creator
+                      [input]="'scaleX'"
+                    ></app-gradient-creator>
+                    <app-gradient-creator
+                      [input]="'scaleY'"
+                    ></app-gradient-creator>
+                    <app-gradient-creator
+                      [input]="'scaleZ'"
+                    ></app-gradient-creator>
                   </mat-expansion-panel>
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -1294,7 +1302,9 @@
                         />
                       </mat-form-field>
                     </div>
-
+                    <app-gradient-creator
+                      [input]="'color'"
+                    ></app-gradient-creator>
                     <div class="row">
                       <mat-form-field class="col-6">
                         <mat-label>Speed X</mat-label>
@@ -1312,6 +1322,13 @@
                           [(ngModel)]="particleEmitter.speed[1]"
                         />
                       </mat-form-field>
+                    </div>
+                    <div class="row">
+                      <div class="col-12">
+                        <app-gradient-creator
+                          [input]="'opacity'"
+                        ></app-gradient-creator>
+                      </div>
                     </div>
                   </mat-expansion-panel>
                   <mat-expansion-panel>

@@ -4,6 +4,11 @@ export class TextureManager extends Manager {
   private static textures = new Map<string, Texture>();
   public static dirty = false;
 
+  public static bindTexture(name: string, texture: Texture) {
+    texture.bindTexture();
+    this.textures.set(name, texture);
+  }
+
   public static async addTextureArray(
     name: string,
     uniformName: string,
@@ -48,7 +53,7 @@ export class TextureManager extends Manager {
     width: number,
     height: number,
     uniformName: string,
-    image: HTMLImageElement | Uint8ClampedArray,
+    image: HTMLImageElement | Uint8ClampedArray | HTMLCanvasElement,
     repeat: boolean,
   ) {
     const texture = new Texture(
@@ -87,6 +92,8 @@ export class TextureManager extends Manager {
   }
 
   static getTexture(name: string) {
-    return this.textures.get(name);
+    const texture = this.textures.get(name);
+    if (!texture) throw new Error('Could not get texture!');
+    return texture;
   }
 }

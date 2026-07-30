@@ -1,9 +1,7 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { SceneManager } from 'src/scene/scene-manager';
-import { Target } from 'src/renderer/texture';
 
 type ColorStop = {
   color: string;
@@ -17,6 +15,7 @@ type ColorStop = {
   styleUrl: './gradient-creator.component.css',
 })
 export class GradientCreatorComponent {
+  @Input() input: string = new Input();
   @ViewChild('canvas')
   canvas!: ElementRef<HTMLCanvasElement>;
   ctx!: CanvasRenderingContext2D;
@@ -66,18 +65,12 @@ export class GradientCreatorComponent {
       colorStop.color = color;
     }
     this.createCanvas();
+    this.updateTexture();
   }
 
-  async getGradientTexture() {
-    const imageBlob = this.canvas.nativeElement.toDataURL('image/png');
-    const image = new Image();
-    image.src = imageBlob;
-    const texture = await TextureManager.addTextureArray(
-      'gradients',
-      'u_gradients',
-      [image],
-      false,
-    );
-    return texture;
+  updateTexture() {
+    const texture = TextureManager.getTexture(this.input);
+    texture.updateTexture(this.canvas.nativeElement);
+    console.log(texture);
   }
 }

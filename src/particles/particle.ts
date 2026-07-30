@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { Texture } from 'src/renderer/texture';
+import { Target, Texture } from 'src/renderer/texture';
 
 export class Particle {
   position: vec3 = vec3.fromValues(0, 0, 0);
@@ -25,9 +25,46 @@ export class ParticleProp {
   gravity: vec3 = vec3.fromValues(0, 0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
   rotation: vec3 = vec3.fromValues(0, 0, 0);
-  scaleCurveX: Texture | undefined;
-  scaleCurveY: Texture | undefined;
-  scaleCurveZ: Texture | undefined;
+  scaleCurveX: Texture = new Texture(
+    null,
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_scaleX',
+    false,
+  );
+  scaleCurveY: Texture = new Texture(
+    null,
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_scaleY',
+    false,
+  );
+    scaleCurveZ: Texture = new Texture(
+    null,
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_scaleZ',
+    false,
+  );
+  opacityCurve: Texture = new Texture(
+    null,
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_opacityCurve',
+    false,
+  );
+  colorCurve: Texture = new Texture(
+    null,
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_colorCurve',
+    false,
+  );
 
   minRotationX: number = 0;
   maxRotationX: number = 0;

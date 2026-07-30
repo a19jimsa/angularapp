@@ -737,7 +737,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const brus = await TextureManager.loadImage('assets/textures/brus.png');
 
-    const textureArray2 = await TextureManager.addTextureArray(
+    const terrainTexture = await TextureManager.addTextureArray(
       'terrain',
       'u_textures',
       [texture1, texture2, texture3, mountaintexture, mountainNormal, brus],
@@ -1075,7 +1075,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     const splatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(size, 'terrain' + newEntity),
+      new Splatmap(size, 'splatmap' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
     this.ecs.addComponent<Grass>(
@@ -1509,9 +1509,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       instanceBuffer,
       10000,
     );
+
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-    this.ecs.addComponent<Material>(entity, new Material('wave'));
-    this.ecs.addComponent<ParticleEmitter>(
+    const material = this.ecs.addComponent<Material>(
+      entity,
+      new Material('wave'),
+    );
+
+    const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
         'wave',
@@ -1520,6 +1525,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         instanceBuffer.amount,
       ),
     );
+
+    if (material && particleEmitter) {
+      const wave = TextureManager.getTexture('wave');
+      const healing = TextureManager.getTexture('healing');
+      const scaleX = particleEmitter.particleProp.scaleCurveX;
+      const scaleY = particleEmitter.particleProp.scaleCurveY;
+      const scaleZ = particleEmitter.particleProp.scaleCurveZ;
+      const opacity = particleEmitter.particleProp.opacityCurve;
+      const color = particleEmitter.particleProp.colorCurve;
+      TextureManager.bindTexture('scaleX', scaleX);
+      TextureManager.bindTexture('scaleY', scaleY);
+      TextureManager.bindTexture('scaleZ', scaleZ);
+      TextureManager.bindTexture('opacity', opacity);
+      TextureManager.bindTexture('color', color);
+
+      material.textures.add(wave);
+      material.textures.add(healing);
+      material.textures.add(scaleX);
+      material.textures.add(scaleY);
+      material.textures.add(scaleZ);
+      material.textures.add(opacity);
+      material.textures.add(color);
+    }
   }
 
   changeParticleMesh(index: number) {
