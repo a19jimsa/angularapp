@@ -400,6 +400,7 @@ export class RenderSystem {
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now() * 0.001);
       shader.setVec2('u_speed', particleEmitter.speed);
+      shader.setVec3('u_scale', particleEmitter.particleProp.scale);
       let slot = 0;
       for (const texture of material.textures) {
         shader.setUniform(

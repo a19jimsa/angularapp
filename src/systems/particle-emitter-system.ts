@@ -34,6 +34,9 @@ export class ParticleEmitterSystem {
         }
 
         //Updates all particles positions
+        particleEmitter.velocityX[i] += particleEmitter.particleProp.gravity[0];
+        particleEmitter.velocityY[i] += particleEmitter.particleProp.gravity[1];
+        particleEmitter.velocityZ[i] += particleEmitter.particleProp.gravity[2];
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];

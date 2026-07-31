@@ -11,6 +11,7 @@ uniform mat4 u_model;
 uniform sampler2D u_scaleX;
 uniform sampler2D u_scaleY;
 uniform sampler2D u_scaleZ;
+uniform vec3 u_scale;
 
 out vec2 v_texcoord;
 out float v_age;
@@ -64,9 +65,9 @@ void main() {
     float scaleX = texture(u_scaleX, vec2(v_age, 1.0)).r;
     float scaleY = texture(u_scaleY, vec2(v_age, 1.0)).r;
     float scaleZ = texture(u_scaleZ, vec2(v_age, 1.0)).r;
-    pos.x *= scaleX;
-    pos.y *= scaleY;
-    pos.z *= scaleZ;
+    pos.x *= scaleX * u_scale.x;
+    pos.y *= scaleY * u_scale.y;
+    pos.z *= scaleZ * u_scale.z;
     pos += a_instances;
     gl_Position = u_matrix * vec4(pos, 1.0);
 }

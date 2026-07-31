@@ -41,7 +41,7 @@ export class ParticleProp {
     'u_scaleY',
     false,
   );
-    scaleCurveZ: Texture = new Texture(
+  scaleCurveZ: Texture = new Texture(
     null,
     Target.TEXTURE_2D,
     256,
@@ -72,11 +72,8 @@ export class ParticleProp {
   maxRotationY: number = 0;
   minRotationZ: number = 0;
   maxRotationZ: number = 0;
+
   scale: vec3 = vec3.fromValues(1, 1, 1);
-  minScale: number = 0;
-  maxScale: number = 0;
-  scaleRandomness: number = 0;
-  size: number = 1;
   velocityMin: number = 0;
   velocityMax: number = 0;
   lifetime: number = 1;

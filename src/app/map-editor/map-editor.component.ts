@@ -1529,6 +1529,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (material && particleEmitter) {
       const wave = TextureManager.getTexture('wave');
       const healing = TextureManager.getTexture('healing');
+      const fire = TextureManager.getTexture('fire');
       const scaleX = particleEmitter.particleProp.scaleCurveX;
       const scaleY = particleEmitter.particleProp.scaleCurveY;
       const scaleZ = particleEmitter.particleProp.scaleCurveZ;
