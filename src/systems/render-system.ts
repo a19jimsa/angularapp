@@ -392,8 +392,8 @@ export class RenderSystem {
         entity,
         'ParticleEmitter',
       );
-      if (!particleEmitter) continue;
-      const shader = ShaderManager.getShader(particleEmitter.shaderId);
+      if (!particleEmitter || !material) continue;
+      const shader = ShaderManager.getShader(material.shaderId);
       if (!shader)
         throw new Error('Could not load shader' + particleEmitter.shaderId);
       shader.bind();
@@ -401,8 +401,44 @@ export class RenderSystem {
       shader.setFloat('u_time', performance.now() * 0.001);
       shader.setVec2('u_speed', particleEmitter.speed);
       shader.setVec3('u_scale', particleEmitter.particleProp.scale);
+      shader.setUniformMat4('u_model', modelMatrix);
       let slot = 0;
-      for (const texture of material.textures) {
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.scaleCurveX.UniformName,
+        particleEmitter.particleProp.scaleCurveX.Texture,
+        particleEmitter.particleProp.scaleCurveX.Target,
+      );
+      slot++;
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.scaleCurveY.UniformName,
+        particleEmitter.particleProp.scaleCurveY.Texture,
+        particleEmitter.particleProp.scaleCurveY.Target,
+      );
+      slot++;
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.scaleCurveZ.UniformName,
+        particleEmitter.particleProp.scaleCurveZ.Texture,
+        particleEmitter.particleProp.scaleCurveZ.Target,
+      );
+      slot++;
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.colorCurve.UniformName,
+        particleEmitter.particleProp.colorCurve.Texture,
+        particleEmitter.particleProp.colorCurve.Target,
+      );
+      slot++;
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.opacityCurve.UniformName,
+        particleEmitter.particleProp.opacityCurve.Texture,
+        particleEmitter.particleProp.opacityCurve.Target,
+      );
+      slot++;
+      for (const texture of particleEmitter.textures) {
         shader.setUniform(
           slot,
           texture.UniformName,

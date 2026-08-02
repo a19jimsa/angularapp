@@ -53,7 +53,7 @@ export class TextureManager extends Manager {
     width: number,
     height: number,
     uniformName: string,
-    image: HTMLImageElement | Uint8ClampedArray | HTMLCanvasElement,
+    image: HTMLImageElement | Uint8ClampedArray,
     repeat: boolean,
   ) {
     const texture = new Texture(

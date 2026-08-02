@@ -1535,19 +1535,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       const scaleZ = particleEmitter.particleProp.scaleCurveZ;
       const opacity = particleEmitter.particleProp.opacityCurve;
       const color = particleEmitter.particleProp.colorCurve;
-      TextureManager.bindTexture('scaleX', scaleX);
-      TextureManager.bindTexture('scaleY', scaleY);
-      TextureManager.bindTexture('scaleZ', scaleZ);
-      TextureManager.bindTexture('opacity', opacity);
-      TextureManager.bindTexture('color', color);
+      scaleX.bindTexture();
+      scaleY.bindTexture();
+      scaleZ.bindTexture();
+      opacity.bindTexture();
+      color.bindTexture();
 
-      material.textures.add(wave);
-      material.textures.add(healing);
-      material.textures.add(scaleX);
-      material.textures.add(scaleY);
-      material.textures.add(scaleZ);
-      material.textures.add(opacity);
-      material.textures.add(color);
+      particleEmitter.textures.add(wave);
+      particleEmitter.textures.add(healing);
     }
   }
 

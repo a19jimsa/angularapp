@@ -1141,13 +1141,16 @@
                       <mat-panel-description> </mat-panel-description>
                     </mat-expansion-panel-header>
                     <app-gradient-creator
-                      [input]="'scaleX'"
+                      [name]="name"
+                      [texture]="particleEmitter.particleProp.scaleCurveX"
                     ></app-gradient-creator>
                     <app-gradient-creator
-                      [input]="'scaleY'"
+                      [name]="name"
+                      [texture]="particleEmitter.particleProp.scaleCurveY"
                     ></app-gradient-creator>
                     <app-gradient-creator
-                      [input]="'scaleZ'"
+                      [name]="name"
+                      [texture]="particleEmitter.particleProp.scaleCurveZ"
                     ></app-gradient-creator>
                     <div class="row">
                       <mat-form-field class="col-4">
@@ -1275,12 +1278,7 @@
                         <mat-label>{{ particleEmitter.shaderId }}</mat-label>
                         <mat-select>
                           @for (shader of shaders; track shader) {
-                            <mat-option
-                              (onSelectionChange)="
-                                particleEmitter.shaderId = shader
-                              "
-                              >{{ shader }}</mat-option
-                            >
+                            <mat-option>{{ shader }}</mat-option>
                           }
                         </mat-select>
                       </mat-form-field>
@@ -1312,7 +1310,8 @@
                       </mat-form-field>
                     </div>
                     <app-gradient-creator
-                      [input]="'color'"
+                      [name]="name"
+                      [texture]="particleEmitter.particleProp.colorCurve"
                     ></app-gradient-creator>
                     <div class="row">
                       <mat-form-field class="col-6">
@@ -1335,7 +1334,8 @@
                     <div class="row">
                       <div class="col-12">
                         <app-gradient-creator
-                          [input]="'opacity'"
+                          [name]="name"
+                          [texture]="particleEmitter.particleProp.opacityCurve"
                         ></app-gradient-creator>
                       </div>
                     </div>

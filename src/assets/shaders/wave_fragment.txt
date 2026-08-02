@@ -20,8 +20,7 @@ void main() {
     vec2 uv = v_texcoord;
     vec2 uvScrolling = uv + vec2(u_speed.x * u_time, u_speed.y * u_time);
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
-    float t = baseColor.r;
-    baseColor *= color;
-    baseColor.rgb *= opacity;
-    FragColor = vec4(baseColor.rgb, baseColor.r);
+    baseColor.rgb *= color.rgb;
+    baseColor.r *= opacity;
+    FragColor = baseColor;
 }

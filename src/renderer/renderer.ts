@@ -52,7 +52,7 @@ export class Renderer {
     );
     gl.depthMask(false);
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.ONE, gl.ONE);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),

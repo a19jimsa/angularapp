@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-12">
-    {{ input }}
+    {{ texture.UniformName }}
   </div>
 </div>
 <div class="row">
@@ -20,7 +20,7 @@
           (dblclick)="addColorStop(item.stop, item.color)"
           cdkDrag
           [(ngModel)]="item.color"
-          (input)="createCanvas()"
+          (input)="updateGradientFromTexture()"
         />
         <label for="background"></label>
       }

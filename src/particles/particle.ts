@@ -26,7 +26,7 @@ export class ParticleProp {
   color: vec3 = vec3.fromValues(0, 0, 0);
   rotation: vec3 = vec3.fromValues(0, 0, 0);
   scaleCurveX: Texture = new Texture(
-    null,
+    new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
     1,
@@ -34,7 +34,7 @@ export class ParticleProp {
     false,
   );
   scaleCurveY: Texture = new Texture(
-    null,
+    new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
     1,
@@ -42,7 +42,7 @@ export class ParticleProp {
     false,
   );
   scaleCurveZ: Texture = new Texture(
-    null,
+    new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
     1,
@@ -50,7 +50,7 @@ export class ParticleProp {
     false,
   );
   opacityCurve: Texture = new Texture(
-    null,
+    new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
     1,
@@ -58,7 +58,7 @@ export class ParticleProp {
     false,
   );
   colorCurve: Texture = new Texture(
-    null,
+    new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
     1,
@@ -72,6 +72,8 @@ export class ParticleProp {
   maxRotationY: number = 0;
   minRotationZ: number = 0;
   maxRotationZ: number = 0;
+  minRotationSpeed: number = 0;
+  maxRotationSpeed: number = 0;
 
   scale: vec3 = vec3.fromValues(1, 1, 1);
   velocityMin: number = 0;

@@ -2,37 +2,23 @@
 precision mediump float;
 precision mediump sampler2DArray;
 
-uniform sampler2D u_texture;
 uniform sampler2DArray u_textures;
+uniform sampler2D u_texture;
+uniform sampler2D u_opacityCurve;
+uniform sampler2D u_colorCurve;
 uniform float u_time;
 uniform vec2 u_speed;
 
 in vec2 v_texcoord;
-in float v_lifetime;
 in float v_age;
-in vec3 v_color;
 
 out vec4 FragColor;
 
-float remap(float value, float inMin, float inMax, float outMin, float outMax)
-{
-    return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
-}
-
 void main() { 
-    float t = v_age / v_lifetime;
-
-    vec2 uv = v_texcoord + u_speed * u_time;
-
-    vec4 baseColor = texture(u_texture, uv);
-
-    vec4 alphaRamp = texture(u_textures, vec3(vec2(t, 0.5), 0));
-
-    float alpha = smoothstep(alphaRamp.r - 0.05, alphaRamp.r + 0.05, baseColor.r);
-
-    vec4 colorRamp = texture(u_textures,vec3(vec2(baseColor.r, 0.5), 1));
-
-    alpha *= t;
-
-    FragColor = vec4(colorRamp.rgb * alpha, alpha);
+    float opacity = texture(u_opacityCurve, vec2(v_age, 1.0)).r;
+    vec4 colorCurve = texture(u_colorCurve, vec2(v_age, 1.0));
+    vec2 uv = v_texcoord;
+    vec2 uvScrolling = uv + vec2(u_speed.x * u_time, u_speed.y * u_time);
+    vec4 color = texture(u_texture, uvScrolling);
+    FragColor = color;
 }

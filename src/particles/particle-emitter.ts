@@ -2,6 +2,7 @@ import { Component } from 'src/components/component';
 import { ParticleProp } from './particle';
 import { vec2, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
+import { Texture } from 'src/renderer/texture';
 
 export interface SpawnShape {
   type: string;
@@ -61,6 +62,7 @@ export class ParticleEmitter extends Component {
   override type: string = 'ParticleEmitter';
   shaderId: string;
   meshId: string;
+  textures: Set<Texture>;
   poolIndex: number = 0;
   amount: number;
   aliveCount: number = 0;
@@ -90,6 +92,8 @@ export class ParticleEmitter extends Component {
   rotationX: Float32Array;
   rotationY: Float32Array;
   rotationZ: Float32Array;
+
+  rotationSpeed: Float32Array;
 
   age: Float32Array;
   lifetime: Float32Array;
@@ -130,8 +134,12 @@ export class ParticleEmitter extends Component {
     this.rotationY = new Float32Array(this.maxParticles);
     this.rotationZ = new Float32Array(this.maxParticles);
 
+    this.rotationSpeed = new Float32Array(this.maxParticles);
+
     this.active = new Uint8Array(this.maxParticles);
 
     this.subEmitter = null;
+
+    this.textures = new Set();
   }
 }

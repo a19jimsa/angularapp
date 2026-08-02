@@ -40,6 +40,9 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsX[i] += particleEmitter.velocityX[i];
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
+        particleEmitter.rotationX[i] += particleEmitter.rotationSpeed[i];
+        particleEmitter.rotationY[i] += particleEmitter.rotationSpeed[i];
+        particleEmitter.rotationZ[i] += particleEmitter.rotationSpeed[i];
 
         particleEmitter.age[i] += 0.016;
       }
@@ -158,6 +161,10 @@ export class ParticleEmitterSystem {
       );
       particleEmitter.rotationZ[index] = MathUtils.degreesToRadians(
         MathUtils.random(particleProp.minRotationZ, particleProp.maxRotationZ),
+      );
+      particleEmitter.rotationSpeed[index] = MathUtils.random(
+        particleProp.minRotationSpeed,
+        particleProp.maxRotationSpeed,
       );
       value++;
     }

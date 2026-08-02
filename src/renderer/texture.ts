@@ -7,12 +7,7 @@ export const Target = {
 } as const;
 
 export class Texture {
-  private imageData:
-    | HTMLImageElement
-    | HTMLImageElement[]
-    | Uint8ClampedArray
-    | HTMLCanvasElement
-    | null;
+  private imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray;
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
@@ -21,12 +16,7 @@ export class Texture {
   private repeat: boolean;
 
   constructor(
-    imageData:
-      | HTMLImageElement
-      | HTMLImageElement[]
-      | Uint8ClampedArray
-      | HTMLCanvasElement
-      | null,
+    imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
     target: number,
     width: number,
     height: number,
@@ -39,6 +29,10 @@ export class Texture {
     this.height = height;
     this.uniformName = uniformName;
     this.repeat = repeat;
+  }
+
+  public get ImageData() {
+    return this.imageData;
   }
 
   public get Texture() {
@@ -203,7 +197,7 @@ export class Texture {
     return this;
   }
 
-  public updateTexture(coords: Uint8ClampedArray | HTMLCanvasElement) {
+  public updateTexture(coords: Uint8ClampedArray) {
     const gl = Renderer.getGL;
     gl.bindTexture(this.Target, this.Texture);
     if (coords instanceof Uint8ClampedArray) {
