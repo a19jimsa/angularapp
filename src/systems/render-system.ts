@@ -253,6 +253,7 @@ export class RenderSystem {
         if (terrain) {
           shader.setFloat('u_tiling', terrain.tiling);
           shader.setFloat('u_fogPower', terrain.fogPower);
+          shader.setVec4('u_colors', terrain.colors);
         }
         shader.setUniformMat4(
           'u_matrix',
@@ -438,7 +439,7 @@ export class RenderSystem {
         particleEmitter.particleProp.opacityCurve.Target,
       );
       slot++;
-      for (const texture of particleEmitter.textures) {
+      for (const texture of material.textures) {
         shader.setUniform(
           slot,
           texture.UniformName,

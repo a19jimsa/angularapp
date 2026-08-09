@@ -13,7 +13,7 @@ export class Particle {
 }
 
 export class ParticleProp {
-  position: vec3 = vec3.fromValues(250, 3, 250);
+  position: vec3 = vec3.fromValues(250, 0, 480);
   angleMin: number = 0;
   angleMax: number = 0;
   velocity: vec3 = vec3.fromValues(0, 0, 0);

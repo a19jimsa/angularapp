@@ -272,8 +272,8 @@ export class Model {
         const a = y * (widthSegments + 1) + x;
         const b = a + widthSegments + 1;
 
-        indices.push(a, b, a + 1);
-        indices.push(b, b + 1, a + 1);
+        indices.push(b, a, a + 1);
+        indices.push(b + 1, b, a + 1);
       }
     }
 
@@ -467,21 +467,21 @@ export class Model {
     this.vertices = [];
     this.indices = [];
 
-    const height = 10;
+    const height = 2;
     const segments = 30;
-    const radius = 10;
+    const radius = 1;
 
     for (let i = 0; i <= segments; i++) {
       const theta = (i / segments) * Math.PI * 2;
       const x = Math.cos(theta) * radius;
       const z = Math.sin(theta) * radius;
       const u = i / segments;
+      //Bottom
+      this.vertices.push(x / 2, 1, z / 2);
+      this.vertices.push(u, 0);
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
-      //Bottom
-      this.vertices.push(x / 2, 0, z / 2);
-      this.vertices.push(u, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -504,52 +504,50 @@ export class Model {
 
     const vertices = [
       // 0
-      -5, 0, 0, 0, 0.0,
+      -0.5, 0, 0, 0, 0.0,
 
       // 1
-      5, 0, 0, 1, 0.0,
+      0.5, 0, 0, 1, 0.0,
 
       // 2
-      5, 18, 0, 0, 0.2,
+      0.5, 1, 0, 0, 0.2,
 
       // 3
-      10, 18, 0, 1, 0.2,
+      1, 1, 0, 1, 0.2,
 
       // 4
-      -10, 35, 0, 0, 0.4,
+      -1, 2, 0, 0, 0.4,
 
       // 5
-      0, 35, 0, 1, 0.4,
+      0, 2, 0, 1, 0.4,
 
       // 6
-      -5, 52, 0, 0, 0.6,
+      -0.5, 3, 0, 0, 0.6,
 
       // 7
-      5, 52, 0, 1, 0.6,
+      0.5, 3, 0, 1, 0.6,
 
       // 8
-      -20, 72, 0, 0, 0.8,
+      -1, 4, 0, 0, 0.8,
 
       // 9
-      0, 72, 0, 1, 0.8,
+      0, 4, 0, 1, 0.8,
 
       // 10
-      0, 92, 0, 0, 1.0,
+      0, 5, 0, 0, 1.0,
 
       // 11
-      8, 92, 0, 1, 1.0,
+      1.2, 5, 0, 1, 1.0,
     ];
 
     for (let i = 0; i < 5; i++) {
       const index = i * 2;
-
       indices.push(
-        index,
-        index + 1,
-        index + 2,
-
         index + 1,
         index + 3,
+        index + 2,
+        index,
+        index + 1,
         index + 2,
       );
     }
@@ -583,7 +581,7 @@ export class Model {
       const inner1 = (i + 1) * 2;
       const outer1 = (i + 1) * 2 + 1;
 
-      indices.push(inner0, outer0, outer1);
+      indices.push(outer0, inner0, outer1);
 
       indices.push(inner0, outer1, inner1);
     }

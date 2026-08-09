@@ -14,11 +14,22 @@ in float v_age;
 
 out vec4 FragColor;
 
+float remap(float value, float inMin, float inMax, float outMin, float outMax) {
+    return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+}
+
 void main() { 
     float opacity = texture(u_opacityCurve, vec2(v_age, 1.0)).r;
-    vec4 colorCurve = texture(u_colorCurve, vec2(v_age, 1.0));
+
     vec2 uv = v_texcoord;
     vec2 uvScrolling = uv + vec2(u_speed.x * u_time, u_speed.y * u_time);
-    vec4 color = texture(u_texture, uvScrolling);
-    FragColor = color;
+
+    vec4 baseColor = texture(u_texture, uvScrolling);
+    vec4 color = texture(u_colorCurve, vec2(baseColor.r, 1.0));
+
+    float x = remap(opacity, 0.0, 1.0, 0.0, 0.7);
+
+    x = smoothstep(x, 0.7, baseColor.r);
+
+    FragColor = vec4(color.rgb, x);
 }

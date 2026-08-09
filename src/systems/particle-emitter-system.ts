@@ -1,6 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { Ecs } from 'src/core/ecs';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
 
 export class ParticleEmitterSystem {
@@ -46,12 +47,13 @@ export class ParticleEmitterSystem {
 
         particleEmitter.age[i] += 0.016;
       }
-
+      const mesh = MeshManager.getMesh(particleEmitter.meshId);
+      if (!mesh) throw Error('Must have mesh');
       let aliveCount = 0;
       //Fill particle buffer with values
       for (let i = 0; i < particleEmitter.maxParticles; i++) {
         if (particleEmitter.active[i] === 0) continue;
-        const j = aliveCount * particleEmitter.stride;
+        const j = aliveCount * mesh.bufferLayout.amount;
         particleEmitter.particles[j] = particleEmitter.positionsX[i];
         particleEmitter.particles[j + 1] = particleEmitter.positionsY[i];
         particleEmitter.particles[j + 2] = particleEmitter.positionsZ[i];

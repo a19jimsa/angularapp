@@ -63,7 +63,7 @@ export class ParticleEmitter extends Component {
   shaderId: string;
   meshId: string;
   textures: Set<Texture>;
-  poolIndex: number = 0;
+  poolIndex: number = 1;
   amount: number;
   aliveCount: number = 0;
   particles: Float32Array;
@@ -73,7 +73,6 @@ export class ParticleEmitter extends Component {
   timer: number = 0;
   speed: vec2 = vec2.fromValues(0, 0);
   shape: SpawnShape = new PointShape();
-  stride: number;
   explosiveness: number = 0;
   emitting: boolean = true;
   oneShot: boolean = false;
@@ -101,23 +100,17 @@ export class ParticleEmitter extends Component {
 
   subEmitter: ParticleEmitter | null;
 
-  constructor(
-    shaderId: string,
-    meshId: string,
-    amount: number,
-    stride: number,
-  ) {
+  constructor(shaderId: string, meshId: string) {
     super();
     this.maxParticles = 10000;
-    this.stride = stride;
-    this.particles = new Float32Array(this.maxParticles * stride);
+    this.particles = new Float32Array(this.maxParticles * 7);
     this.particleProp = new ParticleProp();
 
     this.emitting = true;
 
     this.shaderId = shaderId;
     this.meshId = meshId;
-    this.amount = amount;
+    this.amount = 1;
 
     this.positionsX = new Float32Array(this.maxParticles);
     this.positionsY = new Float32Array(this.maxParticles);

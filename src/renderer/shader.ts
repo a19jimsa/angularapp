@@ -1,4 +1,4 @@
-import { mat4, vec2, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { Renderer } from './renderer';
 export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
@@ -58,6 +58,10 @@ export class Shader {
 
   setVec3(name: string, value: vec3) {
     Renderer.getGL.uniform3fv(this.getUniformLocation(name), value);
+  }
+
+  setVec4(name: string, value: vec4) {
+    Renderer.getGL.uniform4fv(this.getUniformLocation(name), value);
   }
 
   setFloat(name: string, value: number) {

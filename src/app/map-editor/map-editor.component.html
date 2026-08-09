@@ -270,6 +270,53 @@
                         />
                       </mat-form-field>
                     </div>
+                    <div class="row">
+                      <mat-form-field class="col-3">
+                        <mat-label>Red</mat-label>
+                        <input
+                          min="0"
+                          max="100"
+                          step="1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.colors[0]"
+                        />
+                      </mat-form-field>
+
+                      <mat-form-field class="col-3">
+                        <mat-label>Green</mat-label>
+                        <input
+                          min="0"
+                          max="100"
+                          step="1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.colors[1]"
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-3">
+                        <mat-label>Blue</mat-label>
+                        <input
+                          min="0"
+                          max="100"
+                          step="1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.colors[2]"
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-3">
+                        <mat-label>Alpha</mat-label>
+                        <input
+                          min="0"
+                          max="100"
+                          step="1"
+                          matInput
+                          type="number"
+                          [(ngModel)]="terrain.colors[3]"
+                        />
+                      </mat-form-field>
+                    </div>
                     <div class="d-flex flex-column justify-content-center">
                       <div class="example-label-container">
                         <label
@@ -342,7 +389,7 @@
                         <button
                           matMiniFab
                           aria-label="Example icon button with a menu icon"
-                          (click)="changeTool('tree')"
+                          (click)="changeTool('erosion')"
                         >
                           <mat-icon>park</mat-icon>
                         </button>
@@ -1278,7 +1325,10 @@
                         <mat-label>{{ particleEmitter.shaderId }}</mat-label>
                         <mat-select>
                           @for (shader of shaders; track shader) {
-                            <mat-option>{{ shader }}</mat-option>
+                            <mat-option
+                              (onSelectionChange)="changeParticleShader(shader)"
+                              >{{ shader }}</mat-option
+                            >
                           }
                         </mat-select>
                       </mat-form-field>
@@ -1467,7 +1517,7 @@
         </mat-card-header>
         <mat-card-content>
           <div class="row">
-            <div class="col-3 d-flex justify-content-between">
+            <div class="col-2 d-flex justify-content-between">
               <div class="player-buttons">
                 <button matIconButton (click)="togglePlayAnimation()">
                   <mat-icon>play_arrow</mat-icon>
@@ -1490,7 +1540,7 @@
                 }
                 <div
                   #cursor
-                  style="width: 10px; color: blue; position: absolute"
+                  style="width: 10px; background-color: red; position: absolute"
                   class="h-100 border"
                   cdkDragLockAxis="x"
                   cdkDragBoundary=".timeline"
@@ -1500,7 +1550,7 @@
                 ></div>
               </div>
             </div>
-            <div class="col-1">
+            <div class="col-2">
               <mat-form-field class="w-100">
                 <mat-label>Time</mat-label>
                 <input

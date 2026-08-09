@@ -63,8 +63,8 @@ void main() {
     pos = rotateZ(pos, a_rotation.z);
 
     float scaleX = texture(u_scaleX, vec2(v_age, 1.0)).r;
-    float scaleY = texture(u_scaleY, vec2(v_age, 1.0)).r;
-    float scaleZ = texture(u_scaleZ, vec2(v_age, 1.0)).r;
+    float scaleY = texture(u_scaleY, vec2(v_age, 1.0)).g;
+    float scaleZ = texture(u_scaleZ, vec2(v_age, 1.0)).b;
     pos.x *= scaleX * u_scale.x;
     pos.y *= scaleY * u_scale.y;
     pos.z *= scaleZ * u_scale.z;

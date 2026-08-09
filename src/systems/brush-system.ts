@@ -2,7 +2,7 @@ import { mat4, vec3, vec4 } from 'gl-matrix';
 import {
   Brush,
   Mouse,
-  ToolBrush,
+  TerrainBrushes,
 } from 'src/app/map-editor/map-editor.component';
 import {
   GrassBrush,
@@ -61,7 +61,8 @@ export class BrushSystem {
       //   const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
       //   this.movePivot(transform3D, mouse, pivotIndex);
       // }
-      if (meshBrush.type === ToolBrush.Height) {
+
+      if (meshBrush.type === TerrainBrushes.Height) {
         this.heightBrush(
           meshBrush,
           vec4.fromValues(
@@ -72,7 +73,7 @@ export class BrushSystem {
           ),
           ecs,
         );
-      } else if (meshBrush.type === ToolBrush.Splat) {
+      } else if (meshBrush.type === TerrainBrushes.Splat) {
         const splatmap = ecs.getComponent<Splatmap>(
           meshBrush.entity,
           'Splatmap',
@@ -87,7 +88,7 @@ export class BrushSystem {
           vertices[index + 3],
           vertices[index + 4],
         );
-      } else if (meshBrush.type === ToolBrush.Grass) {
+      } else if (meshBrush.type === TerrainBrushes.Grass) {
         const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
         if (!grass) return;
         this.paintImage(
@@ -99,8 +100,66 @@ export class BrushSystem {
           vertices[index + 4],
         );
         this.createFoliage(vertices, ecs, meshBrush);
+      } else if (meshBrush.type === TerrainBrushes.Erosion) {
+        this.erosionBrush(ecs, vertices, index, meshBrush);
       }
     }
+  }
+
+  private erosionBrush(
+    ecs: Ecs,
+    vertices: Float32Array,
+    index: number,
+    meshBrush: Brush,
+  ) {
+    const vertexStride = 8;
+
+    const commandList: Map<number, number> = new Map();
+
+    // hur många vertices per rad
+    const width = 101;
+
+    // vertex index i grid
+    const vertexIndex = index / vertexStride;
+
+    const gridX = vertexIndex % width;
+    const gridZ = Math.floor(vertexIndex / width);
+
+    const radius = Math.ceil(meshBrush.radius);
+
+    const strength = 0.025;
+    const talus = 1.0;
+
+    for (let z = -radius; z <= radius; z++) {
+      for (let x = -radius; x <= radius; x++) {
+        const nx = gridX + x;
+        const nz = gridZ + z;
+
+        if (nx < 0 || nx >= width || nz < 0) continue;
+
+        const distance = Math.sqrt(x * x + z * z);
+
+        if (distance > meshBrush.radius) continue;
+
+        const neighborIndex = (nz * width + nx) * vertexStride;
+
+        const neighborHeight = vertices[neighborIndex + 1];
+        const currentHeight = vertices[index + 1];
+
+        const diff = currentHeight - neighborHeight;
+
+        if (diff > talus) {
+          const amount =
+            (diff - talus) * strength * (1 - distance / meshBrush.radius);
+
+          commandList.set(neighborIndex + 1, -amount);
+        }
+      }
+    }
+
+    CommandManager.add(
+      new HeightBrushCommand(meshBrush.entity, ecs, commandList),
+    );
   }
 
   private calculateBrushImageUV(
@@ -125,9 +184,9 @@ export class BrushSystem {
     if (!vertexArray) return -1;
     const vertices = vertexArray.vertexBuffer.vertices;
     for (
-      let i = vertices.length - vertexArray.bufferLayout.stride / 4;
+      let i = vertices.length - vertexArray.bufferLayout.amount;
       i >= 0;
-      i -= vertexArray.bufferLayout.stride / 4
+      i -= vertexArray.bufferLayout.amount
     ) {
       const model = mat4.create();
 
@@ -175,9 +234,9 @@ export class BrushSystem {
       const sy = (1 - (ndcY * 0.5 + 0.5)) * Renderer.getHeight();
 
       const dx = mouse.x - sx;
-      const dy = mouse.y - sy;
+      const dz = mouse.y - sy;
 
-      const d = dx * dx + dy * dy;
+      const d = dx * dx + dz * dz;
       if (d < 300) {
         return i;
       }
@@ -489,7 +548,6 @@ export class BrushSystem {
     const brushStrength = meshBrush.strength;
     const imageData = this.getImageData(meshBrush.image, 0.5);
     if (!imageData) throw new Error('Could not get image data!');
-
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
@@ -504,7 +562,7 @@ export class BrushSystem {
     for (
       let i = 0;
       i < vertexArray.vertexBuffer.vertices.length;
-      i += vertexArray.bufferLayout.stride / 4
+      i += vertexArray.bufferLayout.amount
     ) {
       const pos = vec4.fromValues(
         vertexArray.vertexBuffer.vertices[i],

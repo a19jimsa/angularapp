@@ -121,12 +121,12 @@ export enum Tools {
   Heightmap,
 }
 
-export enum ToolBrush {
+export enum TerrainBrushes {
   Height,
   Grass,
-  Trees,
+  Tree,
   Splat,
-  Pivot,
+  Erosion,
 }
 
 export type Asset = {
@@ -140,7 +140,7 @@ export type Brush = {
   color: string;
   alpha: number;
   image: HTMLImageElement;
-  type: ToolBrush;
+  type: TerrainBrushes;
   entity: Entity;
   negative: boolean;
   fallOff: number;
@@ -240,7 +240,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     radius: 5,
     strength: 1,
     image: new Image(),
-    type: ToolBrush.Grass,
+    type: TerrainBrushes.Grass,
     color: 'red',
     alpha: 1,
     entity: -1,
@@ -640,12 +640,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   changeTool(name: string) {
-    const toolMap: Record<string, ToolBrush> = {
-      grass: ToolBrush.Grass,
-      tree: ToolBrush.Trees,
-      height: ToolBrush.Height,
-      splat: ToolBrush.Splat,
-      pivot: ToolBrush.Pivot,
+    const toolMap: Record<string, TerrainBrushes> = {
+      grass: TerrainBrushes.Grass,
+      tree: TerrainBrushes.Tree,
+      height: TerrainBrushes.Height,
+      splat: TerrainBrushes.Splat,
+      erosion: TerrainBrushes.Erosion,
     };
 
     this.meshbrush.type = toolMap[name];
@@ -661,7 +661,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const starBrushImage = await TextureManager.loadImage(
-      'assets/brushes/star_brush.jpg',
+      'assets/brushes/smoke_brush.jpg',
     );
 
     const terrainBrushImage = await TextureManager.loadImage(
@@ -670,10 +670,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const roundBrushImage = await TextureManager.loadImage(
       'assets/brushes/round_brush_001.jpg',
-    );
-
-    const squareBrushImage = await TextureManager.loadImage(
-      'assets/brushes/square_brush.jpg',
     );
 
     const mountainBrushImage0 = await TextureManager.loadImage(
@@ -719,7 +715,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         starBrushImage,
         terrainBrushImage,
         roundBrushImage,
-        squareBrushImage,
         textureImage,
         mountainBrushImage0,
         mountainBrushImage1,
@@ -737,10 +732,32 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const brus = await TextureManager.loadImage('assets/textures/brus.png');
 
+    const ambientOcclusion = await TextureManager.loadImage(
+      'assets/textures/marble_rock_01_ao_1k.jpg',
+    );
+
+    const pebbles = await TextureManager.loadImage(
+      'assets/textures/dry_river_pebbles_diff_1k.jpg',
+    );
+
+    const pebblesAO = await TextureManager.loadImage(
+      'assets/textures/dry_river_pebbles_ao_1k.jpg',
+    );
+
     const terrainTexture = await TextureManager.addTextureArray(
       'terrain',
       'u_textures',
-      [texture1, texture2, texture3, mountaintexture, mountainNormal, brus],
+      [
+        texture1,
+        texture2,
+        texture3,
+        mountaintexture,
+        mountainNormal,
+        brus,
+        ambientOcclusion,
+        pebbles,
+        pebblesAO,
+      ],
       true,
     );
 
@@ -750,7 +767,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         starBrushImage,
         terrainBrushImage,
         roundBrushImage,
-        squareBrushImage,
         textureImage,
         mountainBrushImage0,
         mountainBrushImage1,
@@ -817,15 +833,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const lightning = await TextureManager.loadImage(
       '/assets/textures/lightning.jpg',
     );
-    const gradient = await TextureManager.loadImage(
-      '/assets/textures/gradient.jpg',
-    );
-    const alphaCurve = await TextureManager.loadImage(
-      '/assets/textures/alpha-curve.jpg',
-    );
-    const lightningColor = await TextureManager.loadImage(
-      '/assets/textures/lightning-color.jpg',
-    );
     const lightningTexture = await TextureManager.addTexture(
       'lightning1',
       lightning.width,
@@ -833,13 +840,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'u_texture',
       lightning,
       true,
-    );
-
-    const lightningTextures = await TextureManager.addTextureArray(
-      'lightning2',
-      'u_textures',
-      [gradient, lightningColor],
-      false,
     );
 
     const noiseTexture = await TextureManager.addTexture(
@@ -909,14 +909,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/fire_vfx.jpg',
     );
 
-    const colorRamp = await TextureManager.loadImage(
-      '/assets/textures/color-ramp.jpg',
-    );
-
     const fireTextures = await TextureManager.addTextureArray(
       'fire',
       'u_textures',
-      [fireImage, alphaCurve, colorRamp],
+      [fireImage],
       false,
     );
 
@@ -1520,16 +1516,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       entity,
       new ParticleEmitter(
         'wave',
-        'particleEmitter' + entity,
-        1,
-        instanceBuffer.amount,
+        'particleEmitter' + entity
       ),
     );
 
-    if (material && particleEmitter) {
-      const wave = TextureManager.getTexture('wave');
-      const healing = TextureManager.getTexture('healing');
-      const fire = TextureManager.getTexture('fire');
+    if (particleEmitter) {
       const scaleX = particleEmitter.particleProp.scaleCurveX;
       const scaleY = particleEmitter.particleProp.scaleCurveY;
       const scaleZ = particleEmitter.particleProp.scaleCurveZ;
@@ -1540,10 +1531,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       scaleZ.bindTexture();
       opacity.bindTexture();
       color.bindTexture();
-
-      particleEmitter.textures.add(wave);
-      particleEmitter.textures.add(healing);
     }
+
+    if (material) {
+      const wave = TextureManager.getTexture('wave');
+      const healing = TextureManager.getTexture('healing');
+      material.textures.add(wave);
+      material.textures.add(healing);
+    }
+  }
+
+  changeParticleShader(shader: string) {
+    const material = this.ecs.getComponent<Material>(
+      this.meshbrush.entity,
+      'Material',
+    );
+    if (!material) return;
+    material.shaderId = shader;
+    material.textures.clear();
+    const lightning1 = TextureManager.getTexture('lightning1');
+    material.textures.add(lightning1);
   }
 
   changeParticleMesh(index: number) {

@@ -1,4 +1,4 @@
-import { vec3 } from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
 import { Component } from './component';
 
 export class Terrain extends Component {
@@ -12,6 +12,7 @@ export class Terrain extends Component {
   depth: number;
   height: number;
   size: number;
+  colors: vec4 = vec4.fromValues(0, 1, 2, 3);
 
   constructor(width: number, depth: number, height: number, size: number) {
     super();

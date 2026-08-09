@@ -16,11 +16,12 @@ out vec4 FragColor;
 
 void main() { 
     float opacity = texture(u_opacityCurve, vec2(v_age, 1.0)).r;
-    vec4 color = texture(u_colorCurve, vec2(v_age, 1.0));
+
     vec2 uv = v_texcoord;
     vec2 uvScrolling = uv + vec2(u_speed.x * u_time, u_speed.y * u_time);
+
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
-    baseColor.rgb *= color.rgb;
-    baseColor.r *= opacity;
-    FragColor = baseColor;
+    vec4 color = texture(u_colorCurve, vec2(baseColor.r, 1.0));
+
+    FragColor = vec4(color.rgb, baseColor.r);
 }
