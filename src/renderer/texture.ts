@@ -137,14 +137,15 @@ export class Texture {
     const gl = Renderer.getGL;
     const tex0 = images[0];
     this.glTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.glTexture);
+    gl.bindTexture(this.target, this.glTexture);
     const width = tex0.width;
     const height = tex0.height;
     const layers = images.length;
+
     gl.texImage3D(
-      gl.TEXTURE_2D_ARRAY,
+      this.target,
       0,
-      gl.RGBA8,
+      gl.RGBA,
       width,
       height,
       layers,
@@ -153,11 +154,12 @@ export class Texture {
       gl.UNSIGNED_BYTE,
       null,
     );
+
     console.log(images);
 
     images.forEach((tex, i) => {
       gl.texSubImage3D(
-        gl.TEXTURE_2D_ARRAY,
+        this.target,
         0,
         0,
         0,
@@ -172,35 +174,27 @@ export class Texture {
     });
 
     gl.texParameteri(
-      gl.TEXTURE_2D_ARRAY,
+      this.target,
       gl.TEXTURE_MIN_FILTER,
       gl.LINEAR_MIPMAP_LINEAR,
     );
-    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     if (this.repeat) {
-      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, gl.REPEAT);
     } else {
-      gl.texParameteri(
-        gl.TEXTURE_2D_ARRAY,
-        gl.TEXTURE_WRAP_S,
-        gl.CLAMP_TO_EDGE,
-      );
-      gl.texParameteri(
-        gl.TEXTURE_2D_ARRAY,
-        gl.TEXTURE_WRAP_T,
-        gl.CLAMP_TO_EDGE,
-      );
+      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
-    gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
+    gl.generateMipmap(this.target);
+    gl.bindTexture(this.target, null);
     return this;
   }
 
-  public updateTexture(coords: Uint8ClampedArray) {
+  public updateTexture(data: Uint8ClampedArray | HTMLImageElement) {
     const gl = Renderer.getGL;
     gl.bindTexture(this.Target, this.Texture);
-    if (coords instanceof Uint8ClampedArray) {
+    if (data instanceof Uint8ClampedArray) {
       gl.texSubImage2D(
         this.Target,
         0,
@@ -210,10 +204,29 @@ export class Texture {
         this.height,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        coords,
+        data,
       );
     } else {
-      gl.texSubImage2D(this.Target, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, coords);
+      gl.texSubImage2D(this.Target, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
     }
+  }
+
+  public updateTextureArrayLayer(image: HTMLImageElement, layer: number) {
+    const gl = Renderer.getGL;
+    gl.bindTexture(this.Target, this.Texture);
+    gl.texSubImage3D(
+      this.Target,
+      0,
+      0,
+      0,
+      layer,
+      this.width,
+      this.height,
+      1,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      image,
+    );
+    console.log('Updated texture ' + this.Target);
   }
 }

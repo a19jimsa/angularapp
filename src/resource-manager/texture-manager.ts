@@ -48,7 +48,7 @@ export class TextureManager extends Manager {
     return texture;
   }
 
-  public static async addTexture(
+  public static addTexture(
     name: string,
     width: number,
     height: number,
@@ -70,8 +70,7 @@ export class TextureManager extends Manager {
     return texture;
   }
 
-  public static async loadImage(path: string): Promise<HTMLImageElement> {
-    // Load texture
+  static async loadImage(path: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = (_) => resolve(image);

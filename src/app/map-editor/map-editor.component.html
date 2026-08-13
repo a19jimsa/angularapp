@@ -399,7 +399,6 @@
                       [images]="this.brushImages"
                       (selected)="changeBrushImage($event)"
                     ></app-brush-image>
-                    <img [src]="this.splatmapImage" width="50" height="50" />
                     <div class="d-flex flex-row">
                       <div class="col-6">
                         <mat-slider min="0" max="1" step="0.1" discrete>
@@ -1359,6 +1358,14 @@
                         />
                       </mat-form-field>
                     </div>
+                    <div
+                      class="row border"
+                      cdkDropList
+                      id="list-two"
+                      [cdkDropListConnectedTo]="['list-one']"
+                      (cdkDropListDropped)="drop($event)"
+                      style="height: 100px"
+                    ></div>
                     <app-gradient-creator
                       [name]="name"
                       [texture]="particleEmitter.particleProp.colorCurve"
@@ -1472,27 +1479,22 @@
     <div class="col-6">
       <mat-card>
         <mat-card-header><h2>Assets</h2></mat-card-header>
-        <mat-card-content>
+        <mat-card-content class="border">
           <div
+            cdkDropList
+            id="list-one"
+            [cdkDropListConnectedTo]="['list-two']"
             class="d-flex align-items-center flex-wrap overflow-auto"
-            style="height: 150px"
+            style="height: 200px"
           >
-            <mat-card>
-              <mat-card-header><h3 class="center">Trees</h3></mat-card-header>
-              <mat-card-content>
-                <button
-                  (click)="openFolder()"
-                  matIconButton
-                  aria-label="Example icon button with a open in new tab icon"
-                  class="h-100"
-                  style="width: 150px"
-                >
-                  <mat-icon class="w-100" style="font-size: 100px"
-                    >folder</mat-icon
-                  >
-                </button>
-              </mat-card-content>
-            </mat-card>
+            @for (asset of assets; track $index) {
+              <img
+                [src]="asset[1].src"
+                style="width: 10%"
+                cdkDrag
+                [cdkDragData]="asset"
+              />
+            }
           </div>
         </mat-card-content>
       </mat-card>

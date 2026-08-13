@@ -563,16 +563,18 @@ export class Model {
     for (let i = 0; i <= segments; i++) {
       const t = (i / segments) * Math.PI * 2;
 
+      const u = i / segments;
+
       const cos = Math.cos(t);
       const sin = Math.sin(t);
 
       // Inner vertex
       vertices.push(cos * innerRadius, 0, sin * innerRadius);
-      vertices.push(t, 1);
+      vertices.push(u, 1);
 
       // Outer vertex
       vertices.push(cos * outerRadius, 0, sin * outerRadius);
-      vertices.push(t, 0);
+      vertices.push(u, 0);
     }
 
     for (let i = 0; i < segments; i++) {

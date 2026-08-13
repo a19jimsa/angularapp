@@ -47,7 +47,6 @@ import { MovementSystem } from 'src/systems/movement-system';
 import { Controlable } from 'src/components/controlable';
 import { Player } from 'src/components/player';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
-import { TextureManager } from 'src/resource-manager/texture-manager';
 import { MouseHandler } from 'src/core/mouse-handler';
 import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { Light } from 'src/components/light';
@@ -76,13 +75,20 @@ import {
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 import { Animation } from 'src/components/animation';
 import { AnimationPlayer, Keyframe, Track } from 'src/core/animation-player';
-import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragEnd,
+  CdkDropList,
+} from '@angular/cdk/drag-drop';
 import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { TrailRendererSystem } from 'src/systems/trail-renderer-system';
 import { Tree } from 'src/components/tree';
 import { GradientCreatorComponent } from '../gradient-creator/gradient-creator.component';
+import { AssetManager } from 'src/resource-manager/asset-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
 type IsSelected = {
   select: boolean;
@@ -168,6 +174,7 @@ export type Brush = {
     CdkDrag,
     MatCheckboxModule,
     GradientCreatorComponent,
+    CdkDropList,
   ],
   templateUrl: './map-editor.component.html',
   styleUrl: './map-editor.component.css',
@@ -515,6 +522,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return image.src;
   }
 
+  get assets() {
+    return AssetManager.getAssets();
+  }
+
+  get asset() {
+    return AssetManager.getAssets().values();
+  }
+
   get getEditMode(): Mode {
     return Mode.Edit;
   }
@@ -548,7 +563,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //IS notr doing antyhting feyat
     await this.loadAllTextures();
 
-    // console.log(TextureManager.getTexture())
+    // console.log(AssetManager.getTexture())
 
     this.bones = Loader.getBones('skeleton');
     this.renderSystem = new RenderSystem();
@@ -656,55 +671,32 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadAllbrushes() {
-    const smokeBrushImage = await TextureManager.loadImage(
+    const smokeBrushImage = await AssetManager.loadImage(
       'assets/brushes/mountain_brush_002.jpg',
     );
 
-    const starBrushImage = await TextureManager.loadImage(
+    const starBrushImage = await AssetManager.loadImage(
       'assets/brushes/smoke_brush.jpg',
     );
 
-    const terrainBrushImage = await TextureManager.loadImage(
+    const terrainBrushImage = await AssetManager.loadImage(
       'assets/brushes/terrain_brush.jpg',
     );
 
-    const roundBrushImage = await TextureManager.loadImage(
+    const roundBrushImage = await AssetManager.loadImage(
       'assets/brushes/round_brush_001.jpg',
     );
 
-    const mountainBrushImage0 = await TextureManager.loadImage(
+    const mountainBrushImage0 = await AssetManager.loadImage(
       'assets/brushes/mountain_brush.jpg',
     );
 
-    const mountainBrushImage1 = await TextureManager.loadImage(
+    const mountainBrushImage1 = await AssetManager.loadImage(
       'assets/brushes/mountain_brush_001.jpg',
     );
 
-    const textureImage = await TextureManager.loadImage(
+    const textureImage = await AssetManager.loadImage(
       'assets/brushes/texture_brush.jpg',
-    );
-
-    const texture1 = await TextureManager.loadImage(
-      'assets/textures/grass.jpg',
-    );
-    const texture2 = await TextureManager.loadImage(
-      'assets/textures/mountain.jpg',
-    );
-    const texture3 = await TextureManager.loadImage('assets/textures/snow.jpg');
-    const texture4 = await TextureManager.loadImage('assets/textures/sand.jpg');
-    const texture5 = await TextureManager.loadImage(
-      'assets/textures/sand_01.jpg',
-    );
-    const texture6 = await TextureManager.loadImage(
-      'assets/textures/sand_02.jpg',
-    );
-
-    const texture7 = await TextureManager.loadImage(
-      'assets/textures/ground_01.jpg',
-    );
-
-    const texture8 = await TextureManager.loadImage(
-      'assets/textures/stone.jpg',
     );
 
     const textureArray = await TextureManager.addTextureArray(
@@ -721,26 +713,44 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       ],
       false,
     );
+    const texture1 = await AssetManager.loadImage('assets/textures/grass.jpg');
+    const texture2 = await AssetManager.loadImage(
+      'assets/textures/mountain.jpg',
+    );
+    const texture3 = await AssetManager.loadImage('assets/textures/snow.jpg');
+    const texture4 = await AssetManager.loadImage('assets/textures/sand.jpg');
+    const texture5 = await AssetManager.loadImage(
+      'assets/textures/sand_01.jpg',
+    );
+    const texture6 = await AssetManager.loadImage(
+      'assets/textures/sand_02.jpg',
+    );
 
-    const mountaintexture = await TextureManager.loadImage(
+    const texture7 = await AssetManager.loadImage(
+      'assets/textures/ground_01.jpg',
+    );
+
+    const texture8 = await AssetManager.loadImage('assets/textures/stone.jpg');
+
+    const mountaintexture = await AssetManager.loadImage(
       'assets/textures/marble_rock_01.jpg',
     );
 
-    const mountainNormal = await TextureManager.loadImage(
+    const mountainNormal = await AssetManager.loadImage(
       'assets/textures/marble_rock_01_normal.jpg',
     );
 
-    const brus = await TextureManager.loadImage('assets/textures/brus.png');
+    const brus = await AssetManager.loadImage('assets/textures/brus.png');
 
-    const ambientOcclusion = await TextureManager.loadImage(
+    const ambientOcclusion = await AssetManager.loadImage(
       'assets/textures/marble_rock_01_ao_1k.jpg',
     );
 
-    const pebbles = await TextureManager.loadImage(
+    const pebbles = await AssetManager.loadImage(
       'assets/textures/dry_river_pebbles_diff_1k.jpg',
     );
 
-    const pebblesAO = await TextureManager.loadImage(
+    const pebblesAO = await AssetManager.loadImage(
       'assets/textures/dry_river_pebbles_ao_1k.jpg',
     );
 
@@ -776,7 +786,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Init brushimage to brush
     this.meshbrush.image = smokeBrushImage;
 
-    const waterNormal = await TextureManager.loadImage(
+    const waterNormal = await AssetManager.loadImage(
       'assets/textures/water_normal_01.jpg',
     );
 
@@ -787,9 +797,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
 
-    const tree1 = await TextureManager.loadImage('/assets/trees/tree_004.png');
-    const tree6 = await TextureManager.loadImage('/assets/trees/tree_006.png');
-    const tree8 = await TextureManager.loadImage('/assets/trees/tree_008.png');
+    const tree1 = await AssetManager.loadImage('/assets/trees/tree_004.png');
+    const tree6 = await AssetManager.loadImage('/assets/trees/tree_006.png');
+    const tree8 = await AssetManager.loadImage('/assets/trees/tree_008.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
       'trees',
@@ -798,19 +808,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const fireNoise = await TextureManager.loadImage(
+    const fireNoise = await AssetManager.loadImage(
       '/assets/textures/fire-noise.jpg',
     );
-    const fireNoiseSub = await TextureManager.loadImage(
+    const fireNoiseSub = await AssetManager.loadImage(
       '/assets/textures/fire-noise-sub.jpg',
     );
-    const fireNoiseColor = await TextureManager.loadImage(
+    const fireNoiseColor = await AssetManager.loadImage(
       '/assets/textures/fire-noise-color.png',
     );
-    const fireNoiseAdd = await TextureManager.loadImage(
+    const fireNoiseAdd = await AssetManager.loadImage(
       '/assets/textures/fire-noise-add.jpg',
     );
-    const noise = await TextureManager.loadImage(
+    const noise = await AssetManager.loadImage(
       '/assets/textures/noise_002.jpg',
     );
 
@@ -830,7 +840,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const lightning = await TextureManager.loadImage(
+    const lightning = await AssetManager.loadImage(
       '/assets/textures/lightning.jpg',
     );
     const lightningTexture = await TextureManager.addTexture(
@@ -851,10 +861,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
 
-    const healing = await TextureManager.loadImage(
+    const healing = await AssetManager.loadImage(
       '/assets/textures/healing.jpg',
     );
-    const healing1 = await TextureManager.loadImage(
+    const healing1 = await AssetManager.loadImage(
       '/assets/textures/heal_shade.jpg',
     );
 
@@ -881,11 +891,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const colorCurve = await TextureManager.loadImage(
+    const colorCurve = await AssetManager.loadImage(
       '/assets/textures/color-curve.jpg',
     );
 
-    const eraseCurve = await TextureManager.loadImage(
+    const eraseCurve = await AssetManager.loadImage(
       '/assets/textures/erase.jpg',
     );
 
@@ -905,7 +915,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
 
-    const fireImage = await TextureManager.loadImage(
+    const fireImage = await AssetManager.loadImage(
       '/assets/textures/fire_vfx.jpg',
     );
 
@@ -916,7 +926,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const curve = await TextureManager.loadImage(
+    const curve = await AssetManager.loadImage(
       '/assets/textures/size-curve.jpg',
     );
 
@@ -936,7 +946,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
 
-    const wave = await TextureManager.loadImage(
+    const wave = await AssetManager.loadImage(
       '/assets/textures/expansive_wave.jpg',
     );
 
@@ -956,7 +966,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const wind001Image = await TextureManager.loadImage(
+    const wind001Image = await AssetManager.loadImage(
       '/assets/textures/wind_001.png',
     );
 
@@ -1033,7 +1043,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrain() {
     const newEntity = this.ecs.createEntity();
-    const size = 128;
+    const size = 512;
     const width = 500;
     const depth = 500;
     const height = 500;
@@ -1514,10 +1524,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter(
-        'wave',
-        'particleEmitter' + entity
-      ),
+      new ParticleEmitter('wave', 'particleEmitter' + entity),
     );
 
     if (particleEmitter) {
@@ -1733,5 +1740,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       particleEmitter.active.fill(0);
       particleEmitter.spawnAccumulator = 0;
     }
+  }
+
+  async drop(event: CdkDragDrop<[string, HTMLImageElement]>) {
+    const material = this.ecs.getComponent<Material>(
+      this.meshbrush.entity,
+      'Material',
+    );
+    if (!material) return;
+    const image = event.item.data[1] as HTMLImageElement;
+    const texture = await TextureManager.addTextureArray(
+      'wave',
+      'u_texture',
+      [image],
+      true,
+    );
+
+    material.textures.clear();
+    material.textures.add(texture);
   }
 }
