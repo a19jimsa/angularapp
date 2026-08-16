@@ -26,7 +26,6 @@ import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { Tree } from 'src/components/tree';
-import { Target } from 'src/renderer/texture';
 
 type Sprite = {
   position: Transform3D;

@@ -111,25 +111,26 @@ export class Model {
     this.vertices = skyboxVertices;
   }
 
-  addQuad() {
+  addQuad(width: number, height: number) {
+    const aspect = width / height;
     const vertices = [
       // x     y     z     u   v
-      -0.5,
+      -0.5 * aspect,
       -0.5,
       0,
       0,
       1, // v0 (bottom-left)
-      0.5,
+      0.5 * aspect,
       -0.5,
       0,
       1,
       1, // v1 (bottom-right)
-      0.5,
+      0.5 * aspect,
       0.5,
       0,
       1,
       0, // v2 (top-right)
-      -0.5,
+      -0.5 * aspect,
       0.5,
       0,
       0,

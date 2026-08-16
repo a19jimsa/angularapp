@@ -21,4 +21,8 @@ export class AssetManager extends Manager {
   public static getAssets() {
     return this.images;
   }
+
+  public static getAsset(name: string) {
+    return this.images.get(name);
+  }
 }

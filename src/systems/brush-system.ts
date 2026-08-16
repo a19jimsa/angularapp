@@ -399,8 +399,8 @@ export class BrushSystem {
         const treeX = x + nx * offset;
         const treeY = y + ny;
         const treeZ = z + nz * offset;
-        const size = MathUtils.random(10, 20);
-        const id = MathUtils.random(0, 2);
+        const size = MathUtils.random(1, 1);
+        const id = MathUtils.random(0, 1);
 
         treePositions.push(treeX, treeY, treeZ);
         treePositions.push(size, id);
@@ -653,19 +653,9 @@ export class BrushSystem {
   //       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
   //       if (dist < epsilon) {
   //         if (meshBrush.type === ToolBrush.Height) {
-  //           //this.heightBrush(meshBrush, mesh.vertices, vx, vy, vz, ecs);
   //         } else if (meshBrush.type === ToolBrush.Grass) {
-  //           //this.grassBrush(ecs, vx, vy, vz, mesh, meshBrush);
-  //           this.grassBrushWithImage(ecs, meshBrush, vx, vy, vz);
   //         } else if (meshBrush.type === ToolBrush.Trees) {
-  //           this.treeBrush(ecs, vx, vy, vz);
   //         } else if (meshBrush.type === ToolBrush.Splat) {
-  //           this.paintImage(
-  //             ecs,
-  //             meshBrush,
-  //             mesh.vertices[j + 3],
-  //             mesh.vertices[j + 4],
-  //           );
   //         }
   //         return;
   //       }

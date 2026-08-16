@@ -89,6 +89,7 @@ import { Tree } from 'src/components/tree';
 import { GradientCreatorComponent } from '../gradient-creator/gradient-creator.component';
 import { AssetManager } from 'src/resource-manager/asset-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
+import { MathUtils } from 'src/Utils/MathUtils';
 
 type IsSelected = {
   select: boolean;
@@ -801,10 +802,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const tree6 = await AssetManager.loadImage('/assets/trees/tree_006.png');
     const tree8 = await AssetManager.loadImage('/assets/trees/tree_008.png');
 
+    const bush1 = await AssetManager.loadImage('/assets/bushes/bushes2.png');
+    const bush2 = await AssetManager.loadImage('/assets/bushes/bushes3.png');
+
     const treeTextureArray = await TextureManager.addTextureArray(
       'trees',
       'u_textures',
-      [tree1, tree6, tree8],
+      [bush1, bush2],
       false,
     );
 
@@ -1091,7 +1095,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
 
     if (!splatmap) throw new Error('Could not get splatmap');
-    const texture = await TextureManager.addTexture(
+    const texture = TextureManager.addTexture(
       'splatmap' + newEntity,
       size,
       size,
@@ -1137,7 +1141,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'tree_fragment.txt',
     );
     const treeModel = new Model(treeBuffer);
-    treeModel.addQuad();
+    const image = AssetManager.getAsset('bushes2.png');
+    if (!image) throw Error('Could not get image of tree');
+    treeModel.addQuad(image.width, image.height);
     MeshManager.addMesh(treeModel, 'tree' + newEntity);
     const instanceTreeBuffer = new BufferLayout();
     instanceTreeBuffer.add(
@@ -1572,7 +1578,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     switch (index) {
       case 0:
-        model.addQuad();
+        model.addQuad(1, 1);
         break;
       case 1:
         model.addLightning(10, 10, 20);
@@ -1599,7 +1605,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addSpiral(50, 0.5, 10, 1);
         break;
       default:
-        model.addQuad();
+        model.addQuad(1, 1);
         break;
     }
     MeshManager.updateMesh(model, emitter.meshId);
@@ -1758,5 +1764,79 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     material.textures.clear();
     material.textures.add(texture);
+  }
+
+  public createFoliage() {
+    const grass = this.ecs.getComponent<Grass>(this.meshbrush.entity, 'Grass');
+    const tree = this.ecs.getComponent<Tree>(this.meshbrush.entity, 'Tree');
+    const terrain = this.ecs.getComponent<Terrain>(
+      this.meshbrush.entity,
+      'Terrain',
+    );
+    const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
+    const splatmap = this.ecs.getComponent<Splatmap>(
+      this.meshbrush.entity,
+      'Splatmap',
+    );
+    if (!grass || !terrain || !tree || !splatmap || !mesh) return;
+    grass.amount = 0;
+    tree.amount = 0;
+    const grassPositions = new Array();
+    const treePositions = new Array();
+    const vertexArray = MeshManager.getMesh(mesh.meshId);
+    if (!vertexArray) return;
+    const vertices = vertexArray.vertexBuffer.vertices;
+    for (let i = 0; i < vertices.length; i += vertexArray.bufferLayout.amount) {
+      const x = vertices[i + 0];
+      const y = vertices[i + 1];
+      const z = vertices[i + 2];
+
+      const u = vertices[i + 3];
+      const v = vertices[i + 4];
+
+      const nx = vertices[i + 5];
+      const ny = vertices[i + 6];
+      const nz = vertices[i + 7];
+
+      const px = Math.floor(u * (splatmap.size - 1));
+      const pz = Math.floor(v * (splatmap.size - 1));
+
+      const pixelIndex = (pz * splatmap.size + px) * 4;
+
+      const red = splatmap.coords[pixelIndex + 0];
+      const green = splatmap.coords[pixelIndex + 1];
+
+      if (red === 255) {
+        const offset = 0.05;
+
+        const dx = x;
+        const dz = z;
+
+        const grassX = dx + nx * offset;
+        const grassY = y + ny * offset;
+        const grassZ = dz + nz * offset;
+
+        grassPositions.push(grassX, grassY, grassZ);
+
+        grass.amount++;
+
+        if (grass.amount >= grass.maxAmount) return;
+      }
+      if (red === 255) {
+        const offset = 50 * Math.random();
+        const treeX = x + nx * offset;
+        const treeY = y + ny;
+        const treeZ = z + nz * offset;
+
+        treePositions.push(treeX, treeY, treeZ);
+        treePositions.push(1, 0);
+
+        tree.amount++;
+
+        if (tree.amount >= tree.maxAmount) return;
+      }
+    }
+    grass.positions.set(grassPositions);
+    tree.positions.set(treePositions);
   }
 }
