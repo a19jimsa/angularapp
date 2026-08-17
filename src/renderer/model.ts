@@ -1,5 +1,7 @@
 import { Vec } from 'src/app/vec';
 import { BufferLayout } from './buffer';
+import { vec3 } from 'gl-matrix';
+import { VertexArray } from './vertex-array';
 
 export class Model {
   vertices: number[] = new Array();
@@ -62,6 +64,7 @@ export class Model {
         vertices.push(px, py, pz);
 
         vertices.push(u, v);
+        vertices.push(0, 0, 0);
       }
     }
 
@@ -264,6 +267,7 @@ export class Model {
 
         vertices.push(px, py, pz);
         vertices.push(u, v);
+        vertices.push(0, 0, 0);
       }
     }
 
@@ -289,6 +293,7 @@ export class Model {
     // center vertex
     vertices.push(0, 0, 0);
     vertices.push(0.5, 0.5);
+    vertices.push(0, 0, 0);
 
     // outer ring
     for (let i = 0; i <= segments; i++) {
@@ -304,8 +309,8 @@ export class Model {
       const dz = z;
       const dist = Math.sqrt(dx * dx + dz * dz);
       const uv = dist / radius;
-
       vertices.push(uv, uv);
+      vertices.push(0, 0, 0);
     }
 
     for (let i = 1; i <= segments; i++) {
@@ -446,9 +451,11 @@ export class Model {
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
+      this.vertices.push(0, 0, 0);
       //Bottom
       this.vertices.push(x, 0, z);
       this.vertices.push(u, 0);
+      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -480,9 +487,11 @@ export class Model {
       //Bottom
       this.vertices.push(x / 2, 1, z / 2);
       this.vertices.push(u, 0);
+      this.vertices.push(0, 0, 0);
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
+      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -500,9 +509,7 @@ export class Model {
 
   addLightning(width: number, height: number, segments: number) {
     const indices: number[] = [];
-
     // x, y, z, u, v
-
     const vertices = [
       // 0
       -0.5, 0, 0, 0, 0.0,
@@ -572,10 +579,12 @@ export class Model {
       // Inner vertex
       vertices.push(cos * innerRadius, 0, sin * innerRadius);
       vertices.push(u, 1);
+      vertices.push(0, 0, 0);
 
       // Outer vertex
       vertices.push(cos * outerRadius, 0, sin * outerRadius);
       vertices.push(u, 0);
+      vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -609,7 +618,9 @@ export class Model {
       const z = Math.sin(angle) * radius;
 
       vertices.push(x, y, z, t, 1);
+      vertices.push(0, 0, 0);
       vertices.push(x, y + width, z, t, 0);
+      vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -622,5 +633,66 @@ export class Model {
     }
     this.vertices = vertices;
     this.indices = indices;
+  }
+
+  public updateNormals(): void {
+    const vertices = this.vertices;
+    const indices = this.indices;
+    // Steg 1: Initiera alla normals till 0
+    for (let i = 0; i < vertices.length / 8; i++) {
+      vertices[i * 8 + 5] = 0;
+      vertices[i * 8 + 6] = 0;
+      vertices[i * 8 + 7] = 0;
+    }
+    //Stride 8 xyzuvnormals(3)
+    for (let i = 0; i < indices.length; i += 3) {
+      const i0 = indices[i];
+      const i1 = indices[i + 1];
+      const i2 = indices[i + 2];
+
+      const v0 = vertices[i0 * 8];
+      const v1 = vertices[i0 * 8 + 1];
+      const v2 = vertices[i0 * 8 + 2];
+
+      const v3 = vertices[i1 * 8];
+      const v4 = vertices[i1 * 8 + 1];
+      const v5 = vertices[i1 * 8 + 2];
+
+      const v6 = vertices[i2 * 8];
+      const v7 = vertices[i2 * 8 + 1];
+      const v8 = vertices[i2 * 8 + 2];
+
+      const triangleA = vec3.fromValues(v0, v1, v2);
+      const triangleB = vec3.fromValues(v3, v4, v5);
+      const triangleC = vec3.fromValues(v6, v7, v8);
+
+      const edge = vec3.create();
+      vec3.subtract(edge, triangleB, triangleA);
+      const edge1 = vec3.create();
+      vec3.subtract(edge1, triangleC, triangleA);
+
+      const normal = vec3.create();
+      vec3.cross(normal, edge, edge1);
+      vec3.normalize(normal, normal);
+      // Skriv normalen till varje vertex i triangeln (flat shading)
+      for (const idx of [i0, i1, i2]) {
+        vertices[idx * 8 + 5] += normal[0];
+        vertices[idx * 8 + 6] += normal[1];
+        vertices[idx * 8 + 7] += normal[2];
+      }
+    }
+    // Steg 3: Normalisera normals för varje vertex
+    for (let i = 0; i < vertices.length / 8; i++) {
+      const nx = vertices[i * 8 + 5];
+      const ny = vertices[i * 8 + 6];
+      const nz = vertices[i * 8 + 7];
+
+      const normal = vec3.fromValues(nx, ny, nz);
+      vec3.normalize(normal, normal);
+
+      vertices[i * 8 + 5] = normal[0];
+      vertices[i * 8 + 6] = normal[1];
+      vertices[i * 8 + 7] = normal[2];
+    }
   }
 }

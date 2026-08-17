@@ -65,6 +65,14 @@ export class ParticleProp {
     'u_colorCurve',
     false,
   );
+  displacement: Texture = new Texture(
+    new Uint8ClampedArray(256 * 4).fill(255),
+    Target.TEXTURE_2D,
+    256,
+    1,
+    'u_displacement',
+    false,
+  );
 
   minRotationX: number = 0;
   maxRotationX: number = 0;

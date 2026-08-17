@@ -438,6 +438,13 @@ export class RenderSystem {
         particleEmitter.particleProp.opacityCurve.Target,
       );
       slot++;
+      shader.setUniform(
+        slot,
+        particleEmitter.particleProp.displacement.UniformName,
+        particleEmitter.particleProp.displacement.Texture,
+        particleEmitter.particleProp.displacement.Target,
+      );
+      slot++;
       for (const texture of material.textures) {
         shader.setUniform(
           slot,

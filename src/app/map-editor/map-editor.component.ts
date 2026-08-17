@@ -1167,11 +1167,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh(
-      'tree' + newEntity,
-      instanceTreeBuffer,
-      1000000,
-    );
+    MeshManager.addInstanceMesh('tree' + newEntity, instanceTreeBuffer, 10000);
     TextureManager.dirty = true;
   }
 
@@ -1489,27 +1485,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addRingMesh(0, 10, 50);
+    model.addRingMesh(0, 10, 20);
+    model.updateNormals();
     MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
-      2,
+      3,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
       true,
     );
     instanceBuffer.add(
-      3,
+      4,
       ShaderDataType.GetType(ShaderType.Float),
       1,
       false,
       true,
     );
     instanceBuffer.add(
-      4,
+      5,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
@@ -1539,11 +1537,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       const scaleZ = particleEmitter.particleProp.scaleCurveZ;
       const opacity = particleEmitter.particleProp.opacityCurve;
       const color = particleEmitter.particleProp.colorCurve;
+      const displacement = particleEmitter.particleProp.displacement;
       scaleX.bindTexture();
       scaleY.bindTexture();
       scaleZ.bindTexture();
       opacity.bindTexture();
       color.bindTexture();
+      displacement.bindTexture();
     }
 
     if (material) {
@@ -1608,6 +1608,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addQuad(1, 1);
         break;
     }
+    model.updateNormals();
     MeshManager.updateMesh(model, emitter.meshId);
   }
 

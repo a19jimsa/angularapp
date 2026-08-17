@@ -1,10 +1,11 @@
 #version 300 es
 layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec2 a_texcoord;
+layout(location = 2) in vec3 a_normal;
 
-layout(location = 2) in vec3 a_instances;
-layout(location = 3) in float a_age;
-layout(location = 4) in vec3 a_rotation;
+layout(location = 3) in vec3 a_instances;
+layout(location = 4) in float a_age;
+layout(location = 5) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
@@ -12,6 +13,7 @@ uniform sampler2D u_scaleX;
 uniform sampler2D u_scaleY;
 uniform sampler2D u_scaleZ;
 uniform vec3 u_scale;
+uniform sampler2D u_displacement;
 
 out vec2 v_texcoord;
 out float v_age;
@@ -57,6 +59,10 @@ void main() {
     v_age = a_age;
 
     vec3 pos = a_position;
+    vec4 displacement = texture(u_displacement, vec2(v_texcoord.y, 0.5));
+
+    pos.x *= displacement.r;
+    pos.z *= displacement.r;
 
     pos = rotateX(pos, a_rotation.x);
     pos = rotateY(pos, a_rotation.y);
