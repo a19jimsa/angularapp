@@ -75,5 +75,5 @@ void main() {
     pos.y *= scaleY * u_scale.y;
     pos.z *= scaleZ * u_scale.z;
     pos += a_instances;
-    gl_Position = u_matrix * vec4(pos, 1.0);
+    gl_Position = u_matrix * u_model * vec4(pos, 1.0);
 }

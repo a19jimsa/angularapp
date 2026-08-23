@@ -20,7 +20,7 @@
           (dblclick)="addColorStop(item.stop, item.color)"
           cdkDrag
           [(ngModel)]="item.color"
-          (input)="updateGradientFromTexture()"
+          (input)="updateTextureFromCanvas()"
         />
         <label for="background"></label>
       }

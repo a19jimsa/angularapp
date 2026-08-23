@@ -29,5 +29,5 @@ void main() {
    v_depth = worldPos.z;
    v_fogDistance = length(worldPos.xyz - u_cameraPos);
    v_normal = mat3(transpose(inverse(u_model))) * a_normal;
-   gl_Position = u_matrix * worldPos;
+   gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
 }

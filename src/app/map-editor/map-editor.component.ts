@@ -300,7 +300,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   get name() {
     const name = this.ecs.getComponent<Name>(this.meshbrush.entity, 'Name');
     if (name) return name.value;
-    return null;
+    return 'randomName';
   }
 
   get animation() {
@@ -619,6 +619,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('beam', 'beam_vertex.txt', 'beam_fragment.txt');
 
     await ShaderManager.load('wave', 'wave_vertex.txt', 'wave_fragment.txt');
+    await ShaderManager.load('wind', 'wind_vertex.txt', 'wind_fragment.txt');
 
     await ShaderManager.load('trail', 'trail_vertex.txt', 'trail_fragment.txt');
   }
@@ -1559,8 +1560,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.meshbrush.entity,
       'Material',
     );
-    if (!material) return;
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!material || !particleEmitter) return;
     material.shaderId = shader;
+    particleEmitter.shaderId = shader;
     material.textures.clear();
     const lightning1 = TextureManager.getTexture('lightning1');
     material.textures.add(lightning1);

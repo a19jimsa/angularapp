@@ -226,7 +226,6 @@ export class RenderSystem {
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
-        const modelMatrix = mat4.create();
         mat4.translate(modelMatrix, modelMatrix, transform3D.position);
         shader.setUniformMat4('u_model', modelMatrix);
         const vao = MeshManager.getMesh('pivot');
@@ -288,12 +287,13 @@ export class RenderSystem {
 
         if (transform3D) {
           mat4.translate(modelMatrix, modelMatrix, transform3D.position);
-          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+          mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
           mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
           mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
           shader.setUniformMat4('u_model', modelMatrix);
         }
+
         if (water) {
           shader.setFloat('u_displacmentScale', water.displacement);
           shader.setFloat('u_tiling', water.tiling);
@@ -397,11 +397,11 @@ export class RenderSystem {
       if (!shader)
         throw new Error('Could not load shader' + particleEmitter.shaderId);
       shader.bind();
+      shader.setUniformMat4('u_model', modelMatrix);
       shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
       shader.setFloat('u_time', performance.now() * 0.001);
       shader.setVec2('u_speed', particleEmitter.speed);
       shader.setVec3('u_scale', particleEmitter.particleProp.scale);
-      shader.setUniformMat4('u_model', modelMatrix);
       let slot = 0;
       shader.setUniform(
         slot,

@@ -23,5 +23,7 @@ void main() {
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
     vec4 color = texture(u_colorCurve, vec2(baseColor.r, 1.0));
 
-    FragColor = vec4(color.rgb, baseColor.r);
+    color *= opacity;
+
+    FragColor = vec4(color.rgb, color.w);
 }

@@ -80,10 +80,9 @@ export class ParticleProp {
   maxRotationY: number = 0;
   minRotationZ: number = 0;
   maxRotationZ: number = 0;
-  minRotationSpeed: number = 0;
-  maxRotationSpeed: number = 0;
 
   scale: vec3 = vec3.fromValues(1, 1, 1);
+  rotationSpeed: vec3 = vec3.fromValues(0, 0, 0);
   velocityMin: number = 0;
   velocityMax: number = 0;
   lifetime: number = 1;

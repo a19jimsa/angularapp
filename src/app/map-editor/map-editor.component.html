@@ -1068,6 +1068,7 @@
                       <mat-form-field class="col-6">
                         <mat-label>Velocity Min</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.velocityMin"
@@ -1076,6 +1077,7 @@
                       <mat-form-field class="col-6">
                         <mat-label>Velocity Max</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.velocityMax"
@@ -1203,24 +1205,27 @@
                     ></app-gradient-creator>
                     <div class="row">
                       <mat-form-field class="col-4">
-                        <mat-label>Scale</mat-label>
+                        <mat-label>Scale X</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.scale[0]"
                         />
                       </mat-form-field>
                       <mat-form-field class="col-4">
-                        <mat-label>Scale</mat-label>
+                        <mat-label>Scale Y</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.scale[1]"
                         />
                       </mat-form-field>
                       <mat-form-field class="col-4">
-                        <mat-label>Scale</mat-label>
+                        <mat-label>Scale Z</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.scale[2]"
@@ -1303,6 +1308,38 @@
                         />
                       </mat-form-field>
                     </div>
+                    <div class="row">
+                      <mat-form-field class="col-4">
+                        <mat-label>Min rotation Speed</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [(ngModel)]="
+                            particleEmitter.particleProp.rotationSpeed[0]
+                          "
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-4">
+                        <mat-label>Max Rotation Z</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [(ngModel)]="
+                            particleEmitter.particleProp.rotationSpeed[1]
+                          "
+                        />
+                      </mat-form-field>
+                      <mat-form-field class="col-4">
+                        <mat-label>Max Rotation Z</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [(ngModel)]="
+                            particleEmitter.particleProp.rotationSpeed[2]
+                          "
+                        />
+                      </mat-form-field>
+                    </div>
                   </mat-expansion-panel>
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -1311,7 +1348,7 @@
                     </mat-expansion-panel-header>
                     <div class="row">
                       <mat-form-field>
-                        <mat-label>{{ particleEmitter.meshId }}</mat-label>
+                        <mat-label>Material Mesh</mat-label>
                         <mat-select>
                           @for (
                             model of models;

@@ -117,27 +117,40 @@ export class Model {
   addQuad(width: number, height: number) {
     const aspect = width / height;
     const vertices = [
-      // x     y     z     u   v
+      // x                  y     z    u  v   nx  ny  nz
+
       -0.5 * aspect,
       -0.5,
       0,
       0,
-      1, // v0 (bottom-left)
+      1,
+      0,
+      0,
+      1, // v0 bottom-left
       0.5 * aspect,
       -0.5,
       0,
       1,
-      1, // v1 (bottom-right)
+      1,
+      0,
+      0,
+      1, // v1 bottom-right
       0.5 * aspect,
       0.5,
       0,
       1,
-      0, // v2 (top-right)
+      0,
+      0,
+      0,
+      1, // v2 top-right
       -0.5 * aspect,
       0.5,
       0,
       0,
-      0, // v3 (top-left)
+      0,
+      0,
+      0,
+      1, // v3 top-left
     ];
 
     const indices = [0, 1, 2, 0, 2, 3];

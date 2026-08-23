@@ -92,8 +92,6 @@ export class ParticleEmitter extends Component {
   rotationY: Float32Array;
   rotationZ: Float32Array;
 
-  rotationSpeed: Float32Array;
-
   age: Float32Array;
   lifetime: Float32Array;
   active: Uint8Array;
@@ -126,8 +124,6 @@ export class ParticleEmitter extends Component {
     this.rotationX = new Float32Array(this.maxParticles);
     this.rotationY = new Float32Array(this.maxParticles);
     this.rotationZ = new Float32Array(this.maxParticles);
-
-    this.rotationSpeed = new Float32Array(this.maxParticles);
 
     this.active = new Uint8Array(this.maxParticles);
 

@@ -1,22 +1,23 @@
 #version 300 es
 layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec2 a_texcoord;
+layout(location = 2) in vec3 a_normal;
 
-layout(location = 2) in vec3 a_instances;
-layout(location = 3) in float a_age;
-layout(location = 4) in float a_lifetime;
-layout(location = 5) in vec3 a_color;
-layout(location = 6) in float a_size;
-layout(location = 7) in float a_rotationSpeed;
-layout(location = 8) in float a_sizeBegin;
-layout(location = 9) in float a_sizeEnd;
-layout(location = 10) in vec3 a_rotation;
+layout(location = 3) in vec3 a_instances;
+layout(location = 4) in float a_age;
+layout(location = 5) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
+uniform sampler2D u_scaleX;
+uniform sampler2D u_scaleY;
+uniform sampler2D u_scaleZ;
+uniform vec3 u_scale;
+uniform sampler2D u_displacement;
 
 out vec2 v_texcoord;
- 
+out float v_age;
+
 vec3 rotateX(vec3 p, float angle)
 {
     float c = cos(angle);
@@ -56,18 +57,23 @@ vec3 rotateZ(vec3 p, float angle)
 void main() {
     v_texcoord = a_texcoord;
     v_age = a_age;
-    v_lifetime = a_lifetime;
-    v_color = a_color;
 
     vec3 pos = a_position;
+    vec4 displacement = texture(u_displacement, vec2(v_texcoord.y, 0.5));
 
-    float t = a_age / a_lifetime;
+    pos.x *= displacement.r;
+    pos.z *= displacement.r;
 
-    pos = rotateX(pos, a_rotation.x * a_rotationSpeed * t);
-    pos = rotateY(pos, a_rotation.y * a_rotationSpeed * t);
-    pos = rotateZ(pos, a_rotation.z * a_rotationSpeed * t);
+    pos = rotateX(pos, a_rotation.x);
+    pos = rotateY(pos, a_rotation.y);
+    pos = rotateZ(pos, a_rotation.z);
 
-    pos *= a_size;
+    float scaleX = texture(u_scaleX, vec2(v_age, 1.0)).r;
+    float scaleY = texture(u_scaleY, vec2(v_age, 1.0)).g;
+    float scaleZ = texture(u_scaleZ, vec2(v_age, 1.0)).b;
+    pos.x *= scaleX * u_scale.x;
+    pos.y *= scaleY * u_scale.y;
+    pos.z *= scaleZ * u_scale.z;
     pos += a_instances;
     gl_Position = u_matrix * vec4(pos, 1.0);
 }

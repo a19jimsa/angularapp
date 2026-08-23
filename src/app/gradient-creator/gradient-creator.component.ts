@@ -2,12 +2,14 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  Inject,
   Input,
   ViewChild,
 } from '@angular/core';
 import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Texture } from 'src/renderer/texture';
+import { GradientService } from '../map-editor/services/gradient.service';
 
 type ColorStop = {
   color: string;
@@ -27,54 +29,42 @@ type Position = {
   styleUrl: './gradient-creator.component.css',
 })
 export class GradientCreatorComponent {
-  @Input() name: string | null = new Input();
+  @Input() name: string = new Input();
   @Input() texture: Texture = new Input();
   @ViewChild('canvas')
   canvas!: ElementRef<HTMLCanvasElement>;
   ctx!: CanvasRenderingContext2D;
-  gradient!: CanvasGradient;
+  gradient = new Uint8ClampedArray(1 * 256);
   colorStops: ColorStop[] = new Array();
   position: Position = { x: 0, y: 0 };
   color = new FormControl('');
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private service: GradientService,
+  ) {}
 
   ngAfterViewInit() {
     this.load();
-    this.updateGradientFromTexture();
+    this.updateCanvasFromTexture();
   }
 
   ngOnChange() {
-    this.load();
-    this.updateGradientFromTexture();
+    this.updateCanvasFromTexture();
   }
 
   load() {
-    if (!this.name) throw new Error('Could not get name of ' + this.name);
-    const colorStops = localStorage.getItem(
-      this.name + this.texture.UniformName,
+    this.colorStops.push(
+      { color: 'white', stop: 0, position: this.position },
+      { color: 'white', stop: 1, position: this.position },
     );
-    if (colorStops) {
-      this.colorStops = JSON.parse(colorStops);
-      return true;
-    } else {
-      this.colorStops.push(
-        { color: 'white', stop: 0, position: this.position },
-        { color: 'white', stop: 1, position: this.position },
-      );
-    }
-    return false;
   }
 
   save() {
-    if (!this.name) throw new Error('Could not get name of ' + this.name);
-    localStorage.setItem(
-      this.name + this.texture.UniformName,
-      JSON.stringify(this.colorStops),
-    );
+    this.service.gradients.set(this.name, this.gradient);
   }
 
-  updateGradientFromTexture() {
+  updateCanvasFromTexture() {
     const canvas = this.canvas.nativeElement;
 
     canvas.width = 256;
@@ -82,19 +72,19 @@ export class GradientCreatorComponent {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    this.gradient = ctx.createLinearGradient(0, 0, 255, 0);
-
-    for (let i = 0; i < this.colorStops.length; i++) {
-      const colorStop = this.colorStops[i];
-      console.log(colorStop.color);
-      this.gradient.addColorStop(Math.abs(colorStop.stop), colorStop.color);
+    const imageData = ctx.getImageData(0, 0, 256, 1);
+    const gradients = ctx.createLinearGradient(0, 0, 256, 1);
+    gradients.addColorStop(0, 'white');
+    gradients.addColorStop(1, 'white');
+    const gradient = this.texture.ImageData as Uint8ClampedArray;
+    for (let x = 0; x < 256; x++) {
+      const i = x * 4;
+      imageData.data[i] = gradient[i];
+      imageData.data[i + 1] = gradient[i + 1];
+      imageData.data[i + 2] = gradient[i + 2];
+      imageData.data[i + 3] = gradient[i + 3];
     }
-
-    ctx.fillStyle = this.gradient;
-    ctx.fillRect(0, 0, 256, 1);
-    this.updateTextureFromCanvas();
-    this.updateTexture();
-    this.save();
+    ctx.putImageData(imageData, 0, 0);
   }
 
   updateTextureFromCanvas() {
@@ -103,18 +93,22 @@ export class GradientCreatorComponent {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const imageData = ctx.getImageData(0, 0, 256, 1);
-    const gradient = this.texture.ImageData as Uint8ClampedArray;
-    for (let x = 0; x < 256; x++) {
-      const i = x * 4;
-      gradient[i] = imageData.data[i];
-      if (imageData.data[i] === 254) {
-        gradient[i] = 255;
-      }
-      gradient[i + 1] = imageData.data[i + 1];
-      gradient[i + 2] = imageData.data[i + 2];
-      gradient[i + 3] = imageData.data[i + 3];
+    const gradients = ctx.createLinearGradient(0, 0, 256, 0);
+
+    for (const colorstop of this.colorStops) {
+      gradients.addColorStop(colorstop.stop, colorstop.color);
     }
+
+    ctx.fillStyle = gradients;
+    ctx.fillRect(0, 0, 256, 1);
+
+    const imageData = ctx.getImageData(0, 0, 256, 1);
+
+    const gradient = this.texture.ImageData as Uint8ClampedArray;
+
+    gradient.set(imageData.data);
+
+    this.updateTexture();
   }
 
   addColorStop(time: number, color: string) {
@@ -134,7 +128,7 @@ export class GradientCreatorComponent {
     if (color) {
       colorStop.color = color;
     }
-    this.updateGradientFromTexture();
+    this.updateTextureFromCanvas();
   }
 
   updateTexture() {
