@@ -6,8 +6,11 @@ import { VertexArray } from 'src/renderer/vertex-array';
 export class MeshManager {
   private static vertexArrays = new Map<string, VertexArray>();
 
-  public static addMesh(model: Model, meshName: string): string {
-    if (this.vertexArrays.has(meshName)) return meshName;
+  public static addMesh(model: Model, meshName: string): VertexArray {
+    const mesh = this.vertexArrays.get(meshName);
+    if (mesh) {
+      return mesh;
+    }
     const vertexArray = new VertexArray(
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
@@ -16,7 +19,7 @@ export class MeshManager {
     vertexArray.addBuffer(model.bufferLayout);
     this.vertexArrays.set(meshName, vertexArray);
     console.log('Added mesh ' + meshName);
-    return meshName;
+    return vertexArray;
   }
 
   public static addInstanceMesh(

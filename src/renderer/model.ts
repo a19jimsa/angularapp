@@ -371,11 +371,11 @@ export class Model {
   addPivot() {
     const vertices = [
       // X-axis, color 1
-      0, 0, 0, 1, 0, 0, 30, 0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0, 0, 3, 0, 0, 1, 0, 0,
       // Y-axis, color 2
-      0, 0, 0, 0, 1, 0, 0, 30, 0, 0, 1, 0,
+      0, 0, 0, 0, 1, 0, 0, 3, 0, 0, 1, 0,
       // Z-axis, color 3
-      0, 0, 0, 0, 0, 1, 0, 0, 30, 0, 0, 1,
+      0, 0, 0, 0, 0, 1, 0, 0, 3, 0, 0, 1,
     ];
 
     //indiices
@@ -488,8 +488,8 @@ export class Model {
     this.vertices = [];
     this.indices = [];
 
-    const height = 2;
-    const segments = 30;
+    const height = 1;
+    const segments = 10;
     const radius = 1;
 
     for (let i = 0; i <= segments; i++) {
@@ -498,7 +498,7 @@ export class Model {
       const z = Math.sin(theta) * radius;
       const u = i / segments;
       //Bottom
-      this.vertices.push(x / 2, 1, z / 2);
+      this.vertices.push(x / 2, 0, z / 2);
       this.vertices.push(u, 0);
       this.vertices.push(0, 0, 0);
       //Top
@@ -522,43 +522,43 @@ export class Model {
 
   addLightning(width: number, height: number, segments: number) {
     const indices: number[] = [];
-    // x, y, z, u, v
+    // x, y, z, u, v, nx,ny,nz
     const vertices = [
       // 0
-      -0.5, 0, 0, 0, 0.0,
+      -0.5, 0, 0, 0, 0.0, 0, 0, 0,
 
       // 1
-      0.5, 0, 0, 1, 0.0,
+      0.5, 0, 0, 1, 0.0, 0, 0, 0,
 
       // 2
-      0.5, 1, 0, 0, 0.2,
+      0.5, 1, 0, 0, 0.2, 0, 0, 0,
 
       // 3
-      1, 1, 0, 1, 0.2,
+      1, 1, 0, 1, 0.2, 0, 0, 0,
 
       // 4
-      -1, 2, 0, 0, 0.4,
+      -1, 2, 0, 0, 0.4, 0, 0, 0,
 
       // 5
-      0, 2, 0, 1, 0.4,
+      0, 2, 0, 1, 0.4, 0, 0, 0,
 
       // 6
-      -0.5, 3, 0, 0, 0.6,
+      -0.5, 3, 0, 0, 0.6, 0, 0, 0,
 
       // 7
-      0.5, 3, 0, 1, 0.6,
+      0.5, 3, 0, 1, 0.6, 0, 0, 0,
 
       // 8
-      -1, 4, 0, 0, 0.8,
+      -1, 4, 0, 0, 0.8, 0, 0, 0,
 
       // 9
-      0, 4, 0, 1, 0.8,
+      0, 4, 0, 1, 0.8, 0, 0, 0,
 
       // 10
-      0, 5, 0, 0, 1.0,
+      0, 5, 0, 0, 1.0, 0, 0, 0,
 
       // 11
-      1.2, 5, 0, 1, 1.0,
+      1.2, 5, 0, 1, 1.0, 0, 0, 0,
     ];
 
     for (let i = 0; i < 5; i++) {
@@ -619,12 +619,12 @@ export class Model {
     const vertices = [];
     const indices = [];
 
-    const width = 3; // tjocklek på spiralen
+    const width = 1; // tjocklek på spiralen
 
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
 
-      const angle = t * Math.PI * 2 * turns;
+      const angle = t * Math.PI * turns;
 
       const x = Math.cos(angle) * radius;
       const y = t * height;

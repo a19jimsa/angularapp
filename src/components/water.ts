@@ -3,7 +3,7 @@ import { Component } from './component';
 
 export class Water extends Component {
   override type: string = 'Water';
-  displacement: number = 1;
+  displacement: number = 0;
   flowSpeed: number = 0;
   tiling: number = 1;
   color: vec3 = vec3.fromValues(1.0, 1.0, 1.0);

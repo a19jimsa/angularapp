@@ -1,6 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix';
 import { Brush } from 'src/app/map-editor/map-editor.component';
-import { Material } from 'src/components/material';
+import { Material } from 'src/components/surface';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
 import { Ecs } from 'src/core/ecs';
@@ -12,7 +12,7 @@ export class SplatmapSystem {
     ecs: Ecs,
     mousePos: vec3,
     perspectiveCamera: PerspectiveCamera,
-    gl: WebGL2RenderingContext
+    gl: WebGL2RenderingContext,
   ) {
     for (const entity of ecs.getEntities()) {
       const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
@@ -23,7 +23,7 @@ export class SplatmapSystem {
           splatmap,
           mesh.vertices,
           mousePos,
-          perspectiveCamera
+          perspectiveCamera,
         );
       }
     }
@@ -34,7 +34,7 @@ export class SplatmapSystem {
     splatmap: Splatmap,
     vertices: Float32Array,
     mousePos: vec3,
-    perspectiveCamera: PerspectiveCamera
+    perspectiveCamera: PerspectiveCamera,
   ) {
     const epsilon = 0.5;
     const maxDistance = 100;
@@ -47,7 +47,7 @@ export class SplatmapSystem {
     const rayOrigin = vec3.fromValues(
       invertedView[12],
       invertedView[13],
-      invertedView[14]
+      invertedView[14],
     );
 
     for (let t = 0; t < maxDistance; t += step) {
@@ -68,7 +68,7 @@ export class SplatmapSystem {
             splatBrush,
             splatmap,
             vertices[i + 3],
-            vertices[i + 4]
+            vertices[i + 4],
           );
           return;
         }
@@ -81,7 +81,7 @@ export class SplatmapSystem {
     splatBrush: Brush,
     splatmap: Splatmap,
     uv0: number,
-    uv1: number
+    uv1: number,
   ) {
     const texX = Math.floor(uv0 * splatmap.width); // Omvandla u till texel X
     const texY = Math.floor(uv1 * splatmap.height); // Omvandla v till texel Y
@@ -95,7 +95,7 @@ export class SplatmapSystem {
     height: number,
     cx: number,
     cy: number,
-    size: number
+    size: number,
   ) {
     const half = Math.floor(size / 2);
     for (let y = -half; y <= half; y++) {
@@ -118,7 +118,7 @@ export class SplatmapSystem {
     splatBrush: Brush,
     splatmap: Splatmap,
     posX: number,
-    posY: number
+    posY: number,
   ) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');

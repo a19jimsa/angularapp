@@ -3,9 +3,10 @@ precision mediump float;
 
 layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec2 a_texcoord;
-layout(location = 2) in vec3 a_instancePosition;
-layout(location = 3) in float a_size;
-layout(location = 4) in float a_index;
+layout(location = 2) in vec3 a_normal;
+layout(location = 3) in vec3 a_instancePosition;
+layout(location = 4) in float a_size;
+layout(location = 5) in float a_index;
 
 uniform mat4 u_matrix;
 uniform mat4 u_model;
@@ -16,9 +17,13 @@ out float v_fogDistance;
 out float v_index;
 
 void main() {
-   vec4 worldPos = u_model * vec4(a_position * a_size + a_instancePosition + vec3(0.0, a_size / 2.0 - 1.0, 0.0), 1.0);
-   v_fogDistance = length(worldPos.xyz - u_cameraPos);
-   v_texcoord = a_texcoord;
-   v_index = a_index;
-   gl_Position = u_matrix * worldPos;
+    vec3 pos = a_position + a_instancePosition;
+
+    vec4 worldPos = u_model * vec4(pos, 1.0);
+
+    v_fogDistance = length(worldPos.xyz - u_cameraPos);
+    v_texcoord = a_texcoord;
+    v_index = a_index;
+
+    gl_Position = u_matrix * worldPos;
 }

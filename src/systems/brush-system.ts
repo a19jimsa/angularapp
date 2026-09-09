@@ -14,6 +14,7 @@ import {
   SplatBrushCommand,
 } from 'src/commands/splat-brush-command';
 import { BrushImage } from 'src/components/brush-image';
+import { Flower } from 'src/components/flower';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
 import { Splatmap } from 'src/components/splatmap';
@@ -25,11 +26,6 @@ import { Renderer } from 'src/renderer/renderer';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
-
-export type Height = {
-  index: number;
-  y: number;
-};
 
 export class BrushSystem {
   update(meshBrush: Brush, ecs: Ecs, mouse: Mouse) {
@@ -43,66 +39,59 @@ export class BrushSystem {
       'Transform3D',
     );
     if (!mesh || !transform3D) return;
-    const index = this.pickVertexNew(transform3D, mesh.meshId, mouse);
-    if (index === -1) return;
+    const vertex = this.pickVertexNew(transform3D, mesh.meshId, mouse);
+    if (!vertex) return;
     const brushImage = ecs.getComponent<BrushImage>(
       meshBrush.entity,
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = vertexArray.vertexBuffer.vertices[index + 3];
-      brushImage.UV[1] = vertexArray.vertexBuffer.vertices[index + 4];
+      brushImage.UV[0] = vertexArray.vertexBuffer.vertices[vertex.index + 3];
+      brushImage.UV[1] = vertexArray.vertexBuffer.vertices[vertex.index + 4];
       brushImage.size = meshBrush.radius;
     }
 
-    if (mouse.dragging || mouse.clicked) {
-      // const pivot = ecs.getComponent<Pivot>(meshBrush.entity, 'Pivot');
-      // if (pivot) {
-      //   const pivotIndex = this.pickVertexNew(transform3D, 'pivot', mouse);
-      //   this.movePivot(transform3D, mouse, pivotIndex);
-      // }
+    if (meshBrush.type === TerrainBrushes.Height) {
+      this.heightBrush(
+        meshBrush,
+        vec4.fromValues(
+          vertices[vertex.index],
+          vertices[vertex.index + 1],
+          vertices[vertex.index + 2],
+          1,
+        ),
+        ecs,
+      );
+    } else if (meshBrush.type === TerrainBrushes.Splat) {
+      const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
+      if (!splatmap) return;
 
-      if (meshBrush.type === TerrainBrushes.Height) {
-        this.heightBrush(
-          meshBrush,
-          vec4.fromValues(
-            vertices[index],
-            vertices[index + 1],
-            vertices[index + 2],
-            1,
-          ),
-          ecs,
-        );
-      } else if (meshBrush.type === TerrainBrushes.Splat) {
-        const splatmap = ecs.getComponent<Splatmap>(
-          meshBrush.entity,
-          'Splatmap',
-        );
-        if (!splatmap) return;
-
-        this.paintImage(
-          ecs,
-          splatmap.size,
-          splatmap.coords,
-          meshBrush,
-          vertices[index + 3],
-          vertices[index + 4],
-        );
-      } else if (meshBrush.type === TerrainBrushes.Grass) {
-        const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
-        if (!grass) return;
-        this.paintImage(
-          ecs,
-          grass.size,
-          grass.coords,
-          meshBrush,
-          vertices[index + 3],
-          vertices[index + 4],
-        );
-        this.createFoliage(vertices, ecs, meshBrush);
-      } else if (meshBrush.type === TerrainBrushes.Erosion) {
-        this.erosionBrush(ecs, vertices, index, meshBrush);
-      }
+      this.paintImage(
+        ecs,
+        splatmap.size,
+        splatmap.coords,
+        meshBrush,
+        vertex.x,
+        vertex.z,
+      );
+    } else if (meshBrush.type === TerrainBrushes.Grass) {
+      const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+      if (!grass) return;
+      this.paintImage(
+        ecs,
+        grass.size,
+        grass.coords,
+        meshBrush,
+        vertex.x,
+        vertex.z,
+      );
+      this.createFoliage(vertices, ecs, meshBrush);
+    } else if (meshBrush.type === TerrainBrushes.Erosion) {
+      //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
+    } else if (meshBrush.type === TerrainBrushes.Flower) {
+      this.addFlower(ecs, meshBrush, vertex.x, 0, vertex.z, 0);
+    } else if (meshBrush.type === TerrainBrushes.Tree) {
+      this.addTree(ecs, meshBrush, vertex.x, vertex.y, vertex.z, 0);
     }
   }
 
@@ -181,7 +170,7 @@ export class BrushSystem {
   ) {
     const camera = Renderer.getCamera();
     const vertexArray = MeshManager.getMesh(meshId);
-    if (!vertexArray) return -1;
+    if (!vertexArray) return null;
     const vertices = vertexArray.vertexBuffer.vertices;
     for (
       let i = vertices.length - vertexArray.bufferLayout.amount;
@@ -238,10 +227,24 @@ export class BrushSystem {
 
       const d = dx * dx + dz * dz;
       if (d < 300) {
-        return i;
+        const index = i;
+        console.log(
+          'Picked vertex at index: ',
+          index,
+          ' with screen coords: ',
+          dx,
+          dz,
+        );
+
+        return {
+          index: index,
+          x: vertices[index] + Math.log(1 + d),
+          y: vertices[index + 1],
+          z: vertices[index + 2] + Math.log(1 + d),
+        };
       }
     }
-    return -1;
+    return null;
   }
 
   private movePivot(transform3D: Transform3D, mouse: Mouse, index: number) {
@@ -346,15 +349,50 @@ export class BrushSystem {
     }
   }
 
+  private addFlower(
+    ecs: Ecs,
+    meshBrush: Brush,
+    x: number,
+    y: number,
+    z: number,
+    slot: number,
+  ) {
+    const flower = ecs.getComponent<Flower>(meshBrush.entity, 'Flower');
+    if (!flower) return;
+    flower.positions[flower.amount] = x;
+    flower.positions[flower.amount + 1] = y;
+    flower.positions[flower.amount + 2] = z;
+    flower.amount++;
+    console.log('Added flower ' + flower.amount);
+  }
+
+  private addTree(
+    ecs: Ecs,
+    meshBrush: Brush,
+    x: number,
+    y: number,
+    z: number,
+    slot: number,
+  ) {
+    console.log('Adding tree at: ', x, y, z);
+    const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
+    if (!tree) return;
+    tree.positions[tree.index] = x;
+    tree.positions[tree.index + 1] = 2;
+    tree.positions[tree.index + 2] = z;
+    tree.positions[tree.index + 3] = slot;
+    tree.positions[tree.index + 4] = 1; // scale
+    tree.index += 5;
+    tree.amount++;
+    console.log('Added tree ' + tree.amount);
+  }
+
   private createFoliage(vertices: Float32Array, ecs: Ecs, meshBrush: Brush) {
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
-    const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!grass || !terrain || !tree) return;
+    if (!grass || !terrain) return;
     grass.amount = 0;
-    tree.amount = 0;
     const grassPositions = new Array();
-    const treePositions = new Array();
     const stride = 8;
 
     for (let i = 0; i < vertices.length; i += stride) {
@@ -375,7 +413,6 @@ export class BrushSystem {
       const pixelIndex = (pz * grass.size + px) * 4;
 
       const green = grass.coords[pixelIndex + 1];
-      const blue = grass.coords[pixelIndex + 2];
 
       if (green === 255) {
         for (let j = 0; j < 100; j++) {
@@ -394,24 +431,9 @@ export class BrushSystem {
 
           if (grass.amount >= grass.maxAmount) return;
         }
-      } else if (blue === 255) {
-        const offset = 50 * Math.random();
-        const treeX = x + nx * offset;
-        const treeY = y + ny;
-        const treeZ = z + nz * offset;
-        const size = MathUtils.random(1, 1);
-        const id = MathUtils.random(0, 1);
-
-        treePositions.push(treeX, treeY, treeZ);
-        treePositions.push(size, id);
-
-        tree.amount++;
-
-        if (tree.amount >= tree.maxAmount) return;
       }
     }
     grass.positions.set(grassPositions);
-    tree.positions.set(treePositions);
   }
 
   private paintImage(

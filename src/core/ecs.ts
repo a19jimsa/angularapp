@@ -17,7 +17,7 @@ export class Ecs {
 
     this.components.forEach((components, entity) => {
       const foundComponents = types.map((type) =>
-        components.find((comp) => comp.type === type)
+        components.find((comp) => comp.type === type),
       ) as T;
 
       // Kontrollera att alla komponenter finns
@@ -56,7 +56,7 @@ export class Ecs {
 
     // Filtrera bort den komponent du vill ta bort (baserat på typen)
     const updatedComponents = components.filter(
-      (comp) => !(comp.type === componentType)
+      (comp) => !(comp.type === componentType),
     );
 
     // Uppdatera komponentlistan i mappen

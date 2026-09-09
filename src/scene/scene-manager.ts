@@ -1,6 +1,5 @@
-
 import { Light } from 'src/components/light';
-import { Material } from 'src/components/material';
+import { Surface } from 'src/components/surface';
 import { Name } from 'src/components/name';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
@@ -33,9 +32,9 @@ export class SceneManager {
           const name = new Name(newData.value);
           ecs.addComponent<Name>(entity, name);
         } else if (type === 'Material') {
-          const newData = data as Material;
-          const material = new Material(newData.shaderId);
-          ecs.addComponent<Material>(entity, material);
+          const newData = data as Surface;
+          const surface = new Surface();
+          ecs.addComponent<Surface>(entity, surface);
         } else if (type === 'Transform3D') {
           const newData = data as Transform3D;
           const transform = new Transform3D(0, 0, 0);

@@ -10,7 +10,6 @@ uniform float u_time;
 uniform float u_displacmentScale;
 uniform float u_tiling;
 uniform float u_flowSpeed;
-uniform sampler2D u_texture;
 uniform vec3 u_cameraPos;
 
 out vec2 v_texcoord;

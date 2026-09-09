@@ -3,7 +3,6 @@ precision mediump float;
 precision mediump sampler2DArray;
 
 uniform sampler2DArray u_textures;
-uniform sampler2D u_flowMap;
 
 uniform float u_time;
 uniform float u_tiling;
@@ -38,9 +37,6 @@ uniform Light light;
 out vec4 FragColor;
 
 void main() {
-   vec2 flow = texture(u_flowMap, v_texcoord).rg; // 0–1
-   flow = flow * 2.0 - 1.0;
-
    vec2 scroll = (v_texcoord * u_tiling) + vec2(0.0, -u_time * 0.00001);
    vec2 scroll2 = (v_texcoord * u_tiling) + vec2(0.0, u_time * 0.00001);
 

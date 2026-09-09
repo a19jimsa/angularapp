@@ -24,7 +24,8 @@ import { Ecs } from 'src/core/ecs';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
-import { Material } from 'src/components/material';
+import { Surface } from 'src/components/surface';
+import { Material as RenderMaterial } from 'src/renderer/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
@@ -89,7 +90,9 @@ import { Tree } from 'src/components/tree';
 import { GradientCreatorComponent } from '../gradient-creator/gradient-creator.component';
 import { AssetManager } from 'src/resource-manager/asset-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { MathUtils } from 'src/Utils/MathUtils';
+import { Flower } from 'src/components/flower';
+import { MaterialManager } from 'src/resource-manager/material-manager';
+import { MeshRenderer } from 'src/components/mesh-renderer';
 
 type IsSelected = {
   select: boolean;
@@ -134,6 +137,7 @@ export enum TerrainBrushes {
   Tree,
   Splat,
   Erosion,
+  Flower,
 }
 
 export type Asset = {
@@ -248,7 +252,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     radius: 5,
     strength: 1,
     image: new Image(),
-    type: TerrainBrushes.Grass,
+    type: TerrainBrushes.Tree,
     color: 'red',
     alpha: 1,
     entity: -1,
@@ -471,12 +475,12 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  get material(): Material | null {
-    const material = this.ecs.getComponent<Material>(
+  get material(): Surface | null {
+    const surface = this.ecs.getComponent<Surface>(
       this.meshbrush.entity,
-      'Material',
+      'Surface',
     );
-    if (material) return material;
+    if (surface) return surface;
     return null;
   }
 
@@ -622,6 +626,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('wind', 'wind_vertex.txt', 'wind_fragment.txt');
 
     await ShaderManager.load('trail', 'trail_vertex.txt', 'trail_fragment.txt');
+
+    await ShaderManager.load('tree', 'tree_vertex.txt', 'tree_fragment.txt');
   }
 
   async loadAllTextures() {}
@@ -630,7 +636,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const debug = new BufferLayout();
     debug.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     debug.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    this.ecs.addComponent<Pivot>(newEntity, new Pivot());
+    //this.ecs.addComponent<Pivot>(newEntity, new Pivot());
     const model = new Model(debug);
     model.addPivot();
     MeshManager.addMesh(model, 'pivot');
@@ -663,6 +669,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       height: TerrainBrushes.Height,
       splat: TerrainBrushes.Splat,
       erosion: TerrainBrushes.Erosion,
+      flower: TerrainBrushes.Flower,
     };
 
     this.meshbrush.type = toolMap[name];
@@ -788,14 +795,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Init brushimage to brush
     this.meshbrush.image = smokeBrushImage;
 
-    const waterNormal = await AssetManager.loadImage(
+    const waterTexture = await AssetManager.loadImage(
       'assets/textures/water_normal_01.jpg',
     );
 
     const waterTextureArray = await TextureManager.addTextureArray(
-      'waterNormal',
+      'water',
       'u_textures',
-      [waterNormal],
+      [waterTexture],
       true,
     );
 
@@ -803,13 +810,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const tree6 = await AssetManager.loadImage('/assets/trees/tree_006.png');
     const tree8 = await AssetManager.loadImage('/assets/trees/tree_008.png');
 
+    const flower1 = await AssetManager.loadImage(
+      '/assets/textures/flowers_001.png',
+    );
+
     const bush1 = await AssetManager.loadImage('/assets/bushes/bushes2.png');
     const bush2 = await AssetManager.loadImage('/assets/bushes/bushes3.png');
 
     const treeTextureArray = await TextureManager.addTextureArray(
       'trees',
       'u_textures',
-      [bush1, bush2],
+      [flower1],
+      false,
+    );
+
+    const flowerTextureArray = await TextureManager.addTextureArray(
+      'flowers',
+      'u_textures',
+      [flower1],
       false,
     );
 
@@ -1048,7 +1066,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrain() {
     const newEntity = this.ecs.createEntity();
-    const size = 512;
+    const size = 128;
     const width = 500;
     const depth = 500;
     const height = 500;
@@ -1058,7 +1076,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(100, width, depth);
+    model.addPlane(50, width, depth);
     MeshManager.addMesh(model, 'terrain' + newEntity);
 
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
@@ -1066,23 +1084,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       newEntity,
       new Transform3D(0, 0, 0),
     );
-    const material = this.ecs.addComponent<Material>(
-      newEntity,
-      new Material('splatmap'),
-    );
 
-    this.ecs.addComponent<Mesh>(
-      newEntity,
-      new Mesh(500, 500, 'splatmap', 'terrain' + newEntity),
-    );
     this.ecs.addComponent<Terrain>(
       newEntity,
       new Terrain(width, depth, height, size),
-    );
-    //Add mesh component to entity VAO splatmap id meshId
-    this.ecs.addComponent(
-      newEntity,
-      new Mesh(width, height, 'terrain' + newEntity, 'terrain' + newEntity),
     );
     const splatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
@@ -1094,6 +1099,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Grass(size, 'grass' + newEntity),
     );
     this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
+    this.ecs.addComponent<Flower>(newEntity, new Flower(100000));
+    this.ecs.addComponent<Surface>(newEntity, new Surface());
+    const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
+    const shader = ShaderManager.getShader('splatmap');
+
+    const material = new RenderMaterial(shader);
+
+    this.ecs.addComponent<MeshRenderer>(
+      newEntity,
+      new MeshRenderer(mesh, material),
+    );
 
     if (!splatmap) throw new Error('Could not get splatmap');
     const texture = TextureManager.addTexture(
@@ -1104,23 +1120,22 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       splatmap.coords,
       false,
     );
-    if (material) {
-      const brushes = TextureManager.getTexture('brushes')!;
-      const terrain = TextureManager.getTexture('terrain')!;
-      material.textures.add(texture);
-      material.textures.add(brushes);
-      material.textures.add(terrain);
-    }
+    const brushes = TextureManager.getTexture('brushes')!;
+    const terrain = TextureManager.getTexture('terrain')!;
+    material.textures.add(texture);
+    material.textures.add(brushes);
+    material.textures.add(terrain);
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     grassBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     grassBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    const shader = await ShaderManager.load(
+    const grassShader = await ShaderManager.load(
       'grass',
       'grass_vertex.txt',
       'grass_fragment.txt',
     );
+    const grassMaterial = new RenderMaterial(grassShader);
     const grassModel = new Model(grassBuffer);
     grassModel.addGrass();
     MeshManager.addMesh(grassModel, 'grass' + newEntity);
@@ -1133,31 +1148,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
     MeshManager.addInstanceMesh('grass' + newEntity, instanceBuffer, 1000000);
+
     const treeBuffer = new BufferLayout();
     treeBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     treeBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    const treeShader = await ShaderManager.load(
-      'tree',
-      'tree_vertex.txt',
-      'tree_fragment.txt',
-    );
+    treeBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+
     const treeModel = new Model(treeBuffer);
-    const image = AssetManager.getAsset('bushes2.png');
-    if (!image) throw Error('Could not get image of tree');
-    treeModel.addQuad(image.width, image.height);
+    treeModel.addQuad(10, 10);
     MeshManager.addMesh(treeModel, 'tree' + newEntity);
     const instanceTreeBuffer = new BufferLayout();
     instanceTreeBuffer.add(
-      2,
-      ShaderDataType.GetType(ShaderType.Float),
-      3,
-      false,
-      true,
-    );
-    instanceTreeBuffer.add(
       3,
       ShaderDataType.GetType(ShaderType.Float),
-      1,
+      3,
       false,
       true,
     );
@@ -1168,7 +1172,47 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('tree' + newEntity, instanceTreeBuffer, 10000);
+    instanceTreeBuffer.add(
+      5,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('tree' + newEntity, instanceTreeBuffer, 100000);
+
+    //Flower bufferlayout
+    const flowerBuffer = new BufferLayout();
+    flowerBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    flowerBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    flowerBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
+    const flowerModel = new Model(flowerBuffer);
+    treeModel.addQuad(10, 10);
+    MeshManager.addMesh(flowerModel, 'flowers');
+    const flowerInstanceBuffer = new BufferLayout();
+    flowerInstanceBuffer.add(
+      3,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+      true,
+    );
+    flowerInstanceBuffer.add(
+      4,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    flowerInstanceBuffer.add(
+      5,
+      ShaderDataType.GetType(ShaderType.Float),
+      1,
+      false,
+      true,
+    );
+    MeshManager.addInstanceMesh('flowers', flowerInstanceBuffer, 10000);
+
     TextureManager.dirty = true;
   }
 
@@ -1204,9 +1248,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Name>(entity, new Name('Light'));
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Light>(entity, new Light());
-    this.ecs.addComponent<Mesh>(entity, new Mesh(10, 10, 'basic', 'light'));
-    this.ecs.addComponent<Material>(entity, new Material('basic'));
-    MeshManager.addMesh(model, 'light');
+    const mesh = MeshManager.addMesh(model, 'light');
+    const shader = ShaderManager.getShader('basic');
+    const material = new RenderMaterial(shader);
+    this.ecs.addComponent<MeshRenderer>(
+      entity,
+      new MeshRenderer(mesh, material),
+    );
   }
 
   protected async createWater() {
@@ -1220,17 +1268,21 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addPlane(1, width, height);
-    MeshManager.addMesh(model, 'water');
+    const mesh = MeshManager.addMesh(model, 'water');
     //Add all components
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-    this.ecs.addComponent<Mesh>(
-      entity,
-      new Mesh(width, height, 'water', 'water'),
-    );
     this.ecs.addComponent<Name>(entity, new Name('Water'));
-    this.ecs.addComponent<Material>(entity, new Material('water'));
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Water>(entity, new Water());
+    this.ecs.addComponent<Surface>(entity, new Surface());
+    const shader = ShaderManager.getShader('water');
+    const material = new RenderMaterial(shader);
+    this.ecs.addComponent<MeshRenderer>(
+      entity,
+      new MeshRenderer(mesh, material),
+    );
+    const texture = TextureManager.getTexture('water');
+    material.textures.add(texture);
   }
 
   loop() {
@@ -1303,7 +1355,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+    if (this.mouse.dragging) {
+      this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+    }
     this.animationPlayerSystem.update(this.ecs);
     this.particleEmitterSystem.update(this.ecs);
     this.trailSystem.update(this.ecs);
@@ -1391,7 +1445,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 5;
+    const speed = 1;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1460,7 +1514,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async saveScene() {
     const json = SceneManager.saveScene(this.ecs);
-
     this.http.post('/api/saveMap', { json }).subscribe({
       next: (e) => {
         console.log(e);
@@ -1491,7 +1544,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     //Change later in runtime with some parameters in UI
     model.addRingMesh(0, 10, 20);
     model.updateNormals();
-    MeshManager.addMesh(model, 'particleEmitter' + entity);
+    const mesh = MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
       3,
@@ -1520,18 +1573,23 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       instanceBuffer,
       10000,
     );
-
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-    const material = this.ecs.addComponent<Material>(
+    const shader = ShaderManager.getShader('wave');
+    const material = new RenderMaterial(shader);
+    if (material) {
+      const wave = TextureManager.getTexture('wave');
+      const healing = TextureManager.getTexture('healing');
+      material.textures.add(wave);
+      material.textures.add(healing);
+    }
+    this.ecs.addComponent<MeshRenderer>(
       entity,
-      new Material('wave'),
+      new MeshRenderer(mesh, material),
     );
-
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter('wave', 'particleEmitter' + entity),
     );
-
     if (particleEmitter) {
       const scaleX = particleEmitter.particleProp.scaleCurveX;
       const scaleY = particleEmitter.particleProp.scaleCurveY;
@@ -1546,30 +1604,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       color.bindTexture();
       displacement.bindTexture();
     }
-
-    if (material) {
-      const wave = TextureManager.getTexture('wave');
-      const healing = TextureManager.getTexture('healing');
-      material.textures.add(wave);
-      material.textures.add(healing);
-    }
   }
 
-  changeParticleShader(shader: string) {
-    const material = this.ecs.getComponent<Material>(
-      this.meshbrush.entity,
-      'Material',
-    );
+  changeParticleShader(shaderId: string) {
     const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
       this.meshbrush.entity,
       'ParticleEmitter',
     );
-    if (!material || !particleEmitter) return;
-    material.shaderId = shader;
-    particleEmitter.shaderId = shader;
-    material.textures.clear();
-    const lightning1 = TextureManager.getTexture('lightning1');
-    material.textures.add(lightning1);
+    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
+      this.meshbrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer || !particleEmitter) return;
+    particleEmitter.shaderId = shaderId;
   }
 
   changeParticleMesh(index: number) {
@@ -1608,7 +1655,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addRingMesh(5, 10, 50);
         break;
       case 8:
-        model.addSpiral(50, 0.5, 10, 1);
+        model.addSpiral(100, 10, 1, 5);
         break;
       default:
         model.addQuad(1, 1);
@@ -1756,11 +1803,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async drop(event: CdkDragDrop<[string, HTMLImageElement]>) {
-    const material = this.ecs.getComponent<Material>(
-      this.meshbrush.entity,
-      'Material',
-    );
-    if (!material) return;
     const image = event.item.data[1] as HTMLImageElement;
     const texture = await TextureManager.addTextureArray(
       'wave',
@@ -1768,82 +1810,5 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       [image],
       true,
     );
-
-    material.textures.clear();
-    material.textures.add(texture);
-  }
-
-  public createFoliage() {
-    const grass = this.ecs.getComponent<Grass>(this.meshbrush.entity, 'Grass');
-    const tree = this.ecs.getComponent<Tree>(this.meshbrush.entity, 'Tree');
-    const terrain = this.ecs.getComponent<Terrain>(
-      this.meshbrush.entity,
-      'Terrain',
-    );
-    const mesh = this.ecs.getComponent<Mesh>(this.meshbrush.entity, 'Mesh');
-    const splatmap = this.ecs.getComponent<Splatmap>(
-      this.meshbrush.entity,
-      'Splatmap',
-    );
-    if (!grass || !terrain || !tree || !splatmap || !mesh) return;
-    grass.amount = 0;
-    tree.amount = 0;
-    const grassPositions = new Array();
-    const treePositions = new Array();
-    const vertexArray = MeshManager.getMesh(mesh.meshId);
-    if (!vertexArray) return;
-    const vertices = vertexArray.vertexBuffer.vertices;
-    for (let i = 0; i < vertices.length; i += vertexArray.bufferLayout.amount) {
-      const x = vertices[i + 0];
-      const y = vertices[i + 1];
-      const z = vertices[i + 2];
-
-      const u = vertices[i + 3];
-      const v = vertices[i + 4];
-
-      const nx = vertices[i + 5];
-      const ny = vertices[i + 6];
-      const nz = vertices[i + 7];
-
-      const px = Math.floor(u * (splatmap.size - 1));
-      const pz = Math.floor(v * (splatmap.size - 1));
-
-      const pixelIndex = (pz * splatmap.size + px) * 4;
-
-      const red = splatmap.coords[pixelIndex + 0];
-      const green = splatmap.coords[pixelIndex + 1];
-
-      if (red === 255) {
-        const offset = 0.05;
-
-        const dx = x;
-        const dz = z;
-
-        const grassX = dx + nx * offset;
-        const grassY = y + ny * offset;
-        const grassZ = dz + nz * offset;
-
-        grassPositions.push(grassX, grassY, grassZ);
-
-        grass.amount++;
-
-        if (grass.amount >= grass.maxAmount) return;
-      }
-      if (red === 255) {
-        const offset = 50 * Math.random();
-        const treeX = x + nx * offset;
-        const treeY = y + ny;
-        const treeZ = z + nz * offset;
-
-        treePositions.push(treeX, treeY, treeZ);
-        treePositions.push(1, 0);
-
-        tree.amount++;
-
-        if (tree.amount >= tree.maxAmount) return;
-      }
-    }
-    grass.positions.set(grassPositions);
-    tree.positions.set(treePositions);
   }
 }

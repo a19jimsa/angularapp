@@ -50,6 +50,7 @@ export class Renderer {
       0,
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
+    //Turn of for alpha blending particles
     gl.depthMask(false);
     gl.disable(gl.CULL_FACE);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -75,6 +76,7 @@ export class Renderer {
     gl.enable(gl.CULL_FACE);
     gl.frontFace(gl.CCW);
 
+    //Always on for Z depth test
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.depthMask(true); // <-- viktigt
@@ -93,6 +95,7 @@ export class Renderer {
     vertexArray.bind();
     const count = vertexArray.indexBuffer.getCount();
     this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0);
+    console.log('Drawing indexed ' + count);
     vertexArray.unbind();
   }
 

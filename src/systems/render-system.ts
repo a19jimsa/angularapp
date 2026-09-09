@@ -1,6 +1,5 @@
-import { Mesh } from 'src/components/mesh';
 import { Ecs } from '../core/ecs';
-import { Material } from 'src/components/material';
+import { Surface } from 'src/components/surface';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
 import { mat4, vec2, vec3 } from 'gl-matrix';
@@ -8,7 +7,6 @@ import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
 import { Terrain } from 'src/components/terrain';
-import { BatchRenderer } from 'src/renderer/batch-renderer';
 import { Pivot } from 'src/components/pivot';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { Light } from 'src/components/light';
@@ -22,26 +20,18 @@ import { BufferLayout } from 'src/renderer/buffer';
 import { Model } from 'src/renderer/model';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
 import { VertexArray } from 'src/renderer/vertex-array';
-import { Sprite2D } from 'src/components/sprite2D';
 import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { Tree } from 'src/components/tree';
-
-type Sprite = {
-  position: Transform3D;
-  sprite: Sprite2D;
-};
+import { MeshRenderer } from 'src/components/mesh-renderer';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
   private loading: boolean = true;
-  private batch: BatchRenderer;
-  private batches = new Map<string, Sprite[]>();
 
   constructor() {
     this.camera = Renderer.getCamera();
     this.setupSkybox();
-    this.batch = new BatchRenderer();
   }
 
   private async setupSkybox() {
@@ -94,48 +84,31 @@ export class RenderSystem {
     this.loading = false;
   }
 
-  private sortBatches(ecs: Ecs) {
-    for (const entity of ecs.getEntities()) {
-      const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
-      const sprite2D = ecs.getComponent<Sprite2D>(entity, 'Sprite2D');
-      if (transform3D && sprite2D) {
-        const key = sprite2D.textureIndex;
-        let batch = this.batches.get(key);
-        if (!batch) {
-          batch = [];
-          this.batches.set(key, batch);
-        }
-        const sprite: Sprite = { position: transform3D, sprite: sprite2D };
-        batch.push(sprite);
-      }
-    }
-  }
-
-  private drawBatch() {
-    this.batches.forEach((sprites, key) => {
-      this.batch.begin();
-      for (const sprite of sprites) {
-        this.batch.addQuads(
-          sprite.sprite.width * sprite.position.scale[0],
-          sprite.sprite.height * sprite.position.scale[1],
-          0,
-          vec2.fromValues(1, 1),
-          0,
-          0,
-          sprite.sprite.width * sprite.position.scale[0],
-          sprite.sprite.height * sprite.position.scale[1],
-          sprite.position.position[0],
-          sprite.position.position[1],
-          sprite.position.position[2],
-          sprite.sprite.width * sprite.position.scale[0],
-          sprite.sprite.height * sprite.position.scale[1],
-          sprite.position.position[2],
-        );
-      }
-      this.batch.end(this.camera, key);
-    });
-    this.batches.clear();
-  }
+  // private drawBatch() {
+  //   this.batches.forEach((sprites, key) => {
+  //     this.batch.begin();
+  //     for (const sprite of sprites) {
+  //       this.batch.addQuads(
+  //         sprite.sprite.width * sprite.position.scale[0],
+  //         sprite.sprite.height * sprite.position.scale[1],
+  //         0,
+  //         vec2.fromValues(1, 1),
+  //         0,
+  //         0,
+  //         sprite.sprite.width * sprite.position.scale[0],
+  //         sprite.sprite.height * sprite.position.scale[1],
+  //         sprite.position.position[0],
+  //         sprite.position.position[1],
+  //         sprite.position.position[2],
+  //         sprite.sprite.width * sprite.position.scale[0],
+  //         sprite.sprite.height * sprite.position.scale[1],
+  //         sprite.position.position[2],
+  //       );
+  //     }
+  //     this.batch.end(this.camera, key);
+  //   });
+  //   this.batches.clear();
+  // }
 
   private getLightSources(ecs: Ecs): Entity | null {
     let light: Entity | null = null;
@@ -152,10 +125,9 @@ export class RenderSystem {
   public update(ecs: Ecs) {
     if (this.loading) return;
     Renderer.begin();
-    this.sortBatches(ecs);
-    const shader = ShaderManager.getShader('skybox');
-    if (!shader) return;
-    shader.bind();
+    const skyboxShader = ShaderManager.getShader('skybox');
+    if (!skyboxShader) return;
+    skyboxShader.bind();
     const matrix = mat4.create();
     mat4.copy(matrix, this.camera.getViewMatrix());
     matrix[12] = 0;
@@ -163,13 +135,19 @@ export class RenderSystem {
     matrix[14] = 0;
     const perspectiveMatrix = mat4.create();
     mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
-    shader.setUniformMat4('u_matrix', perspectiveMatrix);
+    skyboxShader.setUniformMat4('u_matrix', perspectiveMatrix);
     const texture = TextureManager.getTexture('skybox');
-    shader.setUniform(0, texture.UniformName, texture.Texture, texture.Target);
+    skyboxShader.setUniform(
+      0,
+      texture.UniformName,
+      texture.Texture,
+      texture.Target,
+    );
     const vao = MeshManager.getMesh('skybox');
     if (vao) {
       Renderer.drawSkybox(vao);
     }
+    skyboxShader.unbind();
 
     const cameraMatrix = mat4.invert(
       mat4.create(),
@@ -188,9 +166,8 @@ export class RenderSystem {
       light = ecs.getComponent<Light>(lightEntity, 'Light');
       lightPos = ecs.getComponent<Transform3D>(lightEntity, 'Transform3D');
     }
+
     for (const entity of ecs.getEntities()) {
-      const mesh = ecs.getComponent<Mesh>(entity, 'Mesh');
-      const material = ecs.getComponent<Material>(entity, 'Material');
       const splatmap = ecs.getComponent<Splatmap>(entity, 'Splatmap');
       const grass = ecs.getComponent<Grass>(entity, 'Grass');
       const tree = ecs.getComponent<Tree>(entity, 'Tree');
@@ -202,63 +179,68 @@ export class RenderSystem {
       const terrain = ecs.getComponent<Terrain>(entity, 'Terrain');
       const pivot = ecs.getComponent<Pivot>(entity, 'Pivot');
       const transform3D = ecs.getComponent<Transform3D>(entity, 'Transform3D');
+      const surface = ecs.getComponent<Surface>(entity, 'Surface');
       const modelMatrix = mat4.create();
-      if (mesh && mesh.dirty) {
-        const vao = MeshManager.getMesh(mesh.meshId);
-        if (vao) {
-          Renderer.updateMesh(vao);
-          this.updateNormals(vao);
+
+      //Render starts here ish...
+      const meshRenderer = ecs.getComponent<MeshRenderer>(
+        entity,
+        'MeshRenderer',
+      );
+      if (!meshRenderer) continue;
+      Renderer.updateMesh(meshRenderer.mesh);
+      this.updateNormals(meshRenderer.mesh);
+      if (surface) {
+        const material = meshRenderer.material;
+        if (splatmap && splatmap.dirty) {
+          const texture = TextureManager.getTexture(splatmap.slot);
+          if (!texture)
+            throw new Error('Could not get texture of ' + splatmap.slot);
+          texture.updateTexture(splatmap.coords);
+          splatmap.dirty = false;
         }
-        mesh.dirty = false;
-      }
+        const shader = meshRenderer.material.shader;
 
-      if (splatmap && material) {
-        const texture = TextureManager.getTexture(splatmap.slot);
-        if (!texture)
-          throw new Error('Could not get texture of ' + splatmap.slot);
-        texture.updateTexture(splatmap.coords);
-      }
-
-      if (pivot && transform3D) {
-        const shader = ShaderManager.getShader('debug');
         shader.bind();
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        mat4.translate(modelMatrix, modelMatrix, transform3D.position);
-        shader.setUniformMat4('u_model', modelMatrix);
-        const vao = MeshManager.getMesh('pivot');
-        if (!vao) continue;
-        Renderer.drawLines(vao);
-        shader.unbind();
-      }
-
-      if (mesh && material) {
-        const shader = ShaderManager.getShader(mesh.shaderId);
-        shader.bind();
-        if (light && lightPos) {
-          shader.setVec3('light.position', lightPos.position);
-          shader.setVec3('light.ambient', light.ambient);
-          shader.setVec3('light.diffuse', light.diffuse);
-          shader.setVec3('light.direction', light.direction);
-        }
-        shader.setVec3('material.ambient', material.ambient);
-        shader.setVec3('material.diffuse', material.diffuse);
-        shader.setVec3('material.specular', material.specular);
-        shader.setFloat('material.shininess', material.shininess);
-
-        if (terrain) {
-          shader.setFloat('u_tiling', terrain.tiling);
-          shader.setFloat('u_fogPower', terrain.fogPower);
-          shader.setVec4('u_colors', terrain.colors);
-        }
         shader.setUniformMat4(
           'u_matrix',
           this.camera.getViewProjectionMatrix(),
         );
         shader.setVec3('u_cameraPos', cameraPos);
         shader.setFloat('u_time', performance.now());
+
+        if (pivot && transform3D) {
+          shader.setUniformMat4(
+            'u_matrix',
+            this.camera.getViewProjectionMatrix(),
+          );
+          mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+          shader.setUniformMat4('u_model', modelMatrix);
+          const vao = MeshManager.getMesh('pivot');
+          if (!vao) continue;
+          Renderer.drawLines(vao);
+        }
+
+        if (light && lightPos) {
+          shader.setVec3('light.position', lightPos.position);
+          shader.setVec3('light.ambient', light.ambient);
+          shader.setVec3('light.diffuse', light.diffuse);
+          shader.setVec3('light.direction', light.direction);
+        }
+
+        if (surface) {
+          shader.setVec3('material.ambient', surface.ambient);
+          shader.setVec3('material.diffuse', surface.diffuse);
+          shader.setVec3('material.specular', surface.specular);
+          shader.setFloat('material.shininess', surface.shininess);
+        }
+
+        if (terrain) {
+          shader.setFloat('u_tiling', terrain.tiling);
+          shader.setFloat('u_fogPower', terrain.fogPower);
+          shader.setVec4('u_colors', terrain.colors);
+        }
+
         if (animatedTexture) {
           shader.setFloat('u_animationSpeed', animatedTexture.speed);
         }
@@ -270,20 +252,7 @@ export class RenderSystem {
             shader.setFloat('u_brushLayer', brushImage.layer);
             shader.setFloat('u_brushSize', brushImage.size);
           }
-
-          if (terrain) {
-            shader.setFloat('u_tiling', terrain.tiling);
-            shader.setFloat('u_fogPower', terrain.fogPower);
-            shader.setVec3('u_fogColor', terrain.fogColor);
-          }
-
-          shader.setUniformMat4('u_view', this.camera.getViewMatrix());
-          shader.setVec3('u_cameraPos', cameraPos);
         }
-        const transform3D = ecs.getComponent<Transform3D>(
-          entity,
-          'Transform3D',
-        );
 
         if (transform3D) {
           mat4.translate(modelMatrix, modelMatrix, transform3D.position);
@@ -300,6 +269,7 @@ export class RenderSystem {
           shader.setFloat('u_flowSpeed', water.flowSpeed);
           shader.setVec3('u_color', water.color);
         }
+
         let slot = 0;
         for (const texture of material.textures) {
           shader.setUniform(
@@ -310,161 +280,180 @@ export class RenderSystem {
           );
           slot++;
         }
-        const vao = MeshManager.getMesh(mesh.meshId);
-        if (!vao) throw new Error('VAO not found');
-        Renderer.drawIndexed(vao);
-      }
+        Renderer.drawIndexed(meshRenderer.mesh);
 
-      if (grass) {
-        const shader = ShaderManager.getShader('grass');
-        shader.bind();
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        shader.setUniformMat4('u_model', modelMatrix);
-        shader.setFloat('u_time', performance.now() * 0.01);
-        shader.setVec3('u_cameraPos', cameraPos);
-        if (light && lightPos) {
-          shader.setVec3('light.position', lightPos.position);
-          shader.setVec3('light.ambient', light.ambient);
-          shader.setVec3('light.diffuse', light.diffuse);
-          shader.setVec3('light.direction', light.direction);
-        }
-        shader.setVec3('material.ambient', material.ambient);
-        shader.setVec3('material.diffuse', material.diffuse);
-        shader.setVec3('material.specular', material.specular);
-        shader.setFloat('material.shininess', material.shininess);
-        const vertexArray = MeshManager.getMesh(grass.meshId);
-        if (!vertexArray) {
-          console.log('Could not get vertex array' + grass.meshId);
-          break;
-        }
-        Renderer.drawInstancing(vertexArray, grass.positions, grass.amount);
-      }
-      if (tree && terrain) {
-        const shader = ShaderManager.getShader('tree');
-        if (!shader) throw new Error('Could not get batch shader');
-        shader.bind();
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        shader.setUniformMat4('u_model', modelMatrix);
-        shader.setFloat('u_fogPower', terrain.fogPower);
-        shader.setVec3('u_fogColor', terrain.fogColor);
-        shader.setVec3('u_cameraPos', cameraPos);
-        const texture = TextureManager.getTexture('trees');
-        shader.setUniform(
-          0,
-          texture.UniformName,
-          texture.Texture,
-          texture.Target,
-        );
-        const vertexArray = MeshManager.getMesh(tree.meshId);
-        if (!vertexArray) {
-          console.log('Could not get vertex array' + tree.meshId);
-          break;
-        }
-        Renderer.drawInstancing(vertexArray, tree.positions, tree.amount);
-      }
-      const trailRenderer = ecs.getComponent<TrailRenderer>(
-        entity,
-        'TrailRenderer',
-      );
-      if (trailRenderer) {
-        const shader = ShaderManager.getShader('trail');
-        if (!shader) throw new Error('Could not get shader trail');
-        shader.bind();
-        shader.setUniformMat4(
-          'u_matrix',
-          this.camera.getViewProjectionMatrix(),
-        );
-        const vertexArray = MeshManager.getMesh(trailRenderer.meshId);
-        if (!vertexArray)
-          throw new Error('Mesh is not trail' + trailRenderer.meshId);
-        Renderer.drawStrip(vertexArray);
         shader.unbind();
       }
-
-      //Render particles
-      const particleEmitter = ecs.getComponent<ParticleEmitter>(
-        entity,
-        'ParticleEmitter',
-      );
-      if (!particleEmitter || !material) continue;
-      const shader = ShaderManager.getShader(material.shaderId);
-      if (!shader)
-        throw new Error('Could not load shader' + particleEmitter.shaderId);
-      shader.bind();
-      shader.setUniformMat4('u_model', modelMatrix);
-      shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
-      shader.setFloat('u_time', performance.now() * 0.001);
-      shader.setVec2('u_speed', particleEmitter.speed);
-      shader.setVec3('u_scale', particleEmitter.particleProp.scale);
-      let slot = 0;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.scaleCurveX.UniformName,
-        particleEmitter.particleProp.scaleCurveX.Texture,
-        particleEmitter.particleProp.scaleCurveX.Target,
-      );
-      slot++;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.scaleCurveY.UniformName,
-        particleEmitter.particleProp.scaleCurveY.Texture,
-        particleEmitter.particleProp.scaleCurveY.Target,
-      );
-      slot++;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.scaleCurveZ.UniformName,
-        particleEmitter.particleProp.scaleCurveZ.Texture,
-        particleEmitter.particleProp.scaleCurveZ.Target,
-      );
-      slot++;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.colorCurve.UniformName,
-        particleEmitter.particleProp.colorCurve.Texture,
-        particleEmitter.particleProp.colorCurve.Target,
-      );
-      slot++;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.opacityCurve.UniformName,
-        particleEmitter.particleProp.opacityCurve.Texture,
-        particleEmitter.particleProp.opacityCurve.Target,
-      );
-      slot++;
-      shader.setUniform(
-        slot,
-        particleEmitter.particleProp.displacement.UniformName,
-        particleEmitter.particleProp.displacement.Texture,
-        particleEmitter.particleProp.displacement.Target,
-      );
-      slot++;
-      for (const texture of material.textures) {
-        shader.setUniform(
-          slot,
-          texture.UniformName,
-          texture.Texture,
-          texture.Target,
-        );
-        slot++;
-      }
-      const vertexArray = MeshManager.getMesh(particleEmitter.meshId);
-      if (!vertexArray)
-        throw new Error('Mesh is not emitter' + particleEmitter.meshId);
-      Renderer.drawInstancing(
-        vertexArray,
-        particleEmitter.particles,
-        particleEmitter.aliveCount,
-      );
-      shader.unbind();
     }
-    this.drawBatch();
+
+    //   if (grass) {
+    //     const shader = ShaderManager.getShader('grass');
+    //     shader.bind();
+    //     shader.setUniformMat4(
+    //       'u_matrix',
+    //       this.camera.getViewProjectionMatrix(),
+    //     );
+    //     shader.setUniformMat4('u_model', modelMatrix);
+    //     shader.setFloat('u_time', performance.now() * 0.01);
+    //     shader.setVec3('u_cameraPos', cameraPos);
+    //     if (light && lightPos) {
+    //       shader.setVec3('light.position', lightPos.position);
+    //       shader.setVec3('light.ambient', light.ambient);
+    //       shader.setVec3('light.diffuse', light.diffuse);
+    //       shader.setVec3('light.direction', light.direction);
+    //     }
+    //     if (surface) {
+    //       shader.setVec3('material.ambient', surface.ambient);
+    //       shader.setVec3('material.diffuse', surface.diffuse);
+    //       shader.setVec3('material.specular', surface.specular);
+    //       shader.setFloat('material.shininess', surface.shininess);
+    //     }
+
+    //     const mesh = MeshManager.getMesh(grass.meshId);
+    //     if (!mesh) {
+    //       console.log('Could not get vertex array' + grass.meshId);
+    //       break;
+    //     }
+    //     Renderer.drawInstancing(mesh, grass.positions, grass.amount);
+    //     shader.unbind();
+    //   }
+
+    //   if (tree && terrain) {
+    //     const shader = ShaderManager.getShader('tree');
+    //     shader.bind();
+    //     shader.setUniformMat4(
+    //       'u_matrix',
+    //       this.camera.getViewProjectionMatrix(),
+    //     );
+    //     shader.setUniformMat4('u_model', modelMatrix);
+    //     shader.setFloat('u_fogPower', terrain.fogPower);
+    //     shader.setVec3('u_fogColor', terrain.fogColor);
+    //     shader.setVec3('u_cameraPos', cameraPos);
+    //     const texture = TextureManager.getTexture('trees');
+    //     shader.setUniform(
+    //       0,
+    //       texture.UniformName,
+    //       texture.Texture,
+    //       texture.Target,
+    //     );
+    //     const mesh = MeshManager.getMesh(tree.meshId);
+    //     if (!mesh) {
+    //       console.log('Could not get vertex array' + tree.meshId);
+    //       break;
+    //     }
+    //     Renderer.drawInstancing(mesh, tree.positions, tree.amount);
+    //     shader.unbind();
+    //   }
+
+    //   const trailRenderer = ecs.getComponent<TrailRenderer>(
+    //     entity,
+    //     'TrailRenderer',
+    //   );
+    //   if (trailRenderer) {
+    //     const shader = ShaderManager.getShader('trail');
+    //     if (!shader) throw new Error('Could not get shader trail');
+    //     shader.bind();
+    //     shader.setUniformMat4(
+    //       'u_matrix',
+    //       this.camera.getViewProjectionMatrix(),
+    //     );
+    //     const mesh = MeshManager.getMesh(trailRenderer.meshId);
+    //     if (!mesh) throw new Error('Mesh is not trail' + trailRenderer.meshId);
+    //     Renderer.drawStrip(mesh);
+    //     shader.unbind();
+    //   }
+
+    //   //Render particles
+    //   const particleEmitter = ecs.getComponent<ParticleEmitter>(
+    //     entity,
+    //     'ParticleEmitter',
+    //   );
+    //   if (!particleEmitter) continue;
+    //   const particleEmitterShader = ShaderManager.getShader(
+    //     particleEmitter.shaderId,
+    //   );
+    //   particleEmitterShader.bind();
+    //   if (transform3D) {
+    //     mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+    //     mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+    //     mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+    //     mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+    //     mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+    //     particleEmitterShader.setUniformMat4('u_model', modelMatrix);
+    //   }
+    //   particleEmitterShader.setUniformMat4('u_model', modelMatrix);
+    //   particleEmitterShader.setUniformMat4(
+    //     'u_matrix',
+    //     this.camera.getViewProjectionMatrix(),
+    //   );
+    //   particleEmitterShader.setFloat('u_time', performance.now() * 0.001);
+    //   particleEmitterShader.setVec2('u_speed', particleEmitter.speed);
+    //   particleEmitterShader.setVec3(
+    //     'u_scale',
+    //     particleEmitter.particleProp.scale,
+    //   );
+    //   let slot = 0;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.scaleCurveX.UniformName,
+    //     particleEmitter.particleProp.scaleCurveX.Texture,
+    //     particleEmitter.particleProp.scaleCurveX.Target,
+    //   );
+    //   slot++;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.scaleCurveY.UniformName,
+    //     particleEmitter.particleProp.scaleCurveY.Texture,
+    //     particleEmitter.particleProp.scaleCurveY.Target,
+    //   );
+    //   slot++;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.scaleCurveZ.UniformName,
+    //     particleEmitter.particleProp.scaleCurveZ.Texture,
+    //     particleEmitter.particleProp.scaleCurveZ.Target,
+    //   );
+    //   slot++;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.colorCurve.UniformName,
+    //     particleEmitter.particleProp.colorCurve.Texture,
+    //     particleEmitter.particleProp.colorCurve.Target,
+    //   );
+    //   slot++;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.opacityCurve.UniformName,
+    //     particleEmitter.particleProp.opacityCurve.Texture,
+    //     particleEmitter.particleProp.opacityCurve.Target,
+    //   );
+    //   slot++;
+    //   particleEmitterShader.setUniform(
+    //     slot,
+    //     particleEmitter.particleProp.displacement.UniformName,
+    //     particleEmitter.particleProp.displacement.Texture,
+    //     particleEmitter.particleProp.displacement.Target,
+    //   );
+    //   slot++;
+    //   for (const texture of particleEmitter.textures) {
+    //     particleEmitterShader.setUniform(
+    //       slot,
+    //       texture.UniformName,
+    //       texture.Texture,
+    //       texture.Target,
+    //     );
+    //     slot++;
+    //   }
+    //   const mesh = MeshManager.getMesh(particleEmitter.meshId);
+    //   if (!mesh)
+    //     throw new Error('Mesh is not emitter' + particleEmitter.meshId);
+    //   Renderer.drawInstancing(
+    //     mesh,
+    //     particleEmitter.particles,
+    //     particleEmitter.aliveCount,
+    //   );
+    //   particleEmitterShader.unbind();
+    // }
   }
 
   private updateNormals(vertexArray: VertexArray): void {
