@@ -14,6 +14,7 @@ export class Texture {
   private height: number;
   private uniformName: string;
   private repeat: boolean;
+  private paths: string[];
 
   constructor(
     imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
@@ -22,6 +23,7 @@ export class Texture {
     height: number,
     uniformName: string,
     repeat: boolean,
+    paths: string[],
   ) {
     this.imageData = imageData;
     this.target = target;
@@ -29,6 +31,7 @@ export class Texture {
     this.height = height;
     this.uniformName = uniformName;
     this.repeat = repeat;
+    this.paths = paths;
   }
 
   public get ImageData() {
@@ -46,6 +49,10 @@ export class Texture {
 
   public get UniformName() {
     return this.uniformName;
+  }
+
+  public get Paths() {
+    return this.paths;
   }
 
   public bindCubemap() {
@@ -132,8 +139,7 @@ export class Texture {
     return this;
   }
 
-  public bind2DArrayTexture() {
-    const images = this.imageData as HTMLImageElement[];
+  public bind2DArrayTexture(images: HTMLImageElement[]) {
     const gl = Renderer.getGL;
     const tex0 = images[0];
     this.glTexture = gl.createTexture();

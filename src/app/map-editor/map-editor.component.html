@@ -477,10 +477,10 @@
                   </div>
                 </mat-expansion-panel>
               }
-              @if (item === material) {
+              @if (item === surface) {
                 <mat-expansion-panel>
                   <mat-expansion-panel-header>
-                    <mat-panel-title> Material </mat-panel-title>
+                    <mat-panel-title> Surface </mat-panel-title>
                     <mat-panel-description>
                       <mat-icon>texture</mat-icon>
                     </mat-panel-description>
@@ -494,7 +494,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.ambient[0]"
+                        [(ngModel)]="surface.ambient[0]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -505,7 +505,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.ambient[1]"
+                        [(ngModel)]="surface.ambient[1]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -516,7 +516,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.ambient[2]"
+                        [(ngModel)]="surface.ambient[2]"
                       />
                     </mat-form-field>
                   </div>
@@ -529,7 +529,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.diffuse[0]"
+                        [(ngModel)]="surface.diffuse[0]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -540,7 +540,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.diffuse[1]"
+                        [(ngModel)]="surface.diffuse[1]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -551,7 +551,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.diffuse[2]"
+                        [(ngModel)]="surface.diffuse[2]"
                       />
                     </mat-form-field>
                   </div>
@@ -565,7 +565,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.specular[0]"
+                        [(ngModel)]="surface.specular[0]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -576,7 +576,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.specular[1]"
+                        [(ngModel)]="surface.specular[1]"
                       />
                     </mat-form-field>
                     <mat-form-field class="col-4">
@@ -587,7 +587,7 @@
                         min="0"
                         max="1"
                         step="0.1"
-                        [(ngModel)]="material.specular[2]"
+                        [(ngModel)]="surface.specular[2]"
                       />
                     </mat-form-field>
                     <div class="row">
@@ -601,7 +601,7 @@
                         >
                           <input
                             matSliderThumb
-                            [(ngModel)]="material.shininess"
+                            [(ngModel)]="surface.shininess"
                           />
                         </mat-slider>
                       </div>
@@ -1423,14 +1423,27 @@
                         />
                       </mat-form-field>
                     </div>
-                    <div
-                      class="row border"
-                      cdkDropList
-                      id="list-two"
-                      [cdkDropListConnectedTo]="['list-one']"
-                      (cdkDropListDropped)="drop($event)"
-                      style="height: 100px"
-                    ></div>
+                    <span>Textures</span>
+                    @for (texture of particleTexture; track texture) {
+                      <div
+                        class="example-list"
+                        cdkDropList
+                        id="list-two"
+                        [cdkDropListData]="texture.Paths"
+                        [cdkDropListConnectedTo]="['list-one']"
+                        (cdkDropListDropped)="drop($event, texture)"
+                      >
+                        @for (path of texture.Paths; track path) {
+                          <img
+                            [src]="path"
+                            class="example-box"
+                            cdkDrag
+                            width="50px"
+                            height="50px"
+                          />
+                        }
+                      </div>
+                    }
                     <app-gradient-creator
                       [name]="name"
                       [texture]="particleEmitter.particleProp.colorCurve"

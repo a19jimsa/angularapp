@@ -3,7 +3,6 @@ precision mediump float;
 precision mediump sampler2DArray;
 
 uniform sampler2DArray u_textures;
-uniform sampler2D u_texture;
 uniform sampler2D u_opacityCurve;
 uniform sampler2D u_colorCurve;
 uniform float u_time;
@@ -18,12 +17,14 @@ void main() {
     float opacity = texture(u_opacityCurve, vec2(v_age, 1.0)).r;
 
     vec2 uv = v_texcoord;
-    vec2 uvScrolling = uv + vec2(u_speed.x * u_time, u_speed.y * u_time);
+    vec2 uvScrolling = uv + vec2(u_speed.x * v_age, u_speed.y * v_age);
 
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0));
     vec4 color = texture(u_colorCurve, vec2(baseColor.r, 1.0));
 
     color *= opacity;
 
-    FragColor = vec4(color.rgb, color.w);
+    if(color.r < 0.01) discard;
+
+    FragColor = vec4(color.rgb, opacity);
 }

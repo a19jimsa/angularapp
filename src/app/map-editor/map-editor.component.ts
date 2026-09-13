@@ -5,7 +5,6 @@ import {
   Component,
   ElementRef,
   inject,
-  model,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -25,7 +24,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
 import { Surface } from 'src/components/surface';
-import { Material as RenderMaterial } from 'src/renderer/material';
+import { BlendFactor, Material as RenderMaterial } from 'src/renderer/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
@@ -57,7 +56,6 @@ import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { Keyboard } from 'src/core/keyboard';
 import { BufferLayout } from 'src/renderer/buffer';
 import { ShaderDataType, ShaderType } from 'src/renderer/shader-data-type';
-import { Pivot } from 'src/components/pivot';
 import { Grass } from 'src/components/grass';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { BatchRenderable } from 'src/components/batch-renderable';
@@ -81,6 +79,8 @@ import {
   CdkDragDrop,
   CdkDragEnd,
   CdkDropList,
+  moveItemInArray,
+  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
@@ -91,8 +91,8 @@ import { GradientCreatorComponent } from '../gradient-creator/gradient-creator.c
 import { AssetManager } from 'src/resource-manager/asset-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Flower } from 'src/components/flower';
-import { MaterialManager } from 'src/resource-manager/material-manager';
 import { MeshRenderer } from 'src/components/mesh-renderer';
+import { Texture } from 'src/renderer/texture';
 
 type IsSelected = {
   select: boolean;
@@ -475,7 +475,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  get material(): Surface | null {
+  get surface(): Surface | null {
     const surface = this.ecs.getComponent<Surface>(
       this.meshbrush.entity,
       'Surface',
@@ -548,6 +548,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
   get getObjectMode(): Mode {
     return Mode.Object;
+  }
+
+  get particleTexture() {
+    const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
+      this.meshbrush.entity,
+      'ParticleEmitter',
+    );
+    if (!particleEmitter) return null;
+    return particleEmitter.textures;
   }
 
   setBrushTextureSlot(image: string) {
@@ -976,7 +985,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const waveTextures = await TextureManager.addTextureArray(
       'wave',
       'u_textures',
-      [wave],
+      [wave, fireImage],
       true,
     );
 
@@ -1539,29 +1548,27 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
-    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addRingMesh(0, 10, 20);
-    model.updateNormals();
+    model.addCone();
     const mesh = MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
-      3,
+      2,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
       true,
     );
     instanceBuffer.add(
-      4,
+      3,
       ShaderDataType.GetType(ShaderType.Float),
       1,
       false,
       true,
     );
     instanceBuffer.add(
-      5,
+      4,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
@@ -1576,19 +1583,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     const shader = ShaderManager.getShader('wave');
     const material = new RenderMaterial(shader);
-    if (material) {
-      const wave = TextureManager.getTexture('wave');
-      const healing = TextureManager.getTexture('healing');
-      material.textures.add(wave);
-      material.textures.add(healing);
-    }
-    this.ecs.addComponent<MeshRenderer>(
-      entity,
-      new MeshRenderer(mesh, material),
-    );
+    material.blendSrc = BlendFactor.SRC_ALPHA;
+    material.blendDst = BlendFactor.ONE_MINUS_SRC_ALPHA;
+
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
-      new ParticleEmitter('wave', 'particleEmitter' + entity),
+      new ParticleEmitter(
+        'wave',
+        'particleEmitter' + entity,
+        instanceBuffer.amount,
+      ),
     );
     if (particleEmitter) {
       const scaleX = particleEmitter.particleProp.scaleCurveX;
@@ -1603,6 +1607,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       opacity.bindTexture();
       color.bindTexture();
       displacement.bindTexture();
+      const wave = TextureManager.getTexture('wave');
+      const healing = TextureManager.getTexture('healing');
+      particleEmitter.textures.add(wave);
+      particleEmitter.textures.add(healing);
     }
   }
 
@@ -1643,7 +1651,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addCylinder();
         break;
       case 4:
-        model.addSphere(10, 10, 10);
+        model.addSphere(10, 10, 1);
         break;
       case 5:
         model.addTornado();
@@ -1661,7 +1669,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addQuad(1, 1);
         break;
     }
-    model.updateNormals();
     MeshManager.updateMesh(model, emitter.meshId);
   }
 
@@ -1802,13 +1809,31 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  async drop(event: CdkDragDrop<[string, HTMLImageElement]>) {
-    const image = event.item.data[1] as HTMLImageElement;
-    const texture = await TextureManager.addTextureArray(
-      'wave',
-      'u_texture',
-      [image],
-      true,
+  async drop(
+    event: CdkDragDrop<string[], any, HTMLImageElement>,
+    texture: Texture,
+  ) {
+    if (event.previousContainer === event.container) {
+      await this.reorderTexture(event, texture);
+    } else {
+      await this.addTexture(event, texture);
+    }
+  }
+
+  private async reorderTexture(event: CdkDragDrop<string[]>, texture: Texture) {
+    moveItemInArray(
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex,
     );
+    const images = await TextureManager.loadImages(event.container.data);
+    texture.bind2DArrayTexture(images);
+  }
+
+  private async addTexture(event: CdkDragDrop<string[]>, texture: Texture) {
+    const path = event.item.data[1].src as string;
+    texture.Paths.push(path);
+    const images = await TextureManager.loadImages(texture.Paths);
+    texture.bind2DArrayTexture(images);
   }
 }

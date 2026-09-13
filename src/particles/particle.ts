@@ -32,6 +32,7 @@ export class ParticleProp {
     1,
     'u_scaleX',
     false,
+    [],
   );
   scaleCurveY: Texture = new Texture(
     new Uint8ClampedArray(256 * 4).fill(255),
@@ -40,6 +41,7 @@ export class ParticleProp {
     1,
     'u_scaleY',
     false,
+    [],
   );
   scaleCurveZ: Texture = new Texture(
     new Uint8ClampedArray(256 * 4).fill(255),
@@ -48,6 +50,7 @@ export class ParticleProp {
     1,
     'u_scaleZ',
     false,
+    [],
   );
   opacityCurve: Texture = new Texture(
     new Uint8ClampedArray(256 * 4).fill(255),
@@ -56,6 +59,7 @@ export class ParticleProp {
     1,
     'u_opacityCurve',
     false,
+    [],
   );
   colorCurve: Texture = new Texture(
     new Uint8ClampedArray(256 * 4).fill(255),
@@ -64,6 +68,7 @@ export class ParticleProp {
     1,
     'u_colorCurve',
     false,
+    [],
   );
   displacement: Texture = new Texture(
     new Uint8ClampedArray(256 * 4).fill(255),
@@ -72,6 +77,7 @@ export class ParticleProp {
     1,
     'u_displacement',
     false,
+    [],
   );
 
   minRotationX: number = 0;

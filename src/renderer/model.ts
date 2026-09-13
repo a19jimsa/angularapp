@@ -123,34 +123,22 @@ export class Model {
       -0.5,
       0,
       0,
-      1,
-      0,
-      0,
       1, // v0 bottom-left
       0.5 * aspect,
       -0.5,
       0,
       1,
-      1,
-      0,
-      0,
       1, // v1 bottom-right
       0.5 * aspect,
       0.5,
       0,
       1,
-      0,
-      0,
-      0,
-      1, // v2 top-right
+      0, // v2 top-right
       -0.5 * aspect,
       0.5,
       0,
       0,
-      0,
-      0,
-      0,
-      1, // v3 top-left
+      0, // v3 top-left
     ];
 
     const indices = [0, 1, 2, 0, 2, 3];
@@ -257,7 +245,6 @@ export class Model {
 
   addSphere(heightSegments: number, widthSegments: number, radius: number) {
     const vertices: number[] = [];
-    const uvs: number[] = [];
     const indices: number[] = [];
 
     for (let y = 0; y <= heightSegments; y++) {
@@ -280,7 +267,6 @@ export class Model {
 
         vertices.push(px, py, pz);
         vertices.push(u, v);
-        vertices.push(0, 0, 0);
       }
     }
 
@@ -500,11 +486,9 @@ export class Model {
       //Bottom
       this.vertices.push(x / 2, 0, z / 2);
       this.vertices.push(u, 0);
-      this.vertices.push(0, 0, 0);
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
-      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -513,10 +497,11 @@ export class Model {
       const top1 = (i + 1) * 2 + 1;
       const bottom1 = (i + 1) * 2;
 
-      // Triangel 1
-      this.indices.push(top0, bottom0, top1);
-      // Triangel 2
-      this.indices.push(top1, bottom0, bottom1);
+      // Triangel 1 - CCW
+      this.indices.push(top0, top1, bottom1);
+
+      // Triangel 2 - CCW
+      this.indices.push(top0, bottom1, bottom0);
     }
   }
 
@@ -525,40 +510,40 @@ export class Model {
     // x, y, z, u, v, nx,ny,nz
     const vertices = [
       // 0
-      -0.5, 0, 0, 0, 0.0, 0, 0, 0,
+      -0.5, 0, 0, 0, 0.0,
 
       // 1
-      0.5, 0, 0, 1, 0.0, 0, 0, 0,
+      0.5, 0, 0, 1, 0.0,
 
       // 2
-      0.5, 1, 0, 0, 0.2, 0, 0, 0,
+      0.5, 1, 0, 0, 0.2,
 
       // 3
-      1, 1, 0, 1, 0.2, 0, 0, 0,
+      1, 1, 0, 1, 0.2,
 
       // 4
-      -1, 2, 0, 0, 0.4, 0, 0, 0,
+      -1, 2, 0, 0, 0.4,
 
       // 5
-      0, 2, 0, 1, 0.4, 0, 0, 0,
+      0, 2, 0, 1, 0.4,
 
       // 6
-      -0.5, 3, 0, 0, 0.6, 0, 0, 0,
+      -0.5, 3, 0, 0, 0.6,
 
       // 7
-      0.5, 3, 0, 1, 0.6, 0, 0, 0,
+      0.5, 3, 0, 1, 0.6,
 
       // 8
-      -1, 4, 0, 0, 0.8, 0, 0, 0,
+      -1, 4, 0, 0, 0.8,
 
       // 9
-      0, 4, 0, 1, 0.8, 0, 0, 0,
+      0, 4, 0, 1, 0.8,
 
       // 10
-      0, 5, 0, 0, 1.0, 0, 0, 0,
+      0, 5, 0, 0, 1.0,
 
       // 11
-      1.2, 5, 0, 1, 1.0, 0, 0, 0,
+      1.2, 5, 0, 1, 1.0,
     ];
 
     for (let i = 0; i < 5; i++) {
@@ -592,12 +577,10 @@ export class Model {
       // Inner vertex
       vertices.push(cos * innerRadius, 0, sin * innerRadius);
       vertices.push(u, 1);
-      vertices.push(0, 0, 0);
 
       // Outer vertex
       vertices.push(cos * outerRadius, 0, sin * outerRadius);
       vertices.push(u, 0);
-      vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -631,9 +614,7 @@ export class Model {
       const z = Math.sin(angle) * radius;
 
       vertices.push(x, y, z, t, 1);
-      vertices.push(0, 0, 0);
       vertices.push(x, y + width, z, t, 0);
-      vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {

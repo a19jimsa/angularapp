@@ -9,12 +9,22 @@ export class TextureManager extends Manager {
     this.textures.set(name, texture);
   }
 
+  public static async loadImages(paths: string[]) {
+    const images: HTMLImageElement[] = new Array();
+    for (const path of paths) {
+      const image = await this.loadImage(path);
+      images.push(image);
+    }
+    return images;
+  }
+
   public static async addTextureArray(
     name: string,
     uniformName: string,
     images: HTMLImageElement[],
     repeat: boolean,
   ) {
+    const paths = images.map((image) => image.src);
     const texture = new Texture(
       images,
       Target.TEXTURE_2D_ARRAY,
@@ -22,8 +32,9 @@ export class TextureManager extends Manager {
       images[0].width,
       uniformName,
       repeat,
+      paths,
     );
-    texture.bind2DArrayTexture();
+    texture.bind2DArrayTexture(images);
     this.textures.set(name, texture);
     this.dirty = true;
     return texture;
@@ -33,6 +44,7 @@ export class TextureManager extends Manager {
     name: string,
     uniformName: string,
     images: HTMLImageElement[],
+    paths: string[],
   ) {
     const texture = new Texture(
       images,
@@ -41,6 +53,7 @@ export class TextureManager extends Manager {
       images[0].height,
       uniformName,
       false,
+      paths,
     );
     texture.bindCubemap();
     this.textures.set(name, texture);
@@ -56,6 +69,10 @@ export class TextureManager extends Manager {
     image: HTMLImageElement | Uint8ClampedArray,
     repeat: boolean,
   ) {
+    const paths = new Array();
+    if (image instanceof HTMLImageElement) {
+      paths.push(image.src);
+    }
     const texture = new Texture(
       image,
       Target.TEXTURE_2D,
@@ -63,6 +80,7 @@ export class TextureManager extends Manager {
       height,
       uniformName,
       repeat,
+      paths,
     );
     texture.bindTexture();
     this.textures.set(name, texture);

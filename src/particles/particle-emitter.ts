@@ -98,10 +98,13 @@ export class ParticleEmitter extends Component {
 
   subEmitter: ParticleEmitter | null;
 
-  constructor(shaderId: string, meshId: string) {
+  stride: number;
+
+  constructor(shaderId: string, meshId: string, stride: number) {
     super();
     this.maxParticles = 10000;
-    this.particles = new Float32Array(this.maxParticles * 7);
+    this.stride = stride;
+    this.particles = new Float32Array(this.maxParticles * this.stride);
     this.particleProp = new ParticleProp();
 
     this.emitting = true;

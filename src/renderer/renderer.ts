@@ -51,9 +51,11 @@ export class Renderer {
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
     //Turn of for alpha blending particles
-    gl.depthMask(false);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
@@ -95,7 +97,6 @@ export class Renderer {
     vertexArray.bind();
     const count = vertexArray.indexBuffer.getCount();
     this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0);
-    console.log('Drawing indexed ' + count);
     vertexArray.unbind();
   }
 
@@ -138,7 +139,7 @@ export class Renderer {
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     vao.unbind();
     gl.depthMask(true);
-    gl.depthFunc(gl.LESS);
+    gl.depthFunc(gl.LEQUAL);
     gl.colorMask(true, true, true, true);
   }
 
