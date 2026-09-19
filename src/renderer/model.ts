@@ -191,9 +191,6 @@ export class Model {
       order,
       u0,
       v0,
-      0,
-      0,
-      0,
 
       // top-right
       ((x1 - pivotX) * cos - (y0 - pivotY) * sin + pivotX) / divider,
@@ -201,9 +198,6 @@ export class Model {
       order,
       u1,
       v0,
-      0,
-      0,
-      0,
 
       // bottom-right
       ((x1 - pivotX) * cos - (y1 - pivotY) * sin + pivotX) / divider,
@@ -211,9 +205,6 @@ export class Model {
       order,
       u1,
       v1,
-      0,
-      0,
-      0,
 
       // bottom-left
       ((x0 - pivotX) * cos - (y1 - pivotY) * sin + pivotX) / divider,
@@ -221,9 +212,6 @@ export class Model {
       order,
       u0,
       v1,
-      0,
-      0,
-      0,
     ];
 
     this.vertices.push(...vertices);
@@ -418,7 +406,7 @@ export class Model {
         const posX = u * width;
 
         // Position (x, y, z) + UV (u, v) + Normals (x, y, z)
-        this.vertices.push(posX, 1, posZ); // y = 0 (flat plane)
+        this.vertices.push(posX, 0, posZ); // y = 0 (flat plane)
         this.vertices.push(u, v); // UV
         this.vertices.push(0, 1, 0); // Normals
       }
@@ -450,11 +438,9 @@ export class Model {
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
-      this.vertices.push(0, 0, 0);
       //Bottom
       this.vertices.push(x, 0, z);
       this.vertices.push(u, 0);
-      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {

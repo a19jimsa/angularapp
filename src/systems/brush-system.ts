@@ -17,63 +17,72 @@ import { BrushImage } from 'src/components/brush-image';
 import { Flower } from 'src/components/flower';
 import { Grass } from 'src/components/grass';
 import { Mesh } from 'src/components/mesh';
+import { MeshRenderer } from 'src/components/mesh-renderer';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { Renderer } from 'src/renderer/renderer';
+import { VertexArray } from 'src/renderer/vertex-array';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
 
 export class BrushSystem {
   update(meshBrush: Brush, ecs: Ecs, mouse: Mouse) {
-    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    if (!mesh) return;
-    const vertexArray = MeshManager.getMesh(mesh.meshId);
-    if (!vertexArray) return;
-    const vertices = vertexArray.vertexBuffer.vertices;
+    const meshRenderer = ecs.getComponent<MeshRenderer>(
+      meshBrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer) return;
+    const vertices = meshRenderer.mesh.vertexBuffer.vertices;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
     );
-    if (!mesh || !transform3D) return;
-    const vertex = this.pickVertexNew(transform3D, mesh.meshId, mouse);
+    if (!transform3D) return;
+    const vertex = this.pickVertexNew(transform3D, meshRenderer.mesh, mouse);
     if (!vertex) return;
     const brushImage = ecs.getComponent<BrushImage>(
       meshBrush.entity,
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = vertexArray.vertexBuffer.vertices[vertex.index + 3];
-      brushImage.UV[1] = vertexArray.vertexBuffer.vertices[vertex.index + 4];
+      brushImage.UV[0] = vertices[vertex.index + 3];
+      brushImage.UV[1] = vertices[vertex.index + 4];
       brushImage.size = meshBrush.radius;
     }
-
+    const position = vec4.fromValues(
+      vertices[vertex.index],
+      vertices[vertex.index + 1],
+      vertices[vertex.index + 2],
+      1,
+    );
     if (meshBrush.type === TerrainBrushes.Height) {
-      this.heightBrush(
-        meshBrush,
-        vec4.fromValues(
-          vertices[vertex.index],
-          vertices[vertex.index + 1],
-          vertices[vertex.index + 2],
-          1,
-        ),
-        ecs,
-      );
+      // this.heightBrush(
+      //   meshBrush,
+      //   vec4.fromValues(
+      //     vertices[vertex.index],
+      //     vertices[vertex.index + 1],
+      //     vertices[vertex.index + 2],
+      //     1,
+      //   ),
+      //   ecs,
+      // );
+      this.heightBrushWithoutImage(meshBrush, position, ecs);
     } else if (meshBrush.type === TerrainBrushes.Splat) {
       const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
       if (!splatmap) return;
-
       this.paintImage(
         ecs,
         splatmap.size,
         splatmap.coords,
         meshBrush,
-        vertex.x,
-        vertex.z,
+        vertices[vertex.index + 3],
+        vertices[vertex.index + 4],
       );
+      splatmap.dirty = true;
     } else if (meshBrush.type === TerrainBrushes.Grass) {
       const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
       if (!grass) return;
@@ -82,8 +91,8 @@ export class BrushSystem {
         grass.size,
         grass.coords,
         meshBrush,
-        vertex.x,
-        vertex.z,
+        vertices[vertex.index + 3],
+        vertices[vertex.index + 4],
       );
       this.createFoliage(vertices, ecs, meshBrush);
     } else if (meshBrush.type === TerrainBrushes.Erosion) {
@@ -92,6 +101,8 @@ export class BrushSystem {
       this.addFlower(ecs, meshBrush, vertex.x, 0, vertex.z, 0);
     } else if (meshBrush.type === TerrainBrushes.Tree) {
       this.addTree(ecs, meshBrush, vertex.x, vertex.y, vertex.z, 0);
+    } else if (meshBrush.type === TerrainBrushes.Flattening) {
+      this.flatteningBrush(meshBrush, position, ecs);
     }
   }
 
@@ -160,22 +171,19 @@ export class BrushSystem {
   ) {
     const texX = Math.floor(uv0 * splatmapSize) - Math.floor(image.width / 2);
     const texZ = Math.floor(uv1 * splatmapSize) - Math.floor(image.height / 2);
-    console.log(uv0, uv1);
   }
 
   private pickVertexNew(
     transform3D: Transform3D,
-    meshId: string,
+    mesh: VertexArray,
     mouse: Mouse,
   ) {
     const camera = Renderer.getCamera();
-    const vertexArray = MeshManager.getMesh(meshId);
-    if (!vertexArray) return null;
-    const vertices = vertexArray.vertexBuffer.vertices;
+    const vertices = mesh.vertexBuffer.vertices;
     for (
-      let i = vertices.length - vertexArray.bufferLayout.amount;
+      let i = vertices.length - mesh.bufferLayout.amount;
       i >= 0;
-      i -= vertexArray.bufferLayout.amount
+      i -= mesh.bufferLayout.amount
     ) {
       const model = mat4.create();
 
@@ -228,13 +236,6 @@ export class BrushSystem {
       const d = dx * dx + dz * dz;
       if (d < 300) {
         const index = i;
-        console.log(
-          'Picked vertex at index: ',
-          index,
-          ' with screen coords: ',
-          dx,
-          dz,
-        );
 
         return {
           index: index,
@@ -363,7 +364,6 @@ export class BrushSystem {
     flower.positions[flower.amount + 1] = y;
     flower.positions[flower.amount + 2] = z;
     flower.amount++;
-    console.log('Added flower ' + flower.amount);
   }
 
   private addTree(
@@ -374,7 +374,6 @@ export class BrushSystem {
     z: number,
     slot: number,
   ) {
-    console.log('Adding tree at: ', x, y, z);
     const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     if (!tree) return;
     tree.positions[tree.index] = x;
@@ -384,7 +383,6 @@ export class BrushSystem {
     tree.positions[tree.index + 4] = 1; // scale
     tree.index += 5;
     tree.amount++;
-    console.log('Added tree ' + tree.amount);
   }
 
   private createFoliage(vertices: Float32Array, ecs: Ecs, meshBrush: Brush) {
@@ -566,30 +564,32 @@ export class BrushSystem {
   }
 
   private heightBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
-    const brushRadius = meshBrush.radius * 2;
+    const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
-    const imageData = this.getImageData(meshBrush.image, 0.5);
+    const imageData = this.getImageData(meshBrush.image, 1);
     if (!imageData) throw new Error('Could not get image data!');
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
     );
-    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+    const meshRenderer = ecs.getComponent<MeshRenderer>(
+      meshBrush.entity,
+      'MeshRenderer',
+    );
     const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    if (!transform3D || !mesh || !terrain) return;
+    if (!transform3D || !meshRenderer || !terrain) return;
     //LOVE THIS SOLUTION!
     const commandList: Map<number, number> = new Map();
-    const vertexArray = MeshManager.getMesh(mesh.meshId);
-    if (!vertexArray) return;
+    const mesh = meshRenderer.mesh;
     for (
       let i = 0;
-      i < vertexArray.vertexBuffer.vertices.length;
-      i += vertexArray.bufferLayout.amount
+      i < mesh.vertexBuffer.vertices.length;
+      i += mesh.bufferLayout.amount
     ) {
       const pos = vec4.fromValues(
-        vertexArray.vertexBuffer.vertices[i],
-        vertexArray.vertexBuffer.vertices[i + 1],
-        vertexArray.vertexBuffer.vertices[i + 2],
+        mesh.vertexBuffer.vertices[i],
+        mesh.vertexBuffer.vertices[i + 1],
+        mesh.vertexBuffer.vertices[i + 2],
         1,
       );
       const dx = pos[0] - position[0];
@@ -609,6 +609,90 @@ export class BrushSystem {
         commandList.set(i + 1, influence);
       }
     }
+    CommandManager.add(
+      new HeightBrushCommand(meshBrush.entity, ecs, commandList),
+    );
+  }
+
+  private flatteningBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
+    const brushRadius = meshBrush.radius;
+
+    const meshRenderer = ecs.getComponent<MeshRenderer>(
+      meshBrush.entity,
+      'MeshRenderer',
+    );
+
+    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+
+    if (!meshRenderer || !terrain) return;
+
+    const commandList: Map<number, number> = new Map();
+
+    const mesh = meshRenderer.mesh;
+    const vertices = mesh.vertexBuffer.vertices;
+
+    for (let i = 0; i < vertices.length; i += mesh.bufferLayout.amount) {
+      const x = vertices[i];
+      const z = vertices[i + 2];
+
+      const dx = x - position[0];
+      const dz = z - position[2];
+
+      const distance = Math.sqrt(dx * dx + dz * dz);
+
+      if (distance <= brushRadius) {
+        const currentHeight = vertices[i + 1];
+
+        const delta = meshBrush.strength - currentHeight;
+
+        commandList.set(i + 1, delta);
+      }
+    }
+
+    CommandManager.add(
+      new HeightBrushCommand(meshBrush.entity, ecs, commandList),
+    );
+  }
+
+  private heightBrushWithoutImage(meshBrush: Brush, position: vec4, ecs: Ecs) {
+    const brushRadius = meshBrush.radius;
+    const brushStrength = meshBrush.strength;
+    const fallOff = meshBrush.fallOff;
+
+    const meshRenderer = ecs.getComponent<MeshRenderer>(
+      meshBrush.entity,
+      'MeshRenderer',
+    );
+
+    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+
+    if (!meshRenderer || !terrain) return;
+
+    const commandList: Map<number, number> = new Map();
+
+    const mesh = meshRenderer.mesh;
+
+    const vertices = mesh.vertexBuffer.vertices;
+
+    for (let i = 0; i < vertices.length; i += mesh.bufferLayout.amount) {
+      const x = vertices[i];
+      const z = vertices[i + 2];
+
+      const dx = x - position[0];
+      const dz = z - position[2];
+
+      const distance = Math.sqrt(dx * dx + dz * dz);
+
+      const t = distance / brushRadius;
+
+      if (t <= 1.0) {
+        const falloff = Math.pow(1.0 - t, meshBrush.fallOff);
+        const influence = falloff * brushStrength;
+
+        commandList.set(i + 1, influence);
+      }
+    }
+
     CommandManager.add(
       new HeightBrushCommand(meshBrush.entity, ecs, commandList),
     );

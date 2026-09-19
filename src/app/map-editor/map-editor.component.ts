@@ -133,11 +133,12 @@ export enum Tools {
 
 export enum TerrainBrushes {
   Height,
+  Splat,
   Grass,
   Tree,
-  Splat,
   Erosion,
   Flower,
+  Flattening,
 }
 
 export type Asset = {
@@ -679,6 +680,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       splat: TerrainBrushes.Splat,
       erosion: TerrainBrushes.Erosion,
       flower: TerrainBrushes.Flower,
+      flattening: TerrainBrushes.Flattening,
     };
 
     this.meshbrush.type = toolMap[name];
@@ -731,6 +733,22 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       ],
       false,
     );
+    const circle = await AssetManager.loadImage('assets/textures/circle.png');
+    const circle2 = await AssetManager.loadImage(
+      'assets/textures/circle_02.png',
+    );
+    const mountaintexture1 = await AssetManager.loadImage(
+      'assets/textures/mountain.png',
+    );
+    const mountaintexture2 = await AssetManager.loadImage(
+      'assets/textures/mountain_001.png',
+    );
+    const mountaintexture3 = await AssetManager.loadImage(
+      'assets/textures/mountain_002.png',
+    );
+    const mountaintexture4 = await AssetManager.loadImage(
+      'assets/textures/mountain_003.png',
+    );
     const texture1 = await AssetManager.loadImage('assets/textures/grass.jpg');
     const texture2 = await AssetManager.loadImage(
       'assets/textures/mountain.jpg',
@@ -772,11 +790,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/dry_river_pebbles_ao_1k.jpg',
     );
 
+    const goldMountain = await AssetManager.loadImage(
+      'assets/textures/mountains.png',
+    );
+
     const terrainTexture = await TextureManager.addTextureArray(
       'terrain',
       'u_textures',
       [
+        goldMountain,
         texture1,
+        mountaintexture4,
+        mountaintexture1,
+        mountaintexture2,
+        mountaintexture3,
         texture2,
         texture3,
         mountaintexture,
@@ -1085,7 +1112,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(50, width, depth);
+    model.addPlane(100, width, depth);
     MeshManager.addMesh(model, 'terrain' + newEntity);
 
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
@@ -1364,7 +1391,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   update() {
-    if (this.mouse.dragging) {
+    if (this.mouse.dragging || this.mouse.clicked) {
       this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
     }
     this.animationPlayerSystem.update(this.ecs);
@@ -1454,7 +1481,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 1;
+    const speed = 10;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1472,8 +1499,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.keyboard.isKeyPressed(' ')) moveY += speed;
     if (this.keyboard.isKeyPressed('Shift')) moveY -= speed;
 
-    if (this.keyboard.isKeyPressed('e')) rotateX += speed;
-    if (this.keyboard.isKeyPressed('q')) rotateX -= speed;
+    if (this.keyboard.isKeyPressed('e')) rotateX += speed / 2;
+    if (this.keyboard.isKeyPressed('q')) rotateX -= speed / 2;
 
     // if (this.keyboard.isKeyPressed('x')) rotateY += speed;
     // if (this.keyboard.isKeyPressed('z')) rotateY -= speed;
@@ -1483,11 +1510,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.mouseHandler.scrollY < 0) {
-      rotateY -= speed * 0.1;
+      rotateY -= speed;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     } else if (this.mouseHandler.scrollY > 0) {
-      rotateY += speed * 0.1;
+      rotateY += speed;
       this.mouse.lastScrollDeltaY = this.mouseHandler.scrollY;
       this.mouseHandler.scrollY = 0;
     }

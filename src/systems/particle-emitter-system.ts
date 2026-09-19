@@ -42,14 +42,11 @@ export class ParticleEmitterSystem {
         particleEmitter.positionsY[i] += particleEmitter.velocityY[i];
         particleEmitter.positionsZ[i] += particleEmitter.velocityZ[i];
         particleEmitter.rotationX[i] +=
-          particleEmitter.particleProp.rotationSpeed[0] *
-          particleEmitter.age[i];
+          particleEmitter.particleProp.rotationSpeed[0];
         particleEmitter.rotationY[i] +=
-          particleEmitter.particleProp.rotationSpeed[1] *
-          particleEmitter.age[i];
+          particleEmitter.particleProp.rotationSpeed[1];
         particleEmitter.rotationZ[i] +=
-          particleEmitter.particleProp.rotationSpeed[2] *
-          particleEmitter.age[i];
+          particleEmitter.particleProp.rotationSpeed[2];
 
         particleEmitter.age[i] += 0.016;
       }

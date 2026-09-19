@@ -3,6 +3,7 @@ import { ParticleProp } from './particle';
 import { vec2, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Texture } from 'src/renderer/texture';
+import { BlendFactor } from 'src/renderer/material';
 
 export interface SpawnShape {
   type: string;
@@ -77,6 +78,8 @@ export class ParticleEmitter extends Component {
   emitting: boolean = true;
   oneShot: boolean = false;
   tiling: vec2 = vec2.create();
+  dst: BlendFactor;
+  src: BlendFactor;
 
   maxParticles: number;
 
@@ -106,6 +109,8 @@ export class ParticleEmitter extends Component {
     this.stride = stride;
     this.particles = new Float32Array(this.maxParticles * this.stride);
     this.particleProp = new ParticleProp();
+    this.dst = BlendFactor.ONE;
+    this.src = BlendFactor.SRC_ALPHA;
 
     this.emitting = true;
 

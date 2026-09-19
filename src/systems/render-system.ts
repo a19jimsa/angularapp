@@ -186,15 +186,15 @@ export class RenderSystem {
         'MeshRenderer',
       );
       if (meshRenderer) {
-        // Renderer.updateMesh(meshRenderer.mesh);
-        // this.updateNormals(meshRenderer.mesh);
+        Renderer.updateMesh(meshRenderer.mesh);
+        this.updateNormals(meshRenderer.mesh);
         const material = meshRenderer.material;
-        if (splatmap && splatmap.dirty) {
+        if (splatmap) {
           const texture = TextureManager.getTexture(splatmap.slot);
           if (!texture)
             throw new Error('Could not get texture of ' + splatmap.slot);
           texture.updateTexture(splatmap.coords);
-          splatmap.dirty = false;
+          console.log('Updated splatmap');
         }
         const shader = meshRenderer.material.shader;
 
@@ -236,6 +236,7 @@ export class RenderSystem {
           shader.setFloat('u_tiling', terrain.tiling);
           shader.setFloat('u_fogPower', terrain.fogPower);
           shader.setVec4('u_colors', terrain.colors);
+          shader.setVec3('u_fogColor', terrain.fogColor);
         }
 
         if (animatedTexture) {
