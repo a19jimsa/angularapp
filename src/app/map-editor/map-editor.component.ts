@@ -753,6 +753,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const texture2 = await AssetManager.loadImage(
       'assets/textures/mountain.jpg',
     );
+    const perlin = await AssetManager.loadImage('assets/textures/perlin.png');
     const texture3 = await AssetManager.loadImage('assets/textures/snow.jpg');
     const texture4 = await AssetManager.loadImage('assets/textures/sand.jpg');
     const texture5 = await AssetManager.loadImage(
@@ -1672,7 +1673,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addLightning(10, 10, 20);
         break;
       case 2:
-        model.addFlatCircle(50, 100);
+        model.addFlatCircle(50, 1);
         break;
       case 3:
         model.addCylinder();
@@ -1853,14 +1854,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       event.previousIndex,
       event.currentIndex,
     );
-    const images = await TextureManager.loadImages(event.container.data);
-    texture.bind2DArrayTexture(images);
+    if (texture.UniformName === 'u_texture') {
+      const image = await TextureManager.loadImage(event.container.data[0]);
+      texture.ImageData = image;
+      texture.bindTexture();
+    } else if (texture.UniformName === 'u_textures') {
+      const images = await TextureManager.loadImages(event.container.data);
+      texture.bind2DArrayTexture(images);
+    }
   }
 
   private async addTexture(event: CdkDragDrop<string[]>, texture: Texture) {
     const path = event.item.data[1].src as string;
     texture.Paths.push(path);
-    const images = await TextureManager.loadImages(texture.Paths);
-    texture.bind2DArrayTexture(images);
+    if (texture.UniformName === 'u_texture') {
+      const image = await TextureManager.loadImage(path);
+      texture.ImageData = image;
+      texture.bindTexture();
+    } else if (texture.UniformName === 'u_textures') {
+      const images = await TextureManager.loadImages(texture.Paths);
+      texture.bind2DArrayTexture(images);
+    }
   }
 }

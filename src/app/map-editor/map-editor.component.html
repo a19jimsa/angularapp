@@ -362,7 +362,7 @@
                           aria-label="Example icon button with a menu icon"
                           (click)="changeTool('flattening')"
                         >
-                          <mat-icon>flattening</mat-icon>
+                          <mat-icon>landslide</mat-icon>
                         </button>
                       </div>
                     </div>
@@ -1413,11 +1413,11 @@
                       </mat-form-field>
                     </div>
                     <span>Textures</span>
-                    @for (texture of particleTexture; track texture) {
+                    @for (texture of particleTexture; track $index) {
                       <div
                         class="example-list"
                         cdkDropList
-                        id="list-two"
+                        [id]="'texture-list-' + $index"
                         [cdkDropListData]="texture.Paths"
                         [cdkDropListConnectedTo]="['list-one']"
                         (cdkDropListDropped)="drop($event, texture)"
@@ -1550,7 +1550,7 @@
           <div
             cdkDropList
             id="list-one"
-            [cdkDropListConnectedTo]="['list-two']"
+            [cdkDropListConnectedTo]="['texture-list-0', 'texture-list-1']"
             class="d-flex align-items-center flex-wrap overflow-auto"
             style="height: 200px"
           >

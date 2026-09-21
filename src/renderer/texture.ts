@@ -34,6 +34,12 @@ export class Texture {
     this.paths = paths;
   }
 
+  public set ImageData(
+    image: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
+  ) {
+    this.imageData = image;
+  }
+
   public get ImageData() {
     return this.imageData;
   }

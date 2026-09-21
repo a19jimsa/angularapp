@@ -62,9 +62,7 @@ export class Model {
         const pz = Math.sin(angle) * finalRadius;
 
         vertices.push(px, py, pz);
-
         vertices.push(u, v);
-        vertices.push(0, 0, 0);
       }
     }
 
@@ -280,7 +278,6 @@ export class Model {
     // center vertex
     vertices.push(0, 0, 0);
     vertices.push(0.5, 0.5);
-    vertices.push(0, 0, 0);
 
     // outer ring
     for (let i = 0; i <= segments; i++) {
@@ -297,7 +294,6 @@ export class Model {
       const dist = Math.sqrt(dx * dx + dz * dz);
       const uv = dist / radius;
       vertices.push(uv, uv);
-      vertices.push(0, 0, 0);
     }
 
     for (let i = 1; i <= segments; i++) {
@@ -426,9 +422,9 @@ export class Model {
     this.vertices = [];
     this.indices = [];
 
-    const height = 10;
+    const height = 1;
     const segments = 30;
-    const radius = 10;
+    const radius = 1;
 
     for (let i = 0; i <= segments; i++) {
       const theta = (i / segments) * Math.PI * 2;
@@ -471,10 +467,10 @@ export class Model {
       const u = i / segments;
       //Bottom
       this.vertices.push(x / 2, 0, z / 2);
-      this.vertices.push(u, 0);
+      this.vertices.push(u, 1);
       //Top
       this.vertices.push(x, height, z);
-      this.vertices.push(u, 1);
+      this.vertices.push(u, 0);
     }
 
     for (let i = 0; i < segments; i++) {

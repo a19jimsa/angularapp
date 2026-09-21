@@ -51,10 +51,8 @@ export class Renderer {
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
     //Turn of for alpha blending particles
-    gl.enable(gl.DEPTH_TEST);
     gl.depthMask(true);
     gl.disable(gl.CULL_FACE);
-
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.drawElementsInstanced(
       gl.TRIANGLES,
