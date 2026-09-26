@@ -5,6 +5,8 @@ import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
+import { MeshRenderer } from 'src/components/mesh-renderer';
+import { VertexArray } from 'src/renderer/vertex-array';
 
 type Scene = {
   entities: [];
@@ -115,5 +117,67 @@ export class SceneManager {
       //Really important
       img.src = path;
     });
+  }
+
+  static saveMesh(vertexArray: VertexArray) {
+    const vertexBuffer = vertexArray.vertexBuffer.vertices;
+    const indexBuffer = vertexArray.indexBuffer.indices;
+
+    // Calculate total size and create buffer
+    const totalSize = vertexBuffer.byteLength + indexBuffer.byteLength + 8; // 8 bytes for headers (lengths)
+    const buffer = new ArrayBuffer(totalSize);
+    const view = new DataView(buffer);
+
+    // Write header: lengths of each array
+    view.setUint32(0, vertexBuffer.byteLength, true);
+    view.setUint32(4, indexBuffer.byteLength, true);
+
+    // Copy data into buffer
+    new Float32Array(buffer, 8, vertexBuffer.length).set(vertexBuffer);
+    new Uint16Array(
+      buffer,
+      8 + vertexBuffer.byteLength,
+      indexBuffer.length,
+    ).set(indexBuffer);
+
+    // Create Blob and download link
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'mesh.bin';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  static async loadMesh(file: File): Promise<[Float32Array, Uint16Array]> {
+    const buffer = await file.arrayBuffer();
+    const view = new DataView(buffer);
+
+    // Read header
+    const vertexByteLength = view.getUint32(0, true);
+    const indexByteLength = view.getUint32(4, true);
+
+    // Read vertex data
+    const vertexData = new Float32Array(
+      buffer,
+      8,
+      vertexByteLength / Float32Array.BYTES_PER_ELEMENT,
+    );
+
+    // Read index data
+    const indexData = new Uint16Array(
+      buffer,
+      8 + vertexByteLength,
+      indexByteLength / Uint16Array.BYTES_PER_ELEMENT,
+    );
+
+    // If you want independent arrays instead of views into the file buffer
+    const vertices = new Float32Array(vertexData);
+    const indices = new Uint16Array(indexData);
+
+    return [vertices, indices];
   }
 }

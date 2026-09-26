@@ -22,7 +22,14 @@
                 hidden
                 (change)="onFileSelected($event)"
               />
-              <button mat-menu-item (click)="fileInput.click()">
+              <input
+                type="file"
+                #meshInput
+                hidden
+                accept=".bin"
+                (change)="loadMesh($event)"
+              />
+              <button mat-menu-item (click)="meshInput.click()">
                 <mat-icon>folder_open</mat-icon>
                 <span>Open map</span>
               </button>
@@ -30,7 +37,6 @@
                 <mat-icon>save</mat-icon>
                 <span>Save</span>
               </button>
-
               <button mat-menu-item>
                 <mat-icon>notifications_off</mat-icon>
                 <span>Disable alerts</span>
@@ -1390,6 +1396,9 @@
                       <mat-form-field class="col-4">
                         <mat-label>Color R</mat-label>
                         <input
+                          step="0.1"
+                          min="0"
+                          max="1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.color[0]"
@@ -1398,6 +1407,9 @@
                       <mat-form-field class="col-4">
                         <mat-label>Color G</mat-label>
                         <input
+                          step="0.1"
+                          min="0"
+                          max="1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.color[1]"
@@ -1406,6 +1418,9 @@
                       <mat-form-field class="col-4">
                         <mat-label>Color B</mat-label>
                         <input
+                          step="0.1"
+                          min="0"
+                          max="1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.particleProp.color[2]"

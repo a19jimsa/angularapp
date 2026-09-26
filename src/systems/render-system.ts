@@ -61,8 +61,6 @@ export class RenderSystem {
       [top.src, right.src, left.src, bottom.src, front.src, back.src],
     );
 
-    console.log('Setup skybox');
-
     const bufferLayout = new BufferLayout();
     bufferLayout.add(
       0,
@@ -194,7 +192,6 @@ export class RenderSystem {
           if (!texture)
             throw new Error('Could not get texture of ' + splatmap.slot);
           texture.updateTexture(splatmap.coords);
-          console.log('Updated splatmap');
         }
         const shader = meshRenderer.material.shader;
 
@@ -388,6 +385,10 @@ export class RenderSystem {
       particleEmitterShader.setVec3(
         'u_scale',
         particleEmitter.particleProp.scale,
+      );
+      particleEmitterShader.setVec3(
+        'u_color',
+        particleEmitter.particleProp.color,
       );
       let slot = 0;
       particleEmitterShader.setUniform(

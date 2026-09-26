@@ -8,6 +8,7 @@ uniform sampler2D u_opacityCurve;
 uniform sampler2D u_colorCurve;
 uniform float u_time;
 uniform vec2 u_speed;
+uniform vec3 u_color;
 
 in vec2 v_texcoord;
 in float v_age;
@@ -16,14 +17,11 @@ out vec4 FragColor;
 
 void main() { 
     float opacity = texture(u_opacityCurve, vec2(v_age, 1.0)).r;
-
-    vec2 uvScrolling = v_texcoord +
-        vec2(u_speed.x * v_age, u_speed.y * v_age);
-
+    vec2 uvScrolling = v_texcoord + vec2(u_speed.x * v_age, u_speed.y * v_age);
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0.0));
-
     vec4 color = texture(u_colorCurve, vec2(baseColor.r, 1.0));
-    vec4 substract = texture(u_texture, v_texcoord);
 
-    FragColor = vec4(color.rgb, baseColor.r * substract);
+    color.rgb *= u_color;
+
+    FragColor = vec4(color.rgb, baseColor.r);
 }

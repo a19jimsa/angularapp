@@ -733,6 +733,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       ],
       false,
     );
+    const sten = await AssetManager.loadImage('assets/textures/sten.png');
+    const sten1 = await AssetManager.loadImage('assets/textures/stn.png');
     const circle = await AssetManager.loadImage('assets/textures/circle.png');
     const circle2 = await AssetManager.loadImage(
       'assets/textures/circle_02.png',
@@ -1113,7 +1115,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(100, width, depth);
+    model.addPlane(50, width, depth);
     MeshManager.addMesh(model, 'terrain' + newEntity);
 
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));
@@ -1540,26 +1542,37 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       const scene = JSON.parse(json);
 
       console.log('Loaded scene:', scene);
-
-      // här kan du kalla SceneLoader.load(scene)
-      const ecs = await SceneManager.loadScene(scene);
-      this.ecs = ecs;
     };
-
     reader.readAsText(file);
   }
 
   async saveScene() {
-    const json = SceneManager.saveScene(this.ecs);
-    this.http.post('/api/saveMap', { json }).subscribe({
-      next: (e) => {
-        console.log(e);
-      },
-      error: (e) => console.error(e),
-      complete: () => {
-        console.log('Completed save scene!');
-      },
-    });
+    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
+      this.meshbrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer) return;
+    SceneManager.saveMesh(meshRenderer.mesh);
+  }
+
+  async loadMesh(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files?.length) {
+      return;
+    }
+
+    const file = input.files[0];
+
+    const [vertices, indices] = await SceneManager.loadMesh(file);
+    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
+      this.meshbrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer) return;
+    meshRenderer.mesh.vertexBuffer.vertices = vertices;
+    meshRenderer.mesh.indexBuffer.indices = indices;
+    console.log('Loaded new mesh');
   }
 
   changeMode(mode: Mode) {
