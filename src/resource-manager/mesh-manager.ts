@@ -39,33 +39,20 @@ export class MeshManager {
     return this.vertexArrays.get(index);
   }
 
-  public static updateMesh(newModel: Model, meshId: string) {
-    const vertexArray = this.vertexArrays.get(meshId);
-    if (!vertexArray) return;
-
+  public static updateMesh(mesh: VertexArray) {
     const gl = Renderer.getGL;
-
-    gl.bindVertexArray(vertexArray.VAO);
+    gl.bindVertexArray(mesh.VAO);
     // VBO
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(newModel.vertices),
-      gl.DYNAMIC_DRAW,
-    );
-
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, mesh.vertexBuffer.vertices, gl.STATIC_DRAW);
     // IBO
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexArray.indexBuffer.buffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer.buffer);
     gl.bufferData(
       gl.ELEMENT_ARRAY_BUFFER,
-      new Uint16Array(newModel.indices),
-      gl.DYNAMIC_DRAW,
+      mesh.indexBuffer.indices,
+      gl.STATIC_DRAW,
     );
-
     gl.bindVertexArray(null);
-
-    vertexArray.vertexBuffer.vertices = new Float32Array(newModel.vertices);
-    vertexArray.indexBuffer.indices = new Uint16Array(newModel.indices);
   }
 
   public static getAllMesh() {

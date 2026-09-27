@@ -185,7 +185,7 @@ export class RenderSystem {
       );
       if (meshRenderer) {
         if (meshRenderer.dirty) {
-          Renderer.updateMesh(meshRenderer.mesh);
+          MeshManager.updateMesh(meshRenderer.mesh);
           this.updateNormals(meshRenderer.mesh);
           meshRenderer.dirty = false;
         }

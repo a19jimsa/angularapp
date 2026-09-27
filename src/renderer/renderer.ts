@@ -50,10 +50,16 @@ export class Renderer {
       0,
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
-    //Turn of for alpha blending particles
-    gl.depthMask(false);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    
+    //Turn off for alpha blending particles
+    gl.enable(gl.DEPTH_TEST);
+    //Must be true if mesh has triangles behind!!!
+    gl.depthMask(true);
+
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.ONE, gl.ONE);
+
     gl.drawElementsInstanced(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
@@ -61,9 +67,10 @@ export class Renderer {
       0,
       count,
     );
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.enable(gl.CULL_FACE);
+
+    // återställ
     gl.depthMask(true);
+    gl.enable(gl.CULL_FACE);
     vertexArray.unbind();
   }
 

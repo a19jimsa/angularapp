@@ -26,8 +26,8 @@
                 type="file"
                 #meshInput
                 hidden
-                accept=".bin"
-                (change)="loadMesh($event)"
+                accept=".obj"
+                (change)="loadObj($event)"
               />
               <button mat-menu-item (click)="meshInput.click()">
                 <mat-icon>folder_open</mat-icon>
@@ -1388,8 +1388,26 @@
                       <mat-panel-description> </mat-panel-description>
                     </mat-expansion-panel-header>
                     <div class="row">
+                      <div class="col-12">
+                        <input
+                          type="file"
+                          #particleMaterialInput
+                          hidden
+                          accept=".obj"
+                          (change)="loadParticleMesh($event, particleEmitter)"
+                        />
+                        <button
+                          mat-menu-item
+                          (click)="particleMaterialInput.click()"
+                        >
+                          <mat-icon>folder_open</mat-icon>
+                          <span>Open mesh</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row">
                       <mat-form-field>
-                        <mat-label>Material Mesh</mat-label>
+                        <mat-label>{{ particleEmitter.meshId }}</mat-label>
                         <mat-select>
                           @for (
                             model of models;
@@ -1474,7 +1492,7 @@
                       </div>
                     }
                     <app-gradient-creator
-                      [name]="name"
+                      name="Color Ramp"
                       [texture]="particleEmitter.particleProp.colorCurve"
                     ></app-gradient-creator>
                     <div class="row">

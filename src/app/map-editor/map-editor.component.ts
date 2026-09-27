@@ -1155,7 +1155,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
-      new MeshRenderer(mesh, material),
+      new MeshRenderer('terrain', mesh, material),
     );
 
     if (!splatmap) throw new Error('Could not get splatmap');
@@ -1300,7 +1300,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const material = new RenderMaterial(shader);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer(mesh, material),
+      new MeshRenderer('light', mesh, material),
     );
   }
 
@@ -1326,7 +1326,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const material = new RenderMaterial(shader);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer(mesh, material),
+      new MeshRenderer('water', mesh, material),
     );
     const texture = TextureManager.getTexture('water');
     material.textures.add(texture);
@@ -1569,9 +1569,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (!input.files?.length) {
       return;
     }
-
     const file = input.files[0];
-
     const [vertices, indices] = await SceneManager.loadMesh(file);
     const meshRenderer = this.ecs.getComponent<MeshRenderer>(
       this.meshbrush.entity,
@@ -1586,11 +1584,40 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   async loadObj(event: Event) {
     const input = event.target as HTMLInputElement;
+
     if (!input.files?.length) {
       return;
     }
     const file = input.files[0];
-    await SceneManager.loadObj(file);
+    const vertexArray = await SceneManager.loadObj(file);
+    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
+      this.meshbrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer) return;
+    meshRenderer.mesh.vertexBuffer.vertices = new Float32Array(
+      vertexArray.vertices,
+    );
+    meshRenderer.mesh.indexBuffer.indices = new Uint16Array(
+      vertexArray.indices,
+    );
+    MeshManager.updateMesh(meshRenderer.mesh);
+    console.log('Loaded new mesh');
+  }
+
+  async loadParticleMesh(event: Event, particleEmitter: ParticleEmitter) {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files?.length) {
+      return;
+    }
+    const file = input.files[0];
+    const vertexArray = await SceneManager.loadObj(file);
+    const mesh = MeshManager.getMesh(particleEmitter.meshId);
+    if (!mesh) return;
+    mesh.vertexBuffer.vertices = new Float32Array(vertexArray.vertices);
+    mesh.indexBuffer.indices = new Uint16Array(vertexArray.indices);
+    MeshManager.updateMesh(mesh);
   }
 
   changeMode(mode: Mode) {
@@ -1607,27 +1634,28 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const buffer = new BufferLayout();
     buffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
+    buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
     model.addCone();
     const mesh = MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
-      2,
+      3,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
       true,
     );
     instanceBuffer.add(
-      3,
+      4,
       ShaderDataType.GetType(ShaderType.Float),
       1,
       false,
       true,
     );
     instanceBuffer.add(
-      4,
+      5,
       ShaderDataType.GetType(ShaderType.Float),
       3,
       false,
@@ -1695,7 +1723,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const mesh = MeshManager.getMesh(emitter.meshId);
     if (!mesh) return;
     const model = new Model(mesh.bufferLayout);
-
     switch (index) {
       case 0:
         model.addQuad(1, 1);
@@ -1728,7 +1755,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addQuad(1, 1);
         break;
     }
-    MeshManager.updateMesh(model, emitter.meshId);
+    // MeshManager.updateMesh(
+    //   this.meshRenderer.
+    // );
   }
 
   addAnimationToComponent() {
