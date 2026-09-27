@@ -184,8 +184,11 @@ export class RenderSystem {
         'MeshRenderer',
       );
       if (meshRenderer) {
-        Renderer.updateMesh(meshRenderer.mesh);
-        this.updateNormals(meshRenderer.mesh);
+        if (meshRenderer.dirty) {
+          Renderer.updateMesh(meshRenderer.mesh);
+          this.updateNormals(meshRenderer.mesh);
+          meshRenderer.dirty = false;
+        }
         const material = meshRenderer.material;
         if (splatmap) {
           const texture = TextureManager.getTexture(splatmap.slot);

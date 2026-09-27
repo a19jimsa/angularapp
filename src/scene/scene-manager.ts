@@ -180,4 +180,70 @@ export class SceneManager {
 
     return [vertices, indices];
   }
+
+  static async loadObj(file: File) {
+    const text = await file.text();
+    const lines = text.split('\n');
+    const positions: number[][] = [];
+    const uvs: number[][] = [];
+    const normals: number[][] = [];
+    const faces: number[][] = [];
+    const vertices: number[] = [];
+    const indices: number[] = [];
+    for (const line of lines) {
+      if (line.startsWith('v ')) {
+        const value = line.split(' ');
+        const x = Number.parseFloat(value[1]);
+        const y = Number.parseFloat(value[2]);
+        const z = Number.parseFloat(value[3]);
+        positions.push([x, y, z]);
+      }
+      if (line.startsWith('vt')) {
+        const value = line.split(' ');
+        const x = Number.parseFloat(value[1]);
+        const y = Number.parseFloat(value[2]);
+        uvs.push([x, y]);
+      }
+      if (line.startsWith('vn')) {
+        const value = line.split(' ');
+        const x = Number.parseFloat(value[1]);
+        const y = Number.parseFloat(value[2]);
+        const z = Number.parseFloat(value[3]);
+        normals.push([x, y, z]);
+      }
+      if (line.startsWith('f ')) {
+        const values = line.split(' ');
+        for (const value of values) {
+          const indexes = value.split('/');
+          console.log(indexes);
+          if (indexes.length < 3) continue;
+          const x = Number.parseFloat(indexes[0]);
+          const y = Number.parseFloat(indexes[1]);
+          const z = Number.parseFloat(indexes[2]);
+          faces.push([x, y, z]);
+        }
+      }
+    }
+    console.log(positions);
+    console.log(uvs);
+    console.log(normals);
+    console.log(faces);
+    const indexMap = new Map<string, number>();
+    let i = 0;
+    for (const [x, y, z] of faces) {
+      vertices.push(...positions[x - 1], ...uvs[y - 1], ...normals[z - 1]);
+      const key = `${x}/${y}/${z}`;
+      const index = indexMap.get(key);
+      console.log(index);
+      if (index === undefined) {
+        indexMap.set(key, i);
+        indices.push(i);
+        i++;
+      } else {
+        indices.push(index);
+      }
+    }
+    console.log(vertices);
+    console.log(indices);
+  }
 }

@@ -80,7 +80,6 @@ import {
   CdkDragEnd,
   CdkDropList,
   moveItemInArray,
-  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { AnimationPlayerSystem } from 'src/systems/animation-player-system';
 import { AnimationPlayerManager } from 'src/resource-manager/animation-player-manager';
@@ -558,6 +557,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     if (!particleEmitter) return null;
     return particleEmitter.textures;
+  }
+
+  get meshRenderer() {
+    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
+      this.meshbrush.entity,
+      'MeshRenderer',
+    );
+    if (!meshRenderer) return null;
+    return meshRenderer;
   }
 
   setBrushTextureSlot(image: string) {
@@ -1572,7 +1580,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (!meshRenderer) return;
     meshRenderer.mesh.vertexBuffer.vertices = vertices;
     meshRenderer.mesh.indexBuffer.indices = indices;
+    meshRenderer.dirty = true;
     console.log('Loaded new mesh');
+  }
+
+  async loadObj(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) {
+      return;
+    }
+    const file = input.files[0];
+    await SceneManager.loadObj(file);
   }
 
   changeMode(mode: Mode) {

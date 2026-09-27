@@ -36,9 +36,9 @@ export class HeightBrushCommand extends Command {
       }
       terrain.heights.set(height[0], height[1] + value);
       //Add one otherwise changes x
-      mesh.vertexBuffer.vertices[height[0]] += height[1];
+      vertices[height[0]] += height[1];
     }
-    mesh.vertexBuffer.vertices = new Float32Array(vertices);
+    meshRenderer.dirty = true;
   }
 
   override undo(): void {
@@ -48,7 +48,6 @@ export class HeightBrushCommand extends Command {
       'MeshRenderer',
     );
     if (!terrain || !meshRenderer) return;
-
     //Init vertices
     let vertices = meshRenderer.mesh.vertexBuffer.vertices;
     for (const height of this.heightBefore) {
@@ -60,6 +59,6 @@ export class HeightBrushCommand extends Command {
       //Add one otherwise changes x
       vertices[height[0]] -= height[1];
     }
-    vertices = new Float32Array(vertices);
+    meshRenderer.dirty = true;
   }
 }

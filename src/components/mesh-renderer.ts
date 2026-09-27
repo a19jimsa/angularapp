@@ -6,6 +6,7 @@ export class MeshRenderer extends Component {
   override type: string = 'MeshRenderer';
   mesh: VertexArray;
   material: Material;
+  dirty: boolean = false;
 
   constructor(mesh: VertexArray, material: Material) {
     super();

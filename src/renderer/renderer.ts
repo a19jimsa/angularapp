@@ -143,7 +143,7 @@ export class Renderer {
 
   public static updateMesh(vao: VertexArray) {
     const gl = Renderer.getGL;
-    if (!vao) throw new Error('Could not get vao');
+    if (!vao.VAO) throw new Error('Could not get VAO');
     vao.bind();
     const buffer = vao.vertexBuffer.buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);

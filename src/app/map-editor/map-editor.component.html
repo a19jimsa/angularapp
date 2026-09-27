@@ -209,6 +209,31 @@
                   </div>
                 </mat-expansion-panel>
               }
+              @if (item === meshRenderer) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title> Mesh Renderer </mat-panel-title>
+                    <mat-panel-description>
+                      <mat-icon>texture</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                  <div class="row">
+                    <div class="col-12">
+                      <input
+                        type="file"
+                        #objInput
+                        hidden
+                        accept=".obj"
+                        (change)="loadObj($event)"
+                      />
+                      <button mat-menu-item (click)="objInput.click()">
+                        <mat-icon>folder_open</mat-icon>
+                        <span>Open map</span>
+                      </button>
+                    </div>
+                  </div>
+                </mat-expansion-panel>
+              }
               @if (item === terrain) {
                 <mat-expansion-panel>
                   <mat-expansion-panel-header>
@@ -226,7 +251,7 @@
                         terrain.tiling
                       }}</label>
                     </div>
-                    <mat-slider min="0" max="10" step="0.0001">
+                    <mat-slider min="0" max="1" step="0.0001">
                       <input matSliderThumb [(ngModel)]="terrain.tiling" />
                     </mat-slider>
                     <div class="example-label-container">
