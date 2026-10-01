@@ -12,6 +12,7 @@ uniform vec3 u_color;
 
 in vec2 v_texcoord;
 in float v_age;
+in vec3 v_normals;
 
 out vec4 FragColor;
 
@@ -23,9 +24,10 @@ void main() {
 
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0.0));
     vec4 colorRamp = texture(u_colorCurve, vec2(baseColor.r, 1.0));
-    vec4 substract = texture(u_texture, v_texcoord);
 
-    float alpha = baseColor.r * opacity;
+    vec3 color = clamp(colorRamp.rgb, 0.0, 1.0);
 
-    FragColor = vec4(colorRamp.rgb, 1.0);
+    if(colorRamp.r <= 0.1) discard;
+
+    FragColor = vec4(color, baseColor.r);
 }

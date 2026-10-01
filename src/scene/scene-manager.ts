@@ -239,10 +239,8 @@ export class SceneManager {
 
       if (index === undefined) {
         vertices.push(...positions[x - 1], ...uvs[y - 1], ...normals[z - 1]);
-
         indexMap.set(key, i);
         indices.push(i);
-
         i++;
       } else {
         indices.push(index);

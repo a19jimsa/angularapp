@@ -779,6 +779,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const texture8 = await AssetManager.loadImage('assets/textures/stone.jpg');
 
+    const texture9 = await AssetManager.loadImage(
+      'assets/textures/T_Noise_HU85k.png',
+    );
+
     const mountaintexture = await AssetManager.loadImage(
       'assets/textures/marble_rock_01.jpg',
     );
@@ -1492,7 +1496,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   private cameraMovement() {
-    const speed = 10;
+    const speed = 1;
     let moveX = 0;
     let moveY = 0;
     let moveZ = 0;
@@ -1637,7 +1641,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addCone();
+    model.addCylinder();
     const mesh = MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
@@ -1755,9 +1759,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         model.addQuad(1, 1);
         break;
     }
-    // MeshManager.updateMesh(
-    //   this.meshRenderer.
-    // );
+    mesh.vertexBuffer.vertices = new Float32Array(model.vertices);
+    mesh.indexBuffer.indices = new Uint16Array(model.indices);
+    MeshManager.updateMesh(mesh);
   }
 
   addAnimationToComponent() {

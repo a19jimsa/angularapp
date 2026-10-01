@@ -378,7 +378,6 @@ export class RenderSystem {
         mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
         particleEmitterShader.setUniformMat4('u_model', modelMatrix);
       }
-      particleEmitterShader.setUniformMat4('u_model', modelMatrix);
       particleEmitterShader.setUniformMat4(
         'u_matrix',
         this.camera.getViewProjectionMatrix(),

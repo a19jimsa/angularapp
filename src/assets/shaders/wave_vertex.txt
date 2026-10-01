@@ -1,7 +1,7 @@
 #version 300 es
 layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec2 a_texcoord;
-layout(location = 2) in vec2 a_normals;
+layout(location = 2) in vec3 a_normals;
 
 layout(location = 3) in vec3 a_instances;
 layout(location = 4) in float a_age;
@@ -17,6 +17,7 @@ uniform sampler2D u_displacement;
 
 out vec2 v_texcoord;
 out float v_age;
+out vec3 v_normals;
 
 vec3 rotateX(vec3 p, float angle)
 {
@@ -57,6 +58,7 @@ vec3 rotateZ(vec3 p, float angle)
 void main() {
     v_texcoord = a_texcoord;
     v_age = a_age;
+    v_normals = a_normals;
 
     vec3 pos = a_position;
     vec4 displacement = texture(u_displacement, vec2(v_texcoord.y, 0.5));

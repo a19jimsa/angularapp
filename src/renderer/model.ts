@@ -253,6 +253,7 @@ export class Model {
 
         vertices.push(px, py, pz);
         vertices.push(u, v);
+        vertices.push(0, 0, 0);
       }
     }
 
@@ -434,9 +435,11 @@ export class Model {
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 1);
+      this.vertices.push(0, 0, 0);
       //Bottom
       this.vertices.push(x, 0, z);
       this.vertices.push(u, 0);
+      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {

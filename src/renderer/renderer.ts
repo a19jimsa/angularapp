@@ -43,32 +43,34 @@ export class Renderer {
     const instanceBuffer = vertexArray.instanceBuffer;
     if (!instanceBuffer)
       throw new Error('Could not get instance buffer ' + instanceBuffer);
-
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
     gl.bufferSubData(
       gl.ARRAY_BUFFER,
       0,
       instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
     );
+    gl.enable(gl.DEPTH_TEST);
+    //Must be true on 3d mesh otherwise, back vertex draws over closer.
+    gl.depthMask(false);
+    gl.enable(gl.CULL_FACE);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    
-    //Turn off for alpha blending particles
-    gl.enable(gl.DEPTH_TEST);
-    //Must be true if mesh has triangles behind!!!
-    gl.depthMask(true);
-
-    gl.disable(gl.CULL_FACE);
-
-    gl.drawElementsInstanced(
+    gl.cullFace(gl.FRONT);
+    gl.drawElements(
       gl.TRIANGLES,
       vertexArray.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
-      count,
+    );
+    gl.cullFace(gl.BACK);
+    gl.drawElements(
+      gl.TRIANGLES,
+      vertexArray.indexBuffer.getCount(),
+      gl.UNSIGNED_SHORT,
+      0,
     );
 
-    // återställ
+    gl.disable(gl.BLEND);
     gl.depthMask(true);
     gl.enable(gl.CULL_FACE);
     vertexArray.unbind();
@@ -80,22 +82,18 @@ export class Renderer {
     Renderer.canvas.height = 1080;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    gl.enable(gl.CULL_FACE);
-    gl.frontFace(gl.CCW);
-
-    //Always on for Z depth test
     gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-    gl.depthMask(true); // <-- viktigt
-
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL); // eller LEQUAL
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.frontFace(gl.CCW);
   }
 
   static begin() {
-    // Clear the canvas AND the depth buffer.
-    this.gl.clearColor(0, 0, 0, 1); // Viktigt! Gör hela canvasen svart
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.clearColor(0, 0, 0, 1);
+
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
 
   static drawIndexed(vertexArray: VertexArray) {

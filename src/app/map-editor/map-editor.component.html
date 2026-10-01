@@ -1499,6 +1499,7 @@
                       <mat-form-field class="col-6">
                         <mat-label>Speed X</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.speed[0]"
@@ -1507,6 +1508,7 @@
                       <mat-form-field class="col-6">
                         <mat-label>Speed Y</mat-label>
                         <input
+                          step="0.1"
                           matInput
                           type="number"
                           [(ngModel)]="particleEmitter.speed[1]"
