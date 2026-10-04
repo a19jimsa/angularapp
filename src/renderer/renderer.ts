@@ -1,6 +1,7 @@
 import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
 import { OrtographicCamera } from './orthographic-camera';
+import { BlendMode, Material } from './material';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
@@ -34,46 +35,59 @@ export class Renderer {
   }
 
   public static drawInstancing(
-    vertexArray: VertexArray,
+    mesh: VertexArray,
+    material: Material,
     instanceData: Float32Array,
     count: number,
   ) {
     const gl = Renderer.getGL;
-    vertexArray.bind();
-    const instanceBuffer = vertexArray.instanceBuffer;
+    mesh.bind();
+    const instanceBuffer = mesh.instanceBuffer;
     if (!instanceBuffer)
       throw new Error('Could not get instance buffer ' + instanceBuffer);
     gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
     gl.bufferSubData(
       gl.ARRAY_BUFFER,
       0,
-      instanceData.subarray(0, count * vertexArray.bufferLayout.amount),
+      instanceData.subarray(0, count * mesh.bufferLayout.amount),
     );
-    gl.enable(gl.DEPTH_TEST);
+
     //Must be true on 3d mesh otherwise, back vertex draws over closer.
+    gl.enable(gl.DEPTH_TEST);
     gl.depthMask(false);
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    switch (material.blendMode) {
+      case BlendMode.Opaque:
+        gl.disable(gl.BLEND);
+        break;
+      case BlendMode.AlphaBlend:
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        break;
+      case BlendMode.Additive:
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        break;
+    }
     gl.cullFace(gl.FRONT);
-    gl.drawElements(
+    gl.drawElementsInstanced(
       gl.TRIANGLES,
-      vertexArray.indexBuffer.getCount(),
+      mesh.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
+      count,
     );
     gl.cullFace(gl.BACK);
-    gl.drawElements(
+    gl.drawElementsInstanced(
       gl.TRIANGLES,
-      vertexArray.indexBuffer.getCount(),
+      mesh.indexBuffer.getCount(),
       gl.UNSIGNED_SHORT,
       0,
+      count,
     );
-
     gl.disable(gl.BLEND);
     gl.depthMask(true);
     gl.enable(gl.CULL_FACE);
-    vertexArray.unbind();
+    mesh.unbind();
   }
 
   private static setupGL() {

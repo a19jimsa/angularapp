@@ -3,7 +3,7 @@ import { ParticleProp } from './particle';
 import { vec2, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Texture } from 'src/renderer/texture';
-import { BlendFactor } from 'src/renderer/material';
+import { BlendMode } from 'src/renderer/material';
 
 export interface SpawnShape {
   type: string;
@@ -63,6 +63,7 @@ export class ParticleEmitter extends Component {
   override type: string = 'ParticleEmitter';
   shaderId: string;
   meshId: string;
+  materialId: string;
   textures: Set<Texture>;
   poolIndex: number = 1;
   amount: number;
@@ -78,8 +79,7 @@ export class ParticleEmitter extends Component {
   emitting: boolean = true;
   oneShot: boolean = false;
   tiling: vec2 = vec2.create();
-  dst: BlendFactor;
-  src: BlendFactor;
+  blendMode: BlendMode;
 
   maxParticles: number;
 
@@ -103,19 +103,24 @@ export class ParticleEmitter extends Component {
 
   stride: number;
 
-  constructor(shaderId: string, meshId: string, stride: number) {
+  constructor(
+    shaderId: string,
+    meshId: string,
+    materialId: string,
+    stride: number,
+  ) {
     super();
     this.maxParticles = 10000;
     this.stride = stride;
     this.particles = new Float32Array(this.maxParticles * this.stride);
     this.particleProp = new ParticleProp();
-    this.dst = BlendFactor.ONE;
-    this.src = BlendFactor.SRC_ALPHA;
+    this.blendMode = BlendMode.Opaque;
 
     this.emitting = true;
 
     this.shaderId = shaderId;
     this.meshId = meshId;
+    this.materialId = materialId;
     this.amount = 1;
 
     this.positionsX = new Float32Array(this.maxParticles);

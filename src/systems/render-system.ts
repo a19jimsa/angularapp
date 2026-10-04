@@ -24,6 +24,7 @@ import { ParticleEmitter } from 'src/particles/particle-emitter';
 import { TrailRenderer } from 'src/components/trail-renderer';
 import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/components/mesh-renderer';
+import { MaterialManager } from 'src/resource-manager/material-manager';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -307,11 +308,12 @@ export class RenderSystem {
         }
 
         const mesh = MeshManager.getMesh(grass.meshId);
-        if (!mesh) {
+        const material = MaterialManager.get(grass.materialId);
+        if (!mesh || !material) {
           console.log('Could not get vertex array' + grass.meshId);
           break;
         }
-        Renderer.drawInstancing(mesh, grass.positions, grass.amount);
+        Renderer.drawInstancing(mesh, material, grass.positions, grass.amount);
         shader.unbind();
       }
 
@@ -334,11 +336,12 @@ export class RenderSystem {
           texture.Target,
         );
         const mesh = MeshManager.getMesh(tree.meshId);
-        if (!mesh) {
+        const material = MaterialManager.get(tree.materialId);
+        if (!mesh || !material) {
           console.log('Could not get vertex array' + tree.meshId);
           break;
         }
-        Renderer.drawInstancing(mesh, tree.positions, tree.amount);
+        Renderer.drawInstancing(mesh, material, tree.positions, tree.amount);
         shader.unbind();
       }
 
@@ -365,10 +368,12 @@ export class RenderSystem {
         entity,
         'ParticleEmitter',
       );
+
       if (!particleEmitter) continue;
       const particleEmitterShader = ShaderManager.getShader(
         particleEmitter.shaderId,
       );
+
       particleEmitterShader.bind();
       if (transform3D) {
         mat4.translate(modelMatrix, modelMatrix, transform3D.position);
@@ -445,9 +450,14 @@ export class RenderSystem {
         slot++;
       }
       const mesh = MeshManager.getMesh(particleEmitter.meshId);
-      if (!mesh) throw Error('Could not get mesh ' + particleEmitter.meshId);
+      const material = MaterialManager.get(particleEmitter.materialId);
+      if (!mesh || !material)
+        throw Error('Could not get mesh ' + particleEmitter.meshId);
+      //Do not like this, but for now
+      material.blendMode = particleEmitter.blendMode;
       Renderer.drawInstancing(
         mesh,
+        material,
         particleEmitter.particles,
         particleEmitter.aliveCount,
       );

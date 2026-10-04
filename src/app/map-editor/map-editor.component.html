@@ -1523,6 +1523,22 @@
                         ></app-gradient-creator>
                       </div>
                     </div>
+                    <div class="row">
+                      <mat-form-field class="col-12">
+                        <mat-label>Blend</mat-label>
+                        <mat-select [(ngModel)]="particleEmitter.blendMode">
+                          @for (
+                            blendMode of particleEmitter.particleProp
+                              .blendModes;
+                            track blendMode
+                          ) {
+                            <mat-option [value]="blendMode">
+                              {{ blendMode }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
                   </mat-expansion-panel>
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -1556,6 +1572,7 @@
                       </mat-form-field>
                     </div>
                   </mat-expansion-panel>
+
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
                       <mat-panel-title> Random </mat-panel-title>

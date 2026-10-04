@@ -24,7 +24,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
 import { Surface } from 'src/components/surface';
-import { BlendFactor, Material as RenderMaterial } from 'src/renderer/material';
+import { Material as RenderMaterial } from 'src/renderer/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
@@ -92,6 +92,7 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Flower } from 'src/components/flower';
 import { MeshRenderer } from 'src/components/mesh-renderer';
 import { Texture } from 'src/renderer/texture';
+import { MaterialManager } from 'src/resource-manager/material-manager';
 
 type IsSelected = {
   select: boolean;
@@ -783,6 +784,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/T_Noise_HU85k.png',
     );
 
+    const texture10 = await AssetManager.loadImage(
+      'assets/textures/stonefloor.png',
+    );
+
     const mountaintexture = await AssetManager.loadImage(
       'assets/textures/marble_rock_01.jpg',
     );
@@ -809,11 +814,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/mountains.png',
     );
 
+    const stonebricks = await AssetManager.loadImage(
+      'assets/textures/stonebricks.png',
+    );
+
+    const mosaik = await AssetManager.loadImage('assets/textures/mosaik.png');
+
     const terrainTexture = await TextureManager.addTextureArray(
       'terrain',
       'u_textures',
       [
-        goldMountain,
+        mosaik,
         texture1,
         mountaintexture4,
         mountaintexture1,
@@ -1672,16 +1683,19 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       10000,
     );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
+    //Renderer stuff not ECS. ParticleEmitter just holds strings.
     const shader = ShaderManager.getShader('wave');
     const material = new RenderMaterial(shader);
-    material.blendSrc = BlendFactor.SRC_ALPHA;
-    material.blendDst = BlendFactor.ONE_MINUS_SRC_ALPHA;
+    MaterialManager.add('material', material);
+    MaterialManager.add('grass', material);
+    MaterialManager.add('tree', material);
 
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
         'wave',
         'particleEmitter' + entity,
+        'material',
         instanceBuffer.amount,
       ),
     );

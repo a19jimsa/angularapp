@@ -7,6 +7,7 @@ export class Tree extends Component {
   //Max grass per buffer * xyz
   positions: Float32Array = new Float32Array(this.maxAmount * 5);
   meshId = 'tree';
+  materialId = 'tree';
   index = 0;
   constructor(meshId: string) {
     super();
