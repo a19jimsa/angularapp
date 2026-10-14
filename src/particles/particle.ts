@@ -1,5 +1,4 @@
 import { vec3 } from 'gl-matrix';
-import { BlendMode } from 'src/renderer/material';
 import { Target, Texture } from 'src/renderer/texture';
 
 export class Particle {
@@ -12,16 +11,6 @@ export class Particle {
   age: number = 0;
   active: boolean = false;
 }
-
-export const BlendModeLabels: Record<BlendMode, string> = {
-  [BlendMode.Opaque]: 'Opaque',
-  [BlendMode.Additive]: 'Additive',
-  [BlendMode.Multiply]: 'Multiply',
-  [BlendMode.Screen]: 'Screen',
-  [BlendMode.Premultiplied]: 'Premultiplied Alpha',
-  [BlendMode.AlphaMask]: 'Alpha Mask',
-  [BlendMode.AlphaBlend]: 'Alpha Blend',
-};
 
 export class ParticleProp {
   position: vec3 = vec3.fromValues(250, 0, 480);
@@ -36,9 +25,9 @@ export class ParticleProp {
   gravity: vec3 = vec3.fromValues(0, 0, 0);
   color: vec3 = vec3.fromValues(0, 0, 0);
   rotation: vec3 = vec3.fromValues(0, 0, 0);
-  blendModes = Object.values(BlendModeLabels);
 
   scaleCurveX: Texture = new Texture(
+    'scaleX',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -48,6 +37,7 @@ export class ParticleProp {
     [],
   );
   scaleCurveY: Texture = new Texture(
+    'scaleY',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -57,6 +47,7 @@ export class ParticleProp {
     [],
   );
   scaleCurveZ: Texture = new Texture(
+    'scaleZ',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -66,6 +57,7 @@ export class ParticleProp {
     [],
   );
   opacityCurve: Texture = new Texture(
+    'opacityCurve',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -75,6 +67,7 @@ export class ParticleProp {
     [],
   );
   colorCurve: Texture = new Texture(
+    'colorCurve',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -84,6 +77,7 @@ export class ParticleProp {
     [],
   );
   displacement: Texture = new Texture(
+    'discplacement',
     new Uint8ClampedArray(256 * 4).fill(255),
     Target.TEXTURE_2D,
     256,
@@ -108,7 +102,5 @@ export class ParticleProp {
   lifetimeRandomness: number = 0;
   emissionOffset: vec3 = vec3.fromValues(1, 1, 1);
   emissionScale: vec3 = vec3.fromValues(0, 0, 0);
-  constructor() {
-    console.log(this.blendModes[0]);
-  }
+  constructor() {}
 }

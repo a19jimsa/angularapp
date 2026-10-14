@@ -24,7 +24,12 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
 import { Surface } from 'src/components/surface';
-import { Material as RenderMaterial } from 'src/renderer/material';
+import {
+  BlendMode,
+  BlendModeLabels,
+  Material,
+  Material as RenderMaterial,
+} from 'src/renderer/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
@@ -91,8 +96,10 @@ import { AssetManager } from 'src/resource-manager/asset-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Flower } from 'src/components/flower';
 import { MeshRenderer } from 'src/components/mesh-renderer';
-import { Texture } from 'src/renderer/texture';
+import { Target, Texture } from 'src/renderer/texture';
 import { MaterialManager } from 'src/resource-manager/material-manager';
+import { EditorMoveSystem } from 'src/systems/editor-move-system';
+import { Pivot } from 'src/components/pivot';
 
 type IsSelected = {
   select: boolean;
@@ -160,6 +167,24 @@ export type Brush = {
   textureSlot: number;
 };
 
+export enum Models {
+  Quad = 'Quad',
+  Sphere = 'Sphere',
+  Lightning = 'Lightning',
+  RingMesh = 'Ring Mesh',
+  Spiral = 'Spiral',
+  Cone = 'Cone',
+}
+
+export const ModelLabels: Record<Models, string> = {
+  [Models.Quad]: 'Quad',
+  [Models.Sphere]: 'Sphere',
+  [Models.Lightning]: 'Lightning',
+  [Models.RingMesh]: 'Ring Mesh',
+  [Models.Spiral]: 'Spiral',
+  [Models.Cone]: 'Cone',
+};
+
 @Component({
   selector: 'app-map-editor',
   imports: [
@@ -208,18 +233,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   animationSystem: AnimationSystem = new AnimationSystem();
   particleEmitterSystem: ParticleEmitterSystem = new ParticleEmitterSystem();
   trailSystem: TrailRendererSystem = new TrailRendererSystem();
+  pivotSystem: EditorMoveSystem = new EditorMoveSystem();
 
   sceneObjects: Map<Name, Entity[]> = new Map<Name, Entity[]>();
   transform: Transform3D = new Transform3D(0, 0, 0);
   componentsList: ECSComponent[] = new Array();
   editorCamera: PerspectiveCamera;
   mode: Mode = 0;
-  private http = inject(HttpClient);
   animationPlayer: AnimationPlayer;
   animationPlayerSystem: AnimationPlayerSystem = new AnimationPlayerSystem();
   position = { x: 0, y: 0 };
 
-  models: Set<string>;
   spawnShapes: Set<SpawnShape>;
 
   mouse: Mouse = {
@@ -265,23 +289,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   brushImages: HTMLImageElement[] = new Array();
 
+  models = Object.values(Models);
+  blendModes = Object.values(BlendMode);
+
   constructor(private cdr: ChangeDetectorRef) {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
     this.editorCamera = new PerspectiveCamera(1920, 1080);
     this.ecs = new Ecs();
     this.animationPlayer = new AnimationPlayer('Init');
     AnimationPlayerManager.animationPlayers.set('Init', this.animationPlayer);
-    this.models = new Set<string>([
-      'Quad',
-      'Lightning',
-      'Plane',
-      'Cylinder',
-      'Sphere',
-      'Tornado',
-      'Cone',
-      'Ring',
-      'Spiral',
-    ]);
     this.spawnShapes = new Set<SpawnShape>([
       new PointShape(),
       new RingShape(),
@@ -647,23 +663,26 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     await ShaderManager.load('trail', 'trail_vertex.txt', 'trail_fragment.txt');
 
     await ShaderManager.load('tree', 'tree_vertex.txt', 'tree_fragment.txt');
+
+    await ShaderManager.load(
+      'framebuffer',
+      'framebuffer_vertex.txt',
+      'framebuffer_fragment.txt',
+    );
   }
 
   async loadAllTextures() {}
 
-  changeActiveEntity(newEntity: Entity) {
+  changeActiveEntity(entity: Entity) {
     const debug = new BufferLayout();
     debug.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
     debug.add(1, ShaderDataType.GetType(ShaderType.Float), 3, false);
-    //this.ecs.addComponent<Pivot>(newEntity, new Pivot());
+    this.ecs.addComponent<Pivot>(entity, new Pivot());
     const model = new Model(debug);
     model.addPivot();
     MeshManager.addMesh(model, 'pivot');
-    const transform = this.ecs.getComponent<Transform3D>(
-      newEntity,
-      'Transform3D',
-    );
-    this.meshbrush.entity = newEntity;
+    const transform = this.ecs.getComponent<Transform3D>(entity, 'Transform3D');
+    this.meshbrush.entity = entity;
     if (!transform) return;
     this.transform = transform;
     this.getToolbarComponents();
@@ -819,6 +838,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
 
     const mosaik = await AssetManager.loadImage('assets/textures/mosaik.png');
+
+    const framebuffer = TextureManager.addTexture(
+      'framebuffer',
+      Renderer.getWidth(),
+      Renderer.getHeight(),
+      'u_frameBuffer',
+      null,
+      false,
+    );
+    framebuffer.createFramebuffer();
 
     const terrainTexture = await TextureManager.addTextureArray(
       'terrain',
@@ -1161,13 +1190,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new Grass(size, 'grass' + newEntity),
     );
     this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
-    this.ecs.addComponent<Flower>(newEntity, new Flower(100000));
+    this.ecs.addComponent<Flower>(newEntity, new Flower(100));
     this.ecs.addComponent<Surface>(newEntity, new Surface());
     const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
     const shader = ShaderManager.getShader('splatmap');
 
     const material = new RenderMaterial(shader);
-
+    material.blendMode = BlendMode.Opaque;
+    material.depthWrite = true;
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
       new MeshRenderer('terrain', mesh, material),
@@ -1197,7 +1227,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'grass_vertex.txt',
       'grass_fragment.txt',
     );
-    const grassMaterial = new RenderMaterial(grassShader);
     const grassModel = new Model(grassBuffer);
     grassModel.addGrass();
     MeshManager.addMesh(grassModel, 'grass' + newEntity);
@@ -1274,7 +1303,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       true,
     );
     MeshManager.addInstanceMesh('flowers', flowerInstanceBuffer, 10000);
-
     TextureManager.dirty = true;
   }
 
@@ -1419,6 +1447,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   update() {
     if (this.mouse.dragging || this.mouse.clicked) {
       this.brushSystem.update(this.meshbrush, this.ecs, this.mouse);
+      this.pivotSystem.update(this.ecs, this.mouse);
     }
     this.animationPlayerSystem.update(this.ecs);
     this.particleEmitterSystem.update(this.ecs);
@@ -1473,39 +1502,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.play = !this.play;
   }
 
-  //Calculate RayCast from mousePosition of canvas
-  //Return mouseRay vector 3
-  public calculateRayCast() {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = this.mouse.x;
-    const y = this.mouse.y;
-    //Between local space -1 - +1
-    const clipX = (x / rect.width) * 2 - 1;
-    const clipY = (y / rect.height) * -2 + 1;
-    const normalizedPos = vec2.fromValues(clipX, clipY);
-    const clipCoords = vec4.fromValues(
-      normalizedPos[0],
-      normalizedPos[1],
-      -1,
-      1,
-    );
-    const invertedProjectionMatrix = mat4.create();
-    mat4.invert(
-      invertedProjectionMatrix,
-      this.editorCamera.getProjectionMatrix(),
-    );
-    const eyeCoords = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(eyeCoords, clipCoords, invertedProjectionMatrix);
-    const toEyeCoords = vec4.fromValues(eyeCoords[0], eyeCoords[1], -1, 0);
-    const invertedView = mat4.create();
-    mat4.invert(invertedView, this.editorCamera.getViewMatrix());
-    const rayWorld = vec4.fromValues(0, 0, 0, 0);
-    vec4.transformMat4(rayWorld, toEyeCoords, invertedView);
-    const mouseRay = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2]);
-    vec3.normalize(mouseRay, mouseRay);
-    return mouseRay;
-  }
-
   private cameraMovement() {
     const speed = 1;
     let moveX = 0;
@@ -1522,11 +1518,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (this.keyboard.isKeyPressed('a')) moveX -= speed;
 
     // Flyga upp/ner med space/shift om du vill
-    if (this.keyboard.isKeyPressed(' ')) moveY += speed;
-    if (this.keyboard.isKeyPressed('Shift')) moveY -= speed;
+    if (this.keyboard.isKeyPressed(' ')) moveY += speed / 2;
+    if (this.keyboard.isKeyPressed('Shift')) moveY -= speed / 2;
 
-    if (this.keyboard.isKeyPressed('e')) rotateX += speed / 2;
-    if (this.keyboard.isKeyPressed('q')) rotateX -= speed / 2;
+    if (this.keyboard.isKeyPressed('e')) rotateX += speed;
+    if (this.keyboard.isKeyPressed('q')) rotateX -= speed;
 
     // if (this.keyboard.isKeyPressed('x')) rotateY += speed;
     // if (this.keyboard.isKeyPressed('z')) rotateY -= speed;
@@ -1652,7 +1648,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
     //Change later in runtime with some parameters in UI
-    model.addCylinder();
+    model.addQuad(1, 1);
     const mesh = MeshManager.addMesh(model, 'particleEmitter' + entity);
     const instanceBuffer = new BufferLayout();
     instanceBuffer.add(
@@ -1683,12 +1679,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       10000,
     );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-    //Renderer stuff not ECS. ParticleEmitter just holds strings.
-    const shader = ShaderManager.getShader('wave');
-    const material = new RenderMaterial(shader);
-    MaterialManager.add('material', material);
-    MaterialManager.add('grass', material);
-    MaterialManager.add('tree', material);
 
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
@@ -1699,24 +1689,30 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         instanceBuffer.amount,
       ),
     );
-    if (particleEmitter) {
-      const scaleX = particleEmitter.particleProp.scaleCurveX;
-      const scaleY = particleEmitter.particleProp.scaleCurveY;
-      const scaleZ = particleEmitter.particleProp.scaleCurveZ;
-      const opacity = particleEmitter.particleProp.opacityCurve;
-      const color = particleEmitter.particleProp.colorCurve;
-      const displacement = particleEmitter.particleProp.displacement;
-      scaleX.bindTexture();
-      scaleY.bindTexture();
-      scaleZ.bindTexture();
-      opacity.bindTexture();
-      color.bindTexture();
-      displacement.bindTexture();
-      const wave = TextureManager.getTexture('wave');
-      const healing = TextureManager.getTexture('healing');
-      particleEmitter.textures.add(wave);
-      particleEmitter.textures.add(healing);
-    }
+    if (!particleEmitter) throw Error('Could not create particle emitter!');
+    //Renderer stuff not ECS. ParticleEmitter just holds strings.
+    const shader = ShaderManager.getShader(particleEmitter.shaderId);
+    const material = new RenderMaterial(shader);
+    MaterialManager.add('material', material);
+    MaterialManager.add('grass', material);
+    MaterialManager.add('tree', material);
+    const scaleX = particleEmitter.particleProp.scaleCurveX;
+    const scaleY = particleEmitter.particleProp.scaleCurveY;
+    const scaleZ = particleEmitter.particleProp.scaleCurveZ;
+    const opacity = particleEmitter.particleProp.opacityCurve;
+    const color = particleEmitter.particleProp.colorCurve;
+    const displacement = particleEmitter.particleProp.displacement;
+    //Bind all textures of particle Emitter
+    scaleX.bindTexture();
+    scaleY.bindTexture();
+    scaleZ.bindTexture();
+    opacity.bindTexture();
+    color.bindTexture();
+    displacement.bindTexture();
+    const wave = TextureManager.getTexture('wave');
+    const healing = TextureManager.getTexture('erase');
+    particleEmitter.textures.add(wave);
+    particleEmitter.textures.add(healing);
   }
 
   changeParticleShader(shaderId: string) {
@@ -1732,7 +1728,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     particleEmitter.shaderId = shaderId;
   }
 
-  changeParticleMesh(index: number) {
+  changeParticleMesh() {
     const emitter = this.ecs.getComponent<ParticleEmitter>(
       this.meshbrush.entity,
       'ParticleEmitter',
@@ -1741,36 +1737,24 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const mesh = MeshManager.getMesh(emitter.meshId);
     if (!mesh) return;
     const model = new Model(mesh.bufferLayout);
-    switch (index) {
-      case 0:
+    switch (emitter.models) {
+      case Models.Quad:
         model.addQuad(1, 1);
         break;
-      case 1:
-        model.addLightning(10, 10, 20);
-        break;
-      case 2:
-        model.addFlatCircle(50, 1);
-        break;
-      case 3:
-        model.addCylinder();
-        break;
-      case 4:
+      case Models.Sphere:
         model.addSphere(10, 10, 1);
         break;
-      case 5:
-        model.addTornado();
+      case Models.Lightning:
+        model.addLightning(10, 10, 20);
         break;
-      case 6:
+      case Models.RingMesh:
+        model.addRingMesh(1, 10, 10);
+        break;
+      case Models.Spiral:
+        model.addSpiral(50, 5, 1, 5);
+        break;
+      case Models.Cone:
         model.addCone();
-        break;
-      case 7:
-        model.addRingMesh(5, 10, 50);
-        break;
-      case 8:
-        model.addSpiral(100, 10, 1, 5);
-        break;
-      default:
-        model.addQuad(1, 1);
         break;
     }
     mesh.vertexBuffer.vertices = new Float32Array(model.vertices);
@@ -1951,6 +1935,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       texture.bindTexture();
     } else if (texture.UniformName === 'u_textures') {
       const images = await TextureManager.loadImages(texture.Paths);
+      texture.bind2DArrayTexture(images);
+    }
+  }
+
+  public async removeTexture(texture: Texture, path: string) {
+    const paths = texture.Paths.filter((e) => e !== path);
+    texture.Paths = paths;
+    if (texture.UniformName === 'u_textures') {
+      const images = await TextureManager.loadImages(paths);
       texture.bind2DArrayTexture(images);
     }
   }

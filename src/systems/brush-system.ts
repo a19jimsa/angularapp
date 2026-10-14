@@ -27,6 +27,7 @@ import { Renderer } from 'src/renderer/renderer';
 import { VertexArray } from 'src/renderer/vertex-array';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
 
 export class BrushSystem {
@@ -42,23 +43,22 @@ export class BrushSystem {
       'Transform3D',
     );
     if (!transform3D) return;
-    const vertex = this.pickVertexNew(transform3D, meshRenderer.mesh, mouse);
-    if (!vertex) return;
+    // const vertex = MathUtils.pickVertexNew(
+    //   transform3D,
+    //   meshRenderer.mesh,
+    //   mouse,
+    // );
+    const { u, v } = this.pickTerrain(mouse, meshRenderer.mesh, transform3D);
     const brushImage = ecs.getComponent<BrushImage>(
       meshBrush.entity,
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = vertices[vertex.index + 3];
-      brushImage.UV[1] = vertices[vertex.index + 4];
+      brushImage.UV[0] = u;
+      brushImage.UV[1] = v;
       brushImage.size = meshBrush.radius;
     }
-    const position = vec4.fromValues(
-      vertices[vertex.index],
-      vertices[vertex.index + 1],
-      vertices[vertex.index + 2],
-      1,
-    );
+    const position = vec4.fromValues(vertices[0], vertices[1], vertices[2], 1);
     if (meshBrush.type === TerrainBrushes.Height) {
       // this.heightBrush(
       //   meshBrush,
@@ -74,36 +74,34 @@ export class BrushSystem {
     } else if (meshBrush.type === TerrainBrushes.Splat) {
       const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
       if (!splatmap) return;
-      this.paintImage(
-        ecs,
-        splatmap.size,
-        splatmap.coords,
-        meshBrush,
-        vertices[vertex.index + 3],
-        vertices[vertex.index + 4],
-      );
+      this.paintImage(ecs, splatmap.size, splatmap.coords, meshBrush, u, v);
       splatmap.dirty = true;
     } else if (meshBrush.type === TerrainBrushes.Grass) {
       const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
       if (!grass) return;
-      this.paintImage(
-        ecs,
-        grass.size,
-        grass.coords,
-        meshBrush,
-        vertices[vertex.index + 3],
-        vertices[vertex.index + 4],
-      );
+      this.paintImage(ecs, grass.size, grass.coords, meshBrush, u, v);
       this.createFoliage(vertices, ecs, meshBrush);
     } else if (meshBrush.type === TerrainBrushes.Erosion) {
       //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
     } else if (meshBrush.type === TerrainBrushes.Flower) {
-      this.addFlower(ecs, meshBrush, vertex.x, 0, vertex.z, 0);
+      //this.addFlower(ecs, meshBrush, vertex.x, 0, vertex.z, 0);
     } else if (meshBrush.type === TerrainBrushes.Tree) {
-      this.addTree(ecs, meshBrush, vertex.x, vertex.y, vertex.z, 0);
+      //this.addTree(ecs, meshBrush, vertex.x, vertex.y, vertex.z, 0);
     } else if (meshBrush.type === TerrainBrushes.Flattening) {
-      this.flatteningBrush(meshBrush, position, ecs);
+      //this.flatteningBrush(meshBrush, position, ecs);
     }
+  }
+
+  pickTerrain(mouse: Mouse, mesh: VertexArray, transform: Transform3D) {
+    const texture = TextureManager.getTexture('framebuffer');
+
+    const x = Math.floor(mouse.x);
+    const y = 1080 - 1 - Math.floor(mouse.y);
+
+    // Rendera samma mesh med picking-shadern
+    const { u, v } = Renderer.drawToFrameBuffer(x, y, mesh, texture, transform);
+
+    return { u, v };
   }
 
   private erosionBrush(
@@ -171,104 +169,6 @@ export class BrushSystem {
   ) {
     const texX = Math.floor(uv0 * splatmapSize) - Math.floor(image.width / 2);
     const texZ = Math.floor(uv1 * splatmapSize) - Math.floor(image.height / 2);
-  }
-
-  private pickVertexNew(
-    transform3D: Transform3D,
-    mesh: VertexArray,
-    mouse: Mouse,
-  ) {
-    const camera = Renderer.getCamera();
-    const vertices = mesh.vertexBuffer.vertices;
-    for (
-      let i = vertices.length - mesh.bufferLayout.amount;
-      i >= 0;
-      i -= mesh.bufferLayout.amount
-    ) {
-      const model = mat4.create();
-
-      // translation
-      mat4.translate(model, model, transform3D.position);
-
-      // rotation (ordning är viktig – välj en och håll den konsekvent)
-      mat4.rotateX(model, model, transform3D.rotation[0]);
-      mat4.rotateY(model, model, transform3D.rotation[1]);
-      mat4.rotateZ(model, model, transform3D.rotation[2]);
-
-      // scale
-      mat4.scale(model, model, transform3D.scale);
-
-      const mvp = mat4.create();
-      mat4.multiply(mvp, camera.getViewProjectionMatrix(), model);
-
-      const pos = vec4.fromValues(
-        vertices[i],
-        vertices[i + 1],
-        vertices[i + 2],
-        1.0,
-      );
-
-      const clip = vec4.create();
-      vec4.transformMat4(clip, pos, mvp);
-
-      if (clip[3] <= 0) continue; // bakom kameran
-
-      const ndcX = clip[0] / clip[3];
-      const ndcY = clip[1] / clip[3];
-      const ndcZ = clip[2] / clip[3];
-
-      if (
-        ndcX < -1 ||
-        ndcX > 1 ||
-        ndcY < -1 ||
-        ndcY > 1 ||
-        ndcZ < -1 ||
-        ndcZ > 1
-      )
-        continue;
-
-      const sx = (ndcX * 0.5 + 0.5) * Renderer.getWidth();
-      const sy = (1 - (ndcY * 0.5 + 0.5)) * Renderer.getHeight();
-
-      const dx = mouse.x - sx;
-      const dz = mouse.y - sy;
-
-      const d = dx * dx + dz * dz;
-      if (d < 300) {
-        const index = i;
-
-        return {
-          index: index,
-          x: vertices[index] + Math.log(1 + d),
-          y: vertices[index + 1],
-          z: vertices[index + 2] + Math.log(1 + d),
-        };
-      }
-    }
-    return null;
-  }
-
-  private movePivot(transform3D: Transform3D, mouse: Mouse, index: number) {
-    const vertexArray = MeshManager.getMesh('pivot');
-    if (!vertexArray) return;
-
-    if (mouse.isSelected.select && mouse.isSelected.element === 6) {
-      transform3D.position[0] -= mouse.deltaX;
-      return;
-    } else if (mouse.isSelected.select && mouse.isSelected.element === 18) {
-      transform3D.position[1] += mouse.deltaY;
-      return;
-    } else if (mouse.isSelected.select && mouse.isSelected.element === 30) {
-      transform3D.position[2] -= mouse.deltaY;
-      return;
-    }
-    if (index === 6) {
-      mouse.isSelected = { select: true, element: 6 };
-    } else if (index === 18) {
-      mouse.isSelected = { select: true, element: 18 };
-    } else if (index === 30) {
-      mouse.isSelected = { select: true, element: 30 };
-    }
   }
 
   private grassBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
@@ -377,7 +277,7 @@ export class BrushSystem {
     const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     if (!tree) return;
     tree.positions[tree.index] = x;
-    tree.positions[tree.index + 1] = 2;
+    tree.positions[tree.index + 1] = 0.5;
     tree.positions[tree.index + 2] = z;
     tree.positions[tree.index + 3] = slot;
     tree.positions[tree.index + 4] = 1; // scale

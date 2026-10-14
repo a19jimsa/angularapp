@@ -4,6 +4,7 @@ import { vec2, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Texture } from 'src/renderer/texture';
 import { BlendMode } from 'src/renderer/material';
+import { Models } from 'src/app/map-editor/map-editor.component';
 
 export interface SpawnShape {
   type: string;
@@ -80,6 +81,7 @@ export class ParticleEmitter extends Component {
   oneShot: boolean = false;
   tiling: vec2 = vec2.create();
   blendMode: BlendMode;
+  models: Models;
 
   maxParticles: number;
 
@@ -114,7 +116,8 @@ export class ParticleEmitter extends Component {
     this.stride = stride;
     this.particles = new Float32Array(this.maxParticles * this.stride);
     this.particleProp = new ParticleProp();
-    this.blendMode = BlendMode.Opaque;
+    this.blendMode = BlendMode.AlphaBlend;
+    this.models = Models.Quad;
 
     this.emitting = true;
 

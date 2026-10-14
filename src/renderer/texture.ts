@@ -7,7 +7,12 @@ export const Target = {
 } as const;
 
 export class Texture {
-  private imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray;
+  private name: string;
+  private imageData:
+    | HTMLImageElement
+    | HTMLImageElement[]
+    | Uint8ClampedArray
+    | null;
   private glTexture?: WebGLTexture;
   private target: number; // WebGL constant
   private width: number;
@@ -15,9 +20,11 @@ export class Texture {
   private uniformName: string;
   private repeat: boolean;
   private paths: string[];
+  private framebuffer: WebGLFramebuffer | null = null;
 
   constructor(
-    imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
+    name: string,
+    imageData: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray | null,
     target: number,
     width: number,
     height: number,
@@ -25,6 +32,7 @@ export class Texture {
     repeat: boolean,
     paths: string[],
   ) {
+    this.name = name;
     this.imageData = imageData;
     this.target = target;
     this.width = width;
@@ -34,6 +42,14 @@ export class Texture {
     this.paths = paths;
   }
 
+  public get FrameBuffer() {
+    return this.framebuffer;
+  }
+
+  public get Name() {
+    return this.name;
+  }
+
   public set ImageData(
     image: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
   ) {
@@ -41,6 +57,7 @@ export class Texture {
   }
 
   public get ImageData() {
+    if (!this.imageData) throw new Error('Could not get imagedata is null');
     return this.imageData;
   }
 
@@ -59,6 +76,10 @@ export class Texture {
 
   public get Paths() {
     return this.paths;
+  }
+
+  public set Paths(paths: string[]) {
+    this.paths = paths;
   }
 
   public bindCubemap() {
@@ -240,5 +261,56 @@ export class Texture {
       image,
     );
     console.log('Updated texture ' + this.Target);
+  }
+
+  createFramebuffer() {
+    const gl = Renderer.getGL;
+    const texture = this.createTexture(this.width, this.height);
+    this.framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      texture,
+      0,
+    );
+    // Kontrollera att framebuffer är komplett
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer is not complete:', status);
+    }
+
+    // Återställ till canvasens framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return this.framebuffer;
+  }
+
+  createTexture(width: number, height: number) {
+    const gl = Renderer.getGL;
+
+    const texture = gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA8,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null,
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return texture;
   }
 }

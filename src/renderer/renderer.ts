@@ -2,6 +2,11 @@ import { PerspectiveCamera } from './perspective-camera';
 import { VertexArray } from './vertex-array';
 import { OrtographicCamera } from './orthographic-camera';
 import { BlendMode, Material } from './material';
+import { Texture } from './texture';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
+import { mat4 } from 'gl-matrix';
+import { Transform3D } from 'src/components/transform3D';
+import { Mouse } from 'src/app/map-editor/map-editor.component';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
@@ -51,21 +56,19 @@ export class Renderer {
       0,
       instanceData.subarray(0, count * mesh.bufferLayout.amount),
     );
-
     //Must be true on 3d mesh otherwise, back vertex draws over closer.
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(false);
-    gl.enable(gl.CULL_FACE);
-    gl.enable(gl.BLEND);
+    gl.depthMask(material.depthWrite);
     switch (material.blendMode) {
       case BlendMode.Opaque:
         gl.disable(gl.BLEND);
         break;
       case BlendMode.AlphaBlend:
+        gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         break;
       case BlendMode.Additive:
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.ONE, gl.ONE);
         break;
     }
     gl.cullFace(gl.FRONT);
@@ -98,7 +101,7 @@ export class Renderer {
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthMask(true);
-    gl.depthFunc(gl.LEQUAL); // eller LEQUAL
+    gl.depthFunc(gl.LESS); // eller LEQUAL
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     gl.frontFace(gl.CCW);
@@ -168,5 +171,62 @@ export class Renderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vao.vertexBuffer.vertices);
     vao.unbind();
+  }
+
+  public static drawToFrameBuffer(
+    mouseX: number,
+    mouseY: number,
+    mesh: VertexArray,
+    texture: Texture,
+    transform: Transform3D,
+  ) {
+    const gl = Renderer.getGL;
+    const frameBuffer = texture.FrameBuffer;
+    if (!frameBuffer) throw new Error('Framebuffer is null');
+
+    // Bind picking-framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+
+    gl.viewport(0, 0, 1920, 1080);
+
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Använd picking-shadern
+    const shader = ShaderManager.getShader('framebuffer');
+    shader.bind();
+
+    // Skicka samma kamera- och modellmatriser
+    // som din vanliga rendering använder.
+    shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
+    const modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, transform.position);
+    mat4.rotateX(modelMatrix, modelMatrix, transform.rotation[0]);
+    mat4.rotateY(modelMatrix, modelMatrix, transform.rotation[1]);
+    mat4.rotateZ(modelMatrix, modelMatrix, transform.rotation[2]);
+    mat4.scale(modelMatrix, modelMatrix, transform.scale);
+    shader.setUniformMat4('u_model', modelMatrix);
+
+    // Rita din befintliga mesh
+    Renderer.drawIndexed(mesh);
+
+    // Läs pixeln under musen
+    const pixel = new Uint8Array(4);
+
+    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+
+    // Avkoda pixelns färg till UV
+    const u = pixel[0] / 255;
+    const v = pixel[1] / 255;
+
+    console.log(u, v);
+
+    // Återställ framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    shader.unbind();
+
+    return { u, v };
   }
 }

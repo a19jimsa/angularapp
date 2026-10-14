@@ -116,27 +116,38 @@ export class Model {
     const aspect = width / height;
     const vertices = [
       // x                  y     z    u  v   nx  ny  nz
-
       -0.5 * aspect,
       -0.5,
       0,
       0,
       1, // v0 bottom-left
+      0,
+      0,
+      0,
       0.5 * aspect,
       -0.5,
       0,
       1,
       1, // v1 bottom-right
+      0,
+      0,
+      0,
       0.5 * aspect,
       0.5,
       0,
       1,
       0, // v2 top-right
+      0,
+      0,
+      0,
       -0.5 * aspect,
       0.5,
       0,
       0,
       0, // v3 top-left
+      0,
+      0,
+      0,
     ];
 
     const indices = [0, 1, 2, 0, 2, 3];
@@ -295,6 +306,8 @@ export class Model {
       const dist = Math.sqrt(dx * dx + dz * dz);
       const uv = dist / radius;
       vertices.push(uv, uv);
+      // normals
+      vertices.push(0, 1, 0);
     }
 
     for (let i = 1; i <= segments; i++) {
@@ -471,9 +484,11 @@ export class Model {
       //Bottom
       this.vertices.push(x / 2, 0, z / 2);
       this.vertices.push(u, 1);
+      this.vertices.push(0, 0, 0);
       //Top
       this.vertices.push(x, height, z);
       this.vertices.push(u, 0);
+      this.vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -495,40 +510,40 @@ export class Model {
     // x, y, z, u, v, nx,ny,nz
     const vertices = [
       // 0
-      -0.5, 0, 0, 0, 0.0,
+      -0.5, 0, 0, 0, 0.0, 0, 0, 0,
 
       // 1
-      0.5, 0, 0, 1, 0.0,
+      0.5, 0, 0, 1, 0.0, 0, 0, 0,
 
       // 2
-      0.5, 1, 0, 0, 0.2,
+      0.5, 1, 0, 0, 0.2, 0, 0, 0,
 
       // 3
-      1, 1, 0, 1, 0.2,
+      1, 1, 0, 1, 0.2, 0, 0, 0,
 
       // 4
-      -1, 2, 0, 0, 0.4,
+      -1, 2, 0, 0, 0.4, 0, 0, 0,
 
       // 5
-      0, 2, 0, 1, 0.4,
+      0, 2, 0, 1, 0.4, 0, 0, 0,
 
       // 6
-      -0.5, 3, 0, 0, 0.6,
+      -0.5, 3, 0, 0, 0.6, 0, 0, 0,
 
       // 7
-      0.5, 3, 0, 1, 0.6,
+      0.5, 3, 0, 1, 0.6, 0, 0, 0,
 
       // 8
-      -1, 4, 0, 0, 0.8,
+      -1, 4, 0, 0, 0.8, 0, 0, 0,
 
       // 9
-      0, 4, 0, 1, 0.8,
+      0, 4, 0, 1, 0.8, 0, 0, 0,
 
       // 10
-      0, 5, 0, 0, 1.0,
+      0, 5, 0, 0, 1.0, 0, 0, 0,
 
       // 11
-      1.2, 5, 0, 1, 1.0,
+      1.2, 5, 0, 1, 1.0, 0, 0, 0,
     ];
 
     for (let i = 0; i < 5; i++) {
@@ -562,10 +577,12 @@ export class Model {
       // Inner vertex
       vertices.push(cos * innerRadius, 0, sin * innerRadius);
       vertices.push(u, 1);
+      vertices.push(0, 0, 0);
 
       // Outer vertex
       vertices.push(cos * outerRadius, 0, sin * outerRadius);
       vertices.push(u, 0);
+      vertices.push(0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
@@ -592,23 +609,23 @@ export class Model {
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
 
-      const angle = t * Math.PI * turns;
+      const angle = t * Math.PI * 2 * turns;
 
       const x = Math.cos(angle) * radius;
       const y = t * height;
       const z = Math.sin(angle) * radius;
 
-      vertices.push(x, y, z, t, 1);
-      vertices.push(x, y + width, z, t, 0);
+      vertices.push(x, y, z, t, 1, 0, 0, 0);
+      vertices.push(x, y + width, z, t, 0, 0, 0, 0);
     }
 
     for (let i = 0; i < segments; i++) {
-      let a = i * 2;
-      let b = a + 1;
-      let c = a + 2;
-      let d = a + 3;
+      const a = i * 2;
+      const b = a + 1;
+      const c = a + 2;
+      const d = a + 3;
 
-      indices.push(a, b, c, b, d, c);
+      indices.push(a, c, b, b, c, d);
     }
     this.vertices = vertices;
     this.indices = indices;

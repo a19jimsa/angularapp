@@ -11,12 +11,20 @@ export enum BlendMode {
   Premultiplied = 'Premultiplied',
 }
 
+export const BlendModeLabels: Record<BlendMode, string> = {
+  [BlendMode.Opaque]: 'Opaque',
+  [BlendMode.Additive]: 'Additive',
+  [BlendMode.Multiply]: 'Multiply',
+  [BlendMode.Screen]: 'Screen',
+  [BlendMode.Premultiplied]: 'Premultiplied Alpha',
+  [BlendMode.AlphaMask]: 'Alpha Mask',
+  [BlendMode.AlphaBlend]: 'Alpha Blend',
+};
+
 export class Material {
   shader: Shader;
-  depthWrite = false;
-
-  blendMode: BlendMode = BlendMode.Additive;
-
+  depthWrite = true;
+  blendMode: BlendMode = BlendMode.Opaque;
   textures = new Set<Texture>();
 
   constructor(shader: Shader) {

@@ -197,8 +197,22 @@ export class RenderSystem {
             throw new Error('Could not get texture of ' + splatmap.slot);
           texture.updateTexture(splatmap.coords);
         }
-        const shader = meshRenderer.material.shader;
 
+        if (pivot && transform3D) {
+          const pivotShader = ShaderManager.getShader('debug');
+          pivotShader.bind();
+          pivotShader.setUniformMat4(
+            'u_matrix',
+            this.camera.getViewProjectionMatrix(),
+          );
+          mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+          pivotShader.setUniformMat4('u_model', modelMatrix);
+          const vao = MeshManager.getMesh('pivot');
+          if (!vao) continue;
+          Renderer.drawLines(vao);
+          pivotShader.unbind();
+        }
+        const shader = meshRenderer.material.shader;
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -206,18 +220,6 @@ export class RenderSystem {
         );
         shader.setVec3('u_cameraPos', cameraPos);
         shader.setFloat('u_time', performance.now());
-
-        if (pivot && transform3D) {
-          shader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix(),
-          );
-          mat4.translate(modelMatrix, modelMatrix, transform3D.position);
-          shader.setUniformMat4('u_model', modelMatrix);
-          const vao = MeshManager.getMesh('pivot');
-          if (!vao) continue;
-          Renderer.drawLines(vao);
-        }
 
         if (light && lightPos) {
           shader.setVec3('light.position', lightPos.position);
@@ -308,12 +310,16 @@ export class RenderSystem {
         }
 
         const mesh = MeshManager.getMesh(grass.meshId);
-        const material = MaterialManager.get(grass.materialId);
-        if (!mesh || !material) {
+        if (!mesh) {
           console.log('Could not get vertex array' + grass.meshId);
           break;
         }
-        Renderer.drawInstancing(mesh, material, grass.positions, grass.amount);
+        Renderer.drawInstancing(
+          mesh,
+          meshRenderer.material,
+          grass.positions,
+          grass.amount,
+        );
         shader.unbind();
       }
 
@@ -336,12 +342,16 @@ export class RenderSystem {
           texture.Target,
         );
         const mesh = MeshManager.getMesh(tree.meshId);
-        const material = MaterialManager.get(tree.materialId);
-        if (!mesh || !material) {
+        if (!mesh) {
           console.log('Could not get vertex array' + tree.meshId);
           break;
         }
-        Renderer.drawInstancing(mesh, material, tree.positions, tree.amount);
+        Renderer.drawInstancing(
+          mesh,
+          meshRenderer.material,
+          tree.positions,
+          tree.amount,
+        );
         shader.unbind();
       }
 

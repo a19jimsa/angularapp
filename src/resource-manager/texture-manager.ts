@@ -26,6 +26,7 @@ export class TextureManager extends Manager {
   ) {
     const paths = images.map((image) => image.src);
     const texture = new Texture(
+      name,
       images,
       Target.TEXTURE_2D_ARRAY,
       images[0].height,
@@ -47,6 +48,7 @@ export class TextureManager extends Manager {
     paths: string[],
   ) {
     const texture = new Texture(
+      name,
       images,
       Target.TEXTURE_CUBE_MAP,
       images[0].width,
@@ -66,7 +68,7 @@ export class TextureManager extends Manager {
     width: number,
     height: number,
     uniformName: string,
-    image: HTMLImageElement | Uint8ClampedArray,
+    image: HTMLImageElement | Uint8ClampedArray | null,
     repeat: boolean,
   ) {
     const paths = new Array();
@@ -74,6 +76,7 @@ export class TextureManager extends Manager {
       paths.push(image.src);
     }
     const texture = new Texture(
+      name,
       image,
       Target.TEXTURE_2D,
       width,

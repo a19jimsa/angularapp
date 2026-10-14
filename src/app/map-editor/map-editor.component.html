@@ -232,6 +232,29 @@
                       </button>
                     </div>
                   </div>
+                  <div class="row">
+                    <mat-form-field class="col-12">
+                      <mat-label>Blend</mat-label>
+                      <mat-select [(ngModel)]="meshRenderer.material.blendMode">
+                        @for (blendMode of blendModes; track blendMode) {
+                          <mat-option [value]="blendMode">
+                            {{ blendMode }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field class="col-12">
+                      <mat-label>Depth Write</mat-label>
+                      <mat-select
+                        [(ngModel)]="meshRenderer.material.depthWrite"
+                      >
+                        <mat-option [value]="true"> true </mat-option>
+                        <mat-option [value]="false"> false </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
                 </mat-expansion-panel>
               }
               @if (item === terrain) {
@@ -1149,17 +1172,12 @@
                       <div class="col-12">
                         <div class="row">
                           <mat-form-field>
-                            <mat-label>{{
-                              particleEmitter.shape.type
-                            }}</mat-label>
-                            <mat-select>
+                            <mat-label>Shape Type</mat-label>
+                            <mat-select [(ngModel)]="particleEmitter.shape">
                               @for (shape of spawnShapes; track shape) {
-                                <mat-option
-                                  (onSelectionChange)="
-                                    particleEmitter.shape = shape
-                                  "
-                                  >{{ shape.type }}</mat-option
-                                >
+                                <mat-option [value]="shape">{{
+                                  shape.type
+                                }}</mat-option>
                               }
                             </mat-select>
                           </mat-form-field>
@@ -1233,15 +1251,15 @@
                       <mat-panel-description> </mat-panel-description>
                     </mat-expansion-panel-header>
                     <app-gradient-creator
-                      [name]="name"
+                      name="ScaleX Curve"
                       [texture]="particleEmitter.particleProp.scaleCurveX"
                     ></app-gradient-creator>
                     <app-gradient-creator
-                      [name]="name"
+                      name="ScaleY Curve"
                       [texture]="particleEmitter.particleProp.scaleCurveY"
                     ></app-gradient-creator>
                     <app-gradient-creator
-                      [name]="name"
+                      name="ScaleZ Curve"
                       [texture]="particleEmitter.particleProp.scaleCurveZ"
                     ></app-gradient-creator>
                     <div class="row">
@@ -1407,30 +1425,27 @@
                     </div>
                     <div class="row">
                       <mat-form-field>
-                        <mat-label>{{ particleEmitter.meshId }}</mat-label>
-                        <mat-select>
+                        <mat-label>Shape</mat-label>
+                        <mat-select
+                          [(ngModel)]="particleEmitter.models"
+                          (ngModelChange)="changeParticleMesh()"
+                        >
                           @for (
                             model of models;
                             track model;
                             let index = $index
                           ) {
-                            <mat-option
-                              (onSelectionChange)="
-                                this.changeParticleMesh(index)
-                              "
-                              >{{ model }}</mat-option
-                            >
+                            <mat-option [value]="model">{{ model }}</mat-option>
                           }
                         </mat-select>
                       </mat-form-field>
                       <mat-form-field>
-                        <mat-label>{{ particleEmitter.shaderId }}</mat-label>
-                        <mat-select>
+                        <mat-label>Shader</mat-label>
+                        <mat-select [(ngModel)]="particleEmitter.shaderId">
                           @for (shader of shaders; track shader) {
-                            <mat-option
-                              (onSelectionChange)="changeParticleShader(shader)"
-                              >{{ shader }}</mat-option
-                            >
+                            <mat-option [value]="shader">{{
+                              shader
+                            }}</mat-option>
                           }
                         </mat-select>
                       </mat-form-field>
@@ -1487,6 +1502,7 @@
                             cdkDrag
                             width="50px"
                             height="50px"
+                            (dblclick)="removeTexture(texture, path)"
                           />
                         }
                       </div>
@@ -1527,11 +1543,7 @@
                       <mat-form-field class="col-12">
                         <mat-label>Blend</mat-label>
                         <mat-select [(ngModel)]="particleEmitter.blendMode">
-                          @for (
-                            blendMode of particleEmitter.particleProp
-                              .blendModes;
-                            track blendMode
-                          ) {
+                          @for (blendMode of blendModes; track blendMode) {
                             <mat-option [value]="blendMode">
                               {{ blendMode }}
                             </mat-option>

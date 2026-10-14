@@ -1,0 +1,20 @@
+#version 300 es
+
+precision highp float;
+
+// Vertex-attribut från din VertexArray
+in vec3 a_position;
+in vec2 a_uv;
+
+// Matriser från din Renderer
+uniform mat4 u_matrix;
+uniform mat4 u_model;
+
+// Skickas vidare till fragment-shadern
+out vec2 v_uv;
+
+void main() {
+    v_uv = a_uv;
+
+    gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
+}
