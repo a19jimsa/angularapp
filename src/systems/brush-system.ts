@@ -48,38 +48,39 @@ export class BrushSystem {
     //   meshRenderer.mesh,
     //   mouse,
     // );
-    const { u, v } = this.pickTerrain(mouse, meshRenderer.mesh, transform3D);
+    const { position, uv } = this.pickTerrain(
+      mouse,
+      meshRenderer.mesh,
+      transform3D,
+    );
     const brushImage = ecs.getComponent<BrushImage>(
       meshBrush.entity,
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = u;
-      brushImage.UV[1] = v;
+      brushImage.UV[0] = uv.u;
+      brushImage.UV[1] = uv.v;
       brushImage.size = meshBrush.radius;
     }
-    const position = vec4.fromValues(vertices[0], vertices[1], vertices[2], 1);
     if (meshBrush.type === TerrainBrushes.Height) {
-      // this.heightBrush(
-      //   meshBrush,
-      //   vec4.fromValues(
-      //     vertices[vertex.index],
-      //     vertices[vertex.index + 1],
-      //     vertices[vertex.index + 2],
-      //     1,
-      //   ),
-      //   ecs,
-      // );
+      this.heightBrush(meshBrush, position, ecs);
       this.heightBrushWithoutImage(meshBrush, position, ecs);
     } else if (meshBrush.type === TerrainBrushes.Splat) {
       const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
       if (!splatmap) return;
-      this.paintImage(ecs, splatmap.size, splatmap.coords, meshBrush, u, v);
+      this.paintImage(
+        ecs,
+        splatmap.size,
+        splatmap.coords,
+        meshBrush,
+        uv.u,
+        uv.v,
+      );
       splatmap.dirty = true;
     } else if (meshBrush.type === TerrainBrushes.Grass) {
       const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
       if (!grass) return;
-      this.paintImage(ecs, grass.size, grass.coords, meshBrush, u, v);
+      //this.paintImage(ecs, grass.size, grass.coords, meshBrush, u, v);
       this.createFoliage(vertices, ecs, meshBrush);
     } else if (meshBrush.type === TerrainBrushes.Erosion) {
       //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
@@ -88,7 +89,7 @@ export class BrushSystem {
     } else if (meshBrush.type === TerrainBrushes.Tree) {
       //this.addTree(ecs, meshBrush, vertex.x, vertex.y, vertex.z, 0);
     } else if (meshBrush.type === TerrainBrushes.Flattening) {
-      //this.flatteningBrush(meshBrush, position, ecs);
+      this.flatteningBrush(meshBrush, position, ecs);
     }
   }
 
@@ -99,9 +100,15 @@ export class BrushSystem {
     const y = 1080 - 1 - Math.floor(mouse.y);
 
     // Rendera samma mesh med picking-shadern
-    const { u, v } = Renderer.drawToFrameBuffer(x, y, mesh, texture, transform);
+    const { position, uv } = Renderer.drawToFrameBuffer(
+      x,
+      y,
+      mesh,
+      texture,
+      transform,
+    );
 
-    return { u, v };
+    return { position, uv };
   }
 
   private erosionBrush(
@@ -463,7 +470,11 @@ export class BrushSystem {
     CommandManager.add(new SplatBrushCommand(coords, splatmapList));
   }
 
-  private heightBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
+  private heightBrush(
+    meshBrush: Brush,
+    position: { x: number; y: number; z: number },
+    ecs: Ecs,
+  ) {
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     const imageData = this.getImageData(meshBrush.image, 1);
@@ -492,8 +503,8 @@ export class BrushSystem {
         mesh.vertexBuffer.vertices[i + 2],
         1,
       );
-      const dx = pos[0] - position[0];
-      const dz = pos[2] - position[2];
+      const dx = pos[0] - position.x;
+      const dz = pos[2] - position.z;
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
@@ -514,7 +525,11 @@ export class BrushSystem {
     );
   }
 
-  private flatteningBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
+  private flatteningBrush(
+    meshBrush: Brush,
+    position: { x: number; y: number; z: number },
+    ecs: Ecs,
+  ) {
     const brushRadius = meshBrush.radius;
 
     const meshRenderer = ecs.getComponent<MeshRenderer>(
@@ -535,8 +550,8 @@ export class BrushSystem {
       const x = vertices[i];
       const z = vertices[i + 2];
 
-      const dx = x - position[0];
-      const dz = z - position[2];
+      const dx = x - position.x;
+      const dz = z - position.z;
 
       const distance = Math.sqrt(dx * dx + dz * dz);
 
@@ -554,7 +569,11 @@ export class BrushSystem {
     );
   }
 
-  private heightBrushWithoutImage(meshBrush: Brush, position: vec4, ecs: Ecs) {
+  private heightBrushWithoutImage(
+    meshBrush: Brush,
+    position: { x: number; y: number; z: number },
+    ecs: Ecs,
+  ) {
     const brushRadius = meshBrush.radius;
     const brushStrength = meshBrush.strength;
     const fallOff = meshBrush.fallOff;
@@ -578,8 +597,8 @@ export class BrushSystem {
       const x = vertices[i];
       const z = vertices[i + 2];
 
-      const dx = x - position[0];
-      const dz = z - position[2];
+      const dx = x - position.x;
+      const dz = z - position.z;
 
       const distance = Math.sqrt(dx * dx + dz * dz);
 

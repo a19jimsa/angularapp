@@ -4,11 +4,12 @@ precision highp float;
 
 // Interpolerade UV-koordinater från triangeln
 in vec2 v_uv;
+in vec4 v_worldPosition;
 
-// Färgen som skrivs till framebuffertexturen
-out vec4 FragColor;
+layout(location = 0) out vec4 outPosition;
+layout(location = 1) out vec4 outUV;
 
 void main() {
-    // R = U, G = V
-    FragColor = vec4(v_uv.x, v_uv.y, 0.0, 1.0);
+    outPosition = v_worldPosition;
+    outUV = vec4(v_uv, 0.0, 1.0);
 }

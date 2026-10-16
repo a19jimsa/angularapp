@@ -265,7 +265,8 @@ export class Texture {
 
   createFramebuffer() {
     const gl = Renderer.getGL;
-    const texture = this.createTexture(this.width, this.height);
+    const texturePosition = this.createTexture(this.width, this.height);
+    const textureUV = this.createTexture(this.width, this.height);
     this.framebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
@@ -273,9 +274,19 @@ export class Texture {
       gl.FRAMEBUFFER,
       gl.COLOR_ATTACHMENT0,
       gl.TEXTURE_2D,
-      texture,
+      texturePosition,
       0,
     );
+
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT1,
+      gl.TEXTURE_2D,
+      textureUV,
+      0,
+    );
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
     // Kontrollera att framebuffer är komplett
     const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
 
@@ -299,14 +310,19 @@ export class Texture {
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
-      gl.RGBA8,
+      gl.RGBA32F,
       width,
       height,
       0,
       gl.RGBA,
-      gl.UNSIGNED_BYTE,
+      gl.FLOAT,
       null,
     );
+    const ext = gl.getExtension('EXT_color_buffer_float');
+
+    if (!ext) {
+      throw new Error('Float framebuffer stöds inte');
+    }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.bindTexture(gl.TEXTURE_2D, null);

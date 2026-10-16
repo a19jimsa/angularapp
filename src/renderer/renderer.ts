@@ -210,16 +210,29 @@ export class Renderer {
     // Rita din befintliga mesh
     Renderer.drawIndexed(mesh);
 
-    // Läs pixeln under musen
-    const pixel = new Uint8Array(4);
+    const positionPixel = new Float32Array(4);
+    const uvPixel = new Float32Array(4);
 
-    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    // Läs position
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.FLOAT, positionPixel);
 
-    // Avkoda pixelns färg till UV
-    const u = pixel[0] / 255;
-    const v = pixel[1] / 255;
+    // Läs UV
+    gl.readBuffer(gl.COLOR_ATTACHMENT1);
+    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.FLOAT, uvPixel);
 
-    console.log(u, v);
+    const position = {
+      x: positionPixel[0],
+      y: positionPixel[1],
+      z: positionPixel[2],
+    };
+
+    const uv = {
+      u: uvPixel[0],
+      v: uvPixel[1],
+    };
+
+    console.log(position, uv);
 
     // Återställ framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -227,6 +240,6 @@ export class Renderer {
 
     shader.unbind();
 
-    return { u, v };
+    return { position, uv };
   }
 }

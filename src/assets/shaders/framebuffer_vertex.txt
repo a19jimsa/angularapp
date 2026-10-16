@@ -12,9 +12,11 @@ uniform mat4 u_model;
 
 // Skickas vidare till fragment-shadern
 out vec2 v_uv;
+out vec4 v_worldPosition;
 
 void main() {
     v_uv = a_uv;
+    v_worldPosition = u_model * vec4(a_position, 1.0);
 
     gl_Position = u_matrix * u_model * vec4(a_position, 1.0);
 }
