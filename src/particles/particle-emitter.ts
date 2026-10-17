@@ -60,6 +60,13 @@ export class BoxShape implements SpawnShape {
   }
 }
 
+export enum SubEmitterMode {
+  OnSpawn = 'On Spawn',
+  OnDeath = 'On Death',
+  OnCollision = 'On Collision',
+  Always = 'Always',
+}
+
 export class ParticleEmitter extends Component {
   override type: string = 'ParticleEmitter';
   shaderId: string;
@@ -82,6 +89,7 @@ export class ParticleEmitter extends Component {
   tiling: vec2 = vec2.create();
   blendMode: BlendMode;
   models: Models;
+  mode: SubEmitterMode = SubEmitterMode.Always;
 
   maxParticles: number;
 

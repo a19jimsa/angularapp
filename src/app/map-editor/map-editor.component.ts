@@ -75,6 +75,7 @@ import {
   PointShape,
   RingShape,
   SpawnShape,
+  SubEmitterMode,
 } from 'src/particles/particle-emitter';
 import { ParticleEmitterSystem } from 'src/systems/particle-emitter-system';
 import { Animation } from 'src/components/animation';
@@ -291,6 +292,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   models = Object.values(Models);
   blendModes = Object.values(BlendMode);
+  modes = Object.values(SubEmitterMode);
 
   constructor(private cdr: ChangeDetectorRef) {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -1167,7 +1169,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     buffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     buffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const model = new Model(buffer);
-    model.addPlane(50, width, depth);
+    model.addPlane(100, width, depth);
     MeshManager.addMesh(model, 'terrain' + newEntity);
 
     this.ecs.addComponent<Name>(newEntity, new Name('Terrain ' + newEntity));

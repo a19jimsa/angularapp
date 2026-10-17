@@ -1,6 +1,9 @@
 import { vec3 } from 'gl-matrix';
 import { Ecs } from 'src/core/ecs';
-import { ParticleEmitter } from 'src/particles/particle-emitter';
+import {
+  ParticleEmitter,
+  SubEmitterMode,
+} from 'src/particles/particle-emitter';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { MathUtils } from 'src/Utils/MathUtils';
 
@@ -12,29 +15,49 @@ export class ParticleEmitterSystem {
         'ParticleEmitter',
       );
       if (!particleEmitter) continue;
-      //Update sub particles
+      if (particleEmitter.subEmitter) {
+        //Do not create any particles by own.
+        particleEmitter.subEmitter.emitting = false;
+        particleEmitter.subEmitter.oneShot = false;
+        switch (particleEmitter.mode) {
+          case SubEmitterMode.Always:
+            for (let i = 0; i < particleEmitter.maxParticles; i++) {
+              if (particleEmitter.active[i] === 0) continue;
+              const position = vec3.fromValues(
+                particleEmitter.positionsX[i],
+                particleEmitter.positionsY[i],
+                particleEmitter.positionsZ[i],
+              );
+              this.spawnAt(particleEmitter.subEmitter, position);
+            }
+            break;
+          case SubEmitterMode.OnSpawn:
+            break;
+          case SubEmitterMode.OnCollision:
+            //collision
+            break;
+          case SubEmitterMode.OnDeath:
+            for (let i = 0; i < particleEmitter.maxParticles; i++) {
+              if (particleEmitter.active[i] === 0) continue;
+              if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
+                const position = vec3.fromValues(
+                  particleEmitter.positionsX[i],
+                  particleEmitter.positionsY[i],
+                  particleEmitter.positionsZ[i],
+                );
+                this.spawnAt(particleEmitter.subEmitter, position);
+              }
+            }
+            break;
+        }
+      }
+
+      //Updates all particles
       for (let i = 0; i < particleEmitter.maxParticles; i++) {
-        if (particleEmitter.active[i] === 0) continue;
-        //On death of particle emitt subparticles
         if (particleEmitter.age[i] >= particleEmitter.lifetime[i]) {
           particleEmitter.active[i] = 0;
-          if (particleEmitter.subEmitter) {
-            particleEmitter.subEmitter.emitting = true;
-            const spawnInterval =
-              particleEmitter.particleProp.lifetime / particleEmitter.amount;
-
-            particleEmitter.subEmitter.spawnAccumulator += spawnInterval;
-            particleEmitter.subEmitter.particleProp.position[0] =
-              particleEmitter.positionsX[i];
-            particleEmitter.subEmitter.particleProp.position[1] =
-              particleEmitter.positionsY[i];
-            particleEmitter.subEmitter.particleProp.position[2] =
-              particleEmitter.positionsZ[i];
-          }
           continue;
         }
-
-        //Updates all particles positions
         particleEmitter.velocityX[i] += particleEmitter.particleProp.gravity[0];
         particleEmitter.velocityY[i] += particleEmitter.particleProp.gravity[1];
         particleEmitter.velocityZ[i] += particleEmitter.particleProp.gravity[2];
@@ -47,9 +70,9 @@ export class ParticleEmitterSystem {
           particleEmitter.particleProp.rotationSpeed[1];
         particleEmitter.rotationZ[i] +=
           particleEmitter.particleProp.rotationSpeed[2];
-
         particleEmitter.age[i] += 0.016;
       }
+
       const mesh = MeshManager.getMesh(particleEmitter.meshId);
       if (!mesh) throw Error('Must have mesh');
       let aliveCount = 0;
@@ -68,7 +91,6 @@ export class ParticleEmitterSystem {
         aliveCount++;
       }
       particleEmitter.aliveCount = aliveCount;
-
       if (particleEmitter.emitting) {
         this.emit(particleEmitter);
       }
@@ -79,9 +101,7 @@ export class ParticleEmitterSystem {
   emit(particleEmitter: ParticleEmitter) {
     const amount = particleEmitter.amount;
     const spawnInterval = particleEmitter.particleProp.lifetime / amount;
-
     particleEmitter.spawnAccumulator += 0.016;
-
     if (particleEmitter.spawnAccumulator >= spawnInterval) {
       const spawnAmount =
         Math.floor(particleEmitter.amount * particleEmitter.explosiveness) + 1;
@@ -174,5 +194,15 @@ export class ParticleEmitterSystem {
       (particleEmitter.poolIndex - 1 + particleEmitter.maxParticles) %
       particleEmitter.maxParticles;
     return value;
+  }
+
+  spawnAt(subEmitter: ParticleEmitter, position: vec3) {
+    const spawnAmount =
+      Math.floor(subEmitter.amount * subEmitter.explosiveness) + 1;
+    console.log(position);
+    subEmitter.particleProp.position = vec3.clone(position);
+    for (let i = 0; i < spawnAmount; i++) {
+      this.spawnParticles(subEmitter);
+    }
   }
 }

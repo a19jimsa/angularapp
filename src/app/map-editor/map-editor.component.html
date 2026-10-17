@@ -1016,6 +1016,14 @@
                         }
                       </mat-select>
                     </mat-form-field>
+                    <mat-form-field>
+                      <mat-label>Spawn mode</mat-label>
+                      <mat-select [(ngModel)]="particleEmitter.mode">
+                        @for (mode of modes; track mode) {
+                          <mat-option [value]="mode">{{ mode }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
                   </div>
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>

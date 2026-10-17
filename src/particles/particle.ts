@@ -7,7 +7,7 @@ export class Particle {
   sizeBegin: number = 1;
   sizeEnd: number = 1;
   rotation: number = 0;
-  lifetime: number = 10;
+  lifetime: number = 1;
   age: number = 0;
   active: boolean = false;
 }
