@@ -3,7 +3,7 @@ import { ParticleProp } from './particle';
 import { vec2, vec3 } from 'gl-matrix';
 import { MathUtils } from 'src/Utils/MathUtils';
 import { Texture } from 'src/renderer/texture';
-import { BlendMode } from 'src/renderer/material';
+import { BlendMode, Material } from 'src/renderer/material';
 import { Models } from 'src/app/map-editor/map-editor.component';
 
 export interface SpawnShape {
@@ -72,7 +72,6 @@ export class ParticleEmitter extends Component {
   shaderId: string;
   meshId: string;
   materialId: string;
-  textures: Set<Texture>;
   poolIndex: number = 1;
   amount: number;
   aliveCount: number = 0;
@@ -88,6 +87,7 @@ export class ParticleEmitter extends Component {
   oneShot: boolean = false;
   tiling: vec2 = vec2.create();
   blendMode: BlendMode;
+  depthWrite: boolean = true;
   models: Models;
   mode: SubEmitterMode = SubEmitterMode.Always;
 
@@ -152,7 +152,5 @@ export class ParticleEmitter extends Component {
     this.active = new Uint8Array(this.maxParticles);
 
     this.subEmitter = null;
-
-    this.textures = new Set();
   }
 }

@@ -302,11 +302,8 @@ export class Texture {
 
   createTexture(width: number, height: number) {
     const gl = Renderer.getGL;
-
     const texture = gl.createTexture();
-
     gl.bindTexture(gl.TEXTURE_2D, texture);
-
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -319,14 +316,12 @@ export class Texture {
       null,
     );
     const ext = gl.getExtension('EXT_color_buffer_float');
-
     if (!ext) {
       throw new Error('Float framebuffer stöds inte');
     }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.bindTexture(gl.TEXTURE_2D, null);
-
     return texture;
   }
 }

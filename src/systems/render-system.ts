@@ -25,6 +25,7 @@ import { TrailRenderer } from 'src/components/trail-renderer';
 import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/components/mesh-renderer';
 import { MaterialManager } from 'src/resource-manager/material-manager';
+import { Texture } from 'src/renderer/texture';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -212,7 +213,7 @@ export class RenderSystem {
           Renderer.drawLines(vao);
           pivotShader.unbind();
         }
-        const shader = meshRenderer.material.shader;
+        const shader = meshRenderer.shader;
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -272,7 +273,8 @@ export class RenderSystem {
         }
 
         let slot = 0;
-        for (const texture of material.textures) {
+        for (const textureid of material.textures) {
+          const texture = TextureManager.getTexture(textureid);
           shader.setUniform(
             slot,
             texture.UniformName,
@@ -450,7 +452,11 @@ export class RenderSystem {
         particleEmitter.particleProp.displacement.Target,
       );
       slot++;
-      for (const texture of particleEmitter.textures) {
+      const material = MaterialManager.get(particleEmitter.materialId);
+      if (!material)
+        throw new Error('Could not get material ' + particleEmitter.materialId);
+      for (const textureid of material.textures) {
+        const texture = TextureManager.getTexture(textureid);
         particleEmitterShader.setUniform(
           slot,
           texture.UniformName,
@@ -460,11 +466,10 @@ export class RenderSystem {
         slot++;
       }
       const mesh = MeshManager.getMesh(particleEmitter.meshId);
-      const material = MaterialManager.get(particleEmitter.materialId);
-      if (!mesh || !material)
-        throw Error('Could not get mesh ' + particleEmitter.meshId);
+      if (!mesh) throw Error('Could not get mesh ' + particleEmitter.meshId);
       //Do not like this, but for now
       material.blendMode = particleEmitter.blendMode;
+      material.depthWrite = particleEmitter.depthWrite;
       Renderer.drawInstancing(
         mesh,
         material,

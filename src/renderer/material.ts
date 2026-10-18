@@ -1,4 +1,3 @@
-import { Shader } from './shader';
 import { Texture } from './texture';
 
 export enum BlendMode {
@@ -22,12 +21,12 @@ export const BlendModeLabels: Record<BlendMode, string> = {
 };
 
 export class Material {
-  shader: Shader;
+  id: string;
   depthWrite = true;
   blendMode: BlendMode = BlendMode.Opaque;
-  textures = new Set<Texture>();
+  textures = new Set<string>();
 
-  constructor(shader: Shader) {
-    this.shader = shader;
+  constructor(id: string) {
+    this.id = id;
   }
 }

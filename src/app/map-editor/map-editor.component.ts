@@ -175,6 +175,7 @@ export enum Models {
   RingMesh = 'Ring Mesh',
   Spiral = 'Spiral',
   Cone = 'Cone',
+  Cylinder = 'Cylinder',
 }
 
 export const ModelLabels: Record<Models, string> = {
@@ -184,6 +185,7 @@ export const ModelLabels: Record<Models, string> = {
   [Models.RingMesh]: 'Ring Mesh',
   [Models.Spiral]: 'Spiral',
   [Models.Cone]: 'Cone',
+  [Models.Cylinder]: 'Cylinder',
 };
 
 @Component({
@@ -569,13 +571,21 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return Mode.Object;
   }
 
-  get particleTexture() {
+  get particleTexture(): Texture[] {
     const particleEmitter = this.ecs.getComponent<ParticleEmitter>(
       this.meshbrush.entity,
       'ParticleEmitter',
     );
-    if (!particleEmitter) return null;
-    return particleEmitter.textures;
+    if (!particleEmitter) return [];
+    const textures: Texture[] = Array();
+    const material = MaterialManager.get(particleEmitter.materialId);
+    if (!material) return [];
+    for (const textureid of material.textures) {
+      const texture = TextureManager.getTexture(textureid);
+      textures.push(texture);
+    }
+    console.log(textures);
+    return textures;
   }
 
   get meshRenderer() {
@@ -851,7 +861,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     framebuffer.createFramebuffer();
 
-    const terrainTexture = await TextureManager.addTextureArray(
+    const terrainTexture = TextureManager.addTextureArray(
       'terrain',
       'u_textures',
       [
@@ -892,7 +902,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/water_normal_01.jpg',
     );
 
-    const waterTextureArray = await TextureManager.addTextureArray(
+    const waterTextureArray = TextureManager.addTextureArray(
       'water',
       'u_textures',
       [waterTexture],
@@ -1196,17 +1206,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Surface>(newEntity, new Surface());
     const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
     const shader = ShaderManager.getShader('splatmap');
-
-    const material = new RenderMaterial(shader);
+    const material = new RenderMaterial('terrain' + newEntity);
     material.blendMode = BlendMode.Opaque;
     material.depthWrite = true;
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
-      new MeshRenderer('terrain', mesh, material),
+      new MeshRenderer('terrain', mesh, material, shader),
     );
 
     if (!splatmap) throw new Error('Could not get splatmap');
-    const texture = TextureManager.addTexture(
+    TextureManager.addTexture(
       'splatmap' + newEntity,
       size,
       size,
@@ -1214,11 +1223,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       splatmap.coords,
       false,
     );
-    const brushes = TextureManager.getTexture('brushes')!;
-    const terrain = TextureManager.getTexture('terrain')!;
-    material.textures.add(texture);
-    material.textures.add(brushes);
-    material.textures.add(terrain);
+    material.textures.add('splatmap' + newEntity);
+    material.textures.add('brushes');
+    material.textures.add('terrain');
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1342,10 +1349,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Light>(entity, new Light());
     const mesh = MeshManager.addMesh(model, 'light');
     const shader = ShaderManager.getShader('basic');
-    const material = new RenderMaterial(shader);
+    const material = new RenderMaterial('light' + entity);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('light', mesh, material),
+      new MeshRenderer('light', mesh, material, shader),
     );
   }
 
@@ -1367,14 +1374,13 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<AnimatedTexture>(entity, new AnimatedTexture());
     this.ecs.addComponent<Water>(entity, new Water());
     this.ecs.addComponent<Surface>(entity, new Surface());
+    const material = new RenderMaterial('water' + entity);
     const shader = ShaderManager.getShader('water');
-    const material = new RenderMaterial(shader);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('water', mesh, material),
+      new MeshRenderer('water', mesh, material, shader),
     );
-    const texture = TextureManager.getTexture('water');
-    material.textures.add(texture);
+    material.textures.add('water');
   }
 
   loop() {
@@ -1641,7 +1647,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     throw new Error('Method not implemented.');
   }
 
-  createParticleEmitter() {
+  async createParticleEmitter() {
     const entity = this.ecs.createEntity();
     this.ecs.addComponent<Name>(entity, new Name('Particle System ' + entity));
     const buffer = new BufferLayout();
@@ -1681,23 +1687,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       10000,
     );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
-
+    //Renderer stuff not ECS. ParticleEmitter just holds strings.
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
         'wave',
         'particleEmitter' + entity,
-        'material',
+        'material' + entity,
         instanceBuffer.amount,
       ),
     );
     if (!particleEmitter) throw Error('Could not create particle emitter!');
-    //Renderer stuff not ECS. ParticleEmitter just holds strings.
-    const shader = ShaderManager.getShader(particleEmitter.shaderId);
-    const material = new RenderMaterial(shader);
-    MaterialManager.add('material', material);
-    MaterialManager.add('grass', material);
-    MaterialManager.add('tree', material);
     const scaleX = particleEmitter.particleProp.scaleCurveX;
     const scaleY = particleEmitter.particleProp.scaleCurveY;
     const scaleZ = particleEmitter.particleProp.scaleCurveZ;
@@ -1711,10 +1711,28 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     opacity.bindTexture();
     color.bindTexture();
     displacement.bindTexture();
-    const wave = TextureManager.getTexture('wave');
-    const healing = TextureManager.getTexture('erase');
-    particleEmitter.textures.add(wave);
-    particleEmitter.textures.add(healing);
+    //Add new render material per particle emitter
+    const renderMaterial = new RenderMaterial('material' + entity);
+    const image = AssetManager.getAsset('circle.png');
+    if (!image) throw new Error('Could not get Asset');
+    TextureManager.addTextureArray(
+      'particleTextures' + entity,
+      'u_textures',
+      [image],
+      true,
+    );
+    const imageData = new Uint8ClampedArray(128 * 4);
+    TextureManager.addTexture(
+      'particleTexture' + entity,
+      128,
+      128,
+      'u_texture',
+      imageData,
+      false,
+    );
+    renderMaterial.textures.add('particleTextures' + entity);
+    renderMaterial.textures.add('particleTexture' + entity);
+    MaterialManager.add('material' + entity, renderMaterial);
   }
 
   changeParticleShader(shaderId: string) {
@@ -1757,6 +1775,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         break;
       case Models.Cone:
         model.addCone();
+        break;
+      case Models.Cylinder:
+        model.addCylinder();
         break;
     }
     mesh.vertexBuffer.vertices = new Float32Array(model.vertices);

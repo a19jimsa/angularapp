@@ -1493,7 +1493,7 @@
                         />
                       </mat-form-field>
                     </div>
-                    <span>Textures</span>
+                    <span>{{ particleEmitter.materialId }}</span>
                     @for (texture of particleTexture; track $index) {
                       <div
                         class="example-list"
@@ -1556,6 +1556,19 @@
                               {{ blendMode }}
                             </mat-option>
                           }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="row">
+                      <mat-form-field class="col-12">
+                        <mat-label>Depth write</mat-label>
+                        <mat-select [(ngModel)]="particleEmitter.depthWrite">
+                          <mat-option value="true">
+                            {{ true }}
+                          </mat-option>
+                          <mat-option value="false">
+                            {{ false }}
+                          </mat-option>
                         </mat-select>
                       </mat-form-field>
                     </div>

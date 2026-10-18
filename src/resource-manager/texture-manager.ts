@@ -18,7 +18,7 @@ export class TextureManager extends Manager {
     return images;
   }
 
-  public static async addTextureArray(
+  public static addTextureArray(
     name: string,
     uniformName: string,
     images: HTMLImageElement[],
@@ -74,6 +74,20 @@ export class TextureManager extends Manager {
     const paths = new Array();
     if (image instanceof HTMLImageElement) {
       paths.push(image.src);
+      const texture = new Texture(
+        name,
+        image,
+        Target.TEXTURE_2D,
+        image.width,
+        image.height,
+        uniformName,
+        repeat,
+        paths,
+      );
+      texture.bindTexture();
+      this.textures.set(name, texture);
+      this.dirty = true;
+      return texture;
     }
     const texture = new Texture(
       name,

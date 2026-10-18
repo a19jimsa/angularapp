@@ -64,10 +64,12 @@ export class Renderer {
         break;
       case BlendMode.AlphaBlend:
         gl.enable(gl.BLEND);
+        gl.depthMask(material.depthWrite);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         break;
       case BlendMode.Additive:
         gl.enable(gl.BLEND);
+        gl.depthMask(material.depthWrite);
         gl.blendFunc(gl.ONE, gl.ONE);
         break;
     }

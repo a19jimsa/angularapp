@@ -25,7 +25,10 @@ void main() {
     vec4 baseColor = texture(u_textures, vec3(uvScrolling, 0.0));
     vec4 substract = texture(u_texture, v_texcoord);
     baseColor -= substract;
+    baseColor.r *= opacity;
     float base = clamp(baseColor.r, 0.0, 1.0);
+
+    if(baseColor.r <= 0.01) discard;
 
     vec4 colorRamp = texture(u_colorCurve, vec2(base, 1.0));
 
