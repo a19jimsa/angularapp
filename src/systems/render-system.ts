@@ -388,12 +388,14 @@ export class RenderSystem {
 
       particleEmitterShader.bind();
       if (transform3D) {
-        mat4.translate(modelMatrix, modelMatrix, transform3D.position);
-        mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
-        mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
-        mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
-        mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
-        particleEmitterShader.setUniformMat4('u_model', modelMatrix);
+        particleEmitterShader.setVec3(
+          'u_rotation',
+          vec3.fromValues(
+            transform3D.rotation[0],
+            transform3D.rotation[1],
+            transform3D.rotation[2],
+          ),
+        );
       }
       particleEmitterShader.setUniformMat4(
         'u_matrix',

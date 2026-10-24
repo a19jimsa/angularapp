@@ -1,4 +1,4 @@
-import { mat4, vec3, vec4 } from 'gl-matrix';
+import { mat4, vec4 } from 'gl-matrix';
 import {
   Brush,
   Mouse,
@@ -24,7 +24,6 @@ import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { Renderer } from 'src/renderer/renderer';
-import { VertexArray } from 'src/renderer/vertex-array';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
@@ -37,92 +36,88 @@ export class BrushSystem {
       'MeshRenderer',
     );
     if (!meshRenderer) return;
-    const vertices = meshRenderer.mesh.vertexBuffer.vertices;
     const transform3D = ecs.getComponent<Transform3D>(
       meshBrush.entity,
       'Transform3D',
     );
     if (!transform3D) return;
-    // const vertex = MathUtils.pickVertexNew(
-    //   transform3D,
-    //   meshRenderer.mesh,
-    //   mouse,
-    // );
-    const { position, uv } = this.pickTerrain(
-      mouse.x,
-      mouse.y,
+    const modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+    mat4.rotateX(modelMatrix, modelMatrix, transform3D.rotation[0]);
+    mat4.rotateY(modelMatrix, modelMatrix, transform3D.rotation[1]);
+    mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
+    mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
+    const texture = TextureManager.getTexture('framebuffer');
+    const x = Math.floor(mouse.x);
+    const y = 1080 - 1 - Math.floor(mouse.y);
+
+    // Rendera samma mesh med picking-shadern
+    const frame = Renderer.drawToFrameBuffer(
+      x,
+      y,
       meshRenderer.mesh,
-      transform3D,
+      texture,
+      modelMatrix,
     );
+
+    if (frame === null) {
+      const brushImage = ecs.getComponent<BrushImage>(
+        meshBrush.entity,
+        'BrushImage',
+      );
+      if (brushImage) {
+        brushImage.UV[0] = -1;
+        brushImage.UV[1] = -1;
+        brushImage.size = meshBrush.radius / 2;
+      }
+      return;
+    }
     const brushImage = ecs.getComponent<BrushImage>(
       meshBrush.entity,
       'BrushImage',
     );
     if (brushImage) {
-      brushImage.UV[0] = uv.u;
-      brushImage.UV[1] = uv.v;
-      brushImage.size = meshBrush.radius;
+      brushImage.UV[0] = frame.uv.x;
+      brushImage.UV[1] = frame.uv.y;
+      brushImage.size = meshBrush.radius / 2;
     }
-    if (meshBrush.type === TerrainBrushes.Height) {
-      //this.heightBrush(meshBrush, position, ecs);
-      this.heightBrushWithoutImage(meshBrush, position, ecs);
-    } else if (meshBrush.type === TerrainBrushes.Splat) {
-      const splatmap = ecs.getComponent<Splatmap>(meshBrush.entity, 'Splatmap');
-      if (!splatmap) return;
-      this.paintImage(
-        ecs,
-        splatmap.size,
-        splatmap.coords,
-        meshBrush,
-        uv.u,
-        uv.v,
-      );
-      splatmap.dirty = true;
-    } else if (meshBrush.type === TerrainBrushes.Grass) {
-      for (let i = 0; i < 100; i++) {
-        const x = mouse.x + MathUtils.random(-meshBrush.radius, meshBrush.radius);
-        const y = mouse.y + MathUtils.random(-meshBrush.radius, meshBrush.radius);
-        const { position, uv } = this.pickTerrain(
-          x,
-          y,
-          meshRenderer.mesh,
-          transform3D,
+
+    switch (meshBrush.type) {
+      case TerrainBrushes.Height:
+        this.heightBrush(meshBrush, frame.position, ecs);
+        //this.heightBrushWithoutImage(meshBrush, position, ecs);
+        break;
+      case TerrainBrushes.Grass:
+        this.addGrass(ecs, meshBrush, frame.position);
+        break;
+      case TerrainBrushes.Splat:
+        const splatmap = ecs.getComponent<Splatmap>(
+          meshBrush.entity,
+          'Splatmap',
         );
-        if (position.x === 0 && position.y === 0 && position.z === 0) continue;
-        this.addGrass(ecs, meshBrush, position);
-      }
-    } else if (meshBrush.type === TerrainBrushes.Erosion) {
-      //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
-    } else if (meshBrush.type === TerrainBrushes.Flower) {
-      this.addFlower(ecs, meshBrush, position, 0);
-    } else if (meshBrush.type === TerrainBrushes.Tree) {
-      this.addTree(ecs, meshBrush, position, 0);
-    } else if (meshBrush.type === TerrainBrushes.Flattening) {
-      this.flatteningBrush(meshBrush, position, ecs);
+        if (!splatmap) return;
+        this.paintImage(
+          splatmap.size,
+          splatmap.coords,
+          meshBrush,
+          frame.uv.x,
+          frame.uv.y,
+        );
+        splatmap.dirty = true;
+        break;
+      case TerrainBrushes.Flower:
+        this.addFlower(ecs, meshBrush, frame.position, 0);
+        break;
+      case TerrainBrushes.Tree:
+        this.addTree(ecs, meshBrush, frame.position, 0);
+        break;
+      case TerrainBrushes.Erosion:
+        //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
+        break;
+      case TerrainBrushes.Flattening:
+        this.flatteningBrush(meshBrush, frame.position, ecs);
+        break;
     }
-  }
-
-  pickTerrain(
-    posX: number,
-    posY: number,
-    mesh: VertexArray,
-    transform: Transform3D,
-  ) {
-    const texture = TextureManager.getTexture('framebuffer');
-
-    const x = Math.floor(posX);
-    const y = 1080 - 1 - Math.floor(posY);
-
-    // Rendera samma mesh med picking-shadern
-    const { position, uv } = Renderer.drawToFrameBuffer(
-      x,
-      y,
-      mesh,
-      texture,
-      transform,
-    );
-
-    return { position, uv };
   }
 
   private erosionBrush(
@@ -170,12 +165,10 @@ export class BrushSystem {
         if (diff > talus) {
           const amount =
             (diff - talus) * strength * (1 - distance / meshBrush.radius);
-
           commandList.set(neighborIndex + 1, -amount);
         }
       }
     }
-
     CommandManager.add(
       new HeightBrushCommand(meshBrush.entity, ecs, commandList),
     );
@@ -365,7 +358,6 @@ export class BrushSystem {
   }
 
   private paintImage(
-    ecs: Ecs,
     size: number,
     coords: Uint8ClampedArray,
     meshBrush: Brush,
@@ -515,19 +507,12 @@ export class BrushSystem {
     //LOVE THIS SOLUTION!
     const commandList: Map<number, number> = new Map();
     const mesh = meshRenderer.mesh;
-    for (
-      let i = 0;
-      i < mesh.vertexBuffer.vertices.length;
-      i += mesh.bufferLayout.amount
-    ) {
-      const pos = vec4.fromValues(
-        mesh.vertexBuffer.vertices[i],
-        mesh.vertexBuffer.vertices[i + 1],
-        mesh.vertexBuffer.vertices[i + 2],
-        1,
-      );
-      const dx = pos[0] - position.x;
-      const dz = pos[2] - position.z;
+    const vertices = mesh.vertexBuffer.vertices;
+    for (let i = 0; i < vertices.length; i += mesh.bufferLayout.amount) {
+      const x = vertices[i];
+      const z = vertices[i + 2];
+      const dx = x - position.x;
+      const dz = z - position.z;
       // Mappa från world-space till penselns bildkoordinater
       const fx = (dx + brushRadius) / (brushRadius * 2); // 0 till 1
       const fz = (dz + brushRadius) / (brushRadius * 2);
@@ -535,11 +520,11 @@ export class BrushSystem {
       const pz = Math.floor(fz * imageData.height);
       if (px > 0 && px < imageData.width && pz > 0 && pz < imageData.height) {
         const pixelIndex = (pz * imageData.width + px) * 4;
-        const red = imageData.data[pixelIndex];
+        let red = imageData.data[pixelIndex];
+        if (meshBrush.fallOff === 0 && red > 0) {
+          red = 255;
+        }
         const influence = (red / 255.0) * brushStrength;
-        //Now we have commands instead!
-        //Just save all affected vertices in an array and send it to commands.
-        //It saves index ys position and send it to the height or just take it - stride so it fits terrains heights index?
         commandList.set(i + 1, influence);
       }
     }
@@ -619,13 +604,11 @@ export class BrushSystem {
       const dz = z - position.z;
 
       const distance = Math.sqrt(dx * dx + dz * dz);
-
       const t = distance / brushRadius;
 
       if (t <= 1.0) {
         const falloff = Math.pow(1.0 - t, meshBrush.fallOff);
         const influence = falloff * brushStrength;
-
         commandList.set(i + 1, influence);
       }
     }

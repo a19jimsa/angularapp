@@ -849,6 +849,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/stonebricks.png',
     );
 
+    const sand = await AssetManager.loadImage('assets/textures/sand.jpg');
+
     const mosaik = await AssetManager.loadImage('assets/textures/mosaik.png');
 
     const framebuffer = TextureManager.addTexture(
@@ -879,6 +881,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         ambientOcclusion,
         pebbles,
         pebblesAO,
+        sand,
+        goldMountain,
+        stonebricks,
       ],
       true,
     );
@@ -934,57 +939,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const fireNoise = await AssetManager.loadImage(
-      '/assets/textures/fire-noise.jpg',
-    );
-    const fireNoiseSub = await AssetManager.loadImage(
-      '/assets/textures/fire-noise-sub.jpg',
-    );
-    const fireNoiseColor = await AssetManager.loadImage(
-      '/assets/textures/fire-noise-color.png',
-    );
-    const fireNoiseAdd = await AssetManager.loadImage(
-      '/assets/textures/fire-noise-add.jpg',
-    );
-    const noise = await AssetManager.loadImage(
-      '/assets/textures/noise_002.jpg',
-    );
-
-    const fireTexture = await TextureManager.addTexture(
-      'fireNoise',
-      fireNoise.width,
-      fireNoise.height,
-      'u_texture',
-      fireNoise,
-      true,
-    );
-
-    const fires = await TextureManager.addTextureArray(
-      'fires',
-      'u_textures',
-      [fireNoiseAdd, fireNoiseSub, fireNoiseColor],
-      false,
-    );
-
     const lightning = await AssetManager.loadImage(
       '/assets/textures/lightning.jpg',
-    );
-    const lightningTexture = await TextureManager.addTexture(
-      'lightning1',
-      lightning.width,
-      lightning.height,
-      'u_texture',
-      lightning,
-      true,
-    );
-
-    const noiseTexture = await TextureManager.addTexture(
-      'noise',
-      noise.width,
-      noise.height,
-      'u_heightMap',
-      noise,
-      true,
     );
 
     const healing = await AssetManager.loadImage(
@@ -1010,108 +966,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
     );
 
-    const portalTextures = await TextureManager.addTextureArray(
-      'portal',
-      'u_textures',
-      [noise],
-      false,
-    );
-
-    const colorCurve = await AssetManager.loadImage(
-      '/assets/textures/color-curve.jpg',
-    );
-
     const eraseCurve = await AssetManager.loadImage(
       '/assets/textures/erase.jpg',
-    );
-
-    const auraTexture = await TextureManager.addTexture(
-      'erase',
-      eraseCurve.width,
-      eraseCurve.height,
-      'u_texture',
-      eraseCurve,
-      false,
-    );
-
-    const auraTextures = await TextureManager.addTextureArray(
-      'aura',
-      'u_textures',
-      [noise],
-      true,
     );
 
     const fireImage = await AssetManager.loadImage(
       '/assets/textures/fire_vfx.jpg',
     );
 
-    const fireTextures = await TextureManager.addTextureArray(
-      'fire',
-      'u_textures',
-      [fireImage],
-      false,
-    );
-
-    const curve = await AssetManager.loadImage(
-      '/assets/textures/size-curve.jpg',
-    );
-
-    const beamTexture = await TextureManager.addTexture(
-      'curve',
-      curve.width,
-      curve.height,
-      'u_texture',
-      curve,
-      false,
-    );
-
-    const beamTextures = await TextureManager.addTextureArray(
-      'beam',
-      'u_textures',
-      [noise],
-      true,
-    );
-
     const wave = await AssetManager.loadImage(
       '/assets/textures/expansive_wave.jpg',
     );
 
-    const waveTextures = await TextureManager.addTextureArray(
-      'wave',
-      'u_textures',
-      [wave, fireImage],
-      true,
-    );
-
-    const waveTexture = await TextureManager.addTexture(
-      'healing',
-      healing1.width,
-      healing1.height,
-      'u_texture',
-      healing1,
-      false,
-    );
-
     const wind001Image = await AssetManager.loadImage(
       '/assets/textures/wind_001.png',
-    );
-
-    const windTexture = await TextureManager.addTexture(
-      'wind1',
-      wind001Image.width,
-      wind001Image.height,
-      'u_texture',
-      wind001Image,
-      true,
-    );
-
-    const windTexture2 = await TextureManager.addTexture(
-      'wind2',
-      healing1.width,
-      healing1.height,
-      'u_texture2',
-      healing1,
-      false,
     );
   }
 
@@ -1169,7 +1037,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
   protected async createTerrain() {
     const newEntity = this.ecs.createEntity();
-    const size = 128;
+    const size = 512;
     const width = 500;
     const depth = 500;
     const height = 500;

@@ -180,7 +180,7 @@ export class Renderer {
     mouseY: number,
     mesh: VertexArray,
     texture: Texture,
-    transform: Transform3D,
+    matrix: mat4,
   ) {
     const gl = Renderer.getGL;
     const frameBuffer = texture.FrameBuffer;
@@ -201,13 +201,7 @@ export class Renderer {
     // Skicka samma kamera- och modellmatriser
     // som din vanliga rendering använder.
     shader.setUniformMat4('u_matrix', this.camera.getViewProjectionMatrix());
-    const modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, transform.position);
-    mat4.rotateX(modelMatrix, modelMatrix, transform.rotation[0]);
-    mat4.rotateY(modelMatrix, modelMatrix, transform.rotation[1]);
-    mat4.rotateZ(modelMatrix, modelMatrix, transform.rotation[2]);
-    mat4.scale(modelMatrix, modelMatrix, transform.scale);
-    shader.setUniformMat4('u_model', modelMatrix);
+    shader.setUniformMat4('u_model', matrix);
 
     // Rita din befintliga mesh
     Renderer.drawIndexed(mesh);
@@ -230,8 +224,8 @@ export class Renderer {
     };
 
     const uv = {
-      u: uvPixel[0],
-      v: uvPixel[1],
+      x: uvPixel[0],
+      y: uvPixel[1],
     };
 
     console.log(position, uv);
@@ -241,6 +235,8 @@ export class Renderer {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     shader.unbind();
+
+    if (positionPixel[3] === 0) return null;
 
     return { position, uv };
   }

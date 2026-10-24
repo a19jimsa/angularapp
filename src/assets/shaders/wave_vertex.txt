@@ -8,7 +8,7 @@ layout(location = 4) in float a_age;
 layout(location = 5) in vec3 a_rotation;
 
 uniform mat4 u_matrix;
-uniform mat4 u_model;
+uniform vec3 u_rotation;
 uniform sampler2D u_scaleX;
 uniform sampler2D u_scaleY;
 uniform sampler2D u_scaleZ;
@@ -78,7 +78,13 @@ void main() {
     pos.y *= scaleY * u_scale.y;
     pos.z *= scaleZ * u_scale.z;
 
+    // Emitterobjektets rotation
+    pos = rotateX(pos, u_rotation.x);
+    pos = rotateY(pos, u_rotation.y);
+    pos = rotateZ(pos, u_rotation.z);
+
     pos += a_instances;
     
-    gl_Position = u_matrix * u_model * vec4(pos, 1.0);
+    
+    gl_Position = u_matrix * vec4(pos, 1.0);
 }
