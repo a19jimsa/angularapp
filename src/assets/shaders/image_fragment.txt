@@ -123,7 +123,7 @@ void main() {
       leaf_color * splat.r +
       sand_color * splat.g +
       snow_color * splat.b +
-      ground_color * splat.a * AO;
+      ground_color * splat.a;
    
    vec3 splatNormal =
       worldNormal * splat.r +

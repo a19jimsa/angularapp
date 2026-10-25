@@ -6,8 +6,16 @@ export class Ecs {
   private components: Map<Entity, Component[]> = new Map();
   constructor() {}
 
+  get Entities() {
+    return this.entities;
+  }
+
+  set Entities(entities: Set<Entity>) {
+    this.entities = entities;
+  }
+
   getEntities(): Entity[] {
-    return Array.from(this.components.keys());
+    return Array.from(this.entities);
   }
 
   getPool<T extends Component[]>(

@@ -6,7 +6,6 @@ export class Terrain extends Component {
   tiling: number = 0.01;
   fogPower: number = 10.0;
   fogColor: vec3 = vec3.fromValues(0, 0, 0);
-  heights: Map<number, number>;
   dirty = false;
   width: number;
   depth: number;
@@ -16,7 +15,6 @@ export class Terrain extends Component {
 
   constructor(width: number, depth: number, height: number, size: number) {
     super();
-    this.heights = new Map();
     this.width = width;
     this.depth = depth;
     this.height = height;
@@ -28,12 +26,15 @@ export class Terrain extends Component {
       tiling: this.tiling,
       fogColor: this.fogColor,
       fogPower: this.fogPower,
-      heights: Array.from(this.heights),
+      dirty: this.dirty,
+      width: this.width,
+      depth: this.depth,
+      height: this.height,
+      size: this.size,
     };
   }
 
   deserialize(terrain: Terrain, component: any) {
-    terrain.heights = new Map(component.heights);
     terrain.tiling = component.tiling;
     terrain.fogPower = component.fogPower;
     return terrain;

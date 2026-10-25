@@ -1,6 +1,7 @@
 import { mat4, vec4 } from 'gl-matrix';
 import {
   Brush,
+  Colors,
   Mouse,
   TerrainBrushes,
 } from 'src/app/map-editor/map-editor.component';
@@ -50,15 +51,11 @@ export class BrushSystem {
     const texture = TextureManager.getTexture('framebuffer');
     const x = Math.floor(mouse.x);
     const y = 1080 - 1 - Math.floor(mouse.y);
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
 
     // Rendera samma mesh med picking-shadern
-    const frame = Renderer.drawToFrameBuffer(
-      x,
-      y,
-      meshRenderer.mesh,
-      texture,
-      modelMatrix,
-    );
+    const frame = Renderer.drawToFrameBuffer(x, y, mesh, texture, modelMatrix);
 
     if (frame === null) {
       const brushImage = ecs.getComponent<BrushImage>(
@@ -379,7 +376,7 @@ export class BrushSystem {
         const imageIndex = (y * image.width + x) * 4;
         const red = image.data[imageIndex];
         const color = red; // 0-255 Om vandla svart till färg. 255 om svart
-        if (splatColor === 'red') {
+        if (splatColor === Colors.Red) {
           const r = coords[splatmapIndex + 0];
           const g = coords[splatmapIndex + 1];
           const b = coords[splatmapIndex + 2];
@@ -403,7 +400,7 @@ export class BrushSystem {
             colorB: nb,
             colorA: na,
           });
-        } else if (splatColor === 'green') {
+        } else if (splatColor === Colors.Green) {
           const r = coords[splatmapIndex + 0];
           const g = coords[splatmapIndex + 1];
           const b = coords[splatmapIndex + 2];
@@ -428,7 +425,7 @@ export class BrushSystem {
             colorB: nb,
             colorA: na,
           });
-        } else if (splatColor === 'blue') {
+        } else if (splatColor === Colors.Blue) {
           const r = coords[splatmapIndex + 0];
           const g = coords[splatmapIndex + 1];
           const b = coords[splatmapIndex + 2];
@@ -453,7 +450,7 @@ export class BrushSystem {
             colorB: nb,
             colorA: na,
           });
-        } else if (splatColor === 'alpha') {
+        } else if (splatColor === Colors.Alpha) {
           const r = coords[splatmapIndex + 0];
           const g = coords[splatmapIndex + 1];
           const b = coords[splatmapIndex + 2];
@@ -506,7 +503,8 @@ export class BrushSystem {
     if (!transform3D || !meshRenderer || !terrain) return;
     //LOVE THIS SOLUTION!
     const commandList: Map<number, number> = new Map();
-    const mesh = meshRenderer.mesh;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
     const vertices = mesh.vertexBuffer.vertices;
     for (let i = 0; i < vertices.length; i += mesh.bufferLayout.amount) {
       const x = vertices[i];
@@ -551,7 +549,8 @@ export class BrushSystem {
 
     const commandList: Map<number, number> = new Map();
 
-    const mesh = meshRenderer.mesh;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
     const vertices = mesh.vertexBuffer.vertices;
 
     for (let i = 0; i < vertices.length; i += mesh.bufferLayout.amount) {
@@ -590,7 +589,8 @@ export class BrushSystem {
     );
     if (!meshRenderer) return;
     const commandList: Map<number, number> = new Map();
-    const mesh = meshRenderer.mesh;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
 
     const vertices = mesh.vertexBuffer.vertices;
     const indices = mesh.indexBuffer.indices;

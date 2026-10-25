@@ -67,25 +67,21 @@ canvas {
 .example-list {
   width: 100%;
   max-width: 100%;
-  border: solid 1px #ccc;
-  min-height: 60px;
+  min-height: 50px;
   display: block;
-  background: white;
+  justify-content: center;
+  align-items: center;
   border-radius: 4px;
 }
+
 .example-box {
-  padding: 20px 10px;
-  border-bottom: solid 1px #ccc;
-  color: rgba(0, 0, 0, 0.87);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   box-sizing: border-box;
   cursor: move;
-  background: white;
-  font-size: 14px;
-  font-family: sans-serif;
+  min-height: 50px;
 }
 .cdk-drag-preview {
   border: none;

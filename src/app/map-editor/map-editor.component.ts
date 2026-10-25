@@ -157,7 +157,7 @@ export type Asset = {
 export type Brush = {
   radius: number;
   strength: number;
-  color: string;
+  color: Colors;
   alpha: number;
   image: HTMLImageElement;
   type: TerrainBrushes;
@@ -176,6 +176,13 @@ export enum Models {
   Spiral = 'Spiral',
   Cone = 'Cone',
   Cylinder = 'Cylinder',
+}
+
+export enum Colors {
+  Red = 'Red',
+  Green = 'Green',
+  Blue = 'Blue',
+  Alpha = 'Alpha',
 }
 
 export const ModelLabels: Record<Models, string> = {
@@ -281,7 +288,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     strength: 1,
     image: new Image(),
     type: TerrainBrushes.Tree,
-    color: 'red',
+    color: Colors.Red,
     alpha: 1,
     entity: -1,
     negative: false,
@@ -295,6 +302,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   models = Object.values(Models);
   blendModes = Object.values(BlendMode);
   modes = Object.values(SubEmitterMode);
+  colors = Object.values(Colors);
 
   constructor(private cdr: ChangeDetectorRef) {
     //this.orthoCamera = new OrtographicCamera(0, 600, 600, 0);
@@ -925,14 +933,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const bush1 = await AssetManager.loadImage('/assets/bushes/bushes2.png');
     const bush2 = await AssetManager.loadImage('/assets/bushes/bushes3.png');
 
-    const treeTextureArray = await TextureManager.addTextureArray(
+    const treeTextureArray = TextureManager.addTextureArray(
       'trees',
       'u_textures',
       [flower1],
       false,
     );
 
-    const flowerTextureArray = await TextureManager.addTextureArray(
+    const flowerTextureArray = TextureManager.addTextureArray(
       'flowers',
       'u_textures',
       [flower1],
@@ -950,14 +958,14 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       '/assets/textures/heal_shade.jpg',
     );
 
-    const healtextures = await TextureManager.addTextureArray(
+    const healtextures = TextureManager.addTextureArray(
       'heal',
       'u_textures',
       [healing],
       true,
     );
 
-    const healtexture = await TextureManager.addTexture(
+    const healtexture = TextureManager.addTexture(
       'healing1',
       healing1.width,
       healing1.height,
@@ -1079,7 +1087,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     material.depthWrite = true;
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
-      new MeshRenderer('terrain', mesh, material, shader),
+      new MeshRenderer('terrain' + newEntity, material, shader),
     );
 
     if (!splatmap) throw new Error('Could not get splatmap');
@@ -1220,7 +1228,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const material = new RenderMaterial('light' + entity);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('light', mesh, material, shader),
+      new MeshRenderer('light', material, shader),
     );
   }
 
@@ -1246,7 +1254,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const shader = ShaderManager.getShader('water');
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('water', mesh, material, shader),
+      new MeshRenderer('water', material, shader),
     );
     material.textures.add('water');
   }
@@ -1447,7 +1455,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'MeshRenderer',
     );
     if (!meshRenderer) return;
-    SceneManager.saveMesh(meshRenderer.mesh);
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
+    SceneManager.saveMesh(mesh);
   }
 
   async loadMesh(event: Event) {
@@ -1463,8 +1473,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'MeshRenderer',
     );
     if (!meshRenderer) return;
-    meshRenderer.mesh.vertexBuffer.vertices = vertices;
-    meshRenderer.mesh.indexBuffer.indices = indices;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
+    mesh.vertexBuffer.vertices = vertices;
+    mesh.indexBuffer.indices = indices;
     meshRenderer.dirty = true;
     console.log('Loaded new mesh');
   }
@@ -1482,13 +1494,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'MeshRenderer',
     );
     if (!meshRenderer) return;
-    meshRenderer.mesh.vertexBuffer.vertices = new Float32Array(
-      vertexArray.vertices,
-    );
-    meshRenderer.mesh.indexBuffer.indices = new Uint16Array(
-      vertexArray.indices,
-    );
-    MeshManager.updateMesh(meshRenderer.mesh);
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
+    mesh.vertexBuffer.vertices = new Float32Array(vertexArray.vertices);
+    mesh.indexBuffer.indices = new Uint16Array(vertexArray.indices);
+    MeshManager.updateMesh(mesh);
     console.log('Loaded new mesh');
   }
 
@@ -1799,6 +1809,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     } else {
       await this.addTexture(event, texture);
     }
+  }
+
+  sortEntity(event: CdkDragDrop<string[]>) {
+    const entities = Array.from(this.ecs.getEntities());
+    moveItemInArray(entities, event.previousIndex, event.currentIndex);
+    this.ecs.Entities = new Set(entities);
+  }
+
+  removeEntity(enity: Entity) {
+    this.ecs.removeEntity(enity);
   }
 
   private async reorderTexture(event: CdkDragDrop<string[]>, texture: Texture) {

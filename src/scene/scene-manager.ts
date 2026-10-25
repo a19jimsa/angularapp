@@ -5,7 +5,6 @@ import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
 import { Transform3D } from 'src/components/transform3D';
 import { Ecs } from 'src/core/ecs';
-import { MeshRenderer } from 'src/components/mesh-renderer';
 import { VertexArray } from 'src/renderer/vertex-array';
 
 type Scene = {
@@ -13,6 +12,7 @@ type Scene = {
 };
 
 export class SceneManager {
+  
   static async loadScene(json: any): Promise<Ecs> {
     const ecs = new Ecs();
     for (const entityData of json.entities) {

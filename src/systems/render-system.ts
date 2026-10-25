@@ -187,8 +187,12 @@ export class RenderSystem {
       );
       if (meshRenderer) {
         if (meshRenderer.dirty) {
-          MeshManager.updateMesh(meshRenderer.mesh);
-          this.updateNormals(meshRenderer.mesh);
+          const mesh = MeshManager.getMesh(meshRenderer.meshId);
+          if (!mesh)
+            throw new Error('Could not get mesh' + meshRenderer.meshId);
+          //Maybe erased bug where no shader was in use! Probably!
+          MeshManager.updateMesh(mesh);
+          this.updateNormals(mesh);
           meshRenderer.dirty = false;
         }
         const material = meshRenderer.material;
@@ -199,20 +203,20 @@ export class RenderSystem {
           texture.updateTexture(splatmap.coords);
         }
 
-        if (pivot && transform3D) {
-          const pivotShader = ShaderManager.getShader('debug');
-          pivotShader.bind();
-          pivotShader.setUniformMat4(
-            'u_matrix',
-            this.camera.getViewProjectionMatrix(),
-          );
-          mat4.translate(modelMatrix, modelMatrix, transform3D.position);
-          pivotShader.setUniformMat4('u_model', modelMatrix);
-          const vao = MeshManager.getMesh('pivot');
-          if (!vao) continue;
-          Renderer.drawLines(vao);
-          pivotShader.unbind();
-        }
+        // if (pivot && transform3D) {
+        //   const pivotShader = ShaderManager.getShader('debug');
+        //   pivotShader.bind();
+        //   pivotShader.setUniformMat4(
+        //     'u_matrix',
+        //     this.camera.getViewProjectionMatrix(),
+        //   );
+        //   mat4.translate(modelMatrix, modelMatrix, transform3D.position);
+        //   pivotShader.setUniformMat4('u_model', modelMatrix);
+        //   const vao = MeshManager.getMesh('pivot');
+        //   if (!vao) continue;
+        //   Renderer.drawLines(vao);
+        //   pivotShader.unbind();
+        // }
         const shader = meshRenderer.shader;
         shader.bind();
         shader.setUniformMat4(
@@ -283,7 +287,9 @@ export class RenderSystem {
           );
           slot++;
         }
-        Renderer.drawIndexed(meshRenderer.mesh);
+        const mesh = MeshManager.getMesh(meshRenderer.meshId);
+        if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
+        Renderer.drawIndexed(mesh);
 
         shader.unbind();
       }
@@ -385,7 +391,6 @@ export class RenderSystem {
       const particleEmitterShader = ShaderManager.getShader(
         particleEmitter.shaderId,
       );
-
       particleEmitterShader.bind();
       if (transform3D) {
         particleEmitterShader.setVec3(

@@ -123,20 +123,17 @@ export class Renderer {
   }
 
   static drawStrip(vertexArray: VertexArray) {
+    const gl = this.gl;
     vertexArray.bind();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
-    this.gl.bufferSubData(
-      this.gl.ARRAY_BUFFER,
-      0,
-      vertexArray.vertexBuffer.vertices,
-    );
-    this.gl.disable(this.gl.CULL_FACE);
-    this.gl.drawArrays(
-      this.gl.TRIANGLE_STRIP,
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexArray.vertexBuffer.buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexArray.vertexBuffer.vertices);
+    gl.disable(gl.CULL_FACE);
+    gl.drawArrays(
+      gl.TRIANGLE_STRIP,
       0,
       vertexArray.vertexBuffer.vertices.length / 3,
     );
-    this.gl.enable(this.gl.CULL_FACE);
+    gl.enable(gl.CULL_FACE);
     vertexArray.unbind();
   }
 

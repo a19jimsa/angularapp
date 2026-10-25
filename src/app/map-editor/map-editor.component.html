@@ -31,11 +31,11 @@
               />
               <button mat-menu-item (click)="meshInput.click()">
                 <mat-icon>folder_open</mat-icon>
-                <span>Open map</span>
+                <span>Open scene</span>
               </button>
               <button mat-menu-item (click)="saveScene()">
                 <mat-icon>save</mat-icon>
-                <span>Save</span>
+                <span>Save Scene</span>
               </button>
               <button mat-menu-item>
                 <mat-icon>notifications_off</mat-icon>
@@ -71,7 +71,7 @@
   <div class="row">
     <div class="col-1">
       <mat-card
-        class="d-flex flex-column justify-content-between p-2"
+        class="d-flex flex-column justify-content-between"
         style="height: 80vh"
       >
         <mat-card-header>
@@ -81,11 +81,22 @@
           </mat-card-title-group>
         </mat-card-header>
         <mat-card-content class="h-100 d-flex flex-column overflow-auto">
-          @for (item of ecs.getEntities(); track $index) {
-            <button matButton (click)="changeActiveEntity(item)">
-              {{ getSceneObjectName(item) }}
-            </button>
-          }
+          <div
+            cdkDropList
+            class="example-list"
+            (cdkDropListDropped)="sortEntity($event)"
+          >
+            @for (entity of ecs.getEntities(); track entity) {
+              <div
+                class="example-box"
+                cdkDrag
+                (dblclick)="removeEntity(entity)"
+                (click)="changeActiveEntity(entity)"
+              >
+                {{ getSceneObjectName(entity) }}
+              </div>
+            }
+          </div>
         </mat-card-content>
         <button matButton="tonal" [matMenuTriggerFor]="scene">
           Add to scene
@@ -101,13 +112,13 @@
         </mat-menu>
       </mat-card>
     </div>
-    <div class="col-8">
+    <div class="col-8 p-0">
       <mat-card class="h-100"><canvas #canvas></canvas></mat-card>
     </div>
     <div class="col-3">
       <mat-card
         style="height: 80vh"
-        class="d-flex flex-column justify-content-between p-2"
+        class="d-flex flex-column justify-content-between"
       >
         <mat-card-header>
           <mat-card-title-group>
@@ -255,6 +266,24 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
+                  <div class="row">
+                    <mat-label>Textures</mat-label>
+                    <div
+                      style="width: 100%; height: 50px; border: 1px solid black"
+                      class="render-list"
+                      cdkDropList
+                      [id]="'render-list-' + $index"
+                      [cdkDropListData]="meshRenderer.material.textures"
+                      [cdkDropListConnectedTo]="['list-one']"
+                    >
+                      @for (
+                        texture of meshRenderer.material.textures;
+                        track $index
+                      ) {
+                        {{ texture }}
+                      }
+                    </div>
+                  </div>
                 </mat-expansion-panel>
               }
               @if (item === terrain) {
@@ -371,7 +400,6 @@
                         />
                       </mat-form-field>
                     </div>
-
                     <div class="row justify-content-center">
                       <div
                         class="col-12 d-flex justify-content-center gap-2 p-2"
@@ -471,26 +499,17 @@
 
                     @if (meshbrush.type === 0) {}
                     @if (meshbrush.type === 1) {
-                      <div class="d-flex flex-row">
-                        <div class="col-6">
-                          <mat-radio-group
-                            aria-labelledby="example-radio-group-label"
-                            class="example-radio-group"
-                            [(ngModel)]="meshbrush.color"
-                          >
-                            <mat-radio-button value="red">Red</mat-radio-button>
-                            <mat-radio-button value="green"
-                              >Green</mat-radio-button
-                            >
-                            <mat-radio-button value="blue"
-                              >Blue</mat-radio-button
-                            >
-                            <mat-radio-button value="alpha"
-                              >Alpha</mat-radio-button
-                            >
-                          </mat-radio-group>
-                          <div>Your color is: {{ meshbrush.color }}</div>
-                        </div>
+                      <div class="row">
+                        <mat-form-field class="col-12">
+                          <mat-label>Splatmap Color</mat-label>
+                          <mat-select [(ngModel)]="meshbrush.color">
+                            @for (color of colors; track color) {
+                              <mat-option [value]="color">{{
+                                color
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
                       </div>
                     }
                     @if (meshbrush.type === 2) {}
@@ -1660,7 +1679,11 @@
           <div
             cdkDropList
             id="list-one"
-            [cdkDropListConnectedTo]="['texture-list-0', 'texture-list-1']"
+            [cdkDropListConnectedTo]="[
+              'texture-list-0',
+              'texture-list-1',
+              'render-list-0',
+            ]"
             class="d-flex align-items-center flex-wrap overflow-auto"
             style="height: 200px"
           >

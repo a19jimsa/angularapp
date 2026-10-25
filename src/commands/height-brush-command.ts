@@ -25,16 +25,11 @@ export class HeightBrushCommand extends Command {
       'MeshRenderer',
     );
     if (!meshRenderer || !terrain) return;
-    const mesh = meshRenderer.mesh;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
     const vertices = mesh.vertexBuffer.vertices;
     for (const height of this.heights) {
       this.heightBefore.set(height[0], height[1]);
-      //Convert to heights index index 0 = 1
-      let value = terrain.heights.get(height[0]);
-      if (!value) {
-        value = 0;
-      }
-      terrain.heights.set(height[0], height[1] + value);
       //Add one otherwise changes x
       vertices[height[0]] += height[1];
     }
@@ -49,13 +44,11 @@ export class HeightBrushCommand extends Command {
     );
     if (!terrain || !meshRenderer) return;
     //Init vertices
-    let vertices = meshRenderer.mesh.vertexBuffer.vertices;
+    const mesh = MeshManager.getMesh(meshRenderer.meshId);
+    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
+    let vertices = mesh.vertexBuffer.vertices;
     for (const height of this.heightBefore) {
-      let value = terrain.heights.get(height[0]);
-      if (!value) {
-        value = 0;
-      }
-      terrain.heights.set(height[0], value - height[1]);
+      this.heightBefore.set(height[0], height[1]);
       //Add one otherwise changes x
       vertices[height[0]] -= height[1];
     }
