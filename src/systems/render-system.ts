@@ -2,7 +2,7 @@ import { Ecs } from '../core/ecs';
 import { Surface } from 'src/components/surface';
 import { PerspectiveCamera } from 'src/renderer/perspective-camera';
 import { Splatmap } from 'src/components/splatmap';
-import { mat4, vec2, vec3 } from 'gl-matrix';
+import { mat4, vec2, vec3, vec4 } from 'gl-matrix';
 import { AnimatedTexture } from 'src/components/animatedTexture';
 import { Transform3D } from 'src/components/transform3D';
 import { Water } from 'src/components/water';
@@ -26,6 +26,7 @@ import { Tree } from 'src/components/tree';
 import { MeshRenderer } from 'src/components/mesh-renderer';
 import { MaterialManager } from 'src/resource-manager/material-manager';
 import { Texture } from 'src/renderer/texture';
+import { ArrayManager } from 'src/resource-manager/array-manager';
 
 export class RenderSystem {
   private camera: PerspectiveCamera;
@@ -200,7 +201,8 @@ export class RenderSystem {
           const texture = TextureManager.getTexture(splatmap.slot);
           if (!texture)
             throw new Error('Could not get texture of ' + splatmap.slot);
-          texture.updateTexture(splatmap.coords);
+          const coords = ArrayManager.getCoords(splatmap.splatmapId);
+          texture.updateTexture(coords);
         }
 
         // if (pivot && transform3D) {
@@ -290,7 +292,6 @@ export class RenderSystem {
         const mesh = MeshManager.getMesh(meshRenderer.meshId);
         if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
         Renderer.drawIndexed(mesh);
-
         shader.unbind();
       }
 
@@ -320,17 +321,17 @@ export class RenderSystem {
         const mesh = MeshManager.getMesh(grass.meshId);
         if (!mesh) {
           console.log('Could not get vertex array' + grass.meshId);
-          break;
+          continue;
         }
+        const positions = ArrayManager.getPositions(grass.grassId);
         Renderer.drawInstancing(
           mesh,
           meshRenderer.material,
-          grass.positions,
+          positions,
           grass.amount,
         );
         shader.unbind();
       }
-
       if (tree && terrain) {
         const shader = ShaderManager.getShader('tree');
         shader.bind();
@@ -340,7 +341,14 @@ export class RenderSystem {
         );
         shader.setUniformMat4('u_model', modelMatrix);
         shader.setFloat('u_fogPower', terrain.fogPower);
-        shader.setVec3('u_fogColor', terrain.fogColor);
+        shader.setVec3(
+          'u_fogColor',
+          vec3.fromValues(
+            terrain.fogColor[0],
+            terrain.fogColor[1],
+            terrain.fogColor[2],
+          ),
+        );
         shader.setVec3('u_cameraPos', cameraPos);
         const texture = TextureManager.getTexture('trees');
         shader.setUniform(

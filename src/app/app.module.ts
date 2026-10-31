@@ -118,7 +118,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'outline' },
     },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(),
   ],
 })
 export class AppModule {}

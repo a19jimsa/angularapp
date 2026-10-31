@@ -31,6 +31,7 @@ export class SplatBrushCommand extends Command {
       this.coords[color.index + 2] = color.colorB;
       this.coords[color.index + 3] = color.colorA;
     }
+    console.log(this.colors.length);
   }
   override undo(): void {
     for (const color of this.colorsBefore) {

@@ -127,7 +127,8 @@ export class TextureManager extends Manager {
 
   static getTexture(name: string) {
     const texture = this.textures.get(name);
-    if (!texture) throw new Error('Could not get texture!');
+    if (!texture)
+      throw new Error('Could not get texture of texture name ' + name);
     return texture;
   }
 }

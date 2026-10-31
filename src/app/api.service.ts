@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -6,13 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  private http = Inject(HttpClient);
+  private URL: string = 'https://localhost:7231/';
 
-  public getPosts(url: string): Observable<any> {
-    return this.http.get(url);
+  public get(url: string): Observable<any> {
+    return this.http.get('https://localhost:7231/weatherforecast/');
   }
 
-  public createPost(url: string, postData: any): Observable<any> {
-    return this.http.post(url, postData);
+  public postImage(url: string, postData: any): Observable<any> {
+    return this.http.post(this.URL + url, postData);
   }
 }

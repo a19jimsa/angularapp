@@ -26,8 +26,8 @@
                 type="file"
                 #meshInput
                 hidden
-                accept=".obj"
-                (change)="loadObj($event)"
+                accept=".json"
+                (change)="loadScene($event)"
               />
               <button mat-menu-item (click)="meshInput.click()">
                 <mat-icon>folder_open</mat-icon>

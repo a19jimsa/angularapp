@@ -21,19 +21,6 @@ export class Terrain extends Component {
     this.size = size;
   }
 
-  serialize() {
-    return {
-      tiling: this.tiling,
-      fogColor: this.fogColor,
-      fogPower: this.fogPower,
-      dirty: this.dirty,
-      width: this.width,
-      depth: this.depth,
-      height: this.height,
-      size: this.size,
-    };
-  }
-
   deserialize(terrain: Terrain, component: any) {
     terrain.tiling = component.tiling;
     terrain.fogPower = component.fogPower;

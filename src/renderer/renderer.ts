@@ -5,13 +5,13 @@ import { BlendMode, Material } from './material';
 import { Texture } from './texture';
 import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { mat4 } from 'gl-matrix';
-import { Transform3D } from 'src/components/transform3D';
-import { Mouse } from 'src/app/map-editor/map-editor.component';
 
 export class Renderer {
   private static gl: WebGL2RenderingContext;
   private static canvas: HTMLCanvasElement;
   private static camera: PerspectiveCamera;
+  private static readonly positionPixel = new Float32Array(4);
+  private static readonly uvPixel = new Float32Array(4);
 
   static create(canvas: HTMLCanvasElement, camera: PerspectiveCamera) {
     const gl = canvas.getContext('webgl2');
@@ -186,8 +186,6 @@ export class Renderer {
     // Bind picking-framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 
-    gl.viewport(0, 0, 1920, 1080);
-
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -203,8 +201,8 @@ export class Renderer {
     // Rita din befintliga mesh
     Renderer.drawIndexed(mesh);
 
-    const positionPixel = new Float32Array(4);
-    const uvPixel = new Float32Array(4);
+    const positionPixel = this.positionPixel;
+    const uvPixel = this.uvPixel;
 
     // Läs position
     gl.readBuffer(gl.COLOR_ATTACHMENT0);
@@ -229,7 +227,6 @@ export class Renderer {
 
     // Återställ framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     shader.unbind();
 

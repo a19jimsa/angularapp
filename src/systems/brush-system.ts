@@ -17,7 +17,6 @@ import {
 import { BrushImage } from 'src/components/brush-image';
 import { Flower } from 'src/components/flower';
 import { Grass } from 'src/components/grass';
-import { Mesh } from 'src/components/mesh';
 import { MeshRenderer } from 'src/components/mesh-renderer';
 import { Splatmap } from 'src/components/splatmap';
 import { Terrain } from 'src/components/terrain';
@@ -25,10 +24,10 @@ import { Transform3D } from 'src/components/transform3D';
 import { Tree } from 'src/components/tree';
 import { Ecs } from 'src/core/ecs';
 import { Renderer } from 'src/renderer/renderer';
+import { ArrayManager } from 'src/resource-manager/array-manager';
 import { CommandManager } from 'src/resource-manager/command-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
-import { MathUtils } from 'src/Utils/MathUtils';
 
 export class BrushSystem {
   update(meshBrush: Brush, ecs: Ecs, mouse: Mouse) {
@@ -93,9 +92,10 @@ export class BrushSystem {
           'Splatmap',
         );
         if (!splatmap) return;
+        const coords = ArrayManager.getCoords(splatmap.splatmapId);
         this.paintImage(
           splatmap.size,
-          splatmap.coords,
+          coords,
           meshBrush,
           frame.uv.x,
           frame.uv.y,
@@ -182,47 +182,47 @@ export class BrushSystem {
     const texZ = Math.floor(uv1 * splatmapSize) - Math.floor(image.height / 2);
   }
 
-  private grassBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
-    const transform3D = ecs.getComponent<Transform3D>(
-      meshBrush.entity,
-      'Transform3D',
-    );
-    const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
-    const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
-    const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
-    if (!transform3D || !mesh || !terrain || !grass) return;
-    const vertexArray = MeshManager.getMesh(mesh.meshId);
-    if (!vertexArray) return;
-    for (
-      let i = 0;
-      i < vertexArray.vertexBuffer.vertices.length;
-      i += vertexArray.bufferLayout.stride / 4
-    ) {
-      const vertices = vertexArray.vertexBuffer.vertices;
-      const x = vertices[i];
-      const y = vertices[i + 1];
-      const z = vertices[i + 2];
+  // private grassBrush(meshBrush: Brush, position: vec4, ecs: Ecs) {
+  //   const transform3D = ecs.getComponent<Transform3D>(
+  //     meshBrush.entity,
+  //     'Transform3D',
+  //   );
+  //   const mesh = ecs.getComponent<Mesh>(meshBrush.entity, 'Mesh');
+  //   const terrain = ecs.getComponent<Terrain>(meshBrush.entity, 'Terrain');
+  //   const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
+  //   if (!transform3D || !mesh || !terrain || !grass) return;
+  //   const vertexArray = MeshManager.getMesh(mesh.meshId);
+  //   if (!vertexArray) return;
+  //   for (
+  //     let i = 0;
+  //     i < vertexArray.vertexBuffer.vertices.length;
+  //     i += vertexArray.bufferLayout.stride / 4
+  //   ) {
+  //     const vertices = vertexArray.vertexBuffer.vertices;
+  //     const x = vertices[i];
+  //     const y = vertices[i + 1];
+  //     const z = vertices[i + 2];
 
-      const u = vertices[i + 3];
-      const v = vertices[i + 4];
+  //     const u = vertices[i + 3];
+  //     const v = vertices[i + 4];
 
-      const px = Math.floor(u * (grass.size - 1));
-      const pz = Math.floor(v * (grass.size - 1));
+  //     const px = Math.floor(u * (grass.size - 1));
+  //     const pz = Math.floor(v * (grass.size - 1));
 
-      const pixelIndex = (pz * grass.size + px) * 4;
+  //     const pixelIndex = (pz * grass.size + px) * 4;
 
-      const green = grass.coords[pixelIndex + 1];
+  //     const green = grass.coords[pixelIndex + 1];
 
-      if (green === 255) {
-        grass.positions[grass.index] = position[0] * Math.random();
-        grass.positions[grass.index + 1] = y;
-        grass.positions[grass.index + 2] = position[2] * Math.random();
+  //     if (green === 255) {
+  //       grass.positions[grass.index] = position[0] * Math.random();
+  //       grass.positions[grass.index + 1] = y;
+  //       grass.positions[grass.index + 2] = position[2] * Math.random();
 
-        grass.index += 3;
-        grass.amount++;
-      }
-    }
-  }
+  //       grass.index += 3;
+  //       grass.amount++;
+  //     }
+  //   }
+  // }
 
   private grassBrushWithImage(
     ecs: Ecs,
@@ -282,9 +282,10 @@ export class BrushSystem {
   ) {
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
     if (!grass) return;
-    grass.positions[grass.amount] = position.x;
-    grass.positions[grass.amount + 1] = position.y;
-    grass.positions[grass.amount + 2] = position.z;
+    const positions = ArrayManager.getPositions(grass.grassId);
+    positions[grass.amount] = position.x;
+    positions[grass.amount + 1] = position.y;
+    positions[grass.amount + 2] = position.z;
     grass.amount += 3;
   }
 
@@ -324,34 +325,8 @@ export class BrushSystem {
       const nx = vertices[i + 5];
       const ny = vertices[i + 6];
       const nz = vertices[i + 7];
-
-      const px = Math.floor(u * (grass.size - 1));
-      const pz = Math.floor(v * (grass.size - 1));
-
-      const pixelIndex = (pz * grass.size + px) * 4;
-
-      const green = grass.coords[pixelIndex + 1];
-
-      if (green === 255) {
-        for (let j = 0; j < 100; j++) {
-          const offset = 0.05;
-
-          const dx = x + MathUtils.random(0, 10);
-          const dz = z + MathUtils.random(0, 10);
-
-          const grassX = dx + nx * offset;
-          const grassY = y + ny * offset;
-          const grassZ = dz + nz * offset;
-
-          grassPositions.push(grassX, grassY, grassZ);
-
-          grass.amount++;
-
-          if (grass.amount >= grass.maxAmount) return;
-        }
-      }
     }
-    grass.positions.set(grassPositions);
+    //grass.positions.set(grassPositions);
   }
 
   private paintImage(

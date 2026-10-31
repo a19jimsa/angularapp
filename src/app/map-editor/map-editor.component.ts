@@ -4,6 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  Inject,
   inject,
   OnDestroy,
   ViewChild,
@@ -24,12 +25,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatRadioModule } from '@angular/material/radio';
 import { Mesh } from 'src/components/mesh';
 import { Surface } from 'src/components/surface';
-import {
-  BlendMode,
-  BlendModeLabels,
-  Material,
-  Material as RenderMaterial,
-} from 'src/renderer/material';
+import { BlendMode, Material as RenderMaterial } from 'src/renderer/material';
 import { RenderSystem } from 'src/systems/render-system';
 import { BrushSystem } from 'src/systems/brush-system';
 import { Splatmap } from 'src/components/splatmap';
@@ -101,6 +97,8 @@ import { Target, Texture } from 'src/renderer/texture';
 import { MaterialManager } from 'src/resource-manager/material-manager';
 import { EditorMoveSystem } from 'src/systems/editor-move-system';
 import { Pivot } from 'src/components/pivot';
+import { ApiService } from '../api.service';
+import { ArrayManager } from 'src/resource-manager/array-manager';
 
 type IsSelected = {
   select: boolean;
@@ -223,6 +221,7 @@ export const ModelLabels: Record<Models, string> = {
 })
 export class MapEditorComponent implements AfterViewInit, OnDestroy {
   readonly dialog = inject(MatDialog);
+  http = inject(HttpClient);
   @ViewChild('canvas', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
   canvas!: HTMLCanvasElement;
@@ -546,16 +545,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     return null;
   }
 
-  get splatmapImage(): string | null {
-    const splatmap = this.splatmap;
-    if (!splatmap) return null;
-    const image = SceneManager.convertCoordsToImage(
-      splatmap.size,
-      splatmap.coords,
-    );
-    return image.src;
-  }
-
   get assets() {
     return AssetManager.getAssets();
   }
@@ -827,6 +816,18 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/stonefloor.png',
     );
 
+    const texture11 = await AssetManager.loadImage(
+      'assets/textures/fire-noise-add.jpg',
+    );
+
+    const texture12 = await AssetManager.loadImage(
+      'assets/textures/fire-noise-sub.jpg',
+    );
+
+    const texture13 = await AssetManager.loadImage(
+      'assets/textures/fire-noise.jpg',
+    );
+
     const mountaintexture = await AssetManager.loadImage(
       'assets/textures/marble_rock_01.jpg',
     );
@@ -1070,12 +1071,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     const splatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap(size, 'splatmap' + newEntity),
+      new Splatmap('splatmap' + newEntity, size, 'splatmap' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
     this.ecs.addComponent<Grass>(
       newEntity,
-      new Grass(size, 'grass' + newEntity),
+      new Grass('grass' + newEntity, 'grass' + newEntity),
+    );
+    const grassPositions = ArrayManager.createPositions(
+      'grass' + newEntity,
+      1000000,
     );
     this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
     this.ecs.addComponent<Flower>(newEntity, new Flower(100));
@@ -1083,6 +1088,20 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
     const shader = ShaderManager.getShader('splatmap');
     const material = new RenderMaterial('terrain' + newEntity);
+    if (!splatmap) throw new Error('Could not get splatmap');
+    const coords = ArrayManager.createCoords(
+      splatmap.splatmapId,
+      splatmap.size,
+    );
+    TextureManager.addTexture(
+      'splatmap' + newEntity,
+      size,
+      size,
+      'u_splatmap',
+      coords,
+      false,
+    );
+
     material.blendMode = BlendMode.Opaque;
     material.depthWrite = true;
     this.ecs.addComponent<MeshRenderer>(
@@ -1090,15 +1109,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new MeshRenderer('terrain' + newEntity, material, shader),
     );
 
-    if (!splatmap) throw new Error('Could not get splatmap');
-    TextureManager.addTexture(
-      'splatmap' + newEntity,
-      size,
-      size,
-      'u_splatmap',
-      splatmap.coords,
-      false,
-    );
     material.textures.add('splatmap' + newEntity);
     material.textures.add('brushes');
     material.textures.add('terrain');
@@ -1449,15 +1459,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     reader.readAsText(file);
   }
 
-  async saveScene() {
-    const meshRenderer = this.ecs.getComponent<MeshRenderer>(
-      this.meshbrush.entity,
-      'MeshRenderer',
-    );
-    if (!meshRenderer) return;
-    const mesh = MeshManager.getMesh(meshRenderer.meshId);
-    if (!mesh) throw new Error('Could not get mesh' + meshRenderer.meshId);
-    SceneManager.saveMesh(mesh);
+  async saveScene() {}
+
+  async loadScene($event: Event) {
+    const scene = SceneManager.loadScene($event);
+    console.log(scene);
   }
 
   async loadMesh(event: Event) {

@@ -1,9 +1,5 @@
-import { Light } from 'src/components/light';
-import { Surface } from 'src/components/surface';
-import { Name } from 'src/components/name';
-import { Splatmap } from 'src/components/splatmap';
-import { Terrain } from 'src/components/terrain';
-import { Transform3D } from 'src/components/transform3D';
+import { ApiService } from 'src/app/api.service';
+import { Component } from 'src/components/component';
 import { Ecs } from 'src/core/ecs';
 import { VertexArray } from 'src/renderer/vertex-array';
 
@@ -12,62 +8,35 @@ type Scene = {
 };
 
 export class SceneManager {
-  
   static async loadScene(json: any): Promise<Ecs> {
     const ecs = new Ecs();
     for (const entityData of json.entities) {
       const entity = ecs.createEntity();
       for (const [type, data] of Object.entries(entityData.components)) {
         console.log(type, data);
-        if (type === 'Splatmap') {
-          const newData = data as Splatmap;
-          const splatmap = new Splatmap(newData.size, newData.slot);
-          await splatmap.deserialize(splatmap, newData);
-          ecs.addComponent<Splatmap>(entity, splatmap);
-        } else if (type === 'Terrain') {
-          const newData = data as Terrain;
-          const terrain = new Terrain(500, 500, 500, 128);
-          terrain.deserialize(terrain, newData);
-          ecs.addComponent<Terrain>(entity, terrain);
-        } else if (type === 'Name') {
-          const newData = data as any;
-          const name = new Name(newData.value);
-          ecs.addComponent<Name>(entity, name);
-        } else if (type === 'Material') {
-          const newData = data as Surface;
-          const surface = new Surface();
-          ecs.addComponent<Surface>(entity, surface);
-        } else if (type === 'Transform3D') {
-          const newData = data as Transform3D;
-          const transform = new Transform3D(0, 0, 0);
-          ecs.addComponent<Transform3D>(entity, transform);
-        } else if (type === 'Light') {
-          const newData = data as Light;
-          const light = new Light();
-          ecs.addComponent<Light>(entity, light);
-        }
       }
     }
     return ecs;
   }
 
-  static saveScene(ecs: Ecs) {
-    const scene: any[] = [];
-
-    for (const entity of ecs.getEntities()) {
-      const entityData: Record<string, any> = {};
-      const components = ecs.getComponents(entity) as any[];
-
-      for (const component of components) {
-        if (typeof component.serialize === 'function') {
-          entityData[component.type] = component.serialize();
-        }
+  static saveComponent(component: Component) {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(component)) {
+      if (value instanceof Uint8ClampedArray) {
+        const pixelCount = value.length / 4;
+        const size = Math.sqrt(pixelCount);
+        const image = this.convertCoordsToImage(size, value);
+        result[key] = image;
+      } else if (
+        value === null ||
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
+        result[key] = value;
       }
-
-      scene.push(entityData);
     }
-
-    return scene;
+    return result;
   }
 
   static convertCoordsToImage(size: number, coords: Uint8ClampedArray) {
@@ -82,13 +51,13 @@ export class SceneManager {
       imgData.data[i + 0] = coords[i + 0];
       imgData.data[i + 1] = coords[i + 1];
       imgData.data[i + 2] = coords[i + 2];
-      imgData.data[i + 3] = 255;
+      imgData.data[i + 3] = coords[i + 3];
     }
     ctx.putImageData(imgData, 0, 0);
     const url = canvas.toDataURL('image/png');
     const img = document.createElement('img');
     img.src = url;
-    return img;
+    return canvas;
   }
 
   static convertImageToCoords(path: string): Promise<Uint8ClampedArray> {
@@ -120,11 +89,13 @@ export class SceneManager {
   }
 
   static saveMesh(vertexArray: VertexArray) {
+    const headers = 8;
     const vertexBuffer = vertexArray.vertexBuffer.vertices;
     const indexBuffer = vertexArray.indexBuffer.indices;
 
     // Calculate total size and create buffer
-    const totalSize = vertexBuffer.byteLength + indexBuffer.byteLength + 8; // 8 bytes for headers (lengths)
+    const totalSize =
+      vertexBuffer.byteLength + indexBuffer.byteLength + headers; // 8 bytes for headers (lengths)
     const buffer = new ArrayBuffer(totalSize);
     const view = new DataView(buffer);
 
@@ -133,10 +104,10 @@ export class SceneManager {
     view.setUint32(4, indexBuffer.byteLength, true);
 
     // Copy data into buffer
-    new Float32Array(buffer, 8, vertexBuffer.length).set(vertexBuffer);
+    new Float32Array(buffer, headers, vertexBuffer.length).set(vertexBuffer);
     new Uint16Array(
       buffer,
-      8 + vertexBuffer.byteLength,
+      headers + vertexBuffer.byteLength,
       indexBuffer.length,
     ).set(indexBuffer);
 
@@ -249,5 +220,22 @@ export class SceneManager {
     console.log(vertices);
     console.log(indices);
     return { vertices, indices };
+  }
+
+  static saveJson(data: unknown, filename: string = 'scene.json') {
+    const json = JSON.stringify(data, null, 2);
+
+    const blob = new Blob([json], {
+      type: 'application/json',
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
   }
 }
