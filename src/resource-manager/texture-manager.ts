@@ -122,7 +122,7 @@ export class TextureManager extends Manager {
   }
 
   static getTextures() {
-    return this.textures;
+    return this.textures.entries();
   }
 
   static getTexture(name: string) {

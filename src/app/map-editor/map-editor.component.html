@@ -273,11 +273,11 @@
                       class="render-list"
                       cdkDropList
                       [id]="'render-list-' + $index"
-                      [cdkDropListData]="meshRenderer.material.textures"
+                      [cdkDropListData]="meshRenderer.textureIds"
                       [cdkDropListConnectedTo]="['list-one']"
                     >
                       @for (
-                        texture of meshRenderer.material.textures;
+                        texture of meshRenderer.textureIds;
                         track $index
                       ) {
                         {{ texture }}

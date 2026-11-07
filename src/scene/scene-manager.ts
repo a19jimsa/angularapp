@@ -7,7 +7,8 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 
 interface SavedScene {
   entities: SavedEntity[];
-  files: any[];
+  files: Map<string, Blob>[];
+  images: Map<string, HTMLImageElement[]>[];
 }
 
 interface SavedEntity {
@@ -27,10 +28,11 @@ export class SceneManager {
     return ecs;
   }
 
-  static saveScene(ecs: Ecs): SavedScene {
+  static async saveScene(ecs: Ecs): Promise<SavedScene> {
     const scene: SavedScene = {
       entities: [],
       files: [],
+      images: [],
     };
     for (const entity of ecs.getEntities()) {
       const components = ecs.getComponents(entity);
@@ -41,13 +43,17 @@ export class SceneManager {
       for (const component of components) {
         const savedComponent = this.saveComponent(component);
         savedEntity.components.push(savedComponent);
-        const files = this.saveFiles(component);
-        if (files.length > 0) {
-          scene.files.push(files);
-        }
+        const files = await this.saveFiles(component);
+        if (files.size === 0) continue;
+        scene.files.push(files);
+
+        scene.images.push();
       }
       scene.entities.push(savedEntity);
     }
+    const textures = this.saveTextures();
+    scene.images.push(textures);
+
     return scene;
   }
 
@@ -66,19 +72,23 @@ export class SceneManager {
     return null;
   }
 
-  static saveImage(value: string) {
-    const images: HTMLImageElement[] = new Array();
-    const texture = TextureManager.getTexture(value);
-    if (!texture) return null;
-    const coords = texture.ImageData;
-    if (coords instanceof Uint8ClampedArray) {
-      const image = this.convertCoordsToImage(texture.Paths[0], coords);
-      images.push(image);
-    } else if (coords instanceof HTMLImageElement) {
-      images.push(coords);
-    } else if (coords instanceof Array) {
-      images.push(...coords);
+  static saveTextures() {
+    const images: Map<string, HTMLImageElement[]> = new Map();
+
+    // Spara vanliga värden
+    const textures = TextureManager.getTextures();
+    for (const [name, texture] of textures) {
+      const coords = texture.ImageData;
+      if (coords instanceof Uint8ClampedArray) {
+        const image = this.convertCoordsToImage(coords);
+        images.set(name, [image]);
+      } else if (coords instanceof HTMLImageElement) {
+        images.set(name, [coords]);
+      } else if (coords instanceof Array) {
+        images.set(name, coords);
+      }
     }
+
     return images;
   }
 
@@ -98,21 +108,40 @@ export class SceneManager {
     return result;
   }
 
-  static saveFiles(component: Component) {
-    const files = Array();
+  static async saveFiles(component: Component) {
+    const files = new Map<string, Blob>();
     for (const [key, value] of Object.entries(component)) {
       // Spara vanliga filer
-      const images = this.saveImage(value);
-      if (images) files.push(images);
       const meshes = this.saveMesh(value);
-      if (meshes) files.push(meshes);
+      if (meshes) files.set(meshes.path, meshes.blob);
       const positions = this.saveBinary(value);
-      if (positions) files.push(positions);
+      if (positions) files.set(positions.path, positions.blob);
     }
+
     return files;
   }
 
-  static convertCoordsToImage(path: string, coords: Uint8ClampedArray) {
+  static async imageToBlob(image: HTMLImageElement): Promise<Blob> {
+    const canvas = document.createElement('canvas');
+
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(image, 0, 0);
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Could not convert image to Blob'));
+        }
+      }, 'image/png');
+    });
+  }
+
+  static convertCoordsToImage(coords: Uint8ClampedArray) {
     const canvas = document.createElement('canvas');
     const size = Math.sqrt(coords.length / 4);
     canvas.width = size;
@@ -128,7 +157,7 @@ export class SceneManager {
       imgData.data[i + 3] = coords[i + 3];
     }
     ctx.putImageData(imgData, 0, 0);
-    const url = canvas.toDataURL(path + 'image/png');
+    const url = canvas.toDataURL('image/png');
     const img = document.createElement('img');
     img.src = url;
     return img;

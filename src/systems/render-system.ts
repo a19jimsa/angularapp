@@ -283,8 +283,8 @@ export class RenderSystem {
         }
 
         let slot = 0;
-        for (const textureid of material.textures) {
-          const texture = TextureManager.getTexture(textureid);
+        for (const textureId of meshRenderer.textureIds) {
+          const texture = TextureManager.getTexture(textureId);
           if (!texture) throw new Error('Could not get texture ' + texture);
           shader.setUniform(
             slot,
@@ -477,10 +477,7 @@ export class RenderSystem {
         particleEmitter.particleProp.displacement.Target,
       );
       slot++;
-      const material = MaterialManager.get(particleEmitter.materialId);
-      if (!material)
-        throw new Error('Could not get material ' + particleEmitter.materialId);
-      for (const textureid of material.textures) {
+      for (const textureid of particleEmitter.textureIds) {
         const texture = TextureManager.getTexture(textureid);
         if (!texture) continue;
         particleEmitterShader.setUniform(
@@ -493,9 +490,10 @@ export class RenderSystem {
       }
       const mesh = MeshManager.getMesh(particleEmitter.meshId);
       if (!mesh) throw Error('Could not get mesh ' + particleEmitter.meshId);
+      const material = MaterialManager.get(particleEmitter.materialId);
+      if (!material)
+        throw new Error('Could not get material ' + particleEmitter.materialId);
       //Do not like this, but for now
-      material.blendMode = particleEmitter.blendMode;
-      material.depthWrite = particleEmitter.depthWrite;
       Renderer.drawInstancing(
         mesh,
         material,

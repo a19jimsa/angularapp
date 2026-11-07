@@ -24,7 +24,6 @@ export class Material {
   id: string;
   depthWrite = true;
   blendMode: BlendMode = BlendMode.Opaque;
-  textures = new Set<string>();
 
   constructor(id: string) {
     this.id = id;

@@ -574,14 +574,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     if (!particleEmitter) return [];
     const textures: Texture[] = Array();
-    const material = MaterialManager.get(particleEmitter.materialId);
-    if (!material) return [];
-    for (const textureid of material.textures) {
+    for (const textureid of particleEmitter.textureIds) {
       const texture = TextureManager.getTexture(textureid);
       if (!texture) throw new Error('Could not get texture ' + texture);
       textures.push(texture);
     }
-    console.log(textures);
     return textures;
   }
 
@@ -1104,14 +1101,16 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     material.blendMode = BlendMode.Opaque;
     material.depthWrite = true;
+
+    const textureIds: string[] = [
+      'splatmapSlot' + newEntity,
+      'brushes',
+      'terrain',
+    ];
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
-      new MeshRenderer('terrain' + newEntity, material, shader),
+      new MeshRenderer('terrain' + newEntity, textureIds, material, shader),
     );
-
-    material.textures.add('splatmapSlot' + newEntity);
-    material.textures.add('brushes');
-    material.textures.add('terrain');
 
     const grassBuffer = new BufferLayout();
     grassBuffer.add(0, ShaderDataType.GetType(ShaderType.Float), 3, false);
@@ -1238,7 +1237,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const material = new RenderMaterial('light' + entity);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('light', material, shader),
+      new MeshRenderer('light', [], material, shader),
     );
   }
 
@@ -1262,11 +1261,11 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Surface>(entity, new Surface());
     const material = new RenderMaterial('water' + entity);
     const shader = ShaderManager.getShader('water');
+
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('water', material, shader),
+      new MeshRenderer('water', ['water'], material, shader),
     );
-    material.textures.add('water');
   }
 
   loop() {
@@ -1460,18 +1459,29 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveScene() {
-    const scene = SceneManager.saveScene(this.ecs);
+    const scene = await SceneManager.saveScene(this.ecs);
+    console.log(scene);
 
     const formData = new FormData();
 
-    console.log(scene);
+    // // Scenens metadata
+    // formData.append(
+    //   'scene',
+    //   new Blob([JSON.stringify(scene.entities)], {
+    //     type: 'application/json',
+    //   }),
+    // );
 
-    //await this.http.post('http://localhost:5127/api/scenes/map1', formData).subscribe();
+    // Alla bilder och binärfiler
+    // for (const [path, blob] of scene.files) {
+    //   formData.append('files', blob, path);
+    // }
+
+    // this.http.post('http://localhost:5127/api/scenes', formData).subscribe();
   }
 
   async loadScene($event: Event) {
     const scene = SceneManager.loadScene($event);
-    console.log(scene);
   }
 
   async loadMesh(event: Event) {
@@ -1492,7 +1502,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     mesh.vertexBuffer.vertices = vertices;
     mesh.indexBuffer.indices = indices;
     meshRenderer.dirty = true;
-    console.log('Loaded new mesh');
   }
 
   async loadObj(event: Event) {
@@ -1513,7 +1522,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     mesh.vertexBuffer.vertices = new Float32Array(vertexArray.vertices);
     mesh.indexBuffer.indices = new Uint16Array(vertexArray.indices);
     MeshManager.updateMesh(mesh);
-    console.log('Loaded new mesh');
   }
 
   async loadParticleMesh(event: Event, particleEmitter: ParticleEmitter) {
@@ -1580,12 +1588,17 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     //Renderer stuff not ECS. ParticleEmitter just holds strings.
+    const textureIds = [
+      'particleTextures' + entity,
+      'particleTexture' + entity,
+    ];
     const particleEmitter = this.ecs.addComponent<ParticleEmitter>(
       entity,
       new ParticleEmitter(
         'wave',
         'particleEmitter' + entity,
         'material' + entity,
+        textureIds,
         instanceBuffer.amount,
       ),
     );
@@ -1604,7 +1617,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     color.bindTexture();
     displacement.bindTexture();
     //Add new render material per particle emitter
-    const renderMaterial = new RenderMaterial('material' + entity);
     const image = AssetManager.getAsset('circle.png');
     if (!image) throw new Error('Could not get Asset');
     TextureManager.addTextureArray(
@@ -1622,9 +1634,8 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       imageData,
       false,
     );
-    renderMaterial.textures.add('particleTextures' + entity);
-    renderMaterial.textures.add('particleTexture' + entity);
-    MaterialManager.add('material' + entity, renderMaterial);
+    const material = new RenderMaterial('material' + entity);
+    MaterialManager.add('material' + entity, material);
   }
 
   changeParticleShader(shaderId: string) {
@@ -1692,7 +1703,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         e.property === property,
     );
     if (track) {
-      console.log(item);
       if (
         property === 'position' ||
         property === 'rotation' ||
@@ -1710,8 +1720,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       this.animationPlayer.tracks.push(
         new Track(componentID, property, this.meshbrush.entity, component),
       );
-      console.log('Added track ');
-      console.log(this.animationPlayer.tracks);
     }
   }
 
@@ -1730,7 +1738,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const amount = zoom / 10;
     const position = (x * amount) / width;
     keyframe.time = position;
-    console.log(keyframe);
   }
 
   setLoopedTime(event: CdkDragEnd) {

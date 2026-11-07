@@ -51,13 +51,12 @@ export class Texture {
   }
 
   public set ImageData(
-    image: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray,
+    image: HTMLImageElement | HTMLImageElement[] | Uint8ClampedArray | null,
   ) {
     this.imageData = image;
   }
 
   public get ImageData() {
-    if (!this.imageData) throw new Error('Could not get imagedata is null');
     return this.imageData;
   }
 

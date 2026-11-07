@@ -72,6 +72,7 @@ export class ParticleEmitter extends Component {
   shaderId: string;
   meshId: string;
   materialId: string;
+  textureIds: string[];
   poolIndex: number = 1;
   amount: number;
   aliveCount: number = 0;
@@ -86,10 +87,10 @@ export class ParticleEmitter extends Component {
   emitting: boolean = true;
   oneShot: boolean = false;
   tiling: vec2 = vec2.create();
-  blendMode: BlendMode;
   depthWrite: boolean = true;
   models: Models;
   mode: SubEmitterMode = SubEmitterMode.Always;
+  blendMode: BlendMode = BlendMode.AlphaBlend;
 
   maxParticles: number;
 
@@ -117,6 +118,7 @@ export class ParticleEmitter extends Component {
     shaderId: string,
     meshId: string,
     materialId: string,
+    textureIds: string[],
     stride: number,
   ) {
     super();
@@ -124,7 +126,6 @@ export class ParticleEmitter extends Component {
     this.stride = stride;
     this.particles = new Float32Array(this.maxParticles * this.stride);
     this.particleProp = new ParticleProp();
-    this.blendMode = BlendMode.AlphaBlend;
     this.models = Models.Quad;
 
     this.emitting = true;
@@ -132,6 +133,7 @@ export class ParticleEmitter extends Component {
     this.shaderId = shaderId;
     this.meshId = meshId;
     this.materialId = materialId;
+    this.textureIds = textureIds;
     this.amount = 1;
 
     this.positionsX = new Float32Array(this.maxParticles);
