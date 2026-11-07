@@ -224,7 +224,7 @@ export class RenderSystem {
         //   Renderer.drawLines(vao);
         //   pivotShader.unbind();
         // }
-        const shader = meshRenderer.shader;
+        const shader = ShaderManager.getShader(meshRenderer.shaderId);
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -369,10 +369,7 @@ export class RenderSystem {
           console.log('Could not get vertex array' + tree.meshId);
           break;
         }
-        const treePositions = ArrayManager.createPositions(
-          'tree' + entity,
-          tree.maxAmount * tree.stride,
-        );
+        const treePositions = ArrayManager.getPositions(tree.positionsId);
         Renderer.drawInstancing(
           mesh,
           meshRenderer.material,

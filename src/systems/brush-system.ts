@@ -107,7 +107,7 @@ export class BrushSystem {
         this.addFlower(ecs, meshBrush, frame.position, 0);
         break;
       case TerrainBrushes.Tree:
-        this.addTree(ecs, meshBrush, frame.position, 0);
+        this.addTree(ecs, meshBrush, frame.position);
         break;
       case TerrainBrushes.Erosion:
         //this.erosionBrush(ecs, vertices, vertex.index, meshBrush);
@@ -295,17 +295,16 @@ export class BrushSystem {
     ecs: Ecs,
     meshBrush: Brush,
     position: { x: number; y: number; z: number },
-    slot: number,
   ) {
     const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     if (!tree) return;
     const treePositions = ArrayManager.getPositions(tree.positionsId);
     treePositions[tree.index] = position.x;
-    treePositions[tree.index + 1] = position.y + 0.5;
+    treePositions[tree.index + 1] = position.y + meshBrush.scale / 2;
     treePositions[tree.index + 2] = position.z;
-    treePositions[tree.index + 3] = slot;
-    treePositions[tree.index + 4] = 1; // scale
-    tree.index += 5;
+    treePositions[tree.index + 3] = meshBrush.scale; // scale
+    treePositions[tree.index + 4] = meshBrush.textureSlot;
+    tree.index += tree.stride;
     tree.amount++;
   }
 

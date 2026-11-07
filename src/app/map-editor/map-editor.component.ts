@@ -163,6 +163,7 @@ export type Brush = {
   fallOff: number;
   imageName: string;
   textureSlot: number;
+  scale: number;
 };
 
 export enum Models {
@@ -293,6 +294,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     fallOff: 0,
     imageName: '',
     textureSlot: 0,
+    scale: 1,
   };
 
   brushImages: HTMLImageElement[] = new Array();
@@ -916,7 +918,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     const treeTextureArray = TextureManager.addTextureArray(
       'trees',
       'u_textures',
-      [tree1, tree6, tree8],
+      [tree1, tree6, tree8, bush1, bush2, flower1],
       false,
     );
 
@@ -1082,7 +1084,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     ArrayManager.createPositions('flowerId' + newEntity, 1000 * 3);
     this.ecs.addComponent<Surface>(newEntity, new Surface());
     const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
-    const shader = ShaderManager.getShader('splatmap');
     const material = new RenderMaterial('terrain' + newEntity);
     if (!splatmap) throw new Error('Could not get splatmap');
     const coords = ArrayManager.createCoords(
@@ -1105,7 +1106,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     ];
     this.ecs.addComponent<MeshRenderer>(
       newEntity,
-      new MeshRenderer('terrain' + newEntity, textureIds, material, shader),
+      new MeshRenderer('terrain' + newEntity, textureIds, material, 'splatmap'),
     );
 
     //Grass
@@ -1224,11 +1225,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Transform3D>(entity, new Transform3D(0, 0, 0));
     this.ecs.addComponent<Light>(entity, new Light());
     MeshManager.addMesh(model, 'light');
-    const shader = ShaderManager.getShader('basic');
     const material = new RenderMaterial('light' + entity);
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('light', [], material, shader),
+      new MeshRenderer('light', [], material, 'basic'),
     );
   }
 
@@ -1247,11 +1247,10 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     this.ecs.addComponent<Water>(entity, new Water());
     this.ecs.addComponent<Surface>(entity, new Surface());
     const material = new RenderMaterial('water' + entity);
-    const shader = ShaderManager.getShader('water');
 
     this.ecs.addComponent<MeshRenderer>(
       entity,
-      new MeshRenderer('water', ['water'], material, shader),
+      new MeshRenderer('water', ['water'], material, 'water'),
     );
   }
 

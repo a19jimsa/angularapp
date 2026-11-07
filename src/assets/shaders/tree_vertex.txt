@@ -17,7 +17,7 @@ out float v_fogDistance;
 out float v_index;
 
 void main() {
-    vec3 pos = a_position + a_instancePosition;
+    vec3 pos = a_position * a_size + a_instancePosition;
 
     vec4 worldPos = u_model * vec4(pos, 1.0);
 

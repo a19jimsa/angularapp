@@ -4,6 +4,7 @@ import { Manager } from 'src/resource-manager/manager';
 
 export class ShaderManager extends Manager {
   private static shaders: Map<string, Shader> = new Map();
+  public static shaderURL: Map<string, string[]> = new Map();
 
   public static async load(
     key: string,
@@ -25,6 +26,10 @@ export class ShaderManager extends Manager {
     if (program) {
       const shader = new Shader(program);
       this.shaders.set(key, shader);
+      this.shaderURL.set(key, [
+        '../assets/shaders/' + vertexUrl,
+        '../assets/shaders/' + fragmentUrl,
+      ]);
       console.log('Added shader ' + key);
       return shader;
     } else {

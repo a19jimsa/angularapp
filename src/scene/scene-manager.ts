@@ -3,12 +3,14 @@ import { Component } from 'src/components/component';
 import { Ecs } from 'src/core/ecs';
 import { ArrayManager } from 'src/resource-manager/array-manager';
 import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { ShaderManager } from 'src/resource-manager/shader-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 
 interface SavedScene {
   entities: SavedEntity[];
   files: Map<string, Blob>[];
   images: Map<string, HTMLImageElement[]>[];
+  shaders: Map<string, string[]>[];
 }
 
 interface SavedEntity {
@@ -33,6 +35,7 @@ export class SceneManager {
       entities: [],
       files: [],
       images: [],
+      shaders: [],
     };
     for (const entity of ecs.getEntities()) {
       const components = ecs.getComponents(entity);
@@ -46,8 +49,8 @@ export class SceneManager {
         const files = await this.saveFiles(component);
         if (files.size === 0) continue;
         scene.files.push(files);
-
-        scene.images.push();
+        const shaderFiles = this.saveShaders(component);
+        scene.shaders.push(shaderFiles);
       }
       scene.entities.push(savedEntity);
     }
@@ -55,6 +58,19 @@ export class SceneManager {
     scene.images.push(textures);
 
     return scene;
+  }
+
+  static saveShaders(component: Component) {
+    const files = new Map<string, string[]>();
+    for (const [key, value] of Object.entries(component)) {
+      // Spara vanliga värden
+      if (typeof value === 'string') {
+        const shader = ShaderManager.shaderURL.get(value);
+        if (!shader) continue;
+        files.set(value, shader);
+      }
+    }
+    return files;
   }
 
   static saveBinary(value: string) {
