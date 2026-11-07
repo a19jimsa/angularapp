@@ -6,13 +6,23 @@ export class Tree extends Component {
   amount: number = 0;
   stride: number = 5;
   //Max grass per buffer * xyz
-  meshId = 'tree';
-  materialId = 'tree';
+  meshId: string;
+  materialId: string;
+  textureId: string;
   positionsId: string;
   index = 0;
-  constructor(meshId: string, positionsId: string) {
+  constructor(
+    maxAmount: number,
+    meshId: string,
+    materialId: string,
+    positionsId: string,
+    textureId: string,
+  ) {
     super();
+    this.maxAmount = maxAmount;
     this.meshId = meshId;
     this.positionsId = positionsId;
+    this.materialId = materialId;
+    this.textureId = textureId;
   }
 }

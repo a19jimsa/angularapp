@@ -1,14 +1,37 @@
 import { Vec } from 'src/app/vec';
 import { BufferLayout } from './buffer';
 import { vec3 } from 'gl-matrix';
-import { VertexArray } from './vertex-array';
+import { ShaderDataType, ShaderType } from './shader-data-type';
 
 export class Model {
   vertices: number[] = new Array();
   indices: number[] = new Array();
   bufferLayout: BufferLayout;
 
-  constructor(vbl: BufferLayout) {
+  constructor() {
+    //Tree
+    this.bufferLayout = new BufferLayout();
+    this.bufferLayout.add(
+      0,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+    );
+    this.bufferLayout.add(
+      1,
+      ShaderDataType.GetType(ShaderType.Float),
+      2,
+      false,
+    );
+    this.bufferLayout.add(
+      2,
+      ShaderDataType.GetType(ShaderType.Float),
+      3,
+      false,
+    );
+  }
+
+  changeBufferLayout(vbl: BufferLayout) {
     this.bufferLayout = vbl;
   }
 
@@ -383,7 +406,7 @@ export class Model {
         const posX = (u - 0.5) * rowWidth;
         this.vertices.push(posX, posY, 0); // position
         this.vertices.push(u, v); // UV
-        this.vertices.push(0, 0, 1); // normal framåt
+        this.vertices.push(0, 0, -1); // normal framåt
         index++;
       }
     }

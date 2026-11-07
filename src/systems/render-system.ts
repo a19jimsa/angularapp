@@ -73,8 +73,9 @@ export class RenderSystem {
       false,
     );
 
-    const model = new Model(bufferLayout);
+    const model = new Model();
     model.addSkybox();
+    model.changeBufferLayout(bufferLayout);
     const vao = new VertexArray(
       new Float32Array(model.vertices),
       new Uint16Array(model.indices),
@@ -355,7 +356,7 @@ export class RenderSystem {
           ),
         );
         shader.setVec3('u_cameraPos', cameraPos);
-        const texture = TextureManager.getTexture('trees');
+        const texture = TextureManager.getTexture(tree.textureId);
         if (!texture) throw new Error('Could not get texture ' + texture);
         shader.setUniform(
           0,
