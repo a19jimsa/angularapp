@@ -6,6 +6,10 @@ export class Ecs {
   private components: Map<Entity, Component[]> = new Map();
   constructor() {}
 
+  get Components() {
+    return this.components;
+  }
+
   get Entities() {
     return this.entities;
   }

@@ -93,11 +93,10 @@ import { AssetManager } from 'src/resource-manager/asset-manager';
 import { TextureManager } from 'src/resource-manager/texture-manager';
 import { Flower } from 'src/components/flower';
 import { MeshRenderer } from 'src/components/mesh-renderer';
-import { Target, Texture } from 'src/renderer/texture';
+import { Texture } from 'src/renderer/texture';
 import { MaterialManager } from 'src/resource-manager/material-manager';
 import { EditorMoveSystem } from 'src/systems/editor-move-system';
 import { Pivot } from 'src/components/pivot';
-import { ApiService } from '../api.service';
 import { ArrayManager } from 'src/resource-manager/array-manager';
 
 type IsSelected = {
@@ -579,6 +578,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     if (!material) return [];
     for (const textureid of material.textures) {
       const texture = TextureManager.getTexture(textureid);
+      if (!texture) throw new Error('Could not get texture ' + texture);
       textures.push(texture);
     }
     console.log(textures);
@@ -770,14 +770,9 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       ],
       false,
     );
-    const sten = await AssetManager.loadImage('assets/textures/sten.png');
-    const sten1 = await AssetManager.loadImage('assets/textures/stn.png');
     const circle = await AssetManager.loadImage('assets/textures/circle.png');
     const circle2 = await AssetManager.loadImage(
       'assets/textures/circle_02.png',
-    );
-    const mountaintexture1 = await AssetManager.loadImage(
-      'assets/textures/mountain.png',
     );
     const mountaintexture2 = await AssetManager.loadImage(
       'assets/textures/mountain_001.png',
@@ -810,10 +805,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
 
     const texture9 = await AssetManager.loadImage(
       'assets/textures/T_Noise_HU85k.png',
-    );
-
-    const texture10 = await AssetManager.loadImage(
-      'assets/textures/stonefloor.png',
     );
 
     const texture11 = await AssetManager.loadImage(
@@ -854,10 +845,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       'assets/textures/mountains.png',
     );
 
-    const stonebricks = await AssetManager.loadImage(
-      'assets/textures/stonebricks.png',
-    );
-
     const sand = await AssetManager.loadImage('assets/textures/sand.jpg');
 
     const mosaik = await AssetManager.loadImage('assets/textures/mosaik.png');
@@ -879,7 +866,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         mosaik,
         texture1,
         mountaintexture4,
-        mountaintexture1,
         mountaintexture2,
         mountaintexture3,
         texture2,
@@ -892,7 +878,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
         pebblesAO,
         sand,
         goldMountain,
-        stonebricks,
       ],
       true,
     );
@@ -1071,19 +1056,34 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     );
     const splatmap = this.ecs.addComponent<Splatmap>(
       newEntity,
-      new Splatmap('splatmap' + newEntity, size, 'splatmap' + newEntity),
+      new Splatmap('splatmapId' + newEntity, size, 'splatmapSlot' + newEntity),
     );
     this.ecs.addComponent<BrushImage>(newEntity, new BrushImage());
+    const grass = 'grass' + newEntity;
+    const grassMount = 10000;
     this.ecs.addComponent<Grass>(
       newEntity,
-      new Grass('grass' + newEntity, 'grass' + newEntity),
+      new Grass(grassMount, grass, 'grassPositions' + newEntity),
     );
     const grassPositions = ArrayManager.createPositions(
-      'grass' + newEntity,
-      1000000,
+      'grassPositions' + newEntity,
+      grassMount * 3,
     );
-    this.ecs.addComponent<Tree>(newEntity, new Tree('tree' + newEntity));
-    this.ecs.addComponent<Flower>(newEntity, new Flower(100));
+
+    const tree = this.ecs.addComponent<Tree>(
+      newEntity,
+      new Tree('tree' + newEntity, 'treePositions' + newEntity),
+    );
+    if (!tree) return;
+    const treePositions = ArrayManager.createPositions(
+      'treePositions' + newEntity,
+      tree.maxAmount * tree.stride,
+    );
+    this.ecs.addComponent<Flower>(
+      newEntity,
+      new Flower('flowerId' + newEntity, 1000, 3),
+    );
+    ArrayManager.createPositions('flowerId' + newEntity, 1000 * 3);
     this.ecs.addComponent<Surface>(newEntity, new Surface());
     const mesh = MeshManager.addMesh(model, 'terrain' + newEntity);
     const shader = ShaderManager.getShader('splatmap');
@@ -1094,7 +1094,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       splatmap.size,
     );
     TextureManager.addTexture(
-      'splatmap' + newEntity,
+      'splatmapSlot' + newEntity,
       size,
       size,
       'u_splatmap',
@@ -1109,7 +1109,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       new MeshRenderer('terrain' + newEntity, material, shader),
     );
 
-    material.textures.add('splatmap' + newEntity);
+    material.textures.add('splatmapSlot' + newEntity);
     material.textures.add('brushes');
     material.textures.add('terrain');
 
@@ -1173,7 +1173,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     flowerBuffer.add(1, ShaderDataType.GetType(ShaderType.Float), 2, false);
     flowerBuffer.add(2, ShaderDataType.GetType(ShaderType.Float), 3, false);
     const flowerModel = new Model(flowerBuffer);
-    treeModel.addQuad(10, 10);
+    flowerModel.addQuad(10, 10);
     MeshManager.addMesh(flowerModel, 'flowers');
     const flowerInstanceBuffer = new BufferLayout();
     flowerInstanceBuffer.add(
@@ -1459,7 +1459,15 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
     reader.readAsText(file);
   }
 
-  async saveScene() {}
+  async saveScene() {
+    const scene = SceneManager.saveScene(this.ecs);
+
+    const formData = new FormData();
+
+    console.log(scene);
+
+    //await this.http.post('http://localhost:5127/api/scenes/map1', formData).subscribe();
+  }
 
   async loadScene($event: Event) {
     const scene = SceneManager.loadScene($event);

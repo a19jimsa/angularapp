@@ -1,11 +1,19 @@
-import { ApiService } from 'src/app/api.service';
+import { Entity } from 'src/app/entity';
 import { Component } from 'src/components/component';
 import { Ecs } from 'src/core/ecs';
-import { VertexArray } from 'src/renderer/vertex-array';
+import { ArrayManager } from 'src/resource-manager/array-manager';
+import { MeshManager } from 'src/resource-manager/mesh-manager';
+import { TextureManager } from 'src/resource-manager/texture-manager';
 
-type Scene = {
-  entities: [];
-};
+interface SavedScene {
+  entities: SavedEntity[];
+  files: any[];
+}
+
+interface SavedEntity {
+  id: Entity;
+  components: any[];
+}
 
 export class SceneManager {
   static async loadScene(json: any): Promise<Ecs> {
@@ -19,15 +27,66 @@ export class SceneManager {
     return ecs;
   }
 
+  static saveScene(ecs: Ecs): SavedScene {
+    const scene: SavedScene = {
+      entities: [],
+      files: [],
+    };
+    for (const entity of ecs.getEntities()) {
+      const components = ecs.getComponents(entity);
+      const savedEntity: SavedEntity = {
+        id: entity,
+        components: [],
+      };
+      for (const component of components) {
+        const savedComponent = this.saveComponent(component);
+        savedEntity.components.push(savedComponent);
+        const files = this.saveFiles(component);
+        if (files.length > 0) {
+          scene.files.push(files);
+        }
+      }
+      scene.entities.push(savedEntity);
+    }
+    return scene;
+  }
+
+  static saveBinary(value: string) {
+    const coords = ArrayManager.get(value);
+    if (coords instanceof Float32Array) {
+      const binary = this.savePositions(value);
+      if (!binary) return null;
+      return binary;
+    }
+    const meshCoords = MeshManager.getMesh(value);
+    if (meshCoords) {
+      const binary = this.saveMesh(value);
+      return binary;
+    }
+    return null;
+  }
+
+  static saveImage(value: string) {
+    const images: HTMLImageElement[] = new Array();
+    const texture = TextureManager.getTexture(value);
+    if (!texture) return null;
+    const coords = texture.ImageData;
+    if (coords instanceof Uint8ClampedArray) {
+      const image = this.convertCoordsToImage(texture.Paths[0], coords);
+      images.push(image);
+    } else if (coords instanceof HTMLImageElement) {
+      images.push(coords);
+    } else if (coords instanceof Array) {
+      images.push(...coords);
+    }
+    return images;
+  }
+
   static saveComponent(component: Component) {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(component)) {
-      if (value instanceof Uint8ClampedArray) {
-        const pixelCount = value.length / 4;
-        const size = Math.sqrt(pixelCount);
-        const image = this.convertCoordsToImage(size, value);
-        result[key] = image;
-      } else if (
+      // Spara vanliga värden
+      if (
         value === null ||
         typeof value === 'string' ||
         typeof value === 'number' ||
@@ -39,8 +98,23 @@ export class SceneManager {
     return result;
   }
 
-  static convertCoordsToImage(size: number, coords: Uint8ClampedArray) {
+  static saveFiles(component: Component) {
+    const files = Array();
+    for (const [key, value] of Object.entries(component)) {
+      // Spara vanliga filer
+      const images = this.saveImage(value);
+      if (images) files.push(images);
+      const meshes = this.saveMesh(value);
+      if (meshes) files.push(meshes);
+      const positions = this.saveBinary(value);
+      if (positions) files.push(positions);
+    }
+    return files;
+  }
+
+  static convertCoordsToImage(path: string, coords: Uint8ClampedArray) {
     const canvas = document.createElement('canvas');
+    const size = Math.sqrt(coords.length / 4);
     canvas.width = size;
     canvas.height = size;
 
@@ -54,10 +128,10 @@ export class SceneManager {
       imgData.data[i + 3] = coords[i + 3];
     }
     ctx.putImageData(imgData, 0, 0);
-    const url = canvas.toDataURL('image/png');
+    const url = canvas.toDataURL(path + 'image/png');
     const img = document.createElement('img');
     img.src = url;
-    return canvas;
+    return img;
   }
 
   static convertImageToCoords(path: string): Promise<Uint8ClampedArray> {
@@ -88,10 +162,12 @@ export class SceneManager {
     });
   }
 
-  static saveMesh(vertexArray: VertexArray) {
+  static saveMesh(meshId: string) {
+    const mesh = MeshManager.getMesh(meshId);
+    if (!mesh) return null;
     const headers = 8;
-    const vertexBuffer = vertexArray.vertexBuffer.vertices;
-    const indexBuffer = vertexArray.indexBuffer.indices;
+    const vertexBuffer = mesh.vertexBuffer.vertices;
+    const indexBuffer = mesh.indexBuffer.indices;
 
     // Calculate total size and create buffer
     const totalSize =
@@ -111,16 +187,38 @@ export class SceneManager {
       indexBuffer.length,
     ).set(indexBuffer);
 
-    // Create Blob and download link
     const blob = new Blob([buffer], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'mesh.bin';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    return { path: meshId, blob: blob };
+
+    // // Create Blob and download link
+    // const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    // const url = URL.createObjectURL(blob);
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'mesh.bin';
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // URL.revokeObjectURL(url);
+  }
+
+  static savePositions(id: string) {
+    const positions = ArrayManager.getPositions(id);
+    if (!positions) return null;
+
+    const buffer = new ArrayBuffer(positions.byteLength);
+
+    new Float32Array(buffer).set(positions);
+
+    const blob = new Blob([buffer], {
+      type: 'application/octet-stream',
+    });
+
+    return {
+      path: id,
+      blob,
+    };
   }
 
   static async loadMesh(file: File): Promise<[Float32Array, Uint16Array]> {
@@ -238,4 +336,6 @@ export class SceneManager {
 
     URL.revokeObjectURL(url);
   }
+
+  private static saveToBinary() {}
 }

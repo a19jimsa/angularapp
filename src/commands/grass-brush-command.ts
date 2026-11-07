@@ -24,7 +24,7 @@ export class GrassBrushCommand extends Command {
   override execute(): void {
     const grass = this.ecs.getComponent<Grass>(this.entity, 'Grass');
     if (!grass) return;
-    const positions = ArrayManager.getPositions(grass.grassId);
+    const positions = ArrayManager.getPositions(grass.grassPositionId);
     for (const position of this.positions) {
       positions[position.index + 0] = position.x;
       positions[position.index + 1] = position.y;
@@ -34,7 +34,7 @@ export class GrassBrushCommand extends Command {
 
   override undo(): void {
     const grass = this.ecs.getComponent<Grass>(this.entity, 'Grass');
-    const positions = ArrayManager.getPositions(grass.grassId);
+    const positions = ArrayManager.getPositions(grass.grassPositionId);
     if (!grass) return;
     for (const position of this.positions) {
       positions[position.index + 0] = 0;

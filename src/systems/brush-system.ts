@@ -48,6 +48,7 @@ export class BrushSystem {
     mat4.rotateZ(modelMatrix, modelMatrix, transform3D.rotation[2]);
     mat4.scale(modelMatrix, modelMatrix, transform3D.scale);
     const texture = TextureManager.getTexture('framebuffer');
+    if (!texture) throw new Error('Could not get texture ' + texture);
     const x = Math.floor(mouse.x);
     const y = 1080 - 1 - Math.floor(mouse.y);
     const mesh = MeshManager.getMesh(meshRenderer.meshId);
@@ -269,9 +270,10 @@ export class BrushSystem {
   ) {
     const flower = ecs.getComponent<Flower>(meshBrush.entity, 'Flower');
     if (!flower) return;
-    flower.positions[flower.amount] = position.x;
-    flower.positions[flower.amount + 1] = position.y;
-    flower.positions[flower.amount + 2] = position.z;
+    const positions = ArrayManager.getPositions(flower.flowerId);
+    positions[flower.amount] = position.x;
+    positions[flower.amount + 1] = position.y;
+    positions[flower.amount + 2] = position.z;
     flower.amount++;
   }
 
@@ -282,7 +284,7 @@ export class BrushSystem {
   ) {
     const grass = ecs.getComponent<Grass>(meshBrush.entity, 'Grass');
     if (!grass) return;
-    const positions = ArrayManager.getPositions(grass.grassId);
+    const positions = ArrayManager.getPositions(grass.grassPositionId);
     positions[grass.amount] = position.x;
     positions[grass.amount + 1] = position.y;
     positions[grass.amount + 2] = position.z;
@@ -297,11 +299,12 @@ export class BrushSystem {
   ) {
     const tree = ecs.getComponent<Tree>(meshBrush.entity, 'Tree');
     if (!tree) return;
-    tree.positions[tree.index] = position.x;
-    tree.positions[tree.index + 1] = position.y + 0.5;
-    tree.positions[tree.index + 2] = position.z;
-    tree.positions[tree.index + 3] = slot;
-    tree.positions[tree.index + 4] = 1; // scale
+    const treePositions = ArrayManager.getPositions(tree.positionsId);
+    treePositions[tree.index] = position.x;
+    treePositions[tree.index + 1] = position.y + 0.5;
+    treePositions[tree.index + 2] = position.z;
+    treePositions[tree.index + 3] = slot;
+    treePositions[tree.index + 4] = 1; // scale
     tree.index += 5;
     tree.amount++;
   }

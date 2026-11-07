@@ -5,6 +5,12 @@ interface ArrayData {
 }
 
 export class ArrayManager {
+  static get(value: string) {
+    return this.arrays.get(value);
+  }
+  static has(value: string) {
+    return this.arrays.has(value);
+  }
   private static arrays: Map<string, Float32Array | Uint8ClampedArray | []> =
     new Map();
 
@@ -18,14 +24,14 @@ export class ArrayManager {
   }
 
   public static createPositions(key: string, amount: number) {
-    const positions = new Float32Array(amount * 3);
+    const positions = new Float32Array(amount);
     this.arrays.set(key, positions);
     return positions;
   }
 
   public static getCoords(key: string): Uint8ClampedArray {
     const array = this.arrays.get(key);
-    if (!array) throw new Error('Could not get array with key ' + key);
+    if (!array) new Error('Could not get array with key ' + key);
     return array as Uint8ClampedArray;
   }
 

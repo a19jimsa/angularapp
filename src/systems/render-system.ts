@@ -136,6 +136,7 @@ export class RenderSystem {
     mat4.multiply(perspectiveMatrix, this.camera.getProjectionMatrix(), matrix);
     skyboxShader.setUniformMat4('u_matrix', perspectiveMatrix);
     const texture = TextureManager.getTexture('skybox');
+    if (!texture) throw new Error('Could not get texture ' + texture);
     skyboxShader.setUniform(
       0,
       texture.UniformName,
@@ -202,7 +203,10 @@ export class RenderSystem {
           if (!texture)
             throw new Error('Could not get texture of ' + splatmap.slot);
           const coords = ArrayManager.getCoords(splatmap.splatmapId);
-          texture.updateTexture(coords);
+          if (splatmap.dirty) {
+            texture.updateTexture(coords);
+            splatmap.dirty = false;
+          }
         }
 
         // if (pivot && transform3D) {
@@ -281,6 +285,7 @@ export class RenderSystem {
         let slot = 0;
         for (const textureid of material.textures) {
           const texture = TextureManager.getTexture(textureid);
+          if (!texture) throw new Error('Could not get texture ' + texture);
           shader.setUniform(
             slot,
             texture.UniformName,
@@ -323,7 +328,7 @@ export class RenderSystem {
           console.log('Could not get vertex array' + grass.meshId);
           continue;
         }
-        const positions = ArrayManager.getPositions(grass.grassId);
+        const positions = ArrayManager.getPositions(grass.grassPositionId);
         Renderer.drawInstancing(
           mesh,
           meshRenderer.material,
@@ -351,6 +356,7 @@ export class RenderSystem {
         );
         shader.setVec3('u_cameraPos', cameraPos);
         const texture = TextureManager.getTexture('trees');
+        if (!texture) throw new Error('Could not get texture ' + texture);
         shader.setUniform(
           0,
           texture.UniformName,
@@ -362,10 +368,14 @@ export class RenderSystem {
           console.log('Could not get vertex array' + tree.meshId);
           break;
         }
+        const treePositions = ArrayManager.createPositions(
+          'tree' + entity,
+          tree.maxAmount * tree.stride,
+        );
         Renderer.drawInstancing(
           mesh,
           meshRenderer.material,
-          tree.positions,
+          treePositions,
           tree.amount,
         );
         shader.unbind();
@@ -472,6 +482,7 @@ export class RenderSystem {
         throw new Error('Could not get material ' + particleEmitter.materialId);
       for (const textureid of material.textures) {
         const texture = TextureManager.getTexture(textureid);
+        if (!texture) continue;
         particleEmitterShader.setUniform(
           slot,
           texture.UniformName,
