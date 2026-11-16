@@ -225,6 +225,8 @@ export class RenderSystem {
         //   pivotShader.unbind();
         // }
         const shader = ShaderManager.getShader(meshRenderer.shaderId);
+        if (!shader)
+          throw new Error('Could not get shader ' + meshRenderer.shaderId);
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -303,6 +305,7 @@ export class RenderSystem {
 
       if (grass) {
         const shader = ShaderManager.getShader('grass');
+        if (!shader) continue;
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -340,6 +343,7 @@ export class RenderSystem {
       }
       if (tree && terrain) {
         const shader = ShaderManager.getShader('tree');
+        if (!shader) continue;
         shader.bind();
         shader.setUniformMat4(
           'u_matrix',
@@ -407,6 +411,8 @@ export class RenderSystem {
       const particleEmitterShader = ShaderManager.getShader(
         particleEmitter.shaderId,
       );
+      if (!particleEmitterShader)
+        throw new Error('Could not get shader ' + particleEmitter.shaderId);
       particleEmitterShader.bind();
       if (transform3D) {
         particleEmitterShader.setVec3(

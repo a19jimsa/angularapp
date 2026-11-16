@@ -191,6 +191,11 @@ export class Renderer {
 
     // Använd picking-shadern
     const shader = ShaderManager.getShader('framebuffer');
+    if (!shader) {
+      // Återställ framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return null;
+    }
     shader.bind();
 
     // Skicka samma kamera- och modellmatriser

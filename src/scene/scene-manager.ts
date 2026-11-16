@@ -9,8 +9,8 @@ import { TextureManager } from 'src/resource-manager/texture-manager';
 interface SavedScene {
   entities: SavedEntity[];
   files: Map<string, Blob>[];
-  images: Map<string, HTMLImageElement[]>[];
-  shaders: Map<string, string[]>[];
+  images: Map<string, HTMLImageElement>;
+  shaders: Map<string, string>[];
 }
 
 interface SavedEntity {
@@ -19,22 +19,11 @@ interface SavedEntity {
 }
 
 export class SceneManager {
-  static async loadScene(json: any): Promise<Ecs> {
-    const ecs = new Ecs();
-    for (const entityData of json.entities) {
-      const entity = ecs.createEntity();
-      for (const [type, data] of Object.entries(entityData.components)) {
-        console.log(type, data);
-      }
-    }
-    return ecs;
-  }
-
   static async saveScene(ecs: Ecs): Promise<SavedScene> {
     const scene: SavedScene = {
       entities: [],
       files: [],
-      images: [],
+      images: new Map<string, HTMLImageElement>(),
       shaders: [],
     };
     for (const entity of ecs.getEntities()) {
@@ -55,19 +44,21 @@ export class SceneManager {
       scene.entities.push(savedEntity);
     }
     const textures = this.saveTextures();
-    scene.images.push(textures);
-
+    scene.images = textures;
     return scene;
   }
 
   static saveShaders(component: Component) {
-    const files = new Map<string, string[]>();
+    const files = new Map<string, string>();
     for (const [key, value] of Object.entries(component)) {
       // Spara vanliga värden
       if (typeof value === 'string') {
-        const shader = ShaderManager.shaderURL.get(value);
+        const shader = ShaderManager.getShader(value);
         if (!shader) continue;
-        files.set(value, shader);
+        console.log(shader);
+        for (let i = 0; i < shader.paths.length; i++) {
+          files.set(shader.paths[i], value);
+        }
       }
     }
     return files;
@@ -89,22 +80,22 @@ export class SceneManager {
   }
 
   static saveTextures() {
-    const images: Map<string, HTMLImageElement[]> = new Map();
-
+    const images: Map<string, HTMLImageElement> = new Map();
     // Spara vanliga värden
     const textures = TextureManager.getTextures();
     for (const [name, texture] of textures) {
       const coords = texture.ImageData;
       if (coords instanceof Uint8ClampedArray) {
         const image = this.convertCoordsToImage(coords);
-        images.set(name, [image]);
+        images.set(texture.Paths[0], image);
       } else if (coords instanceof HTMLImageElement) {
-        images.set(name, [coords]);
+        images.set(texture.Paths[0], coords);
       } else if (coords instanceof Array) {
-        images.set(name, coords);
+        for (let i = 0; i < texture.Paths.length; i++) {
+          images.set(texture.Paths[i], coords[i]);
+        }
       }
     }
-
     return images;
   }
 

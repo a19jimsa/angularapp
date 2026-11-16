@@ -4,8 +4,10 @@ export class Shader {
   //Can not be null then no shader are loaded into program and exection fails.
   //Shader must have program and a layout for buffers.
   program: WebGLProgram;
-  constructor(program: WebGLProgram) {
+  paths: string[];
+  constructor(program: WebGLProgram, paths: string[]) {
     this.program = program;
+    this.paths = paths;
   }
 
   //Use program
@@ -19,7 +21,7 @@ export class Shader {
 
   getUniformLocation(name: string) {
     if (!this.program) throw new Error('Program is not defined!');
-    return Renderer.getGL.getUniformLocation(this.program!, name);
+    return Renderer.getGL.getUniformLocation(this.program, name);
   }
 
   setUniformMat4(name: string, matrix: mat4) {

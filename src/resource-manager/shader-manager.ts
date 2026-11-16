@@ -4,7 +4,6 @@ import { Manager } from 'src/resource-manager/manager';
 
 export class ShaderManager extends Manager {
   private static shaders: Map<string, Shader> = new Map();
-  public static shaderURL: Map<string, string[]> = new Map();
 
   public static async load(
     key: string,
@@ -24,12 +23,11 @@ export class ShaderManager extends Manager {
       throw new Error('Cannot create shader from url');
     const program = this.createProgram(vertexShader, fragmentShader);
     if (program) {
-      const shader = new Shader(program);
-      this.shaders.set(key, shader);
-      this.shaderURL.set(key, [
+      const shader = new Shader(program, [
         '../assets/shaders/' + vertexUrl,
         '../assets/shaders/' + fragmentUrl,
       ]);
+      this.shaders.set(key, shader);
       console.log('Added shader ' + key);
       return shader;
     } else {
@@ -80,10 +78,8 @@ export class ShaderManager extends Manager {
     return program;
   }
 
-  public static getShader(key: string): Shader {
-    const shader = this.shaders.get(key);
-    if (!shader) throw new Error('Cannot find shader ' + key);
-    return shader;
+  public static getShader(key: string): Shader | undefined {
+    return this.shaders.get(key);
   }
 
   public static restore() {

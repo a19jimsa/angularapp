@@ -1126,7 +1126,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       false,
       true,
     );
-    MeshManager.addInstanceMesh('grass' + newEntity, instanceBuffer, 1000000);
+    MeshManager.addInstanceMesh('grass' + newEntity, instanceBuffer, 10000);
 
     //Tree
     const treeModel = new Model();
@@ -1309,7 +1309,6 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
       (Math.floor(this.mouse.lastX) !== Math.floor(this.mouse.x) ||
         Math.floor(this.mouse.lastY) !== Math.floor(this.mouse.y))
     ) {
-      console.log('Dragging is true');
       this.mouse.dragging = true;
       this.mouse.deltaX = this.mouse.lastX - this.mouse.x;
       this.mouse.deltaY = this.mouse.lastY - this.mouse.y;
@@ -1467,7 +1466,7 @@ export class MapEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadScene($event: Event) {
-    const scene = SceneManager.loadScene($event);
+    //const scene = SceneManager.loadScene($event);
   }
 
   async loadMesh(event: Event) {
